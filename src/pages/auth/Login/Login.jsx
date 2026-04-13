@@ -43,53 +43,42 @@ const Login = () => {
 
   const handleForgotPassword = async (e) => { 
     e.preventDefault();
-    // Lógica genérica de recuperación
-    toast.info("Enlace enviado si el DNI existe.");
+    toast.info("Enlace de recuperación enviado.");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-slate-900">
       
-      {/* Capa de fondo con imagen y desenfoque (MODIFICADO) */}
+      {/* Capa de fondo moderna: Oscura con destellos rojos */}
       <div className="absolute inset-0 z-0">
-        {/* Imagen de fondo del restaurante. Reemplaza con tu imagen real. */}
         <img 
-          src= {background}// Imagen de activos (ruta ficticia para el usuario)
-          alt="Fondo de restaurante de lujo en blanco y negro"
-          className="w-full h-full object-cover"
+          src={background}
+          alt="Fondo corporativo Talara"
+          className="w-full h-full object-cover opacity-70"
         />
-        {/* Superposición para desenfoque y oscurecimiento. Ajusta la opacidad/desenfoque aquí. */}
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-md"></div> {/* backdrop-blur-md aplica desenfoque a lo que está detrás */}
+        {/* Gradiente radial para un efecto de luz central */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-red-900/40 via-slate-900/90 to-black"></div>
       </div>
 
-      {/* Patrón de fondo sutil original (se mantiene sobre el fondo desenfocado) */}
-      <div className="absolute inset-0 opacity-[0.03] z-5" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '30px 30px' }}></div>
-
-      {/* Contenedor Principal (MODIFICADO: añadido z-10 y relative) */}
-      <div className="w-full max-w-lg bg-white rounded-none shadow-2xl p-8 sm:p-12 border-2 border-black relative z-10">
+      {/* Contenedor Principal: Tarjeta moderna con bordes muy redondeados y sombra flotante */}
+      <div className="w-full max-w-[420px] bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(220,_38,_38,_0.15)] p-8 sm:p-10 relative z-10 border border-white/20">
         
-        {/* Header - Identidad Formal Cholo */}
-        <div className="flex flex-col items-center mb-8 border-b-2 border-black pb-6">
-          <h2 className="text-sm font-bold text-black tracking-[0.2em] uppercase mb-4">
-             SAAS Restaurante 
-          </h2>
-          
-          {/* Isotipo: Reemplazado por imagen de activos (MODIFICADO) */}
-          <div className="h-24 w-24 bg-black flex items-center justify-center mb-4 relative overflow-hidden">
-             {/* Bordes geométricos tipo andino */}
-             <div className="absolute inset-1 border border-white border-dashed opacity-50"></div>
-             <div className="absolute inset-2 border border-white"></div>
-             
-             {/* Imagen de isotipo de activos. Reemplaza con tu logotipo real. */}
+        {/* Header - Identidad FinTech */}
+        <div className="flex flex-col items-center mb-10">
+          {/* Logo flotante */}
+          <div className="h-20 w-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mb-5 relative overflow-hidden border border-gray-100 p-2 transform rotate-3 hover:rotate-0 transition-transform duration-300">
              <img 
-               src={logo} // Imagen de activos (ruta ficticia para el usuario)
-               alt="Logotipo de restaurante llama andino formal"
-               className="h-16 w-16 relative z-10 object-contain"
+               src={logo} 
+               alt="Logo Talara Créditos"
+               className="h-full w-full object-contain"
              />
           </div>
 
-          <h1 className="text-xs font-semibold text-gray-600 tracking-widest uppercase">
-            Gestión Centralizada
+          <h2 className="text-[10px] font-black text-yellow-500 tracking-[0.3em] uppercase mb-1">
+             Préstamos e Inversiones
+          </h2>
+          <h1 className="text-2xl font-extrabold text-slate-800 text-center tracking-tight">
+            Talara <span className="text-red-600">Créditos</span>
           </h1>
         </div>
 
@@ -120,10 +109,9 @@ const Login = () => {
         </div>
         
         {/* Footer */}
-        <div className="mt-10 text-center border-t border-gray-200 pt-4">
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider">
-                © {new Date().getFullYear()} Restaurante. Todos los derechos reservados.
-                {/* Puedes añadir la textura aquí si lo prefieres, o mantenerla en el fondo global */}
+        <div className="mt-10 text-center">
+            <p className="text-[10px] text-slate-400 font-medium tracking-wider">
+                © {new Date().getFullYear()} TALARA CRÉDITOS. VERSIÓN 2.0
             </p>
         </div>
       </div>

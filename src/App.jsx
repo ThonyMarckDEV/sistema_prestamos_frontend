@@ -24,15 +24,15 @@ import AgregarCliente from 'pages/cliente/Store';
 import EditarCliente from 'pages/cliente/Update';
 import ListarClientes from 'pages/cliente/Index';
 
-// UI DIVISAS
-import AgregarDivisa from 'pages/divisa/Store';
-import EditarDivisa from 'pages/divisa/Update';
-import ListarDivisas from 'pages/divisa/Index';
+// // UI DIVISAS
+// import AgregarDivisa from 'pages/divisa/Store';
+// import EditarDivisa from 'pages/divisa/Update';
+// import ListarDivisas from 'pages/divisa/Index';
 
-// UI ENTIDADES BANCARIAS
-import AgregarEntidadBancaria from 'pages/entidadBancaria/Store';
-import EditarEntidadBancaria from 'pages/entidadBancaria/Update';
-import ListarEntidadBancarias from 'pages/entidadBancaria/Index';
+// // UI ENTIDADES BANCARIAS
+// import AgregarEntidadBancaria from 'pages/entidadBancaria/Store';
+// import EditarEntidadBancaria from 'pages/entidadBancaria/Update';
+// import ListarEntidadBancarias from 'pages/entidadBancaria/Index';
 
 
 
@@ -68,16 +68,16 @@ function AppContent() {
         <Route path="/empleado/listar" element={<ProtectedRoute requiredPermission="empleado.index" element={<ListarEmpleados />} />} />
 
         {/* DIVISAS */}
-        <Route path="/divisa/agregar" element={<ProtectedRoute requiredPermission="divisa.store" element={<AgregarDivisa />} />} />
+        {/* <Route path="/divisa/agregar" element={<ProtectedRoute requiredPermission="divisa.store" element={<AgregarDivisa />} />} />
         <Route path="/divisa/editar/:id" element={<ProtectedRoute requiredPermission="divisa.update" element={<EditarDivisa />} />} />
-        <Route path="/divisa/listar" element={<ProtectedRoute requiredPermission="divisa.index" element={<ListarDivisas />} />} />
+        <Route path="/divisa/listar" element={<ProtectedRoute requiredPermission="divisa.index" element={<ListarDivisas />} />} /> */}
 
         {/* ENTIDADES BANCARIAS */}
-        <Route path="/entidadBancaria/agregar" element={<ProtectedRoute requiredPermission="entidadBancaria.store" element={<AgregarEntidadBancaria />} />} />
+        {/* <Route path="/entidadBancaria/agregar" element={<ProtectedRoute requiredPermission="entidadBancaria.store" element={<AgregarEntidadBancaria />} />} />
         <Route path="/entidadBancaria/editar/:id" element={<ProtectedRoute requiredPermission="entidadBancaria.update" element={<EditarEntidadBancaria />} />} />
         <Route path="/entidadBancaria/listar" element={<ProtectedRoute requiredPermission="entidadBancaria.index" element={<ListarEntidadBancarias />} />} />
 
-       
+        */}
 
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />

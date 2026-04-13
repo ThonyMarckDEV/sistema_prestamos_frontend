@@ -29,27 +29,26 @@ export const useUpdate = () => {
                 const data = response.data || response;
                 setFormData({
                     datos_cliente: {
-                        tipo:             data.tipo             || 1,
-                        nombre:           data.nombre           || '',
-                        apellidoPaterno:  data.apellidoPaterno  || '',
-                        apellidoMaterno:  data.apellidoMaterno  || '',
-                        dni:              data.dni              || '',
-                        fechaNacimiento:  data.fechaNacimiento  || '',
-                        sexo:             data.sexo             || '',
-                        direccion:        data.direccion        || '',
-                        ruc:              data.ruc              || '',
-                        razon_social:     data.razon_social     || '',
-                        nombre_comercial: data.nombre_comercial || '',
+                        tipo: data.tipo || 1, nombre: data.nombre || '', apellidoPaterno: data.apellidoPaterno || '',
+                        apellidoMaterno: data.apellidoMaterno || '', dni: data.dni || '', fechaNacimiento: data.fechaNacimiento || '',
+                        sexo: data.sexo || '', ruc: data.ruc || '', razon_social: data.razon_social || '', nombre_comercial: data.nombre_comercial || '',
                     },
-                    contactos: {
-                        telefono: data.contacto?.telefono || '',
-                        correo:   data.contacto?.correo   || ''
+                    contacto: {
+                        telefonoMovil: data.contacto?.telefonoMovil || '', telefonoFijo: data.contacto?.telefonoFijo || '', correo: data.contacto?.correo || ''
                     },
-                    usuario: {
-                        username:              data.usuario?.username || '',
-                        password:              '',
-                        password_confirmation: ''
-                    }
+                    direccion: {
+                        direccionFiscal: data.direccion?.direccionFiscal || '', departamento: data.direccion?.departamento || '',
+                        provincia: data.direccion?.provincia || '', distrito: data.direccion?.distrito || '',
+                        tipoVivienda: data.direccion?.tipoVivienda || '', tiempoResidencia: data.direccion?.tiempoResidencia || ''
+                    },
+                    cuenta_bancaria: {
+                        ctaAhorros: data.cuenta_bancaria?.ctaAhorros || '', cci: data.cuenta_bancaria?.cci || '', entidadFinanciera: data.cuenta_bancaria?.entidadFinanciera || ''
+                    },
+                    empleo: {
+                        centroLaboral: data.empleo?.centroLaboral || '', ingresoMensual: data.empleo?.ingresoMensual || '',
+                        inicioLaboral: data.empleo?.inicioLaboral || '', situacionLaboral: data.empleo?.situacionLaboral || ''
+                    },
+                    usuario: { username: data.usuario?.username || '', password: '', password_confirmation: '' }
                 });
             } catch (err) {
                 setAlert(handleApiError(err, 'No se pudo cargar la información del cliente.'));

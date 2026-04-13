@@ -7,14 +7,10 @@ import {
     ArrowRightOnRectangleIcon,
     HomeIcon,
     CubeIcon,
-    HomeModernIcon,
-    ArrowsRightLeftIcon,
-    FireIcon,
-    ClipboardDocumentListIcon,
     BanknotesIcon,
 } from '@heroicons/react/24/outline'; 
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
-import {ArrowUpRightIcon, BeakerIcon, BookOpenIcon, CrossIcon, MapIcon, PackageIcon, ScaleIcon, Settings, ShoppingBagIcon, TagIcon, User2Icon, UserSquare2Icon } from 'lucide-react';
+import {ArrowUpRightIcon, Settings, User2Icon, UserSquare2Icon } from 'lucide-react';
 import { useAuth } from 'context/AuthContext';
 
 // Importamos el logo
@@ -47,93 +43,7 @@ const MENU_GROUPS = [
         ]
     },
     {
-        groupName: 'Carta & Restaurante',
-        items: [
-            { 
-                section: 'Categorías Platos', icon: TagIcon, 
-                subs: [
-                    { name: 'Listar', link: '/categoria-plato/listar', requiredPermission: 'categoriaPlato.index' },
-                    { name: 'Agregar', link: '/categoria-plato/agregar', requiredPermission: 'categoriaPlato.store' },
-                ],
-            },
-            { 
-                section: 'Platos', icon: FireIcon, 
-                subs: [
-                    { name: 'Listar', link: '/plato/listar', requiredPermission: 'plato.index' },
-                    { name: 'Agregar', link: '/plato/agregar', requiredPermission: 'plato.store' },
-                ],
-            },
-            { 
-                section: 'Adicionales', icon: CrossIcon, 
-                subs: [
-                    { name: 'Listar', link: '/adicional/listar', requiredPermission: 'adicional.index' },
-                    { name: 'Agregar', link: '/adicional/agregar', requiredPermission: 'adicional.store' },
-                ],
-            },
-            { 
-                section: 'Menú Armado', icon: BookOpenIcon, 
-                subs: [
-                    { name: 'Tipos de Menú', link: '/menu/listar', requiredPermission: 'menu.index' },
-                    { name: 'Nuevo Tipo', link: '/menu/agregar', requiredPermission: 'menu.store' },
-                    { name: 'Opciones del Día', link: '/menu-opcion/listar', requiredPermission: 'menuOpcion.index' },
-                    { name: 'Armar Menú', link: '/menu-opcion/agregar', requiredPermission: 'menuOpcion.store' },
-                ],
-            },
-            { 
-                section: 'Mesas / Salón', icon: MapIcon, 
-                subs: [
-                    { name: 'Listar Mesas', link: '/mesa/listar', requiredPermission: 'mesa.index' },
-                    { name: 'Agregar Mesa', link: '/mesa/agregar', requiredPermission: 'mesa.store' },
-                ],
-            },
-        ]
-    },
-    {
-        groupName: 'Inventario & Logística',
-        items: [
-            { 
-                section: 'Almacenes', icon: HomeModernIcon,
-                subs: [
-                    { name: 'Listar', link: '/almacen/listar', requiredPermission: 'almacen.index' },
-                    { name: 'Agregar', link: '/almacen/agregar', requiredPermission: 'almacen.store' },
-                    { name: 'Stock', link: '/almacen/stock', requiredPermission: 'almacenStock.index' },
-                ],
-            },
-            { 
-                section: 'Insumos', icon: BeakerIcon,
-                subs: [
-                    { name: 'Listar', link: '/insumo/listar', requiredPermission: 'insumo.index' },
-                    { name: 'Agregar', link: '/insumo/agregar', requiredPermission: 'insumo.store' },
-                ],
-            },
-            { 
-                section: 'Compras', icon: ShoppingBagIcon,
-                subs: [
-                    { name: 'Historial', link: '/compra/listar', requiredPermission: 'compra.index' },
-                    { name: 'Nueva Compra', link: '/compra/agregar', requiredPermission: 'compra.store' },
-                ],
-            },
-            { 
-                section: 'Traspasos', icon: ArrowsRightLeftIcon,
-                subs: [
-                    { name: 'Historial Mov.', link: '/traspaso/listar', requiredPermission: 'traspaso.index' },
-                    { name: 'Nuevo Traspaso', link: '/traspaso/crear', requiredPermission: 'traspaso.store' },
-                ],
-            },
-            { 
-                section: 'Salidas / Consumo', icon: ArrowUpRightIcon, 
-                subs: [
-                    { name: 'Historial Salidas', link: '/salida/listar', requiredPermission: 'salida.index' },
-                    { name: 'Registrar Salida', link: '/salida/crear', requiredPermission: 'salida.store' },
-                ],
-            },
-            { 
-                section: 'Kardex', icon: BookOpenIcon, link: '/kardex/listar', requiredPermission: 'kardex.index'
-            },
-        ]
-    },
-    {
-        groupName: 'Operaciones & POS',
+        groupName: 'Operaciones',
         items: [
             { 
                 section: 'Cajas', icon: PiCashRegister,
@@ -142,22 +52,7 @@ const MENU_GROUPS = [
                     { name: 'Agregar', link: '/caja/agregar', requiredPermission: 'caja.store' },
                     { name: 'Sesiones', link: '/caja/sesiones/listar', requiredPermission: 'cajaSesion.index' },
                 ],
-            },
-            { 
-                section: 'Órdenes (Salón)', icon: ClipboardDocumentListIcon, 
-                subs: [
-                    { name: 'Mapa de Mesas', link: '/orden/mesas', requiredPermission: 'mesa.mapa' },
-                    { name: 'Comandas', link: '/orden/salon/listar', requiredPermission: 'ordenSalon.index' },
-                ],
-            },
-            { 
-                // 🔥 Sacamos Llevar de Venta y le damos su propio espacio en Operaciones
-                section: 'Órdenes (Llevar)', icon: ShoppingBagIcon, 
-                subs: [
-                    { name: 'Crear Pedido', link: '/orden/llevar/crear', requiredPermission: 'ordenLlevar.store' },
-                    { name: 'Historial Llevar', link: '/orden/llevar/listar', requiredPermission: 'ordenLlevar.index' },
-                ],
-            },
+            }
         ] 
     },
     {
@@ -165,10 +60,10 @@ const MENU_GROUPS = [
         items: [
             { 
                 // 🔥 La Venta ahora solo tiene lo que le corresponde: Cobrar y ver el historial
-                section: 'Ventas y Cobros', icon: BanknotesIcon, 
+                section: 'Cobros', icon: BanknotesIcon, 
                 subs: [
                     { name: 'Cobrar Orden', link: '/venta/crear', requiredPermission: 'venta.store' },
-                    { name: 'Historial de Ventas', link: '/venta/listar', requiredPermission: 'venta.index' },
+                    { name: 'Historial de Cobros', link: '/venta/listar', requiredPermission: 'venta.index' },
                 ],
             },
         ]
@@ -188,20 +83,6 @@ const MENU_GROUPS = [
                 subs: [
                     { name: 'Listar', link: '/empleado/listar', requiredPermission: 'empleado.index' },
                     { name: 'Agregar', link: '/empleado/agregar', requiredPermission: 'empleado.store' },
-                ],
-            },
-            { 
-                section: 'Unidades de Medida', icon: ScaleIcon,
-                subs: [
-                    { name: 'Listar', link: '/unidad-medida/listar', requiredPermission: 'unidadMedida.index' },
-                    { name: 'Agregar', link: '/unidad-medida/agregar', requiredPermission: 'unidadMedida.store' },
-                ],
-            },
-            { 
-                section: 'Proveedores', icon: PackageIcon, 
-                subs: [
-                    { name: 'Listar', link: '/proveedor/listar', requiredPermission: 'proveedor.index' },
-                    { name: 'Agregar', link: '/proveedor/agregar', requiredPermission: 'proveedor.store' },
                 ],
             },
         ]
@@ -337,7 +218,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                     {/* Texto (SIEMPRE visible en móvil. En PC SOLO visible cuando está expandido) */}
                     <div className={`font-bold text-lg tracking-tight overflow-hidden transition-all duration-300 whitespace-nowrap 
                         ${isCollapsed ? 'md:w-0 md:opacity-0' : 'w-auto opacity-100'}`}>
-                        SAAS - <span className="text-gray-400">RESTAURANT</span>
+                        SISTEMA - <span className="text-gray-400">PRESTAMOS</span>
                     </div>
                 </div>
 
