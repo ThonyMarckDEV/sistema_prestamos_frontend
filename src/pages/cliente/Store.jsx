@@ -1,11 +1,11 @@
 import React from 'react';
-import { useStore } from 'hooks/cliente/useStore';
-import DatosPersonalesForm from 'components/Shared/Formularios/cliente/DatosPersonalesForm';
-import ContactoForm from 'components/Shared/Formularios/cliente/ContactoForm';
-import DireccionForm from 'components/Shared/Formularios/cliente/DireccionForm';
-import CuentaBancariaForm from 'components/Shared/Formularios/cliente/CuentaBancariaForm';
-import EmpleoForm from 'components/Shared/Formularios/cliente/EmpleoForm';
-import UsuarioForm from 'components/Shared/Formularios/cliente/UsuarioForm';
+import { useStore } from 'hooks/Cliente/useStore';
+import DatosPersonalesForm from 'components/Shared/Formularios/Cliente/DatosPersonalesForm';
+import ContactoForm from 'components/Shared/Formularios/Cliente/ContactoForm';
+import DireccionForm from 'components/Shared/Formularios/Cliente/DireccionForm';
+import CuentaBancariaForm from 'components/Shared/Formularios/Cliente/CuentaBancariaForm';
+import EmpleoForm from 'components/Shared/Formularios/Cliente/EmpleoForm';
+import UsuarioForm from 'components/Shared/Formularios/Cliente/UsuarioForm';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { UserPlusIcon } from '@heroicons/react/24/outline';

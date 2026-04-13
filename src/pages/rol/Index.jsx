@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useIndex } from 'hooks/rol/useIndex';
+import { useIndex } from 'hooks/Rol/useIndex';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';

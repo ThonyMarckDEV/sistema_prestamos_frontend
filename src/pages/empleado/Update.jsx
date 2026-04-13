@@ -1,8 +1,8 @@
 import React from 'react';
-import { useUpdate } from 'hooks/empleado/useUpdate';
+import { useUpdate } from 'hooks/Empleado/useUpdate';
 
-import DatosPersonalesForm from 'components/Shared/Formularios/empleado/DatosPersonalesForm';
-import UsuarioForm from 'components/Shared/Formularios/empleado/UsuarioForm';
+import DatosPersonalesForm from 'components/Shared/Formularios/Empleado/DatosPersonalesForm';
+import UsuarioForm from 'components/Shared/Formularios/Empleado/UsuarioForm';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';

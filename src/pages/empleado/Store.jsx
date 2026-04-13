@@ -1,8 +1,8 @@
 import React from 'react';
-import { useStore } from 'hooks/empleado/useStore';
+import { useStore } from 'hooks/Empleado/useStore';
 
-import DatosPersonalesForm from 'components/Shared/Formularios/empleado/DatosPersonalesForm';
-import UsuarioForm from 'components/Shared/Formularios/empleado/UsuarioForm';
+import DatosPersonalesForm from 'components/Shared/Formularios/Empleado/DatosPersonalesForm';
+import UsuarioForm from 'components/Shared/Formularios/Empleado/UsuarioForm';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { UserPlusIcon } from '@heroicons/react/24/outline';

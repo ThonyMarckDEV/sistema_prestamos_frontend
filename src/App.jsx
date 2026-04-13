@@ -15,29 +15,29 @@ import Login from 'pages/auth/Login/Login';
 import Home from 'pages/home/Home';
 
 //UI EMPLEADOS
-import AgregarEmpleado from 'pages/empleado/Store';
-import EditarEmpleado from 'pages/empleado/Update';
-import ListarEmpleados from 'pages/empleado/Index';
+import AgregarEmpleado from 'pages/Empleado/Store';
+import EditarEmpleado from 'pages/Empleado/Update';
+import ListarEmpleados from 'pages/Empleado/Index';
 
 //UI CLIENTES
-import AgregarCliente from 'pages/cliente/Store';
-import EditarCliente from 'pages/cliente/Update';
-import ListarClientes from 'pages/cliente/Index';
+import AgregarCliente from 'pages/Cliente/Store';
+import EditarCliente from 'pages/Cliente/Update';
+import ListarClientes from 'pages/Cliente/Index';
 
 // // UI DIVISAS
 // import AgregarDivisa from 'pages/divisa/Store';
 // import EditarDivisa from 'pages/divisa/Update';
 // import ListarDivisas from 'pages/divisa/Index';
 
-// // UI ENTIDADES BANCARIAS
-// import AgregarEntidadBancaria from 'pages/entidadBancaria/Store';
-// import EditarEntidadBancaria from 'pages/entidadBancaria/Update';
-// import ListarEntidadBancarias from 'pages/entidadBancaria/Index';
+// UI ENTIDADES BANCARIAS
+import AgregarEntidadBancaria from 'pages/EntidadBancaria/Store';
+import EditarEntidadBancaria from 'pages/EntidadBancaria/Update';
+import ListarEntidadBancarias from 'pages/EntidadBancaria/Index';
 
 
 
 // SETTINGS ROL AND PERMISSIONS
-import ListarRoles from 'pages/rol/Index';
+import ListarRoles from 'pages/Rol/Index';
 
 // Utilities
 import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
@@ -73,11 +73,11 @@ function AppContent() {
         <Route path="/divisa/listar" element={<ProtectedRoute requiredPermission="divisa.index" element={<ListarDivisas />} />} /> */}
 
         {/* ENTIDADES BANCARIAS */}
-        {/* <Route path="/entidadBancaria/agregar" element={<ProtectedRoute requiredPermission="entidadBancaria.store" element={<AgregarEntidadBancaria />} />} />
+        <Route path="/entidadBancaria/agregar" element={<ProtectedRoute requiredPermission="entidadBancaria.store" element={<AgregarEntidadBancaria />} />} />
         <Route path="/entidadBancaria/editar/:id" element={<ProtectedRoute requiredPermission="entidadBancaria.update" element={<EditarEntidadBancaria />} />} />
         <Route path="/entidadBancaria/listar" element={<ProtectedRoute requiredPermission="entidadBancaria.index" element={<ListarEntidadBancarias />} />} />
 
-        */}
+       
 
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />

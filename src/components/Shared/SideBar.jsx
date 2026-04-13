@@ -1,26 +1,31 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-    Bars3Icon, 
-    ChevronDownIcon, 
-    ChevronLeftIcon,
+    HomeIcon, 
+    ChartPieIcon, 
+    UsersIcon, 
+    BanknotesIcon, 
+    CurrencyDollarIcon, 
+    BuildingLibraryIcon, 
+    UserGroupIcon, 
+    Cog8ToothIcon,
+    WalletIcon,
+    DocumentChartBarIcon,
+    Bars3Icon,
     ArrowRightOnRectangleIcon,
-    HomeIcon,
-    CubeIcon,
-    BanknotesIcon,
-} from '@heroicons/react/24/outline'; 
+    CubeIcon
+} from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
-import {ArrowUpRightIcon, Settings, User2Icon, UserSquare2Icon } from 'lucide-react';
 import { useAuth } from 'context/AuthContext';
 
 // Importamos el logo
 import logo from 'assets/img/logo.png'; 
-import { PiCashRegister } from 'react-icons/pi';
+import { ChevronDownIcon, ChevronLeftIcon } from 'lucide-react';
 
 // =======================================================================
-// CONFIGURACIÓN MAESTRA DEL MENÚ
+// CONFIGURACIÓN MAESTRA DEL MENÚ - SISTEMA DE PRÉSTAMOS
 // =======================================================================
-const MENU_GROUPS = [
+export const MENU_GROUPS = [
     {
         groupName: 'Principal',
         items: [
@@ -32,68 +37,89 @@ const MENU_GROUPS = [
         ]
     },
     {
-        groupName: 'Metricas',
+        groupName: 'Métricas y Análisis',
         items: [
             {
                 section: 'Dashboard',
                 link: '/dashboard',
-                icon: ArrowUpRightIcon,
+                icon: ChartPieIcon,
                 requiredPermission: 'dashboard.index'
             }
         ]
     },
     {
-        groupName: 'Operaciones',
+        groupName: 'Gestión de Cartera',
         items: [
             { 
-                section: 'Cajas', icon: PiCashRegister,
+                section: 'Clientes', icon: UsersIcon,
                 subs: [
-                    { name: 'Listar', link: '/caja/listar', requiredPermission: 'caja.index' },
-                    { name: 'Agregar', link: '/caja/agregar', requiredPermission: 'caja.store' },
-                    { name: 'Sesiones', link: '/caja/sesiones/listar', requiredPermission: 'cajaSesion.index' },
+                    { name: 'Listar Clientes', link: '/cliente/listar', requiredPermission: 'cliente.index' },
+                    { name: 'Registrar Cliente', link: '/cliente/agregar', requiredPermission: 'cliente.store' },
+                ],
+            },
+            { 
+                section: 'Préstamos', icon: BanknotesIcon,
+                subs: [
+                    { name: 'Listar Préstamos', link: '/prestamo/listar', requiredPermission: 'prestamo.index' },
+                    { name: 'Nuevo Préstamo', link: '/prestamo/agregar', requiredPermission: 'prestamo.store' },
+                    { name: 'Solicitudes', link: '/prestamo/solicitudes', requiredPermission: 'prestamo.aprobar' }, // Opcional si manejas estados
+                ],
+            }
+        ]
+    },
+    {
+        groupName: 'Caja y Recaudación',
+        items: [
+            { 
+                section: 'Operaciones', icon: CurrencyDollarIcon, 
+                subs: [
+                    { name: 'Registrar Pago (Cobro)', link: '/pago/crear', requiredPermission: 'pago.store' },
+                    { name: 'Historial de Pagos', link: '/pago/listar', requiredPermission: 'pago.index' },
+                ],
+            },
+            { 
+                section: 'Cajas', icon: WalletIcon,
+                subs: [
+                    { name: 'Mis Sesiones (Apertura/Cierre)', link: '/caja/sesiones/listar', requiredPermission: 'cajaSesion.index' },
+                    { name: 'Gestión de Cajas', link: '/caja/listar', requiredPermission: 'caja.index' },
+                    { name: 'Nueva Caja', link: '/caja/agregar', requiredPermission: 'caja.store' },
                 ],
             }
         ] 
     },
     {
-        groupName: 'Caja & Facturación',
+        groupName: 'Reportes',
         items: [
             { 
-                // 🔥 La Venta ahora solo tiene lo que le corresponde: Cobrar y ver el historial
-                section: 'Cobros', icon: BanknotesIcon, 
+                section: 'Informes', icon: DocumentChartBarIcon,
                 subs: [
-                    { name: 'Cobrar Orden', link: '/venta/crear', requiredPermission: 'venta.store' },
-                    { name: 'Historial de Cobros', link: '/venta/listar', requiredPermission: 'venta.index' },
+                    { name: 'Clientes Morosos', link: '/reporte/morosos', requiredPermission: 'reporte.morosidad' },
+                    { name: 'Flujo de Caja', link: '/reporte/flujo-caja', requiredPermission: 'reporte.flujo' },
                 ],
-            },
+            }
         ]
     },
     {
-        groupName: 'Administración',
+        groupName: 'Administración y Ajustes',
         items: [
             { 
-                section: 'Clientes', icon: User2Icon,
+                section: 'Entidades Bancarias', icon: BuildingLibraryIcon,
                 subs: [
-                    { name: 'Listar', link: '/cliente/listar', requiredPermission: 'cliente.index' },
-                    { name: 'Agregar', link: '/cliente/agregar', requiredPermission: 'cliente.store' },
+                    { name: 'Listar Bancos', link: '/entidadBancaria/listar', requiredPermission: 'entidadBancaria.index' },
+                    { name: 'Agregar Banco', link: '/entidadBancaria/agregar', requiredPermission: 'entidadBancaria.store' },
                 ],
             },
             { 
-                section: 'Empleados', icon: UserSquare2Icon,
+                section: 'Asesores / Empleados', icon: UserGroupIcon,
                 subs: [
-                    { name: 'Listar', link: '/empleado/listar', requiredPermission: 'empleado.index' },
-                    { name: 'Agregar', link: '/empleado/agregar', requiredPermission: 'empleado.store' },
+                    { name: 'Listar Personal', link: '/empleado/listar', requiredPermission: 'empleado.index' },
+                    { name: 'Agregar Empleado', link: '/empleado/agregar', requiredPermission: 'empleado.store' },
                 ],
             },
-        ]
-    },
-    {
-        groupName: 'Configuracion',
-        items: [
             { 
-                section: 'Roles y Permisos', icon: Settings,
+                section: 'Roles y Permisos', icon: Cog8ToothIcon,
                 link: '/rol/listar', requiredPermission: 'rol.index'
-            },
+            }
         ]
     }
 ];

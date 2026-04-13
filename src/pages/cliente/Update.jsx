@@ -1,7 +1,7 @@
 import React from 'react';
-import { useUpdate } from 'hooks/cliente/useUpdate';
-import DatosClienteForm from 'components/Shared/Formularios/cliente/DatosPersonalesForm';
-import UsuarioForm from 'components/Shared/Formularios/cliente/UsuarioForm';
+import { useUpdate } from 'hooks/Cliente/useUpdate';
+import DatosClienteForm from 'components/Shared/Formularios/Cliente/DatosPersonalesForm';
+import UsuarioForm from 'components/Shared/Formularios/Cliente/UsuarioForm';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';

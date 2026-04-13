@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { useIndex } from 'hooks/cliente/useIndex';
+import { useIndex } from 'hooks/Cliente/useIndex';
 
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
