@@ -18,7 +18,7 @@ const Index = () => {
     } = useIndex();
 
     const filterConfig = useMemo(() => [
-        { name: 'search', type: 'text', label: 'Buscar Banco', placeholder: 'Ej: BCP, Interbank...', colSpan: 'col-span-12 md:col-span-8' },
+        { name: 'search', type: 'text', label: 'Buscar Entidad', placeholder: 'Ej: BCP, Interbank...', colSpan: 'col-span-12 md:col-span-8' },
         { name: 'estado', type: 'select', label: 'Estado', colSpan: 'col-span-12 md:col-span-4',
           options: [{ value: '', label: 'Todos' }, { value: '1', label: 'Activos' }, { value: '0', label: 'Inactivos' }] }
     ], []);
@@ -74,7 +74,7 @@ const Index = () => {
             <PageHeader
                 title="Entidades Bancarias"
                 icon={BuildingLibraryIcon}
-                buttonText="+ Nuevo Banco"
+                buttonText="+ Nueva Entidad"
                 buttonLink="/entidadBancaria/agregar"
             />
 

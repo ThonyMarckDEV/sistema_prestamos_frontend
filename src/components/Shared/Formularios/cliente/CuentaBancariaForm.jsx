@@ -76,16 +76,15 @@ const CuentaBancariaForm = ({ data, handleNestedChange }) => {
                                 
                                 <div>
                                     <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
-                                        N° Cuenta {cb.longitud_cuenta ? `(${cb.longitud_cuenta} dígitos)` : ''}
+                                        N° Cuenta {cb.longitud_cuenta ? `(${cb.longitud_cuenta} dígitos)` : ''} *
                                     </label>
                                     <input 
                                         type="text" 
                                         value={cb.ctaAhorros || ''} 
-                                        // Si no tenemos longitud_cuenta (porque es carga inicial de edición), 
-                                        // permitimos hasta 30 para que no se bloquee la data que ya existe
+                                        // 🔥 Ahora usa la longitud exacta enviada por el backend o el select
                                         onChange={(e) => handleCuentaChange(index, 'ctaAhorros', onlyNumbers(e.target.value, cb.longitud_cuenta || 30))} 
                                         className="w-full p-2.5 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none font-medium tracking-wider" 
-                                        placeholder="Ingrese número de cuenta"
+                                        placeholder={cb.longitud_cuenta ? `Exactamente ${cb.longitud_cuenta} dígitos` : "Seleccione un banco"}
                                         required 
                                     />
                                 </div>
@@ -97,9 +96,10 @@ const CuentaBancariaForm = ({ data, handleNestedChange }) => {
                                     <input 
                                         type="text" 
                                         value={cb.cci || ''} 
+                                        // 🔥 Ahora usa la longitud exacta de CCI
                                         onChange={(e) => handleCuentaChange(index, 'cci', onlyNumbers(e.target.value, cb.longitud_cci || 30))} 
                                         className="w-full p-2.5 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none font-medium tracking-wider" 
-                                        placeholder="Ingrese CCI"
+                                        placeholder={cb.longitud_cci ? `Exactamente ${cb.longitud_cci} dígitos` : "Seleccione un banco"}
                                     />
                                 </div>
                             </div>

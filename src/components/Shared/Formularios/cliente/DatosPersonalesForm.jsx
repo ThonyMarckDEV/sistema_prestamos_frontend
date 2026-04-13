@@ -2,7 +2,7 @@ import React from 'react';
 import { IdentificationIcon, BuildingOfficeIcon, UserIcon } from '@heroicons/react/24/outline';
 import { onlyLetters, onlyNumbers } from 'utilities/Validations/validations';
 
-const DatosPersonalesForm = ({ data, handleNestedChange }) => {
+const DatosPersonalesForm = ({ data, handleNestedChange, isEditing = false }) => {
     const c = data.datos_cliente;
     const onC = (field, value) => handleNestedChange('datos_cliente', field, value);
     const esEmpresa = Number(c.tipo) === 2;
@@ -13,15 +13,39 @@ const DatosPersonalesForm = ({ data, handleNestedChange }) => {
                 <IdentificationIcon className="w-5 h-5 text-red-600" /> Datos Principales
             </h3>
 
-            <div className="mb-6 flex gap-3">
-                <button type="button" onClick={() => onC('tipo', 1)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 font-bold text-xs transition-all ${!esEmpresa ? 'bg-red-50 text-red-700 border-red-600' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
-                    <UserIcon className="w-4 h-4" /> Persona
-                </button>
-                <button type="button" onClick={() => onC('tipo', 2)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 font-bold text-xs transition-all ${esEmpresa ? 'bg-yellow-50 text-yellow-700 border-yellow-500' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
-                    <BuildingOfficeIcon className="w-4 h-4" /> Empresa
-                </button>
+            {/* Selector de tipo */}
+            <div className="mb-6 flex flex-col gap-2">
+                <label className="block text-[11px] font-bold text-slate-500 uppercase">Tipo de Cliente</label>
+                <div className="flex gap-3">
+                    <button 
+                        type="button" 
+                        onClick={() => onC('tipo', 1)}
+                        disabled={isEditing}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 font-bold text-xs transition-all ${
+                            !esEmpresa 
+                            ? 'bg-red-50 text-red-700 border-red-600' 
+                            : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
+                        } ${isEditing ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    >
+                        <UserIcon className="w-4 h-4" /> Persona
+                    </button>
+                    
+                    <button 
+                        type="button" 
+                        onClick={() => onC('tipo', 2)}
+                        disabled={isEditing}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 font-bold text-xs transition-all ${
+                            esEmpresa 
+                            ? 'bg-yellow-50 text-yellow-700 border-yellow-500' 
+                            : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
+                        } ${isEditing ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    >
+                        <BuildingOfficeIcon className="w-4 h-4" /> Empresa
+                    </button>
+                </div>
+                {isEditing && (
+                    <p className="text-[9px] text-slate-400 italic">* El tipo de cliente no se puede modificar después del registro.</p>
+                )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

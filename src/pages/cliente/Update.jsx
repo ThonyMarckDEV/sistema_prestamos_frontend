@@ -42,7 +42,7 @@ const Update = () => {
                     
                     {/* Columna Izquierda: Datos Base y Usuario */}
                     <div className="lg:col-span-1 flex flex-col gap-6">
-                        <DatosPersonalesForm data={formData} handleNestedChange={handleNestedChange} />
+                        <DatosPersonalesForm data={formData} handleNestedChange={handleNestedChange} isEditing={true} />
                         <UsuarioForm form={formData} handleNestedChange={handleNestedChange} isEditing={true} />
                     </div>
 

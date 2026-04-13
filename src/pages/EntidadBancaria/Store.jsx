@@ -10,7 +10,7 @@ const Store = () => {
 
     return (
         <div className="container mx-auto p-4 sm:p-6">
-            <PageHeader title="Registrar Banco" icon={PlusCircleIcon} buttonText="Volver al Listado" buttonLink="/entidadBancaria/listar" />
+            <PageHeader title="Registrar Entidad" icon={PlusCircleIcon} buttonText="Volver al Listado" buttonLink="/entidadBancaria/listar" />
             <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
             
             <form onSubmit={handleSubmit} className="mt-6 max-w-3xl mx-auto">

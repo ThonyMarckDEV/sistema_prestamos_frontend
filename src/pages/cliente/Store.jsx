@@ -25,7 +25,7 @@ const Store = () => {
                     
                     {/* Columna Izquierda (Datos Principales ocupa 1 columna entera) */}
                     <div className="lg:col-span-1 flex flex-col gap-6">
-                        <DatosPersonalesForm data={formData} handleNestedChange={handleNestedChange} />
+                        <DatosPersonalesForm data={formData} handleNestedChange={handleNestedChange} isEditing={false} />
                         <UsuarioForm form={formData} handleNestedChange={handleNestedChange} isEditing={false} />
                     </div>
 

@@ -24,7 +24,7 @@ export const useStore = () => {
         try {
             await store(formData);
             setAlert({ type: 'success', message: 'Entidad registrada exitosamente. Redirigiendo...' });
-            setTimeout(() => navigate('/bancos/listar'), 1500);
+            setTimeout(() => navigate('/entidadBancaria/listar'), 1500);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al registrar la entidad'));
         } finally {

@@ -26,7 +26,7 @@ export const useUpdate = () => {
                     longitud_cci: data.longitud_cci || ''
                 });
             } catch (err) {
-                setAlert(handleApiError(err, 'No se pudo cargar la información del banco.'));
+                setAlert(handleApiError(err, 'No se pudo cargar la información del entidad.'));
             } finally {
                 setSaving(false);
             }
@@ -44,9 +44,9 @@ export const useUpdate = () => {
         try {
             await update(id, formData);
             setAlert({ type: 'success', message: 'Entidad actualizada correctamente.' });
-            setTimeout(() => navigate('/bancos/listar'), 1500);
+            setTimeout(() => navigate('/entidadBancaria/listar'), 1500);
         } catch (err) {
-            setAlert(handleApiError(err, 'Error al actualizar el banco'));
+            setAlert(handleApiError(err, 'Error al actualizar la entidad'));
         } finally {
             setLoading(false);
         }

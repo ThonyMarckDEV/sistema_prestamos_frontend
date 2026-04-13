@@ -30,9 +30,13 @@ export const useUpdate = () => {
                 const response = await show(id);
                 const data = response.data || response;
             
-                const cuentasBancariasArr = Array.isArray(data.cuentas_bancarias) 
-                ? data.cuentas_bancarias 
-                : (data.cuentas_bancarias ? [data.cuentas_bancarias] : []);
+                const cuentasBancariasArr = data.cuentas_bancarias.map(cta => ({
+                    entidadFinanciera: cta.entidadFinanciera,
+                    ctaAhorros: cta.ctaAhorros,
+                    cci: cta.cci || '',
+                    longitud_cuenta: cta.longitud_cuenta, 
+                    longitud_cci: cta.longitud_cci
+                }));
 
                 setFormData({
                     datos_cliente: {

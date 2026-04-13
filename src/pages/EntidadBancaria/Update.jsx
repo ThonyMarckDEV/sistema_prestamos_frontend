@@ -14,7 +14,7 @@ const Update = () => {
     return (
         <div className="container mx-auto p-4 sm:p-6">
             <PageHeader
-                title="Editar Banco"
+                title="Editar Entidad"
                 subtitle={`Editando: ${formData.nombre}`}
                 icon={PencilSquareIcon}
                 buttonText="← Volver al listado"
