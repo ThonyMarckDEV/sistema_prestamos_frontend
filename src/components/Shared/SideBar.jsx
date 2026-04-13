@@ -110,7 +110,7 @@ export const MENU_GROUPS = [
                 ],
             },
             { 
-                section: 'Asesores / Empleados', icon: UserGroupIcon,
+                section: 'Empleados', icon: UserGroupIcon,
                 subs: [
                     { name: 'Listar Personal', link: '/empleado/listar', requiredPermission: 'empleado.index' },
                     { name: 'Agregar Empleado', link: '/empleado/agregar', requiredPermission: 'empleado.store' },
