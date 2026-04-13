@@ -15,13 +15,17 @@ export const useStore = () => {
         },
         contacto: { telefonoMovil: '', telefonoFijo: '', correo: '' },
         direccion: { direccionFiscal: '', departamento: '', provincia: '', distrito: '', tipoVivienda: '', tiempoResidencia: '' },
-        cuenta_bancaria: { ctaAhorros: '', cci: '', entidadFinanciera: '' },
         empleo: { centroLaboral: '', ingresoMensual: '', inicioLaboral: '', situacionLaboral: '' },
-        usuario: { username: '', password: '', password_confirmation: '' }
+        usuario: { username: '', password: '', password_confirmation: '' },
+        cuentas_bancarias: [] 
     });
 
     const handleNestedChange = (section, field, value) => {
-        setFormData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
+        if (field === null) {
+            setFormData(prev => ({ ...prev, [section]: value }));
+        } else {
+            setFormData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
+        }
     };
 
     const handleSubmit = async (e) => {

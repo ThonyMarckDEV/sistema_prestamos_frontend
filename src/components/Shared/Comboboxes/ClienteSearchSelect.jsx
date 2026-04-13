@@ -12,7 +12,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
     const debounceRef = useRef(null); 
 
     useEffect(() => {
-       setInputValue(initialName || '');
+        setInputValue(initialName || '');
     }, [initialName]);
 
     useEffect(() => {
@@ -26,7 +26,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
     const fetchClientes = async (searchTerm = '') => {
         setLoading(true);
         try {
-            const response = await combobox(1, { search: searchTerm, estado: '1' });
+            const response = await combobox(1, { search: searchTerm });
             setSuggestions(response.data || []);
             setShowSuggestions(true);
         } catch (error) { 
@@ -45,7 +45,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
 
     const handleSelect = (cliente) => {
         if (onSelect) {
-            onSelect({ id: cliente.usuario_id }); 
+            onSelect({ id: cliente.usuario_id });
             setInputValue(cliente.nombre_completo); 
         }
         setShowSuggestions(false);
@@ -68,7 +68,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                     onClick={() => !showSuggestions && !disabled && fetchClientes(inputValue)}
                     disabled={disabled}
                     placeholder="Buscar cliente (ej. Christian Ruiz, 4133...)..."
-                    className="w-full border border-slate-300 rounded-lg shadow-sm pl-9 pr-8 py-2.5 text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:border-slate-200 disabled:cursor-not-allowed font-medium"
+                    className="w-full border border-slate-300 rounded-lg shadow-sm pl-9 pr-8 py-2.5 text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none bg-white transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed font-medium"
                     autoComplete="off"
                 />
                 <div className={`absolute left-3 ${disabled ? 'text-slate-300' : 'text-slate-400'}`}>
@@ -77,7 +77,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                 
                 <div className="absolute right-2 flex items-center">
                     {loading ? (
-                        <div className="w-4 h-4 border-2 border-slate-300 border-t-indigo-500 rounded-full animate-spin"></div> 
+                        <div className="w-4 h-4 border-2 border-slate-300 border-t-red-600 rounded-full animate-spin"></div> 
                     ) : inputValue && !disabled ? (
                         <button onClick={handleClear} type="button" className="text-slate-400 hover:text-red-500 p-1">
                             <XMarkIcon className="w-4 h-4" />
@@ -93,19 +93,19 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                             const isEmpresa = cliente.tipo === 2;
                             const IconoCliente = isEmpresa ? BuildingOfficeIcon : UserIcon;
                             const badgeColor = isEmpresa 
-                                ? 'bg-amber-100 text-amber-700 border-amber-200' 
-                                : 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                                ? 'bg-yellow-50 text-yellow-700 border-yellow-200' 
+                                : 'bg-red-50 text-red-700 border-red-200';
                             const badgeText = isEmpresa ? 'EMPRESA' : 'CLIENTE';
 
                             return (
                                 <li 
                                     key={cliente.id} 
                                     onClick={() => handleSelect(cliente)} 
-                                    className="px-4 py-2.5 cursor-pointer text-sm flex items-center justify-between hover:bg-indigo-50 border-b border-slate-100 last:border-0 transition-colors"
+                                    className="px-4 py-2.5 cursor-pointer text-sm flex items-center justify-between hover:bg-slate-50 border-b border-slate-100 last:border-0 transition-colors"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="bg-indigo-100 p-1.5 rounded-md">
-                                            <IconoCliente className="w-5 h-5 text-indigo-600" />
+                                        <div className="bg-slate-100 p-1.5 rounded-md border border-slate-200">
+                                            <IconoCliente className="w-5 h-5 text-slate-600" />
                                         </div>
                                         <div className="flex flex-col">
                                             <span className="uppercase font-bold text-slate-800">
@@ -121,7 +121,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                                         <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest border ${badgeColor}`}>
                                             {badgeText}
                                         </span>
-                                        <ChevronRightIcon className="w-4 h-4 text-indigo-400" />
+                                        <ChevronRightIcon className="w-4 h-4 text-slate-400" />
                                     </div>
                                 </li>
                             );

@@ -13,13 +13,15 @@ export const useUpdate = () => {
 
     const [formData, setFormData] = useState({
         datos_cliente: {
-            tipo: 1,
-            nombre: '', apellidoPaterno: '', apellidoMaterno: '',
-            dni: '', fechaNacimiento: '', sexo: '', direccion: '',
-            ruc: '', razon_social: '', nombre_comercial: ''
+            tipo: 1, nombre: '', apellidoPaterno: '', apellidoMaterno: '',
+            dni: '', fechaNacimiento: '', sexo: '', ruc: '', razon_social: '', nombre_comercial: ''
         },
-        contactos: { telefono: '', correo: '' },
-        usuario:   { username: '', password: '', password_confirmation: '' }
+        contacto: { telefonoMovil: '', telefonoFijo: '', correo: '' },
+        direccion: { direccionFiscal: '', departamento: '', provincia: '', distrito: '', tipoVivienda: '', tiempoResidencia: '' },
+        empleo: { centroLaboral: '', ingresoMensual: '', inicioLaboral: '', situacionLaboral: '' },
+        usuario:   { username: '', password: '', password_confirmation: '' },
+        
+        cuentas_bancarias: [] 
     });
 
     useEffect(() => {
@@ -27,6 +29,9 @@ export const useUpdate = () => {
             try {
                 const response = await show(id);
                 const data = response.data || response;
+            
+                const cuentasBancariasArr = Array.isArray(data.cuentas_bancarias) ? data.cuentas_bancarias : [];
+
                 setFormData({
                     datos_cliente: {
                         tipo: data.tipo || 1, nombre: data.nombre || '', apellidoPaterno: data.apellidoPaterno || '',
@@ -41,14 +46,13 @@ export const useUpdate = () => {
                         provincia: data.direccion?.provincia || '', distrito: data.direccion?.distrito || '',
                         tipoVivienda: data.direccion?.tipoVivienda || '', tiempoResidencia: data.direccion?.tiempoResidencia || ''
                     },
-                    cuenta_bancaria: {
-                        ctaAhorros: data.cuenta_bancaria?.ctaAhorros || '', cci: data.cuenta_bancaria?.cci || '', entidadFinanciera: data.cuenta_bancaria?.entidadFinanciera || ''
-                    },
                     empleo: {
                         centroLaboral: data.empleo?.centroLaboral || '', ingresoMensual: data.empleo?.ingresoMensual || '',
                         inicioLaboral: data.empleo?.inicioLaboral || '', situacionLaboral: data.empleo?.situacionLaboral || ''
                     },
-                    usuario: { username: data.usuario?.username || '', password: '', password_confirmation: '' }
+                    usuario: { username: data.usuario?.username || '', password: '', password_confirmation: '' },
+
+                    cuentas_bancarias: cuentasBancariasArr 
                 });
             } catch (err) {
                 setAlert(handleApiError(err, 'No se pudo cargar la información del cliente.'));
@@ -60,7 +64,11 @@ export const useUpdate = () => {
     }, [id]);
 
     const handleNestedChange = (section, field, value) => {
-        setFormData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
+        if (field === null) {
+            setFormData(prev => ({ ...prev, [section]: value }));
+        } else {
+            setFormData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
+        }
     };
 
     const handleSubmit = async (e) => {
