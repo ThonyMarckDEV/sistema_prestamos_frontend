@@ -20,7 +20,7 @@ import { useAuth } from 'context/AuthContext';
 
 // Importamos el logo
 import logo from 'assets/img/logo.png'; 
-import { ChevronDownIcon, ChevronLeftIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronLeftIcon, ScaleIcon } from 'lucide-react';
 
 // =======================================================================
 // CONFIGURACIÓN MAESTRA DEL MENÚ - SISTEMA DE PRÉSTAMOS
@@ -107,6 +107,13 @@ export const MENU_GROUPS = [
                 subs: [
                     { name: 'Listar Bancos', link: '/entidadBancaria/listar', requiredPermission: 'entidadBancaria.index' },
                     { name: 'Agregar Banco', link: '/entidadBancaria/agregar', requiredPermission: 'entidadBancaria.store' },
+                ],
+            },
+            { 
+                section: 'Cargos de Mora', icon: ScaleIcon,
+                subs: [
+                    { name: 'Configurar Tarifas', link: '/cargoMora/listar', requiredPermission: 'cargoMora.index' },
+                    { name: 'Nuevo Rango de Mora', link: '/cargoMora/agregar', requiredPermission: 'cargoMora.store' },
                 ],
             },
             { 
