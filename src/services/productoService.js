@@ -19,6 +19,11 @@ export const show = async (id) => {
     return handleResponse(response);
 };
 
+export const combobox = async () => {
+    const response = await fetchWithAuth(`${BASE_URL}/combobox`, { method: 'GET' });
+    return handleResponse(response);
+};
+
 export const store = async (data) => {
     const response = await fetchWithAuth(`${BASE_URL}/store`, {
         method: 'POST',
