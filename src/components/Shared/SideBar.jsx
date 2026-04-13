@@ -20,7 +20,7 @@ import { useAuth } from 'context/AuthContext';
 
 // Importamos el logo
 import logo from 'assets/img/logo.png'; 
-import { ChevronDownIcon, ChevronLeftIcon, ScaleIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronLeftIcon, ScaleIcon, ShoppingBagIcon } from 'lucide-react';
 
 // =======================================================================
 // CONFIGURACIÓN MAESTRA DEL MENÚ - SISTEMA DE PRÉSTAMOS
@@ -114,6 +114,13 @@ export const MENU_GROUPS = [
                 subs: [
                     { name: 'Configurar Tarifas', link: '/cargoMora/listar', requiredPermission: 'cargoMora.index' },
                     { name: 'Nuevo Rango de Mora', link: '/cargoMora/agregar', requiredPermission: 'cargoMora.store' },
+                ],
+            },
+            { 
+                section: 'Productos', icon: ShoppingBagIcon,
+                subs: [
+                    { name: 'Listar Productos', link: '/producto/listar', requiredPermission: 'producto.index' },
+                    { name: 'Nuevo Producto', link: '/producto/agregar', requiredPermission: 'producto.store' },
                 ],
             },
             { 
