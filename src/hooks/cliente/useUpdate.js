@@ -30,7 +30,9 @@ export const useUpdate = () => {
                 const response = await show(id);
                 const data = response.data || response;
             
-                const cuentasBancariasArr = Array.isArray(data.cuentas_bancarias) ? data.cuentas_bancarias : [];
+                const cuentasBancariasArr = Array.isArray(data.cuentas_bancarias) 
+                ? data.cuentas_bancarias 
+                : (data.cuentas_bancarias ? [data.cuentas_bancarias] : []);
 
                 setFormData({
                     datos_cliente: {
@@ -52,7 +54,7 @@ export const useUpdate = () => {
                     },
                     usuario: { username: data.usuario?.username || '', password: '', password_confirmation: '' },
 
-                    cuentas_bancarias: cuentasBancariasArr 
+                    cuentas_bancarias: cuentasBancariasArr
                 });
             } catch (err) {
                 setAlert(handleApiError(err, 'No se pudo cargar la información del cliente.'));
