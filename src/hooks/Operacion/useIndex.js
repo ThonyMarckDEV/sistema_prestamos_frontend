@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { index, getPdfOperacion } from 'services/operacionService';
+import { index, getPdfOperacion, destroy } from 'services/operacionService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useIndex = () => {
@@ -15,6 +15,9 @@ export const useIndex = () => {
     const [pdfTitle, setPdfTitle] = useState('');
     const [pdfBase64, setPdfBase64] = useState(null);
     const [pdfLoading, setPdfLoading] = useState(false);
+
+    const [isAnularModalOpen, setIsAnularModalOpen] = useState(false);
+    const [operacionToAnular, setOperacionToAnular] = useState(null);
 
     const fetchOperaciones = useCallback(async (page = 1) => {
         setLoading(true);
@@ -42,7 +45,6 @@ export const useIndex = () => {
         fetchOperaciones(1); 
     };
 
-
     const handleViewPdf = async (id) => {
         setPdfLoading(true);
         try {
@@ -57,9 +59,31 @@ export const useIndex = () => {
         }
     };
 
+    const openAnularModal = (id) => {
+        setOperacionToAnular(id);
+        setIsAnularModalOpen(true);
+    };
+
+    const handleConfirmAnular = async () => {
+        if (!operacionToAnular) return;
+        setLoading(true);
+        try {
+            await destroy(operacionToAnular);
+            setAlert({ type: 'success', message: 'Operación anulada y reversada exitosamente.' });
+            fetchOperaciones(paginationInfo.currentPage);
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setIsAnularModalOpen(false);
+            setOperacionToAnular(null);
+            setLoading(false);
+        }
+    };
+
     return { 
         loading, operaciones, paginationInfo, filters, alert, setAlert, 
         fetchOperaciones, handleFilterChange, handleFilterSubmit, handleFilterClear,
-        handleViewPdf, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64, pdfLoading
+        handleViewPdf, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64, pdfLoading,
+        isAnularModalOpen, setIsAnularModalOpen, openAnularModal, handleConfirmAnular // 🔥 Exportamos
     };
 };
