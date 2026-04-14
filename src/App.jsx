@@ -44,6 +44,10 @@ import AgregarSolicitud from 'pages/SolicitudPrestamo/Store';
 import EditarSolicitud from 'pages/SolicitudPrestamo/Update';
 import ListarSolicitudes from 'pages/SolicitudPrestamo/Index';
 
+// UI PRESTAMO
+import ListarPrestamos from 'pages/Prestamo/Index';
+
+
 // SETTINGS ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
 
@@ -95,6 +99,9 @@ function AppContent() {
         <Route path="/solicitudPrestamo/agregar" element={<ProtectedRoute requiredPermission="solicitudPrestamo.store" element={<AgregarSolicitud />} />} />
         <Route path="/solicitudPrestamo/editar/:id" element={<ProtectedRoute requiredPermission="solicitudPrestamo.update" element={<EditarSolicitud />} />} />
         <Route path="/solicitudPrestamo/listar" element={<ProtectedRoute requiredPermission="solicitudPrestamo.index" element={<ListarSolicitudes />} />} />
+
+        {/* PRESTAMO */}
+        <Route path="/prestamo/listar" element={<ProtectedRoute requiredPermission="prestamo.index" element={<ListarPrestamos />} />} />
 
 
         {/* SETTINGS */}
