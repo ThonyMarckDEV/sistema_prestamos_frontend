@@ -11,6 +11,9 @@ export const useIndex = () => {
     const filtersRef = useRef(filters);
     const [alert, setAlert] = useState(null);
 
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
+
     const fetchProductos = useCallback(async (page = 1) => {
         setLoading(true);
         try {
@@ -28,14 +31,8 @@ export const useIndex = () => {
 
     useEffect(() => { fetchProductos(1); }, [fetchProductos]);
 
-    // 🔥 Handlers para el filtrado de la tabla
     const handleFilterChange = (name, val) => setFilters(prev => ({ ...prev, [name]: val }));
-    
-    const handleFilterSubmit = () => { 
-        filtersRef.current = filters; 
-        fetchProductos(1); 
-    };
-
+    const handleFilterSubmit = () => { filtersRef.current = filters; fetchProductos(1); };
     const handleFilterClear = () => {
         const res = { search: '', estado: '' };
         setFilters(res); 
@@ -51,18 +48,33 @@ export const useIndex = () => {
         } catch (err) { setAlert(handleApiError(err)); }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('¿Eliminar este producto? Los préstamos asociados podrían verse afectados.')) return;
+    const openDeleteModal = (id) => {
+        setProductToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const closeDeleteModal = () => {
+        setProductToDelete(null);
+        setIsDeleteModalOpen(false);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!productToDelete) return;
         try {
-            await destroy(id);
+            await destroy(productToDelete);
             setAlert({ type: 'success', message: 'Producto eliminado con éxito.' });
             fetchProductos(paginationInfo.currentPage);
-        } catch (err) { setAlert(handleApiError(err)); }
+        } catch (err) { 
+            setAlert(handleApiError(err)); 
+        } finally {
+            closeDeleteModal();
+        }
     };
 
     return { 
         loading, productos, paginationInfo, filters, alert, setAlert, 
-        fetchProductos, handleToggleStatus, handleDelete, 
-        handleFilterChange, handleFilterSubmit, handleFilterClear 
+        fetchProductos, handleToggleStatus, 
+        handleFilterChange, handleFilterSubmit, handleFilterClear,
+        isDeleteModalOpen, openDeleteModal, closeDeleteModal, handleConfirmDelete
     };
 };
