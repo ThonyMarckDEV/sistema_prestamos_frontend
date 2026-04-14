@@ -6,32 +6,42 @@ export const useIndex = () => {
     const [loading, setLoading] = useState(true);
     const [pagos, setPagos] = useState([]);
     const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1 });
-    const [filters, setFilters] = useState({ search: '', estado: '0' });
+    const [filters, setFilters] = useState({ search: '', estado: '' });
     const [alert, setAlert] = useState(null);
 
     const fetchPagos = useCallback(async (page = 1) => {
         setLoading(true);
         try {
             const res = await index(page, filters);
-            setPagos(res.data.data || []);
-            setPaginationInfo({
-                currentPage: res.data.current_page,
-                totalPages: res.data.last_page
-            });
+            const responseBody = res;
+
+            if (responseBody && responseBody.data) {
+                setPagos([...responseBody.data]);
+                setPaginationInfo({
+                    currentPage: responseBody.current_page,
+                    totalPages: responseBody.last_page,
+                    total: responseBody.total
+                });
+            } else {
+                setPagos([]);
+            }
         } catch (err) {
             setAlert(handleApiError(err));
+            setPagos([]);
         } finally {
             setLoading(false);
         }
     }, [filters]);
 
-    useEffect(() => { fetchPagos(1); }, [fetchPagos]);
+    useEffect(() => { 
+        fetchPagos(1); 
+    }, [fetchPagos]);
 
     const handleStatusChange = async (id, nuevoEstado, motivo = '') => {
         setLoading(true);
         try {
             await status(id, { estado: nuevoEstado, motivo });
-            setAlert({ type: 'success', message: 'Estado del pago actualizado.' });
+            setAlert({ type: 'success', message: 'Estado del pago actualizado correctamente.' });
             fetchPagos(paginationInfo.currentPage);
         } catch (err) {
             setAlert(handleApiError(err));

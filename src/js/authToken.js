@@ -10,10 +10,13 @@ export async function fetchWithAuth(url, options = {}) {
   let access_token = jwtUtils.getAccessTokenFromCookie();
 
   const headers = {
-    'Content-Type': 'application/json',
     'Accept': 'application/json',
     ...options.headers,
   };
+
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (access_token) {
     headers['Authorization'] = `Bearer ${access_token}`;

@@ -12,12 +12,10 @@ export const useStore = () => {
     const [cuotaParaPagar, setCuotaParaPagar] = useState(null);
 
     // 1. Cargar préstamos del cliente logueado
-    // Se usa index() porque tu controlador en el backend ya debería filtrar por Auth::id()
     const fetchMisPrestamos = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await index(); // 🔥 Usamos index()
-            // Si tu index devuelve paginación, sacamos la data de res.data.data
+            const res = await index();
             setMisPrestamos(res.data.data || res.data || []);
         } catch (err) {
             setAlert(handleApiError(err));
@@ -36,7 +34,7 @@ export const useStore = () => {
         }
         setLoading(true);
         try {
-            const res = await show(id); // 🔥 Usamos show()
+            const res = await show(id);
             setPrestamoSeleccionado(res.data || res);
         } catch (err) {
             setAlert(handleApiError(err));
