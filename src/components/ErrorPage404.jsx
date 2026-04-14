@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { PiCookingPotLight } from 'react-icons/pi';
+import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { HiOutlineArrowLongLeft } from 'react-icons/hi2';
 
 const NotFoundPage = () => {
@@ -13,50 +13,45 @@ const NotFoundPage = () => {
   }, []);
 
   return (
-    // FONDO BLANCO
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white text-white font-sans p-4 relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white text-slate-900 font-sans p-4 relative">
     
-        {/* Icono animado (Plato/Olla vacía) */}
+        {/* Icono animado de Búsqueda de Archivos */}
         <div className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out mb-10">
-          <div className="inline-flex items-center justify-center w-32 h-32 border border-black rounded-full mb-4 animate-float relative shadow-[inset_0_0_15px_rgba(0,0,0,0.01)]">
-            <div className="absolute inset-2 border border-dashed border-black rounded-full opacity-50"></div>
-            <PiCookingPotLight className="text-6xl text-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.08)]" />
+          <div className="inline-flex items-center justify-center w-36 h-36 border-2 border-slate-100 rounded-full mb-4 animate-float relative shadow-sm bg-slate-50">
+            <div className="absolute inset-3 border border-dashed border-slate-300 rounded-full opacity-50"></div>
+            <DocumentMagnifyingGlassIcon className="w-16 h-16 text-slate-400" />
           </div>
         </div>
         
-        {/* Título GHOST */}
-        <h1 className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out text-8xl font-serif font-extralight tracking-tighter text-black mb-2 drop-shadow-[0_1.5px_1.5px_rgba(0,0,0,0.1)]">
+        <h1 className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out text-8xl font-black tracking-tighter text-slate-900 mb-2">
           404
         </h1>
         
-        {/* Subtítulo GHOST */}
-        <h2 className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out text-sm font-bold uppercase tracking-[0.4em] text-black/95 mb-8 drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)]">
-          Plato no disponible
+        <h2 className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out text-xs font-black uppercase tracking-[0.4em] text-slate-400 mb-8">
+          Recurso No Localizado
         </h2>
         
-        {/* Descripción GHOST */}
-        <p className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out mb-12 px-6 leading-relaxed font-serif italic text-xl text-black/90 drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)]">
-           "La especialidad que busca no se encuentra en nuestra carta de hoy. Permítanos guiarle de vuelta al menú principal."
+        <p className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out mb-12 max-w-sm text-center leading-relaxed font-medium text-slate-500">
+           "La página, préstamo o expediente que intenta consultar no existe en nuestra base de datos activa. Verifique la URL e intente nuevamente."
         </p>
         
-        {/* Botón GHOST (Bordes blancos) */}
         <div className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out">
           <a
-            href="/"
-            className="group inline-flex items-center gap-3 px-10 py-5 bg-transparent text-black border border-black font-black uppercase text-xs tracking-[0.2em] hover:bg-black-50 transition-all duration-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)]"
+            href="/home"
+            className="group inline-flex items-center gap-3 px-10 py-4 bg-white text-slate-900 border-2 border-slate-900 rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all duration-300"
           >
-            <HiOutlineArrowLongLeft className="text-xl text-black group-hover:-translate-x-2 transition-transform duration-300" />
-            Regresar
+            <HiOutlineArrowLongLeft className="text-xl group-hover:-translate-x-2 transition-transform duration-300" />
+            Volver al Inicio
           </a>
         </div>
 
       <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(2deg); }
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
         }
         .animate-float {
-          animation: float 6s ease-in-out infinite;
+          animation: float 4s ease-in-out infinite;
         }
         .animate-in {
           opacity: 0;

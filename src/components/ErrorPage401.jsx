@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { HiOutlineArrowLongLeft } from 'react-icons/hi2';
-import { LuUtensilsCrossed } from 'react-icons/lu';
-import { PiHandPalmBold } from 'react-icons/pi';
+import { ShieldExclamationIcon, LockClosedIcon } from '@heroicons/react/24/outline'; // 🔥 Usamos LockClosedIcon de Heroicons
 
 const UnauthorizedPage = () => {
   useEffect(() => {
@@ -14,42 +13,37 @@ const UnauthorizedPage = () => {
   }, []);
 
   return (
-    // FONDO BLANCO
     <div className="min-h-screen flex flex-col items-center justify-center bg-white text-black font-sans p-4 relative">
-      
-        <div className="relative z-10 text-center">
+        <div className="relative z-10 text-center max-w-md">
           
-          {/* Icono Principal Ghost (Blanco sobre Blanco) */}
+          {/* Icono de Seguridad Financiera */}
           <div className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out mb-8">
-            <div className="relative inline-block border-2 border-black p-6 rounded-full shadow-[inset_0_0_10px_rgba(0,0,0,0.02)]">
-                <LuUtensilsCrossed className="text-5xl text-black drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.1)]" />
-                <PiHandPalmBold className="text-3xl text-black bg-black rounded-full p-1 absolute -bottom-1 -right-1 border-2 border-black-100" />
+            <div className="relative inline-block border-2 border-red-600 p-8 rounded-3xl shadow-sm">
+                <ShieldExclamationIcon className="w-16 h-16 text-red-600" />
+                {/* 🔥 Cambiado a LockClosedIcon que es más estándar */}
+                <LockClosedIcon className="w-8 h-8 text-white bg-red-600 rounded-lg p-1.5 absolute -bottom-2 -right-2 border-2 border-white" />
             </div>
           </div>
           
-          {/* Título GHOST (Blanco sobre Blanco con sombra sutil) */}
-          <h1 className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out text-6xl font-serif font-extralight text-black mb-2 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.08)]">
+          <h1 className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out text-7xl font-black text-slate-900 mb-2">
             401
           </h1>
           
-          {/* Subtítulo GHOST */}
-          <h2 className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out text-xs font-black uppercase tracking-[0.3em] text-black/90 mb-6 drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)]">
-            Área Reservada
+          <h2 className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out text-sm font-black uppercase tracking-[0.3em] text-red-600 mb-6">
+            Acceso Restringido
           </h2>
           
-          {/* Texto explicativo GHOST */}
-          <p className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out mb-10 leading-relaxed font-serif italic text-lg text-black/90 drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)]">
-             "Lo sentimos, su mesa no tiene acceso a esta sección del restaurante. Por favor, consulte con nuestro personal de servicio."
+          <p className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out mb-10 leading-relaxed font-medium text-slate-500">
+             "Su perfil de usuario no cuenta con las credenciales necesarias para acceder a este módulo financiero. Si cree que esto es un error, contacte al administrador del sistema."
           </p>
           
-          {/* Botones de acción GHOST (Bordes blancos finos) */}
           <div className="animate-in opacity-0 translate-y-4 transition-all duration-700 ease-out">
             <a
-              href="/"
-              className="group inline-flex items-center gap-3 px-10 py-5 bg-transparent text-black border border-black font-black uppercase text-xs tracking-[0.2em] hover:bg-black-50 transition-all duration-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)]"
+              href="/home"
+              className="group inline-flex items-center gap-3 px-10 py-4 bg-slate-900 text-white rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] hover:bg-black transition-all duration-300 shadow-xl shadow-slate-200"
             >
-              <HiOutlineArrowLongLeft className="text-xl text-black group-hover:-translate-x-2 transition-transform duration-300" />
-              Regresar
+              <HiOutlineArrowLongLeft className="text-xl group-hover:-translate-x-2 transition-transform duration-300" />
+              Regresar al Panel
             </a>
           </div>
       </div>
