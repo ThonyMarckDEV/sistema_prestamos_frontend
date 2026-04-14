@@ -1,17 +1,45 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { index, changeStatus , show } from 'services/solicitudPrestamoService';
+import { index, changeStatus, show } from 'services/solicitudPrestamoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useIndex = () => {
     const [loading, setLoading] = useState(true);
     const [solicitudes, setSolicitudes] = useState([]);
     const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
+    
+    // Filtros por defecto: Pendientes (1)
     const [filters, setFilters] = useState({ search: '', estado: '1' });
     const filtersRef = useRef(filters);
+    
     const [alert, setAlert] = useState(null);
+    
+    // Estados para Ver Detalle
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [viewData, setViewData] = useState(null);
     const [viewLoading, setViewLoading] = useState(false);
+
+    // Estados para el Modal de Aprobación
+    const [isApproveOpen, setIsApproveOpen] = useState(false);
+    const [selectedSolicitud, setSelectedSolicitud] = useState(null);
+
+    const fetchSolicitudes = useCallback(async (page = 1) => {
+        setLoading(true);
+        try {
+            const response = await index(page, filtersRef.current);
+            setSolicitudes(response.data || []);
+            setPaginationInfo({
+                currentPage: response.current_page,
+                totalPages: response.last_page,
+                total: response.total
+            });
+        } catch (err) { 
+            setAlert(handleApiError(err)); 
+        } finally { 
+            setLoading(false); 
+        }
+    }, []);
+
+    useEffect(() => { fetchSolicitudes(1); }, [fetchSolicitudes]);
 
     const handleView = async (id) => {
         setIsViewOpen(true);
@@ -27,30 +55,24 @@ export const useIndex = () => {
         }
     };
 
-    const fetchSolicitudes = useCallback(async (page = 1) => {
+    const openApproveModal = (solicitud) => {
+        setSelectedSolicitud(solicitud);
+        setIsApproveOpen(true);
+    };
+
+    const handleUpdateStatus = async (id, nuevoEstado, abonadoPor = 'CAJA CHICA') => {
         setLoading(true);
         try {
-            const response = await index(page, filtersRef.current);
-            setSolicitudes(response.data || []);
-            setPaginationInfo({
-                currentPage: response.current_page,
-                totalPages: response.last_page,
-                total: response.total
-            });
-        } catch (err) { setAlert(handleApiError(err)); }
-        finally { setLoading(false); }
-    }, []);
-
-    useEffect(() => { fetchSolicitudes(1); }, [fetchSolicitudes]);
-
-    const handleUpdateStatus = async (id, nuevoEstado) => {
-        setLoading(true);
-        try {
-            await changeStatus(id, nuevoEstado);
-            setAlert({ type: 'success', message: 'Estado actualizado correctamente.' });
+            // Mandamos estado y el origen del dinero (abonado_por)
+            await changeStatus(id, nuevoEstado, abonadoPor);
+            setAlert({ type: 'success', message: 'Solicitud procesada correctamente.' });
+            setIsApproveOpen(false);
             fetchSolicitudes(paginationInfo.currentPage);
-        } catch (err) { setAlert(handleApiError(err)); }
-        finally { setLoading(false); }
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleFilterChange = (name, val) => setFilters(prev => ({ ...prev, [name]: val }));
@@ -65,6 +87,7 @@ export const useIndex = () => {
     return { 
         loading, solicitudes, paginationInfo, filters, alert, setAlert, 
         handleUpdateStatus, handleFilterChange, handleFilterSubmit, handleFilterClear, 
-        fetchSolicitudes, isViewOpen, setIsViewOpen, viewData, viewLoading, handleView
-     };
+        fetchSolicitudes, isViewOpen, setIsViewOpen, viewData, viewLoading, handleView,
+        isApproveOpen, setIsApproveOpen, selectedSolicitud, openApproveModal
+    };
 };

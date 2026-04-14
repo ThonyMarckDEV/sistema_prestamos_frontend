@@ -37,11 +37,14 @@ export const update = async (id, data) => {
     return handleResponse(response);
 };
 
-export const changeStatus = async (id, estado) => {
+export const changeStatus = async (id, estado, abonado_por) => {
     const response = await fetchWithAuth(`${BASE_URL}/status/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estado })
+        body: JSON.stringify({ 
+            estado,
+            abonado_por: abonado_por
+        })
     });
     return handleResponse(response);
 };
