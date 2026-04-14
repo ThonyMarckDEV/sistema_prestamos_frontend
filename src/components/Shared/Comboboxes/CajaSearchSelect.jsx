@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { combobox } from 'services/cajaService'; // Asegúrate de importar el servicio correcto
+import { combobox } from 'services/cajaService';
 import { MagnifyingGlassIcon, XMarkIcon, InboxStackIcon } from '@heroicons/react/24/outline';
 
 const CajaSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
@@ -10,7 +10,6 @@ const CajaSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
     
     const wrapperRef = useRef(null);
 
-    // Cerrar sugerencias al hacer click fuera
     useEffect(() => {
         function handleClickOutside(event) {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target)) setShowSuggestions(false);
@@ -23,7 +22,6 @@ const CajaSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
         setLoading(true);
         try {
             const response = await combobox(term);
-            // El backend devuelve paginado, así que tomamos la propiedad 'data'
             const dataCajas = response.data?.data || response.data || [];
             setSuggestions(dataCajas);
             setShowSuggestions(true);
@@ -38,9 +36,8 @@ const CajaSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
         const texto = e.target.value;
         setInputValue(texto);
         
-        // Buscamos si hay al menos 1 letra para que sea rápido, o mostramos todas si está vacío
         if (texto.trim() === '') {
-            fetchCajas(''); // Cargar lista inicial
+            fetchCajas('');
         } else {
             fetchCajas(texto);
         }

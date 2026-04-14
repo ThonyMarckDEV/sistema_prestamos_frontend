@@ -134,7 +134,7 @@ const Index = () => {
                 title="Historial de Operaciones" 
                 icon={DocumentTextIcon} 
                 buttonText="Ir a Caja Operativa" 
-                buttonLink="/operacion-caja/store" 
+                buttonLink="/operacion/caja" 
             />
             
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
