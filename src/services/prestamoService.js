@@ -18,3 +18,12 @@ export const show = async (id) => {
     const response = await fetchWithAuth(`${BASE_URL}/show/${id}`, { method: 'GET' });
     return handleResponse(response);
 };
+
+export const combobox = async (tipoOperacion, search = '') => {
+    const params = new URLSearchParams({
+        tipo_operacion: tipoOperacion,
+        search: search
+    });
+    const response = await fetchWithAuth(`${BASE_URL}/combobox?${params.toString()}`, { method: 'GET' });
+    return handleResponse(response);
+};

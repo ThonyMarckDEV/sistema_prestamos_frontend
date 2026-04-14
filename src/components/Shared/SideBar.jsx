@@ -81,7 +81,7 @@ export const MENU_GROUPS = [
             { 
                 section: 'Cajas', icon: WalletIcon,
                 subs: [
-                    { name: 'Mis Sesiones (Apertura/Cierre)', link: '/caja/sesiones/listar', requiredPermission: 'cajaSesion.index' },
+                    { name: 'Sesiones (Apertura/Cierre)', link: '/caja/sesiones/listar', requiredPermission: 'cajaSesion.index' },
                     { name: 'Gestión de Cajas', link: '/caja/listar', requiredPermission: 'caja.index' },
                     { name: 'Nueva Caja', link: '/caja/agregar', requiredPermission: 'caja.store' },
                 ],
