@@ -1,7 +1,6 @@
 import React from 'react';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import { 
-    BanknotesIcon, 
     CalendarIcon, 
     UserIcon, 
     InformationCircleIcon 
