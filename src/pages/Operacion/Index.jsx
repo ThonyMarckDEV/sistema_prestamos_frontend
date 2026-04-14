@@ -24,91 +24,98 @@ const Index = () => {
     const columns = useMemo(() => {
         const baseColumns = [
             {
-                header: 'Tipo de Operación',
+                header: 'Tipo',
                 render: (row) => (
-                    <div className={`flex items-center gap-3 ${row.estado === 0 ? 'opacity-50' : ''}`}>
+                    <div className={`flex items-center gap-2 ${row.estado === 0 ? 'opacity-50' : ''}`}>
                         {row.categoria === 'desembolso' ? (
-                            <div className={`p-2 rounded-xl border ${row.estado === 0 ? 'bg-slate-100 border-slate-300' : 'bg-blue-100 border-blue-200'}`}>
-                                <ArrowUpRightIcon className={`w-5 h-5 ${row.estado === 0 ? 'text-slate-500' : 'text-blue-600'}`} />
+                            <div className={`p-1.5 rounded-lg border ${row.estado === 0 ? 'bg-slate-100 border-slate-300' : 'bg-blue-100 border-blue-200'}`}>
+                                <ArrowUpRightIcon className={`w-4 h-4 ${row.estado === 0 ? 'text-slate-500' : 'text-blue-600'}`} />
                             </div>
                         ) : (
-                            <div className={`p-2 rounded-xl border ${row.estado === 0 ? 'bg-slate-100 border-slate-300' : 'bg-green-100 border-green-200'}`}>
-                                <ArrowDownRightIcon className={`w-5 h-5 ${row.estado === 0 ? 'text-slate-500' : 'text-green-600'}`} />
+                            <div className={`p-1.5 rounded-lg border ${row.estado === 0 ? 'bg-slate-100 border-slate-300' : 'bg-green-100 border-green-200'}`}>
+                                <ArrowDownRightIcon className={`w-4 h-4 ${row.estado === 0 ? 'text-slate-500' : 'text-green-600'}`} />
                             </div>
                         )}
-                        <span className={`font-black text-xs uppercase tracking-wider ${row.estado === 0 ? 'text-slate-500 line-through' : (row.categoria === 'desembolso' ? 'text-blue-700' : 'text-green-700')}`}>
-                            {row.categoria === 'desembolso' ? 'DESEMBOLSO' : 'COBRO CUOTA'}
+                        <span className={`font-bold text-[11px] uppercase tracking-wide ${row.estado === 0 ? 'text-slate-400 line-through' : (row.categoria === 'desembolso' ? 'text-blue-700' : 'text-green-700')}`}>
+                            {row.categoria === 'desembolso' ? 'Desembolso' : 'Cobro'}
                         </span>
                     </div>
                 )
             },
             {
-                header: 'Detalle y Código',
+                // ✅ CÓDIGO + MOTIVO fusionados en una sola columna
+                header: 'Detalle',
                 render: (row) => (
-                    <div className="text-xs font-medium">
-                        <span className={`block ${row.estado === 0 ? 'text-red-500 line-through' : 'text-slate-800'}`}>
+                    <div className="text-xs">
+                        <span className={`font-mono text-[15px] block mb-0.5 ${row.estado === 0 ? 'text-slate-400' : 'text-slate-400'}`}>
+                            {row.numero_comprobante ?? '—'}
+                        </span>
+                        <span className={`font-medium block ${row.estado === 0 ? 'text-red-400 line-through' : 'text-slate-800'}`}>
                             {row.motivo}
                         </span>
-                        {row.estado === 0 && <span className="text-[10px] text-red-600 font-bold uppercase mt-1 block">Anulado</span>}
+                        {row.estado === 0 && (
+                            <span className="text-[10px] text-red-500 font-bold uppercase mt-0.5 block">Anulado</span>
+                        )}
                     </div>
                 )
             },
             {
                 header: 'Cajero',
                 render: (row) => (
-                    <div className={`text-xs font-bold uppercase ${row.estado === 0 ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <div className={`text-xs font-semibold uppercase ${row.estado === 0 ? 'text-slate-400' : 'text-slate-600'}`}>
                         {row.cajero}
                     </div>
                 )
             },
             {
-                header: 'Fecha y Hora',
-                render: (row) => (
-                    <div className={`text-xs font-bold ${row.estado === 0 ? 'text-slate-400' : 'text-slate-500'}`}>
-                        {new Date(row.fecha).toLocaleString('es-PE', {
-                            day: '2-digit', month: '2-digit', year: 'numeric',
-                            hour: '2-digit', minute: '2-digit', hour12: true
-                        })}
-                    </div>
-                )
+                // ✅ Fecha compacta en dos líneas en lugar de una larga
+                header: 'Fecha',
+                render: (row) => {
+                    const d = new Date(row.fecha);
+                    return (
+                        <div className={`text-xs ${row.estado === 0 ? 'text-slate-400' : 'text-slate-500'}`}>
+                            <span className="font-semibold block">
+                                {d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            </span>
+                            <span className="text-[11px]">
+                                {d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                            </span>
+                        </div>
+                    );
+                }
             },
             {
                 header: 'Monto',
                 render: (row) => (
-                    <div className={`text-sm font-black italic text-right ${row.estado === 0 ? 'text-slate-400 line-through' : (row.tipo === 'ingreso' ? 'text-green-600' : 'text-red-600')}`}>
-                        {row.tipo === 'ingreso' ? '+' : '-'} S/ {row.monto}
+                    <div className={`text-sm font-black italic text-right whitespace-nowrap ${row.estado === 0 ? 'text-slate-400 line-through' : (row.tipo === 'ingreso' ? 'text-green-600' : 'text-red-600')}`}>
+                        {row.tipo === 'ingreso' ? '+' : '-'} S/ {parseFloat(row.monto).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                     </div>
                 )
             }
         ];
 
-        // 3. Agregamos la columna de Acciones SOLO si tiene algún permiso
         if (canGeneratePdf || canDelete) {
             baseColumns.push({
-                header: 'Acciones',
+                header: '',  // ✅ Sin header para ahorrar espacio
                 render: (row) => (
-                    <div className="flex items-center gap-2 justify-end">
-                        
-                        {/* Botón Ver Comprobante */}
+                    <div className="flex items-center gap-1.5 justify-end">
                         {canGeneratePdf && (
-                            <button 
+                            <button
                                 onClick={() => handleViewPdf(row.id)}
                                 disabled={pdfLoading || row.estado === 0}
                                 title="Ver Comprobante"
-                                className={`p-2 rounded-lg transition-all border shadow-sm ${row.estado === 0 ? 'bg-slate-50 text-slate-300 border-transparent cursor-not-allowed' : 'bg-slate-100 text-slate-500 hover:text-black hover:bg-slate-200 border-slate-200'}`}
+                                className={`p-1.5 rounded-lg transition-all border ${row.estado === 0 ? 'bg-slate-50 text-slate-300 border-transparent cursor-not-allowed' : 'bg-slate-100 text-slate-500 hover:text-black hover:bg-slate-200 border-slate-200'}`}
                             >
-                                <PrinterIcon className="w-5 h-5" />
+                                <PrinterIcon className="w-4 h-4" />
                             </button>
                         )}
-
-                        {/* Botón Anular */}
                         {canDelete && row.estado !== 0 && (
-                            <button 
+                            <button
                                 onClick={() => openAnularModal(row.id)}
                                 title="Anular Operación"
-                                className="p-2 bg-red-50 text-red-500 hover:text-white hover:bg-red-600 rounded-lg transition-all border border-red-100 shadow-sm"
+                                className="p-1.5 bg-red-50 text-red-500 hover:text-white hover:bg-red-600 rounded-lg transition-all border border-red-100"
                             >
-                                <TrashIcon className="w-5 h-5" />
+                                <TrashIcon className="w-4 h-4" />
                             </button>
                         )}
                     </div>

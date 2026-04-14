@@ -6,6 +6,7 @@ import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import { BanknotesIcon, EyeIcon } from '@heroicons/react/24/outline';
 import ViewPrestamoModal from './ViewPrestamoModal';
+import { useAuth } from 'context/AuthContext';
 
 const Index = () => {
     const {
@@ -14,18 +15,36 @@ const Index = () => {
         handleView, isViewOpen, setIsViewOpen, viewData, viewLoading
     } = useIndex();
 
-    const filterConfig = useMemo(() => [
-        { name: 'search', type: 'text', label: 'Buscar Cliente / DNI', placeholder: 'Ej: Mendoza...', colSpan: 'col-span-12 md:col-span-8' },
-        { 
-            name: 'estado', type: 'select', label: 'Estado Préstamo', colSpan: 'col-span-12 md:col-span-4',
+    const { role } = useAuth();
+    
+    const filterConfig = useMemo(() => {
+        const config = [];
+        
+        if (role !== 'cliente') {
+            config.push({ 
+                name: 'search', 
+                type: 'text', 
+                label: 'Buscar Cliente / DNI', 
+                placeholder: 'Ej: Mendoza...', 
+                colSpan: 'col-span-12 md:col-span-8' 
+            });
+        }
+
+        config.push({ 
+            name: 'estado', 
+            type: 'select', 
+            label: 'Estado Préstamo', 
+            colSpan: role !== 'cliente' ? 'col-span-12 md:col-span-4' : 'col-span-12',
             options: [
                 { value: '1', label: 'VIGENTES' },
                 { value: '2', label: 'CANCELADOS' },
                 { value: '3', label: 'LIQUIDADOS' },
                 { value: 'all', label: 'TODOS' }
             ]
-        }
-    ], []);
+        });
+
+        return config;
+    }, [role]);
 
     const columns = useMemo(() => [
         { header: 'Cliente / Producto', render: (row) => (

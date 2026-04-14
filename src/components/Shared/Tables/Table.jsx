@@ -120,7 +120,7 @@ const Table = ({
             )}
 
             {/* --- TABLA RESPONSIVA (CARDS EN MÓVIL) --- */}
-            <div className={`transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+            <div className={`transition-opacity duration-300 overflow-x-auto ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <table className="min-w-full md:divide-y md:divide-gray-200 w-full block md:table">
                     
                     <thead className="hidden md:table-header-group bg-gray-100">

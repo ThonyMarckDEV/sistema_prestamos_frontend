@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { XCircleIcon } from '@heroicons/react/24/outline';
 
 const RechazarPagoModal = ({ isOpen, onClose, onConfirm, loading }) => {
     const [motivo, setMotivo] = useState('');
