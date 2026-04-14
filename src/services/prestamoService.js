@@ -28,3 +28,13 @@ export const combobox = async (tipoOperacion, search = '') => {
     const response = await fetchWithAuth(`${BASE_URL}/combobox?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);
 };
+
+export const uploadAbono = async (id, file) => {
+    const formData = new FormData();
+    formData.append('comprobante', file);
+    const response = await fetchWithAuth(`${BASE_URL}/abono/${id}`, {
+        method: 'POST',
+        body: formData,
+    });
+    return handleResponse(response);
+};
