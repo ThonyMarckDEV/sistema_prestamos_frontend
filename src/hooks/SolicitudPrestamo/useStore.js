@@ -16,6 +16,8 @@ export const useStore = () => {
         }
     });
 
+    const isBlocked = formData.modalidad === 'VIGENTE (NO APLICA)';
+
     const handleChange = (field, value) => {
         if (field.includes('.')) {
             const [obj, key] = field.split('.');
@@ -27,14 +29,19 @@ export const useStore = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isBlocked) return;
+        
         setLoading(true);
         try {
             await store(formData);
             setAlert({ type: 'success', message: 'Solicitud enviada con éxito.' });
             setTimeout(() => navigate('/solicitudPrestamo/listar'), 1500);
-        } catch (err) { setAlert(handleApiError(err)); }
-        finally { setLoading(false); }
+        } catch (err) { 
+            setAlert(handleApiError(err)); 
+        } finally { 
+            setLoading(false); 
+        }
     };
 
-    return { formData, loading, alert, setAlert, handleChange, handleSubmit };
+    return { formData, loading, alert, setAlert, handleChange, handleSubmit, isBlocked };
 };
