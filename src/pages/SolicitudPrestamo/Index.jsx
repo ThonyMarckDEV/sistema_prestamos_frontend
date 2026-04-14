@@ -1,20 +1,49 @@
 import React, { useMemo } from 'react';
 import { useIndex } from 'hooks/SolicitudPrestamo/useIndex';
+import { useAuth } from 'context/AuthContext';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
-import { DocumentTextIcon, CheckIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon, CheckIcon, XMarkIcon, PencilSquareIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import ViewSolicitudModal from './ViewSolicitudModal';
-import { EyeIcon } from 'lucide-react';
 
 const Index = () => {
-    const { loading, solicitudes, paginationInfo, filters, alert, setAlert, 
+    const { can } = useAuth(); 
+    const { 
+        loading, solicitudes, paginationInfo, filters, alert, setAlert, 
         handleUpdateStatus, handleFilterChange, handleFilterSubmit, 
-        handleFilterClear, fetchSolicitudes , handleView, 
-        isViewOpen, setIsViewOpen, viewData, viewLoading,
+        handleFilterClear, fetchSolicitudes, handleView, 
+        isViewOpen, setIsViewOpen, viewData, viewLoading 
     } = useIndex();
+
+    // Verificación de permisos una sola vez
+    const canShow = can('solicitudPrestamo.show');
+    const canUpdate = can('solicitudPrestamo.update');
+    const canChangeStatus = can('solicitudPrestamo.status');
+
+    const filterConfig = useMemo(() => [
+        { 
+            name: 'search', 
+            type: 'text', 
+            label: 'Buscar Cliente / DNI', 
+            placeholder: 'Ej: Anthony, 61883939...',
+            colSpan: 'col-span-12 md:col-span-8' 
+        },
+        { 
+            name: 'estado', 
+            type: 'select', 
+            label: 'Estado', 
+            colSpan: 'col-span-12 md:col-span-4',
+            options: [
+                { value: '1', label: 'SOLO PENDIENTES' },
+                { value: '2', label: 'APROBADAS' },
+                { value: '3', label: 'RECHAZADAS' },
+                { value: 'all', label: 'TODAS LAS SOLICITUDES' }
+            ]
+        }
+    ], []);
 
     const columns = useMemo(() => [
         { 
@@ -22,7 +51,7 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col">
                     <span className="font-bold text-slate-800 text-xs uppercase">{row.cliente_nombre}</span>
-                    <span className="text-[10px] text-slate-400 font-medium">Asesor: {row.asesor_nombre}</span>
+                    <span className="text-[10px] text-slate-400 font-medium uppercase">Asesor: {row.asesor_nombre}</span>
                 </div>
             ) 
         },
@@ -31,7 +60,7 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col">
                     <span className="font-black text-red-600">S/ {row.monto_solicitado}</span>
-                    <span className="text-[10px] text-slate-500 font-bold">{row.cuotas_solicitadas} cuotas | {row.frecuencia}</span>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">{row.cuotas_solicitadas} cuotas | {row.frecuencia}</span>
                 </div>
             ) 
         },
@@ -40,7 +69,7 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col">
                     <span className="text-xs font-bold text-slate-700">{row.producto_nombre}</span>
-                    <span className="text-[10px] text-blue-600 font-black">Tasa: {row.tasa_interes}%</span>
+                    <span className="text-[10px] text-blue-600 font-black uppercase">Tasa: {row.tasa_interes}%</span>
                 </div>
             ) 
         },
@@ -64,30 +93,57 @@ const Index = () => {
             header: 'Acciones', 
             render: (row) => (
                 <div className="flex gap-2">
-                    <button onClick={() => handleView(row.id)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg">
-                        <EyeIcon className="w-4 h-4" />
-                    </button>
-                    <Link to={`/solicitudPrestamo/editar/${row.id}`} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <PencilSquareIcon className="w-4 h-4"/>
-                    </Link>
+                    {canShow && (
+                        <button onClick={() => handleView(row.id)} title="Ver Detalle" className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors">
+                            <EyeIcon className="w-4 h-4" />
+                        </button>
+                    )}
+
                     {row.estado === 1 && (
                         <>
-                            <button title="Aprobar" onClick={() => handleUpdateStatus(row.id, 2)} className="p-1.5 text-green-500 hover:bg-green-50 rounded-lg"><CheckIcon className="w-4 h-4"/></button>
-                            <button title="Rechazar" onClick={() => handleUpdateStatus(row.id, 3)} className="p-1.5 text-red-400 hover:bg-red-50 rounded-lg"><XMarkIcon className="w-4 h-4"/></button>
+                            {canUpdate && (
+                                <Link to={`/solicitudPrestamo/editar/${row.id}`} title="Editar" className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                    <PencilSquareIcon className="w-4 h-4"/>
+                                </Link>
+                            )}
+
+                            {canChangeStatus && (
+                                <>
+                                    <button title="Aprobar" onClick={() => handleUpdateStatus(row.id, 2)} className="p-1.5 text-green-500 hover:bg-green-50 rounded-lg transition-colors">
+                                        <CheckIcon className="w-4 h-4"/>
+                                    </button>
+                                    <button title="Rechazar" onClick={() => handleUpdateStatus(row.id, 3)} className="p-1.5 text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                                        <XMarkIcon className="w-4 h-4"/>
+                                    </button>
+                                </>
+                            )}
                         </>
                     )}
                 </div>
             )
         }
-    ], [handleUpdateStatus, handleView]);
+    ], [handleUpdateStatus, handleView, canShow, canUpdate, canChangeStatus]); // Agregamos las dependencias de permisos
 
     if (loading && solicitudes.length === 0) return <LoadingScreen />;
 
     return (
         <div className="container mx-auto p-6">
-            <PageHeader title="Solicitudes" icon={DocumentTextIcon} buttonText="+ Nueva Solicitud" buttonLink="/solicitudPrestamo/agregar" />
+            <PageHeader title="Solicitudes de Préstamo" icon={DocumentTextIcon} buttonText="+ Nueva Solicitud" buttonLink="/solicitudPrestamo/agregar" />
+            
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
-            <Table columns={columns} data={solicitudes} loading={loading} pagination={{ ...paginationInfo, onPageChange: fetchSolicitudes }} onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit} onFilterClear={handleFilterClear} filters={filters} filterConfig={[{name: 'search', type: 'text', label: 'Buscar Cliente', colSpan: 'col-span-12'}]} />
+            
+            <Table 
+                columns={columns} 
+                data={solicitudes} 
+                loading={loading} 
+                pagination={{ ...paginationInfo, onPageChange: fetchSolicitudes }} 
+                onFilterChange={handleFilterChange} 
+                onFilterSubmit={handleFilterSubmit} 
+                onFilterClear={handleFilterClear} 
+                filters={filters} 
+                filterConfig={filterConfig}
+            />
+
             <ViewSolicitudModal 
                 isOpen={isViewOpen} 
                 onClose={() => setIsViewOpen(false)} 
@@ -97,4 +153,5 @@ const Index = () => {
         </div>
     );
 };
+
 export default Index;

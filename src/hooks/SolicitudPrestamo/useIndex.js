@@ -6,7 +6,7 @@ export const useIndex = () => {
     const [loading, setLoading] = useState(true);
     const [solicitudes, setSolicitudes] = useState([]);
     const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
-    const [filters, setFilters] = useState({ search: '', estado: '' });
+    const [filters, setFilters] = useState({ search: '', estado: '1' });
     const filtersRef = useRef(filters);
     const [alert, setAlert] = useState(null);
     const [isViewOpen, setIsViewOpen] = useState(false);
@@ -56,8 +56,10 @@ export const useIndex = () => {
     const handleFilterChange = (name, val) => setFilters(prev => ({ ...prev, [name]: val }));
     const handleFilterSubmit = () => { filtersRef.current = filters; fetchSolicitudes(1); };
     const handleFilterClear = () => {
-        const res = { search: '', estado: '' };
-        setFilters(res); filtersRef.current = res; fetchSolicitudes(1);
+        const res = { search: '', estado: '1' };
+        setFilters(res); 
+        filtersRef.current = res; 
+        fetchSolicitudes(1);
     };
 
     return { 

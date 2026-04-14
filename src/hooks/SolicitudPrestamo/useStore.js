@@ -10,7 +10,10 @@ export const useStore = () => {
     const [formData, setFormData] = useState({
         cliente_id: '', producto_id: '', monto_solicitado: '', tasa_interes: '',
         cuotas_solicitadas: '', frecuencia: 'SEMANAL', modalidad: '', observaciones: '',
-        aval: { dni_aval: '', nombres_aval: '', apellido_paterno_aval: '', apellido_materno_aval: '', telefono_movil_aval: '', direccion_aval: '', relacion_cliente_aval: '', departamento_aval: 'PIURA', provincia_aval: 'TALARA', distrito_aval: 'PARIÑAS' }
+        aval: { dni_aval: '', nombres_aval: '', apellido_paterno_aval: '', apellido_materno_aval: '', 
+                telefono_movil_aval: '', direccion_aval: '', relacion_cliente_aval: '', departamento_aval: '', 
+                provincia_aval: '', distrito_aval: '' 
+        }
     });
 
     const handleChange = (field, value) => {
