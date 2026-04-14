@@ -150,7 +150,7 @@ const Table = ({
                                             </span>
 
                                             <span className="text-right md:text-left truncate max-w-[70%] md:max-w-none">
-                                                {col.render ? col.render(row) : row[col.accessor]}
+                                                {col.render ? col.render(row, col, data) : row[col.accessor]}
                                             </span>
                                         </td>
                                     ))}

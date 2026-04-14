@@ -15,7 +15,7 @@ export const useStore = () => {
     const fetchMisPrestamos = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await index();
+            const res = await index(1, { tipo_operacion: 'cobro' });
             setMisPrestamos(res.data.data || res.data || []);
         } catch (err) {
             setAlert(handleApiError(err));

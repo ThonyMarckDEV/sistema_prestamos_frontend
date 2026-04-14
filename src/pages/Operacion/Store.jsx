@@ -9,7 +9,7 @@ import PdfModal from 'components/Shared/Modals/PdfModal';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import Table from 'components/Shared/Tables/Table';
-import { CurrencyDollarIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/24/outline';
+import { CurrencyDollarIcon, LockClosedIcon, LockOpenIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 
 const Store = () => {
     const { 
@@ -24,28 +24,64 @@ const Store = () => {
         { header: 'N°', render: (row) => <span className="font-bold">#{row.nro}</span> },
         { header: 'Vence', render: (row) => <span className="font-medium">{row.vencimiento}</span> },
         { 
-            header: 'Monto + Mora', 
-            render: (row) => <span className="font-black text-slate-800">S/ {(parseFloat(row.monto) + parseFloat(row.mora)).toFixed(2)}</span> 
+            header: 'Monto', 
+            render: (row) => <span className="font-black text-slate-800">S/ {row.monto}</span> 
+        },
+        { 
+            header: 'Mora',
+            render: (row) => (
+                <span className={`font-black text-sm ${parseFloat(row.mora) > 0 ? 'text-red-600' : 'text-slate-400'}`}>
+                    {parseFloat(row.mora) > 0 ? `S/ ${row.mora}` : '—'}
+                </span>
+            )
         },
         { 
             header: 'Estado', 
             render: (row) => (
-                <span className={`px-2 py-1 rounded-full text-[9px] font-black border ${row.estado === 2 ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'}`}>
-                    {row.estado === 2 ? 'PAGADO' : 'PENDIENTE'}
+                <span className={`px-2 py-1 rounded-full text-[9px] font-black border ${
+                    row.estado === 2 ? 'bg-green-100 text-green-700 border-green-200' : 
+                    row.estado === 5 ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                    'bg-yellow-100 text-yellow-700 border-yellow-200'
+                }`}>
+                    {row.estado === 2 ? 'PAGADO' : row.estado === 5 ? 'EN REVISIÓN' : 'PENDIENTE'}
                 </span>
             )
         },
         { 
             header: 'Acción', 
-            render: (row) => (
-                <div className="flex justify-end">
-                    {row.estado !== 2 && (
-                        <button onClick={() => openPagoModal(row)} className="px-4 py-2 bg-black text-white rounded-lg font-black text-[10px] uppercase shadow-md hover:scale-105 transition-all">
-                            Pagar
+            render: (row, _col, allRows) => {
+                const hayAnteriorPendiente = allRows
+                    .filter(r => r.nro < row.nro)
+                    .some(r => r.estado !== 2);
+
+                const bloqueada = row.estado !== 1 || hayAnteriorPendiente;
+
+                if (row.estado === 2) return null;
+
+                return (
+                    <div className="flex justify-end">
+                        <button 
+                            onClick={() => !bloqueada && openPagoModal(row)} 
+                            disabled={bloqueada}
+                            title={hayAnteriorPendiente ? 'Paga la cuota anterior primero' : row.estado === 5 ? 'En revisión' : 'Registrar pago'}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wide transition-all duration-150 ${
+                                row.estado === 5
+                                    ? 'bg-blue-50 text-blue-600 border border-blue-200 cursor-not-allowed'
+                                    : bloqueada
+                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                        : 'bg-black text-white hover:scale-105 shadow-md'
+                            }`}
+                        >
+                            {row.estado === 5 
+                                ? <><span>⏳</span> En revisión</>
+                                : hayAnteriorPendiente 
+                                    ? <><span>🔒</span> Bloqueada</>
+                                    : <><BanknotesIcon className="w-3.5 h-3.5" /> Cobrar</>
+                            }
                         </button>
-                    )}
-                </div>
-            )
+                    </div>
+                );
+            }
         }
     ], [openPagoModal]);
 
@@ -69,7 +105,6 @@ const Store = () => {
                 </div>
             ) : (
                 <div className="mt-6 space-y-6">
-                    {/* Resumen de Caja */}
                     <div className="flex items-center justify-between bg-black p-5 rounded-2xl shadow-xl text-white">
                         <div>
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Caja activa</span>
@@ -111,7 +146,6 @@ const Store = () => {
                 </div>
             )}
 
-            {/* Modales */}
             <PagoCuotaModal isOpen={isPagoModalOpen} onClose={() => setIsPagoModalOpen(false)} cuota={cuotaSeleccionada} onConfirm={handleConfirmarPago} loading={loading} />
             <AbrirSesionModal isOpen={isAbrirModalOpen} onClose={() => setIsAbrirModalOpen(false)} onConfirm={handleAbrirSesion} loading={loading} />
             <CerrarSesionModal isOpen={isCerrarModalOpen} onClose={() => setIsCerrarModalOpen(false)} onConfirm={handleCerrarSesion} sesionActiva={sesionActiva} loading={loading} />

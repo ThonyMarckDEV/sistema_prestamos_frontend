@@ -4,7 +4,8 @@ import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import Table from 'components/Shared/Tables/Table';
-import { CreditCardIcon, CloudArrowUpIcon, TicketIcon } from '@heroicons/react/24/outline';
+import ReportarPagoModal from './ReportarPagoModal';
+import { CreditCardIcon, CloudArrowUpIcon } from '@heroicons/react/24/outline';
 
 const Store = () => {
     const {
@@ -14,20 +15,35 @@ const Store = () => {
         handleConfirmarPagoVirtual
     } = useStore();
 
+    // --- Definición de Columnas para el Cronograma ---
     const columns = useMemo(() => [
-        { header: 'N°', render: (row) => <span className="font-bold text-slate-400">#{row.nro}</span> },
-        { header: 'Vencimiento', render: (row) => <span className="font-medium">{row.vencimiento}</span> },
         { 
-            header: 'Monto Total', 
-            render: (row) => <span className="font-black text-slate-900 text-sm">S/ {(parseFloat(row.monto) + parseFloat(row.mora)).toFixed(2)}</span> 
+            header: 'N°', 
+            render: (row) => <span className="font-bold text-slate-400">#{row.nro}</span> 
+        },
+        { 
+            header: 'Vencimiento', 
+            render: (row) => <span className="font-medium">{row.vencimiento}</span> 
+        },
+        { 
+            header: 'Monto', 
+            render: (row) => <span className="font-black text-slate-900 text-sm">S/ {row.monto}</span> 
+        },
+        { 
+            header: 'Mora',
+            render: (row) => (
+                <span className={`font-black text-sm ${parseFloat(row.mora) > 0 ? 'text-red-600' : 'text-slate-400'}`}>
+                    {parseFloat(row.mora) > 0 ? `S/ ${row.mora}` : '—'}
+                </span>
+            )
         },
         { 
             header: 'Estado', 
             render: (row) => (
-                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase border ${
-                    row.estado === 2 ? 'bg-green-50 text-green-600 border-green-100' :
-                    row.estado === 5 ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                    'bg-yellow-50 text-yellow-600 border-yellow-100'
+                <span className={`px-2 py-1 rounded-full text-[9px] font-black border ${
+                    row.estado === 2 ? 'bg-green-100 text-green-700 border-green-200' : 
+                    row.estado === 5 ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                    'bg-yellow-100 text-yellow-700 border-yellow-200'
                 }`}>
                     {row.estado === 2 ? 'PAGADO' : row.estado === 5 ? 'EN REVISIÓN' : 'PENDIENTE'}
                 </span>
@@ -35,84 +51,109 @@ const Store = () => {
         },
         { 
             header: 'Acción', 
-            render: (row) => (
-                <div className="flex justify-end">
-                    {row.estado === 1 && (
+            render: (row, _col, allRows) => {
+                // Lógica de bloqueo: No puede pagar si hay una anterior que no esté PAGADA (estado 2)
+                const hayAnteriorPendiente = allRows
+                    .filter(r => r.nro < row.nro)
+                    .some(r => r.estado !== 2);
+
+                const bloqueada = row.estado !== 1 || hayAnteriorPendiente;
+
+                if (row.estado === 2) return null;
+
+                return (
+                    <div className="flex justify-end">
                         <button 
-                            onClick={() => { setCuotaParaPagar(row); setIsModalOpen(true); }}
-                            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-blue-500/20 hover:bg-blue-700 hover:scale-105 transition-all"
+                            onClick={() => { if (!bloqueada) { setCuotaParaPagar(row); setIsModalOpen(true); }}}
+                            disabled={bloqueada}
+                            title={hayAnteriorPendiente ? 'Paga la cuota anterior primero' : row.estado === 5 ? 'En revisión' : 'Pagar cuota'}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wide transition-all duration-150 ${
+                                row.estado === 5
+                                    ? 'bg-blue-50 text-blue-600 border border-blue-200 cursor-not-allowed'
+                                    : bloqueada
+                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                        : 'bg-black text-white hover:scale-105 shadow-md active:scale-95'
+                            }`}
                         >
-                            <CloudArrowUpIcon className="w-4 h-4" /> Pagar Cuota
+                            {row.estado === 5 
+                                ? <><span>⏳</span> En revisión</>
+                                : hayAnteriorPendiente 
+                                    ? <><span>🔒</span> Bloqueada</>
+                                    : <><CloudArrowUpIcon className="w-3.5 h-3.5" /> Pagar Cuota</>
+                            }
                         </button>
-                    )}
-                </div>
-            )
+                    </div>
+                );
+            }
         }
     ], [setIsModalOpen, setCuotaParaPagar]);
 
+    // Pantalla de carga inicial
     if (loading && misPrestamos.length === 0) return <LoadingScreen />;
 
     return (
         <div className="container mx-auto p-4 sm:p-6 max-w-5xl">
+            {/* Cabecera Principal */}
             <PageHeader title="Mi Portal de Pagos" icon={CreditCardIcon} />
-            <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+            
+            {/* Alertas del Sistema */}
+            <AlertMessage 
+                type={alert?.type} 
+                message={alert?.message} 
+                onClose={() => setAlert(null)} 
+            />
 
             <div className="space-y-6 mt-6">
-                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Selecciona un préstamo activo</label>
+                
+                {/* --- 1. SELECCIÓN DE PRÉSTAMO --- */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest ml-1">
+                        Selecciona un préstamo activo
+                    </label>
                     <select 
                         onChange={(e) => handleSelectPrestamo(e.target.value)}
-                        className="w-full p-4 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition-all"
+                        value={prestamoSeleccionado?.id || ''}
+                        className="w-full p-4 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition-all appearance-none cursor-pointer"
                     >
                         <option value="">-- Elige el préstamo que deseas pagar --</option>
                         {misPrestamos.map(p => (
-                            <option key={p.id} value={p.id}>Préstamo #{p.id} - Monto: S/ {p.monto} (Desembolsado: {p.fecha_desembolso})</option>
+                            <option key={p.id} value={p.id}>
+                                Préstamo #{p.id} - Monto: S/ {p.monto} (Inicia: {p.fecha_desembolso || p.fecha_inicio})
+                            </option>
                         ))}
                     </select>
                 </div>
 
+                {/* --- 2. CRONOGRAMA DE CUOTAS --- */}
                 {prestamoSeleccionado && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="mb-3 flex justify-between items-center px-2">
-                             <h3 className="font-black text-slate-800 uppercase text-xs">Mi Cronograma</h3>
-                             <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md">ID: {prestamoSeleccionado.id}</span>
+                             <h3 className="font-black text-slate-800 uppercase text-xs tracking-tight">Mi Cronograma de Pagos</h3>
+                             <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100">
+                                    ID PRÉSTAMO: {prestamoSeleccionado.id}
+                                </span>
+                             </div>
                         </div>
-                        <Table columns={columns} data={prestamoSeleccionado.cronograma || []} loading={loading} />
+                        
+                        {/* Tabla estandarizada */}
+                        <Table 
+                            columns={columns} 
+                            data={prestamoSeleccionado.cronograma || []} 
+                            loading={loading} 
+                        />
                     </div>
                 )}
             </div>
 
-            {/* MODAL DE PAGO VIRTUAL (SUBIR VOUCHER) */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl animate-in zoom-in duration-300">
-                        <div className="flex flex-col items-center text-center mb-6">
-                            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-4">
-                                <TicketIcon className="w-8 h-8 text-blue-600" />
-                            </div>
-                            <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Reportar Pago</h2>
-                            <p className="text-slate-400 text-xs font-bold mt-1">Cuota #{cuotaParaPagar.nro} • S/ {(parseFloat(cuotaParaPagar.monto) + parseFloat(cuotaParaPagar.mora)).toFixed(2)}</p>
-                        </div>
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            handleConfirmarPagoVirtual({ numero_operacion: e.target.numero_operacion.value }, e.target.comprobante.files[0]);
-                        }} className="space-y-5">
-                            <div>
-                                <label className="block text-[10px] font-black uppercase text-slate-400 ml-1 mb-1">N° de Operación</label>
-                                <input name="numero_operacion" required type="text" className="w-full p-4 bg-slate-100 border-none rounded-2xl font-black text-slate-700 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: 832912" />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-black uppercase text-slate-400 ml-1 mb-1">Foto del Comprobante</label>
-                                <input name="comprobante" required type="file" accept="image/*" className="w-full text-xs font-bold text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-blue-50 file:text-blue-700" />
-                            </div>
-                            <div className="flex gap-3 pt-4">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 font-black uppercase text-xs text-slate-400">Cancelar</button>
-                                <button type="submit" disabled={loading} className="flex-1 py-4 bg-black text-white font-black uppercase text-xs rounded-2xl shadow-xl disabled:opacity-50">Enviar Pago</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            {/* --- 3. MODAL DE REPORTE (SPLIT SCREEN) --- */}
+            <ReportarPagoModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                cuota={cuotaParaPagar}
+                onConfirm={handleConfirmarPagoVirtual}
+                loading={loading}
+            />
         </div>
     );
 };

@@ -9,6 +9,7 @@ export const index = async (page = 1, filters = {}) => {
         page: page,
         search: filters.search || '',
         estado: filters.estado || '',
+        tipo_operacion: filters.tipo_operacion || '',
     });
     const response = await fetchWithAuth(`${BASE_URL}/index?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);
