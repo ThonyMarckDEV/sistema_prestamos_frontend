@@ -47,6 +47,13 @@ import ListarSolicitudes from 'pages/SolicitudPrestamo/Index';
 // UI PRESTAMO
 import ListarPrestamos from 'pages/Prestamo/Index';
 
+// UI CAJAS
+import ListarCajas from 'pages/Caja/Index';
+import AgregarCaja from 'pages/Caja/Store';
+import EditarCaja from 'pages/Caja/Update';
+
+// UI SESIONES DE CAJA (TURNOS)
+// import ListarSesiones from 'pages/CajaSesion/Index';
 
 // SETTINGS ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
@@ -86,14 +93,14 @@ function AppContent() {
         <Route path="/entidadBancaria/listar" element={<ProtectedRoute requiredPermission="entidadBancaria.index" element={<ListarEntidadBancarias />} />} />
 
         {/* CARGO MORA */}
-        <Route path="/cargoMora/agregar" element={<ProtectedRoute requiredPermission="entidadBancaria.store" element={<AgregarCargoMora />} />} />
-        <Route path="/cargoMora/editar/:id" element={<ProtectedRoute requiredPermission="entidadBancaria.update" element={<EditarCargoMora />} />} />
-        <Route path="/cargoMora/listar" element={<ProtectedRoute requiredPermission="entidadBancaria.index" element={<ListarCargoMora />} />} />
+        <Route path="/cargoMora/agregar" element={<ProtectedRoute requiredPermission="cargoMora.store" element={<AgregarCargoMora />} />} />
+        <Route path="/cargoMora/editar/:id" element={<ProtectedRoute requiredPermission="cargoMora.update" element={<EditarCargoMora />} />} />
+        <Route path="/cargoMora/listar" element={<ProtectedRoute requiredPermission="cargoMora.index" element={<ListarCargoMora />} />} />
 
         {/* CARGO MORA */}
-        <Route path="/producto/agregar" element={<ProtectedRoute requiredPermission="entidadBancaria.store" element={<AgregarProducto />} />} />
-        <Route path="/producto/editar/:id" element={<ProtectedRoute requiredPermission="entidadBancaria.update" element={<EditarProducto />} />} />
-        <Route path="/producto/listar" element={<ProtectedRoute requiredPermission="entidadBancaria.index" element={<ListarProducto />} />} />
+        <Route path="/producto/agregar" element={<ProtectedRoute requiredPermission="producto.store" element={<AgregarProducto />} />} />
+        <Route path="/producto/editar/:id" element={<ProtectedRoute requiredPermission="producto.update" element={<EditarProducto />} />} />
+        <Route path="/producto/listar" element={<ProtectedRoute requiredPermission="producto.index" element={<ListarProducto />} />} />
 
         {/* SOLICITUD PRESTAMO */}
         <Route path="/solicitudPrestamo/agregar" element={<ProtectedRoute requiredPermission="solicitudPrestamo.store" element={<AgregarSolicitud />} />} />
@@ -102,6 +109,15 @@ function AppContent() {
 
         {/* PRESTAMO */}
         <Route path="/prestamo/listar" element={<ProtectedRoute requiredPermission="prestamo.index" element={<ListarPrestamos />} />} />
+
+        {/* CAJAS  */}
+        <Route path="/caja/listar" element={<ProtectedRoute requiredPermission="caja.index" element={<ListarCajas />} />} />
+        <Route path="/caja/agregar" element={<ProtectedRoute requiredPermission="caja.store" element={<AgregarCaja />} />} />
+        <Route path="/caja/editar/:id" element={<ProtectedRoute requiredPermission="caja.update" element={<EditarCaja />} />} />
+
+        {/* CAJAS SESIONES (TURNOS) */}
+        {/* <Route path="/caja/sesiones/listar" element={<ProtectedRoute requiredPermission="cajaSesion.index" element={<ListarSesiones />} />} />
+        <Route path="/caja/sesiones/detalle/:id" element={<ProtectedRoute requiredPermission="cajaSesion.show" element={<DetalleSesion />} />} /> */}
 
 
         {/* SETTINGS */}
