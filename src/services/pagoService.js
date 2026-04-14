@@ -35,3 +35,8 @@ export const status = async (id, data) => {
     });
     return handleResponse(response);
 };
+
+export const pdf = async (id) => {
+    const response = await fetchWithAuth(`${BASE_URL}/${id}/pdf`, { method: 'GET' });
+    return handleResponse(response);
+};

@@ -5,19 +5,28 @@ import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ViewModal from 'components/Shared/Modals/ViewModal';
-import { CheckIcon, XMarkIcon, BanknotesIcon } from '@heroicons/react/24/outline';
+import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
+import RechazarPagoModal from './RechazarPagoModal';
+import PdfModal from 'components/Shared/Modals/PdfModal';
+import { CheckIcon, XMarkIcon, BanknotesIcon, PrinterIcon } from '@heroicons/react/24/outline';
 import { FileSearch } from 'lucide-react';
 
 const Index = () => {
-    const { loading, pagos, paginationInfo, filters, setFilters, alert, setAlert, fetchPagos, handleStatusChange } = useIndex();
+    const { 
+        loading, pagos, paginationInfo, filters, setFilters, alert, setAlert, fetchPagos, handleStatusChange,
+        handleViewPdf, pdfLoading, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64 
+    } = useIndex();
     const { can } = useAuth();
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedVoucher, setSelectedVoucher] = useState(null);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isRechazarOpen, setIsRechazarOpen] = useState(false);
+    const [activePagoId, setActivePagoId] = useState(null);
 
     const openVoucher = (url) => {
         setSelectedVoucher(url);
-        setIsModalOpen(true);
+        setIsViewModalOpen(true);
     };
 
     const filterConfig = [
@@ -31,10 +40,10 @@ const Index = () => {
         { 
             name: 'estado', 
             type: 'select', 
-            label: 'Estado de Verificación', 
+            label: 'Estado', 
             colSpan: 'col-span-12 md:col-span-5',
             options: [
-                { value: '', label: 'TODOS LOS ESTADOS' },
+                { value: '', label: 'TODOS LOS PAGOS' },
                 { value: '0', label: 'PENDIENTES' },
                 { value: '1', label: 'APROBADOS' },
                 { value: '2', label: 'RECHAZADOS' }
@@ -60,11 +69,7 @@ const Index = () => {
         },
         {
             header: 'Operación',
-            render: (row) => (
-                <span className="font-mono text-[10px] font-bold bg-slate-100 px-2 py-1 rounded border">
-                    {row.numero_operacion}
-                </span>
-            )
+            render: (row) => <span className="font-mono text-[10px] font-bold bg-slate-100 px-2 py-1 rounded border border-slate-200">{row.numero_operacion}</span>
         },
         {
             header: 'Estado',
@@ -92,19 +97,27 @@ const Index = () => {
                         </button>
                     )}
 
+                    {row.estado === 1 && can('pago.generatePDF') && (
+                        <button 
+                            onClick={() => handleViewPdf(row.id)}
+                            disabled={pdfLoading}
+                            className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-black hover:text-white transition-all shadow-sm"
+                            title="Imprimir Recibo"
+                        >
+                            <PrinterIcon className={`w-4 h-4 ${pdfLoading ? 'animate-pulse' : ''}`} />
+                        </button>
+                    )}
+
                     {row.estado === 0 && can('pago.status') && (
                         <>
                             <button 
-                                onClick={() => handleStatusChange(row.id, 1)} 
+                                onClick={() => { setActivePagoId(row.id); setIsConfirmOpen(true); }} 
                                 className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-600 hover:text-white transition-all shadow-sm"
                             >
                                 <CheckIcon className="w-4 h-4" />
                             </button>
                             <button 
-                                onClick={() => {
-                                    const m = prompt("Motivo del rechazo:");
-                                    if(m) handleStatusChange(row.id, 2, m);
-                                }} 
+                                onClick={() => { setActivePagoId(row.id); setIsRechazarOpen(true); }} 
                                 className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm"
                             >
                                 <XMarkIcon className="w-4 h-4" />
@@ -114,11 +127,11 @@ const Index = () => {
                 </div>
             )
         }
-    ], [handleStatusChange, can]);
+    ], [can, pdfLoading, handleViewPdf]);
 
     return (
         <div className="container mx-auto p-6 max-w-7xl">
-            <PageHeader title="Revisión de Pagos" icon={BanknotesIcon} />
+            <PageHeader title="Control de Pagos" icon={BanknotesIcon} />
             <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
             
             <Table 
@@ -130,36 +143,43 @@ const Index = () => {
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
                 onFilterSubmit={() => fetchPagos(1)}
                 onFilterClear={() => {
-                    const reset = { search: '', estado: '' };
-                    setFilters(reset);
+                    setFilters({ search: '', estado: '' });
                     fetchPagos(1);
                 }}
-                pagination={{
-                    currentPage: paginationInfo.currentPage,
-                    totalPages: paginationInfo.totalPages,
-                    total: paginationInfo.total,
-                    onPageChange: (page) => fetchPagos(page)
-                }}
+                pagination={{ ...paginationInfo, onPageChange: fetchPagos }} 
             />
 
-            <ViewModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title="Comprobante de Pago Virtual"
-            >
-                <div className="flex justify-center bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                    {selectedVoucher ? (
-                        <img 
-                            src={selectedVoucher} 
-                            alt="Voucher de pago" 
-                            className="max-w-full h-auto object-contain"
-                            style={{ maxHeight: '70vh' }}
-                        />
-                    ) : (
-                        <p className="py-20 text-gray-400 font-bold">No se pudo cargar la imagen.</p>
-                    )}
+            {/* Modal Imagen Voucher */}
+            <ViewModal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} title="Voucher de Pago">
+                <div className="flex justify-center bg-slate-50 rounded-xl overflow-hidden border border-slate-200">
+                    <img src={selectedVoucher} alt="Voucher" className="max-w-full h-auto object-contain" style={{ maxHeight: '70vh' }} />
                 </div>
             </ViewModal>
+
+            {/* Modal Confirmar Aprobación */}
+            {isConfirmOpen && (
+                <ConfirmModal 
+                    title="Aprobar Pago" 
+                    message="¿Confirmar este pago virtual? Se registrará el ingreso en caja." 
+                    onConfirm={async () => { await handleStatusChange(activePagoId, 1); setIsConfirmOpen(false); }} 
+                    onCancel={() => setIsConfirmOpen(false)} 
+                />
+            )}
+
+            {/* Modal Rechazo */}
+            <RechazarPagoModal 
+                isOpen={isRechazarOpen} 
+                onClose={() => setIsRechazarOpen(false)} 
+                onConfirm={async (m) => { await handleStatusChange(activePagoId, 2, m); setIsRechazarOpen(false); }} 
+                loading={loading} 
+            />
+
+            <PdfModal 
+                isOpen={isPdfModalOpen} 
+                onClose={() => setIsPdfModalOpen(false)} 
+                title={pdfTitle} 
+                base64={pdfBase64} 
+            />
         </div>
     );
 };

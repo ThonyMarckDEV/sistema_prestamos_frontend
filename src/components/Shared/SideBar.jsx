@@ -40,10 +40,10 @@ export const MENU_GROUPS = [
         groupName: 'Portal del Cliente',
         items: [
             {
-                section: 'Mis Pagos',
+                section: 'Pagos',
                 icon: CreditCardIcon,
                 subs: [
-                    { name: 'Reportar Pago Virtual', link: '/pago/registrar', requiredPermission: 'pago.store' },
+                    { name: 'Pagar Cuota', link: '/pago/registrar', requiredPermission: 'pago.store' },
                     { name: 'Ver Pagos', link: '/pago/listar', requiredPermission: 'pago.index' },
                 ],
             }
