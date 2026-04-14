@@ -59,6 +59,10 @@ import EditarCaja from 'pages/Caja/Update';
 import RegistrarOperacion from 'pages/Operacion/Store';
 import ListarOperaciones from 'pages/Operacion/Index';
 
+// UI PAGOS
+import RegistrarPago from 'pages/Pago/Store';
+import ListarPagos from 'pages/Pago/Index';
+
 
 // SETTINGS ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
@@ -127,6 +131,11 @@ function AppContent() {
         {/* OPERACIONES */}
         <Route path="/operacion/caja" element={<ProtectedRoute requiredPermission="operacion.store" element={<RegistrarOperacion />} />} />
         <Route path="/operacion/listar" element={<ProtectedRoute requiredPermission="operacion.store" element={<ListarOperaciones />} />} />
+
+        {/* PAGOS */}
+        <Route path="/pago/registrar" element={<ProtectedRoute requiredPermission="pago.store" element={<RegistrarPago />} />} />
+        <Route path="/pago/listar" element={<ProtectedRoute requiredPermission="pago.store" element={<ListarPagos />} />} />
+
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />
 

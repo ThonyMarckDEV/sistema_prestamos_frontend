@@ -20,7 +20,7 @@ import { useAuth } from 'context/AuthContext';
 
 // Importamos el logo
 import logo from 'assets/img/logo.png'; 
-import { ChevronDownIcon, ChevronLeftIcon, ScaleIcon, ShoppingBagIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronLeftIcon, CreditCardIcon, ScaleIcon, ShoppingBagIcon } from 'lucide-react';
 
 // =======================================================================
 // CONFIGURACIÓN MAESTRA DEL MENÚ - SISTEMA DE PRÉSTAMOS
@@ -33,6 +33,19 @@ export const MENU_GROUPS = [
                 section: 'Home',
                 link: '/home',
                 icon: HomeIcon,
+            }
+        ]
+    },
+    {
+        groupName: 'Portal del Cliente',
+        items: [
+            {
+                section: 'Mis Pagos',
+                icon: CreditCardIcon,
+                subs: [
+                    { name: 'Reportar Pago Virtual', link: '/pago/registrar', requiredPermission: 'pago.store' },
+                    { name: 'Ver Pagos', link: '/pago/listar', requiredPermission: 'pago.index' },
+                ],
             }
         ]
     },
