@@ -25,7 +25,7 @@ const Store = () => {
     return (
         <div className="container mx-auto p-6 max-w-3xl">
             <PageHeader title="Registrar Producto" buttonText="Volver" buttonLink="/producto/listar" />
-            <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+            <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <form onSubmit={handleSubmit} className="mt-6">
                 <ProductoForm data={formData} handleChange={(f, v) => setFormData({...formData, [f]: v})} />
                 <div className="mt-8 flex justify-end">

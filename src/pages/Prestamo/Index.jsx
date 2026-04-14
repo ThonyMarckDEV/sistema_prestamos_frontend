@@ -65,7 +65,7 @@ const Index = () => {
     return (
         <div className="container mx-auto p-6">
             <PageHeader title="Cartera de Préstamos" icon={BanknotesIcon} />
-            <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+            <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             
             <Table 
                 columns={columns} 

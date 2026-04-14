@@ -21,7 +21,7 @@ const Update = () => {
                 buttonLink="/producto/listar"
             />
             
-            <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+            <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             
             <form onSubmit={handleSubmit} className="mt-6 max-w-3xl mx-auto">
                 <ProductoForm data={formData} handleChange={handleChange} />

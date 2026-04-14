@@ -1,0 +1,91 @@
+import React, { useState, useEffect } from 'react';
+import ViewModal from 'components/Shared/Modals/ViewModal';
+import { BanknotesIcon, ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
+
+const CerrarSesionModal = ({ isOpen, onClose, onConfirm, loading, sesionActiva }) => {
+    const [montoReal, setMontoReal] = useState('');
+    const [observaciones, setObservaciones] = useState('');
+
+    const saldoEsperado = sesionActiva ? parseFloat(sesionActiva.saldo_esperado) : 0;
+    const fisico = montoReal !== '' ? parseFloat(montoReal) : 0;
+    const diferencia = parseFloat((fisico - saldoEsperado).toFixed(2));
+
+    useEffect(() => {
+        if (isOpen) {
+            setMontoReal('');
+            setObservaciones('');
+        }
+    }, [isOpen]);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onConfirm({
+            monto_real: montoReal,
+            observaciones: observaciones
+        });
+    };
+
+    return (
+        <ViewModal isOpen={isOpen} onClose={onClose} title="Arqueo y Cierre de Caja">
+            <form onSubmit={handleSubmit} className="space-y-6">
+                
+                <div className="bg-black p-6 rounded-2xl text-center text-white shadow-xl shadow-slate-200">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sistema: Saldo Esperado</p>
+                    <h2 className="text-4xl font-black text-green-400 italic">S/ {saldoEsperado.toFixed(2)}</h2>
+                </div>
+
+                <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Efectivo Real Contado *</label>
+                    <div className="relative">
+                        <BanknotesIcon className="w-5 h-5 absolute left-3 top-3.5 text-slate-400" />
+                        <input 
+                            type="number" 
+                            step="0.01" 
+                            min="0"
+                            required
+                            value={montoReal} 
+                            onChange={(e) => setMontoReal(e.target.value)}
+                            placeholder="¿Cuánto dinero físico hay en la caja?"
+                            className="w-full pl-10 p-3 bg-white border-2 border-slate-200 rounded-xl font-black text-xl text-slate-800 focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                            disabled={loading}
+                        />
+                    </div>
+                </div>
+
+                {montoReal !== '' && (
+                    <div className={`p-4 rounded-xl border text-center ${diferencia === 0 ? 'bg-green-50 border-green-200 text-green-700' : diferencia > 0 ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                        <p className="text-[10px] font-black uppercase mb-1">Diferencia de Arqueo</p>
+                        <h3 className="text-lg font-black">
+                            {diferencia === 0 ? 'CUADRE EXACTO' : diferencia > 0 ? `SOBRAN S/ ${Math.abs(diferencia)}` : `FALTAN S/ ${Math.abs(diferencia)}`}
+                        </h3>
+                    </div>
+                )}
+
+                <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Observaciones del Cierre</label>
+                    <div className="relative">
+                        <ChatBubbleLeftEllipsisIcon className="w-5 h-5 absolute left-3 top-3.5 text-slate-400" />
+                        <textarea 
+                            value={observaciones} 
+                            onChange={(e) => setObservaciones(e.target.value)}
+                            placeholder="Justifica si hubo algún faltante o sobrante..."
+                            className="w-full pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl font-medium text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all min-h-[80px]"
+                            disabled={loading}
+                            required={diferencia !== 0} // 🔥 WARNING CORREGIDO
+                        />
+                    </div>
+                </div>
+
+                <button 
+                    type="submit" 
+                    disabled={loading || montoReal === '' || (diferencia !== 0 && observaciones.trim() === '')} // 🔥 WARNING CORREGIDO
+                    className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-sm shadow-xl hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {loading ? 'Procesando Cierre...' : 'Finalizar y Cerrar Turno'}
+                </button>
+            </form>
+        </ViewModal>
+    );
+};
+
+export default CerrarSesionModal;

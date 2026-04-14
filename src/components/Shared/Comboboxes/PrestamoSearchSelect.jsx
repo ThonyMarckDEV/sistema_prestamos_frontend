@@ -19,11 +19,11 @@ const PrestamoSearchSelect = ({ onSelect, disabled, tipoOperacion = 'cobro', ini
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [wrapperRef]);
 
-    // Limpiar input si cambian de "cobro" a "desembolso"
     useEffect(() => {
         setInputValue('');
         setSuggestions([]);
         if (onSelect) onSelect(null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tipoOperacion]);
 
     const fetchPrestamos = async (term = '') => {

@@ -70,7 +70,7 @@ const Index = () => {
     return (
         <div className="container mx-auto p-4 sm:p-6">
             <PageHeader title="Entidades Bancarias" icon={BuildingLibraryIcon} buttonText="+ Nueva Entidad" buttonLink="/entidadBancaria/agregar" />
-            <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+            <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
             <Table
                 columns={columns} data={entidades} loading={loading}

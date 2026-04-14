@@ -55,6 +55,10 @@ import EditarCaja from 'pages/Caja/Update';
 // UI SESIONES DE CAJA (TURNOS)
 // import ListarSesiones from 'pages/CajaSesion/Index';
 
+// UI OPERACIONES
+import RegistrarOperacion from 'pages/Operacion/Store';
+
+
 // SETTINGS ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
 
@@ -119,6 +123,8 @@ function AppContent() {
         {/* <Route path="/caja/sesiones/listar" element={<ProtectedRoute requiredPermission="cajaSesion.index" element={<ListarSesiones />} />} />
         <Route path="/caja/sesiones/detalle/:id" element={<ProtectedRoute requiredPermission="cajaSesion.show" element={<DetalleSesion />} />} /> */}
 
+        {/* OPERACIONES */}
+        <Route path="/operacion/caja" element={<ProtectedRoute requiredPermission="operacion.store" element={<RegistrarOperacion />} />} />
 
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />

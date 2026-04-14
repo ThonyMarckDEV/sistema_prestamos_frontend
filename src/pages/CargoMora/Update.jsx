@@ -13,7 +13,7 @@ const Update = () => {
     return (
         <div className="container mx-auto p-6 max-w-4xl">
             <PageHeader title="Editar Tarifas" subtitle={`Tramo: ${formData.dias}`} buttonText="Volver" buttonLink="/cargoMora/listar" />
-            <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+            <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <form onSubmit={handleSubmit} className="mt-6">
                 <CargoMoraForm data={formData} handleChange={handleChange} />
                 <div className="mt-8 flex justify-end">
