@@ -57,6 +57,7 @@ import EditarCaja from 'pages/Caja/Update';
 
 // UI OPERACIONES
 import RegistrarOperacion from 'pages/Operacion/Store';
+import ListarOperaciones from 'pages/Operacion/Index';
 
 
 // SETTINGS ROL AND PERMISSIONS
@@ -125,7 +126,7 @@ function AppContent() {
 
         {/* OPERACIONES */}
         <Route path="/operacion/caja" element={<ProtectedRoute requiredPermission="operacion.store" element={<RegistrarOperacion />} />} />
-
+        <Route path="/operacion/listar" element={<ProtectedRoute requiredPermission="operacion.store" element={<ListarOperaciones />} />} />
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />
 

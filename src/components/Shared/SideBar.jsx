@@ -74,12 +74,8 @@ export const MENU_GROUPS = [
             { 
                 section: 'Operaciones', icon: CurrencyDollarIcon, 
                 subs: [
-                    // 🔥 AQUÍ ESTÁ TU NUEVO MÓDULO MIXTO
                     { name: 'Caja Operativa', link: '/operacion/caja', requiredPermission: 'operacion.store' },
-                    
-                    // (Opcional) Si ya no usas el viejo "pago/crear" porque todo está en Caja Operativa, 
-                    // puedes borrar esa línea. Por ahora te dejo el historial.
-                    { name: 'Historial de Pagos', link: '/pago/listar', requiredPermission: 'pago.index' },
+                    { name: 'Historial de operaciones', link: '/operacion/listar', requiredPermission: 'operacion.index' },
                 ],
             },
             { 

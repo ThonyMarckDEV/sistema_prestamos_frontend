@@ -1,80 +1,65 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { index, toggleStatus, destroy } from 'services/productoService';
+import { index, getPdfOperacion } from 'services/operacionService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useIndex = () => {
     const [loading, setLoading] = useState(true);
-    const [productos, setProductos] = useState([]);
+    const [operaciones, setOperaciones] = useState([]);
     const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
     
-    const [filters, setFilters] = useState({ search: '', estado: '' });
+    const [filters, setFilters] = useState({ search: '', tipo: '' });
     const filtersRef = useRef(filters);
     const [alert, setAlert] = useState(null);
 
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [productToDelete, setProductToDelete] = useState(null);
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+    const [pdfTitle, setPdfTitle] = useState('');
+    const [pdfBase64, setPdfBase64] = useState(null);
+    const [pdfLoading, setPdfLoading] = useState(false);
 
-    const fetchProductos = useCallback(async (page = 1) => {
+    const fetchOperaciones = useCallback(async (page = 1) => {
         setLoading(true);
         try {
             const response = await index(page, filtersRef.current);
-            setProductos(response.data || []);
+            setOperaciones(response.data.data || response.data || []);
             setPaginationInfo({
-                currentPage: response.current_page,
-                totalPages: response.last_page,
-                total: response.total
+                currentPage: response.data.current_page || response.current_page,
+                totalPages: response.data.last_page || response.last_page,
+                total: response.data.total || response.total
             });
         } catch (err) {
-            setAlert(handleApiError(err, 'Error al cargar productos'));
+            setAlert(handleApiError(err, 'Error al cargar el historial.'));
         } finally { setLoading(false); }
     }, []);
 
-    useEffect(() => { fetchProductos(1); }, [fetchProductos]);
+    useEffect(() => { fetchOperaciones(1); }, [fetchOperaciones]);
 
     const handleFilterChange = (name, val) => setFilters(prev => ({ ...prev, [name]: val }));
-    const handleFilterSubmit = () => { filtersRef.current = filters; fetchProductos(1); };
+    const handleFilterSubmit = () => { filtersRef.current = filters; fetchOperaciones(1); };
     const handleFilterClear = () => {
-        const res = { search: '', estado: '' };
+        const res = { search: '', tipo: '' };
         setFilters(res); 
         filtersRef.current = res; 
-        fetchProductos(1); 
+        fetchOperaciones(1); 
     };
 
-    const handleToggleStatus = async (id) => {
+
+    const handleViewPdf = async (id) => {
+        setPdfLoading(true);
         try {
-            await toggleStatus(id);
-            setAlert({ type: 'success', message: 'Estado actualizado correctamente.' });
-            fetchProductos(paginationInfo.currentPage);
-        } catch (err) { setAlert(handleApiError(err)); }
-    };
-
-    const openDeleteModal = (id) => {
-        setProductToDelete(id);
-        setIsDeleteModalOpen(true);
-    };
-
-    const closeDeleteModal = () => {
-        setProductToDelete(null);
-        setIsDeleteModalOpen(false);
-    };
-
-    const handleConfirmDelete = async () => {
-        if (!productToDelete) return;
-        try {
-            await destroy(productToDelete);
-            setAlert({ type: 'success', message: 'Producto eliminado con éxito.' });
-            fetchProductos(paginationInfo.currentPage);
-        } catch (err) { 
-            setAlert(handleApiError(err)); 
+            const response = await getPdfOperacion(id);
+            setPdfBase64(response.data.pdf);
+            setPdfTitle(response.data.title || 'Comprobante');
+            setIsPdfModalOpen(true);
+        } catch (err) {
+            setAlert(handleApiError(err, 'No se pudo generar el comprobante.'));
         } finally {
-            closeDeleteModal();
+            setPdfLoading(false);
         }
     };
 
     return { 
-        loading, productos, paginationInfo, filters, alert, setAlert, 
-        fetchProductos, handleToggleStatus, 
-        handleFilterChange, handleFilterSubmit, handleFilterClear,
-        isDeleteModalOpen, openDeleteModal, closeDeleteModal, handleConfirmDelete
+        loading, operaciones, paginationInfo, filters, alert, setAlert, 
+        fetchOperaciones, handleFilterChange, handleFilterSubmit, handleFilterClear,
+        handleViewPdf, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64, pdfLoading
     };
 };
