@@ -31,11 +31,12 @@ export const useUpdate = () => {
                 const data = response.data || response;
             
                 const cuentasBancariasArr = data.cuentas_bancarias.map(cta => ({
-                    entidadFinanciera: cta.entidadFinanciera,
+                    entidad_bancaria_id: cta.entidad_bancaria_id,
+                    entidad_nombre_visual: cta.nombre_entidad,
                     ctaAhorros: cta.ctaAhorros,
                     cci: cta.cci || '',
-                    longitud_cuenta: cta.longitud_cuenta, 
-                    longitud_cci: cta.longitud_cci
+                    longitud_cuenta: cta.entidad_bancaria?.longitud_cuenta, 
+                    longitud_cci: cta.entidad_bancaria?.longitud_cci
                 }));
 
                 setFormData({

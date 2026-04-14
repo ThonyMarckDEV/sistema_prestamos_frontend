@@ -1,27 +1,19 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useIndex } from 'hooks/EntidadBancaria/useIndex';
-
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
-
-import { BuildingLibraryIcon, PencilSquareIcon, HashtagIcon } from '@heroicons/react/24/outline';
+import { BuildingLibraryIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const Index = () => {
     const {
         loading, entidades, paginationInfo, filters, alert, setAlert,
-        showConfirm, setShowConfirm, setIdToToggle,
-        fetchEntidades, handleAskToggle, handleConfirmToggle,
+        showConfirm, setShowConfirm, showDeleteConfirm, setShowDeleteConfirm,
+        fetchEntidades, handleAskToggle, handleConfirmToggle, handleAskDelete, handleConfirmDelete,
         handleFilterChange, handleFilterSubmit, handleFilterClear
     } = useIndex();
-
-    const filterConfig = useMemo(() => [
-        { name: 'search', type: 'text', label: 'Buscar Entidad', placeholder: 'Ej: BCP, Interbank...', colSpan: 'col-span-12 md:col-span-8' },
-        { name: 'estado', type: 'select', label: 'Estado', colSpan: 'col-span-12 md:col-span-4',
-          options: [{ value: '', label: 'Todos' }, { value: '1', label: 'Activos' }, { value: '0', label: 'Inactivos' }] }
-    ], []);
 
     const columns = useMemo(() => [
         {
@@ -36,11 +28,11 @@ const Index = () => {
             )
         },
         {
-            header: 'Reglas de Validación',
+            header: 'Validaciones',
             render: (row) => (
-                <div className="flex flex-col gap-1.5 text-xs text-slate-600 font-medium">
-                    <span className="flex items-center gap-1"><HashtagIcon className="w-3.5 h-3.5"/> Cuenta: <b className="text-black">{row.longitud_cuenta} dígitos</b></span>
-                    <span className="flex items-center gap-1"><HashtagIcon className="w-3.5 h-3.5"/> CCI: <b className="text-black">{row.longitud_cci} dígitos</b></span>
+                <div className="text-xs text-slate-600 font-medium">
+                    <p>Cta: <b className="text-black">{row.longitud_cuenta} díg.</b></p>
+                    <p>CCI: <b className="text-black">{row.longitud_cci} díg.</b></p>
                 </div>
             )
         },
@@ -49,8 +41,8 @@ const Index = () => {
             render: (row) => (
                 <button
                     onClick={() => handleAskToggle(row.id)}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
-                        ${row.estado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-600 border border-red-200'}`}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase transition-transform hover:scale-105 shadow-sm border
+                        ${row.estado ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-600 border-red-200'}`}
                 >
                     {row.estado ? 'Activo' : 'Inactivo'}
                 </button>
@@ -61,40 +53,49 @@ const Index = () => {
             render: (row) => (
                 <div className="flex items-center gap-2">
                     <Link to={`/entidadBancaria/editar/${row.id}`}
-                        className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100">
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all border border-transparent hover:border-blue-100">
                         <PencilSquareIcon className="w-5 h-5" />
                     </Link>
+                    {/* 🔥 Botón Eliminar */}
+                    <button 
+                        onClick={() => handleAskDelete(row.id)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100">
+                        <TrashIcon className="w-5 h-5" />
+                    </button>
                 </div>
             )
         }
-    ], [handleAskToggle]);
+    ], [handleAskToggle, handleAskDelete]);
 
     return (
         <div className="container mx-auto p-4 sm:p-6">
-            <PageHeader
-                title="Entidades Bancarias"
-                icon={BuildingLibraryIcon}
-                buttonText="+ Nueva Entidad"
-                buttonLink="/entidadBancaria/agregar"
-            />
-
+            <PageHeader title="Entidades Bancarias" icon={BuildingLibraryIcon} buttonText="+ Nueva Entidad" buttonLink="/entidadBancaria/agregar" />
             <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
 
             <Table
                 columns={columns} data={entidades} loading={loading}
-                filterConfig={filterConfig} filters={filters}
-                onFilterChange={handleFilterChange}
-                onFilterSubmit={handleFilterSubmit}
-                onFilterClear={handleFilterClear}
+                filterConfig={[{ name: 'search', type: 'text', label: 'Buscar Entidad', colSpan: 'col-span-8' }, { name: 'estado', type: 'select', label: 'Estado', colSpan: 'col-span-4', options: [{ value: '', label: 'Todos' }, { value: '1', label: 'Activos' }, { value: '0', label: 'Inactivos' }] }]} 
+                filters={filters} onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit} onFilterClear={handleFilterClear}
                 pagination={{ ...paginationInfo, onPageChange: fetchEntidades }}
             />
 
+            {/* Modal para Cambio de Estado */}
             {showConfirm && (
                 <ConfirmModal
-                    message="¿Estás seguro de cambiar el estado de esta entidad bancaria?"
-                    confirmText="Sí, cambiar" cancelText="Cancelar"
+                    message="¿Deseas cambiar el estado de esta entidad?"
                     onConfirm={handleConfirmToggle}
-                    onCancel={() => { setShowConfirm(false); setIdToToggle(null); }}
+                    onCancel={() => setShowConfirm(false)}
+                />
+            )}
+
+            {/* 🔥 Modal para Eliminación */}
+            {showDeleteConfirm && (
+                <ConfirmModal
+                    title="¿Eliminar Banco?"
+                    message="Esta acción es irreversible. Si el banco tiene cuentas asociadas, el sistema bloqueará la eliminación."
+                    confirmText="Sí, Eliminar"
+                    onConfirm={handleConfirmDelete}
+                    onCancel={() => setShowDeleteConfirm(false)}
                 />
             )}
         </div>

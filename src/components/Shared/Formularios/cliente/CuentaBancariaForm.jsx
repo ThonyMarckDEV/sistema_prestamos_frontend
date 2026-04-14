@@ -8,7 +8,7 @@ const CuentaBancariaForm = ({ data, handleNestedChange }) => {
 
     const handleAddCuenta = () => {
         const nuevasCuentas = [...cuentas, { 
-            entidadFinanciera: '', 
+            entidad_bancaria_id: '',
             ctaAhorros: '', 
             cci: '', 
             longitud_cuenta: null, 
@@ -31,7 +31,8 @@ const CuentaBancariaForm = ({ data, handleNestedChange }) => {
     const handleEntidadSelect = (index, bancoSeleccionado) => {
         const nuevasCuentas = [...cuentas];
         if (bancoSeleccionado) {
-            nuevasCuentas[index].entidadFinanciera = bancoSeleccionado.nombre;
+            nuevasCuentas[index].entidad_bancaria_id = bancoSeleccionado.id;
+            nuevasCuentas[index].entidad_nombre_visual = bancoSeleccionado.nombre; 
             nuevasCuentas[index].longitud_cuenta = bancoSeleccionado.longitud_cuenta;
             nuevasCuentas[index].longitud_cci = bancoSeleccionado.longitud_cci;
             nuevasCuentas[index].ctaAhorros = '';
@@ -69,7 +70,7 @@ const CuentaBancariaForm = ({ data, handleNestedChange }) => {
                                 <div className="z-10">
                                     <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Banco *</label>
                                     <EntidadBancariaSelect 
-                                        initialName={cb.entidadFinanciera}
+                                        initialName={cb.entidad_nombre_visual || cb.entidad_bancaria?.nombre} 
                                         onSelect={(banco) => handleEntidadSelect(index, banco)}
                                     />
                                 </div>

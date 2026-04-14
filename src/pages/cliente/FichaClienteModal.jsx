@@ -106,7 +106,7 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                             <div className="p-2 bg-red-50 rounded-lg group-hover:bg-red-600 transition-colors">
                                                 <CreditCardIcon className="w-5 h-5 text-red-600 group-hover:text-white" />
                                             </div>
-                                            <p className="text-xs font-black text-slate-800 uppercase">{cta.entidadFinanciera}</p>
+                                            <p className="text-xs font-black text-slate-800 uppercase">{cta.nombre_entidad}</p>
                                         </div>
                                         <p className="text-sm font-mono font-bold text-slate-700 tracking-wider bg-slate-50 p-2 rounded-lg border border-slate-100">
                                             {cta.ctaAhorros}
