@@ -45,7 +45,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
 
     const handleSelect = (cliente) => {
         if (onSelect) {
-            onSelect({ id: cliente.usuario_id });
+            onSelect(cliente); 
             setInputValue(cliente.nombre_completo); 
         }
         setShowSuggestions(false);

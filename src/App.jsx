@@ -39,6 +39,10 @@ import AgregarProducto from 'pages/Producto/Store';
 import EditarProducto from 'pages/Producto/Update';
 import ListarProducto from 'pages/Producto/Index';
 
+// UI SOLICITUD PRESTAMO
+import AgregarSolicitud from 'pages/SolicitudPrestamo/Store';
+import EditarSolicitud from 'pages/SolicitudPrestamo/Update';
+import ListarSolicitudes from 'pages/SolicitudPrestamo/Index';
 
 // SETTINGS ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
@@ -86,6 +90,11 @@ function AppContent() {
         <Route path="/producto/agregar" element={<ProtectedRoute requiredPermission="entidadBancaria.store" element={<AgregarProducto />} />} />
         <Route path="/producto/editar/:id" element={<ProtectedRoute requiredPermission="entidadBancaria.update" element={<EditarProducto />} />} />
         <Route path="/producto/listar" element={<ProtectedRoute requiredPermission="entidadBancaria.index" element={<ListarProducto />} />} />
+
+        {/* SOLICITUD PRESTAMO */}
+        <Route path="/solicitudPrestamo/agregar" element={<ProtectedRoute requiredPermission="solicitudPrestamo.store" element={<AgregarSolicitud />} />} />
+        <Route path="/solicitudPrestamo/editar/:id" element={<ProtectedRoute requiredPermission="solicitudPrestamo.update" element={<EditarSolicitud />} />} />
+        <Route path="/solicitudPrestamo/listar" element={<ProtectedRoute requiredPermission="solicitudPrestamo.index" element={<ListarSolicitudes />} />} />
 
 
         {/* SETTINGS */}

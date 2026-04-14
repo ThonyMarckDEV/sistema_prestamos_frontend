@@ -62,7 +62,8 @@ export const MENU_GROUPS = [
                 subs: [
                     { name: 'Listar Préstamos', link: '/prestamo/listar', requiredPermission: 'prestamo.index' },
                     { name: 'Nuevo Préstamo', link: '/prestamo/agregar', requiredPermission: 'prestamo.store' },
-                    { name: 'Solicitudes', link: '/prestamo/solicitudes', requiredPermission: 'prestamo.aprobar' }, // Opcional si manejas estados
+                    { name: 'Nueva Solicitud', link: '/solicitudPrestamo/agregar', requiredPermission: 'solicitudPrestamo.store' },
+                    { name: 'Solicitudes', link: '/solicitudPrestamo/listar', requiredPermission: 'solicitudPrestamo.index' },
                 ],
             }
         ]
