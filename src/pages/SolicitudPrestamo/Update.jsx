@@ -13,7 +13,7 @@ const Update = () => {
     return (
         <div className="container mx-auto p-6 max-w-5xl">
             <PageHeader title="Editar Solicitud" subtitle={`ID: ${formData?.id}`} buttonText="Volver" buttonLink="/solicitudPrestamo/listar" />
-            <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+            <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <form onSubmit={handleSubmit} className="mt-6">
                 <SolicitudForm data={formData} handleChange={handleChange} addIntegrante={addIntegrante} removeIntegrante={removeIntegrante} updateMontoIntegrante={updateMontoIntegrante} isUpdate={true} />
                 <div className="mt-8 flex justify-end gap-4">

@@ -120,6 +120,7 @@ const Store = () => {
             <AlertMessage 
                 type={alert?.type} 
                 message={alert?.message} 
+                details={alert?.details}
                 onClose={() => setAlert(null)} 
             />
 

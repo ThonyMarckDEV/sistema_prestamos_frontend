@@ -51,7 +51,7 @@ const Index = () => {
     return (
         <div className="container mx-auto p-6">
             <PageHeader title="Solicitudes" icon={DocumentTextIcon} buttonText="+ Nueva" buttonLink="/solicitudPrestamo/agregar" />
-            <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+            <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <Table columns={columns} data={solicitudes} loading={loading} pagination={{ ...paginationInfo, onPageChange: fetchSolicitudes }} onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit} onFilterClear={handleFilterClear} filters={filters} filterConfig={[{ name: 'search', type: 'text', label: 'Buscar...', colSpan: 'col-span-8' }, { name: 'estado', type: 'select', label: 'Estado', options: [{ value: '1', label: 'PENDIENTES' }, { value: '2', label: 'APROBADAS' }, { value: '3', label: 'RECHAZADAS' }], colSpan: 'col-span-4' }]} />
             <ViewSolicitudModal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} data={viewData} isLoading={viewLoading} />
             {isApproveOpen && <ApproveSolicitudModal isOpen={isApproveOpen} onClose={() => setIsApproveOpen(false)} onConfirm={handleUpdateStatus} solicitud={selectedSolicitud} loading={loading} />}
