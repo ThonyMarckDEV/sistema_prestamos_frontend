@@ -70,6 +70,19 @@ const Index = () => {
             )
         },
         {
+            header: 'Comprobante / Op.',
+            render: (row) => (
+                <div className="flex flex-col">
+                    <span className="font-mono text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 w-fit">
+                        {row.numero_comprobante}
+                    </span>
+                    <span className="font-mono text-[9px] font-bold text-slate-400 mt-1 uppercase">
+                        Op: {row.numero_operacion || '---'}
+                    </span>
+                </div>
+            )
+        },
+        {
             header: 'Titular y Detalle',
             render: (row) => (
                 <div className="flex flex-col uppercase">
@@ -86,14 +99,11 @@ const Index = () => {
             )
         },
         {
-            header: 'Monto y Operación',
+            header: 'Monto y Modalidad',
             render: (row) => (
                 <div className="flex flex-col">
                     <span className="font-black text-emerald-600 text-sm">S/ {row.monto}</span>
-                    <span className="font-mono text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded w-fit mt-0.5 border border-slate-200">
-                        Op: {row.numero_operacion}
-                    </span>
-                    <span className="text-[8px] font-bold text-slate-400 mt-1 tracking-widest">
+                    <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded w-fit mt-1 border border-slate-200 uppercase tracking-widest">
                         {row.modalidad}
                     </span>
                 </div>
@@ -112,7 +122,7 @@ const Index = () => {
                     </span>
 
                     <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">
-                        Cajero: <span className="text-slate-600">{row.registrado_por}</span>
+                        Registrado por: <span className="text-slate-600">{row.registrado_por}</span>
                     </span>
 
                     {row.estado === 2 && row.observaciones && (
@@ -155,7 +165,7 @@ const Index = () => {
                     )}
 
                     {row.estado === 0 && can('pago.status') && (
-                        <>
+                        <div className="flex gap-1">
                             <button 
                                 onClick={() => { 
                                     setActivePago(row); 
@@ -175,7 +185,7 @@ const Index = () => {
                             >
                                 <XMarkIcon className="w-4 h-4" />
                             </button>
-                        </>
+                        </div>
                     )}
                 </div>
             )
