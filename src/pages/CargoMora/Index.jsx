@@ -40,7 +40,9 @@ const Index = () => {
                                         <ScaleIcon className="w-5 h-5 text-white" />
                                     </div>
                                     <span className="font-black text-slate-800 uppercase tracking-tighter italic">
-                                        {c.dias}
+                                        {c.dias_max 
+                                            ? `De ${c.dias_min} a ${c.dias_max} Días` 
+                                            : `De ${c.dias_min} a más Días`}
                                     </span>
                                 </div>
                                 <Link to={`/cargoMora/editar/${c.id}`} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all">
