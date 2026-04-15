@@ -72,16 +72,36 @@ const Index = () => {
             header: 'Operación',
             render: (row) => <span className="font-mono text-[10px] font-bold bg-slate-100 px-2 py-1 rounded border border-slate-200">{row.numero_operacion}</span>
         },
-        {
+       {
             header: 'Estado',
             render: (row) => (
-                <span className={`px-2 py-1 rounded text-[9px] font-black border ${
-                    row.estado === 1 ? 'bg-green-100 text-green-700 border-green-200' :
-                    row.estado === 2 ? 'bg-red-100 text-red-700 border-red-200' :
-                    'bg-yellow-100 text-yellow-700 border-yellow-200'
-                }`}>
-                    {row.estado === 1 ? 'APROBADO' : row.estado === 2 ? 'RECHAZADO' : 'PENDIENTE'}
-                </span>
+                <div className="flex flex-col items-start gap-1.5">
+
+                    {/* ESTADO */}
+                    <span className={`px-2 py-1 rounded text-[9px] font-black border ${
+                        row.estado === 1 ? 'bg-green-100 text-green-700 border-green-200' :
+                        row.estado === 2 ? 'bg-red-100 text-red-700 border-red-200' :
+                        'bg-yellow-100 text-yellow-700 border-yellow-200'
+                    }`}>
+                        {row.estado === 1 ? 'APROBADO' : row.estado === 2 ? 'RECHAZADO' : 'PENDIENTE'}
+                    </span>
+
+                    {/* OBSERVACIÓN */}
+                    {row.estado === 2 && row.observaciones && (
+                        <div className="flex items-center gap-2 pl-2 border-l-2 border-red-500 max-w-[180px]">
+                            
+                            <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide">
+                                Observación:
+                            </span>
+
+                            <span className="text-[9px] font-semibold text-red-600 truncate">
+                                {row.observaciones}
+                            </span>
+
+                        </div>
+                    )}
+
+                </div>
             )
         },
         {
@@ -89,7 +109,7 @@ const Index = () => {
             render: (row) => (
                 <div className="flex gap-2 items-center justify-end">
 
-                    {/* 👁️ VER VOUCHER */}
+                    {/* VER VOUCHER */}
                     {row.comprobante_url && (
                         <button 
                             onClick={() => openVoucher(row.comprobante_url)}
@@ -100,7 +120,7 @@ const Index = () => {
                         </button>
                     )}
 
-                    {/* 🖨️ IMPRIMIR PDF */}
+                    {/* IMPRIMIR PDF */}
                     {row.estado === 1 && can('pago.generatePDF') && (
                         <button 
                             onClick={() => handleViewPdf(row.id)}
@@ -116,7 +136,7 @@ const Index = () => {
                         </button>
                     )}
 
-                    {/* ✅❌ APROBAR / RECHAZAR */}
+                    {/* APROBAR / RECHAZAR */}
                     {row.estado === 0 && can('pago.status') && (
                         <>
                             <button 
