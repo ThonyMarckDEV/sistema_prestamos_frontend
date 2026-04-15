@@ -71,6 +71,13 @@ export const MENU_GROUPS = [
                 ],
             },
             { 
+                section: 'Grupos', icon: UserGroupIcon, 
+                subs: [
+                    { name: 'Listar Grupos', link: '/grupo/listar', requiredPermission: 'grupo.index' },
+                    { name: 'Registrar Grupo', link: '/grupo/agregar', requiredPermission: 'grupo.store' },
+                ],
+            },
+            { 
                 section: 'Préstamos', icon: BanknotesIcon,
                 subs: [
                     { name: 'Listar Préstamos', link: '/prestamo/listar', requiredPermission: 'prestamo.index' },

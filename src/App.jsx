@@ -63,6 +63,11 @@ import ListarOperaciones from 'pages/Operacion/Index';
 import RegistrarPago from 'pages/Pago/Store';
 import ListarPagos from 'pages/Pago/Index';
 
+// UI GRUPOS
+import ListarGrupos from 'pages/Grupo/Index';
+import AgregarGrupo from 'pages/Grupo/Store';
+import EditarGrupo from 'pages/Grupo/Update';
+
 
 // SETTINGS ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
@@ -134,6 +139,11 @@ function AppContent() {
         {/* PAGOS */}
         <Route path="/pago/registrar" element={<ProtectedRoute requiredPermission="pago.store" element={<RegistrarPago />} />} />
         <Route path="/pago/listar" element={<ProtectedRoute requiredPermission="pago.store" element={<ListarPagos />} />} />
+
+        {/* GRUPOS */}
+        <Route path="/grupo/listar" element={<ProtectedRoute requiredPermission="grupo.index" element={<ListarGrupos />} />} />
+        <Route path="/grupo/agregar" element={<ProtectedRoute requiredPermission="grupo.store" element={<AgregarGrupo />} />} />
+        <Route path="/grupo/editar/:id" element={<ProtectedRoute requiredPermission="grupo.update" element={<EditarGrupo />} />} />
 
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />
