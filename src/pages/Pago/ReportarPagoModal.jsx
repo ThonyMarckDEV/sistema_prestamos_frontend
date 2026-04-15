@@ -5,7 +5,6 @@ const ReportarPagoModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     const [previewUrl, setPreviewUrl] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
 
-    // Limpiar previsualización al cerrar
     useEffect(() => {
         if (!isOpen) {
             setPreviewUrl(null);
@@ -29,19 +28,42 @@ const ReportarPagoModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
 
     if (!isOpen) return null;
 
+    // Calculamos si hay mora para mostrar una alerta visual
+    const tieneMora = parseFloat(cuota?.mora) > 0;
+
     return (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-[2rem] overflow-hidden max-w-4xl w-full shadow-2xl animate-in zoom-in duration-300 flex flex-col md:flex-row">
                 
                 {/* LADO IZQUIERDO: FORMULARIO */}
-                <div className="w-full md:w-1/2 p-8 border-r border-slate-100">
+                <div className="w-full md:w-1/2 p-8 border-r border-slate-100 flex flex-col">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
                             <TicketIcon className="w-6 h-6" />
                         </div>
                         <div>
                             <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight">Reportar Pago</h2>
-                            <p className="text-slate-400 text-[10px] font-bold uppercase">Cuota #{cuota?.nro} • S/ {cuota?.monto}</p>
+                            <p className="text-slate-400 text-[10px] font-bold uppercase">Cuota #{cuota?.nro} • Detalle de deuda</p>
+                        </div>
+                    </div>
+
+                    {/* 🔥 RESUMEN DE PAGO (MONTO + MORA) */}
+                    <div className={`mb-6 p-4 rounded-2xl border ${tieneMora ? 'bg-red-50 border-red-100' : 'bg-slate-50 border-slate-100'}`}>
+                        <div className="flex justify-between items-center mb-1">
+                            <span className="text-[10px] font-black text-slate-400 uppercase">Monto de Cuota</span>
+                            <span className="text-sm font-bold text-slate-700">S/ {cuota?.monto}</span>
+                        </div>
+                        
+                        {tieneMora && (
+                            <div className="flex justify-between items-center mb-2 pb-2 border-b border-red-200 border-dashed">
+                                <span className="text-[10px] font-black text-red-400 uppercase">Recargo por Mora</span>
+                                <span className="text-sm font-black text-red-600">+ S/ {cuota?.mora}</span>
+                            </div>
+                        )}
+
+                        <div className="flex justify-between items-center">
+                            <span className="text-xs font-black text-slate-800 uppercase">Total a Depositar</span>
+                            <span className="text-2xl font-black text-slate-900 italic">S/ {parseFloat(cuota?.total_con_mora).toFixed(2)}</span>
                         </div>
                     </div>
 
@@ -127,7 +149,6 @@ const ReportarPagoModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         </div>
                     )}
                 </div>
-
             </div>
         </div>
     );

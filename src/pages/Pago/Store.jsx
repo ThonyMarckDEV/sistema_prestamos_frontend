@@ -23,50 +23,70 @@ const Store = () => {
         },
         { 
             header: 'Vencimiento', 
-            render: (row) => <span className="font-medium">{row.vencimiento}</span> 
+            render: (row) => (
+                <div className="flex flex-col">
+                    <span className="font-medium text-slate-800">{row.vencimiento}</span>
+                    {row.dias_atraso > 0 && (
+                        <span className="text-[9px] font-black text-red-600 uppercase">
+                            {row.dias_atraso} días atraso
+                        </span>
+                    )}
+                </div>
+            ) 
         },
         { 
-            header: 'Monto', 
-            render: (row) => <span className="font-black text-slate-900 text-sm">S/ {row.monto}</span> 
+            header: 'Monto Base', 
+            render: (row) => <span className="font-bold text-slate-500 text-xs">S/ {row.monto}</span> 
         },
         { 
             header: 'Mora',
             render: (row) => (
-                <span className={`font-black text-sm ${parseFloat(row.mora) > 0 ? 'text-red-600' : 'text-slate-400'}`}>
-                    {parseFloat(row.mora) > 0 ? `S/ ${row.mora}` : '—'}
+                <span className={`font-black text-xs ${parseFloat(row.mora) > 0 ? 'text-red-600' : 'text-slate-300'}`}>
+                    {parseFloat(row.mora) > 0 ? `+ S/ ${row.mora}` : 'S/ 0.00'}
                 </span>
             )
         },
         { 
+            header: 'Total a Pagar', 
+            render: (row) => <span className="font-black text-slate-900 text-sm">S/ {parseFloat(row.total_con_mora).toFixed(2)}</span> 
+        },
+        { 
             header: 'Estado', 
-            render: (row) => (
-                <span className={`px-2 py-1 rounded-full text-[9px] font-black border ${
-                    row.estado === 2 ? 'bg-green-100 text-green-700 border-green-200' : 
-                    row.estado === 5 ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                    'bg-yellow-100 text-yellow-700 border-yellow-200'
-                }`}>
-                    {row.estado === 2 ? 'PAGADO' : row.estado === 5 ? 'EN REVISIÓN' : 'PENDIENTE'}
-                </span>
-            )
+            render: (row) => {
+                const estadoMap = {
+                    1: { text: 'PENDIENTE', style: 'bg-slate-100 text-slate-600 border-slate-200' },
+                    2: { text: 'PAGADO', style: 'bg-green-100 text-green-700 border-green-200' },
+                    3: { text: 'VENCE HOY', style: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+                    4: { text: 'VENCIDA', style: 'bg-red-100 text-red-700 border-red-200' },
+                    5: { text: 'EN REVISIÓN', style: 'bg-blue-100 text-blue-700 border-blue-200' }
+                };
+                const current = estadoMap[row.estado] || estadoMap[1];
+
+                return (
+                    <span className={`px-2 py-1 rounded-full text-[9px] font-black border ${current.style}`}>
+                        {current.text}
+                    </span>
+                );
+            }
         },
         { 
             header: 'Acción', 
             render: (row, _col, allRows) => {
-                // Lógica de bloqueo: No puede pagar si hay una anterior que no esté PAGADA (estado 2)
                 const hayAnteriorPendiente = allRows
                     .filter(r => r.nro < row.nro)
                     .some(r => r.estado !== 2);
 
-                const bloqueada = row.estado !== 1 || hayAnteriorPendiente;
+                const esPagable = [1, 3, 4].includes(row.estado);
+                const bloqueada = !esPagable || hayAnteriorPendiente;
 
-                if (row.estado === 2) return null;
+                if (row.estado === 2) return null; 
 
                 return (
                     <div className="flex justify-end">
                         <button 
                             onClick={() => { if (!bloqueada) { setCuotaParaPagar(row); setIsModalOpen(true); }}}
                             disabled={bloqueada}
-                            title={hayAnteriorPendiente ? 'Paga la cuota anterior primero' : row.estado === 5 ? 'En revisión' : 'Pagar cuota'}
+                            title={hayAnteriorPendiente ? 'Paga la cuota anterior primero' : row.estado === 5 ? 'Pago en revisión' : 'Pagar cuota'}
                             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wide transition-all duration-150 ${
                                 row.estado === 5
                                     ? 'bg-blue-50 text-blue-600 border border-blue-200 cursor-not-allowed'

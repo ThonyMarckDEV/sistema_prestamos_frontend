@@ -48,6 +48,14 @@ const Index = () => {
     }, [role]);
 
     const columns = useMemo(() => [
+        { 
+            header: 'ID', 
+            render: (row) => (
+                <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
+                    {row.id}
+                </span>
+            )
+        },
         { header: 'Cliente / Producto', render: (row) => (
             <div className="flex flex-col uppercase">
                 <span className="font-black text-slate-800 text-[11px]">{row.cliente}</span>
