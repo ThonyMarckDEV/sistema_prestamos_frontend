@@ -69,21 +69,35 @@ const Index = () => {
         {
             header: 'Acciones',
             render: (row) => (
-                <div className="flex items-center gap-2">
-                    {/* 🔥 Si NO es virtual, mostramos los botones de editar y eliminar */}
+                <div className="flex items-center gap-2 justify-end">
+
                     {!row.is_virtual ? (
                         <>
-                            <Link to={`/caja/editar/${row.id}`} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all border border-transparent hover:border-blue-100">
-                                <PencilSquareIcon className="w-5 h-5" />
+                            {/* EDITAR */}
+                            <Link 
+                                to={`/caja/editar/${row.id}`}
+                                title="Editar"
+                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm"
+                            >
+                                <PencilSquareIcon className="w-4 h-4" />
                             </Link>
-                            <button onClick={() => handleAskDelete(row.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100">
-                                <TrashIcon className="w-5 h-5" />
+
+                            {/* ELIMINAR */}
+                            <button 
+                                onClick={() => handleAskDelete(row.id)}
+                                title="Eliminar"
+                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 shadow-sm"
+                            >
+                                <TrashIcon className="w-4 h-4" />
                             </button>
                         </>
                     ) : (
-                        /* 🔥 Mensaje sutil si es virtual */
-                        <span className="text-[10px] text-slate-400 font-bold italic px-2">Solo lectura</span>
+                        /* SOLO LECTURA */
+                        <span className="text-[9px] text-slate-400 font-black uppercase tracking-wide px-2">
+                            SOLO LECTURA
+                        </span>
                     )}
+
                 </div>
             )
         }

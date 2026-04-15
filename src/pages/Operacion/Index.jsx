@@ -43,7 +43,6 @@ const Index = () => {
                 )
             },
             {
-                // ✅ CÓDIGO + MOTIVO fusionados en una sola columna
                 header: 'Detalle',
                 render: (row) => (
                     <div className="text-xs">
@@ -96,28 +95,37 @@ const Index = () => {
 
         if (canGeneratePdf || canDelete) {
             baseColumns.push({
-                header: '',  // ✅ Sin header para ahorrar espacio
+                header: '',
                 render: (row) => (
-                    <div className="flex items-center gap-1.5 justify-end">
+                    <div className="flex items-center gap-2 justify-end">
+
+                        {/* 🖨️ VER PDF */}
                         {canGeneratePdf && (
                             <button
                                 onClick={() => handleViewPdf(row.id)}
                                 disabled={pdfLoading || row.estado === 0}
                                 title="Ver Comprobante"
-                                className={`p-1.5 rounded-lg transition-all border ${row.estado === 0 ? 'bg-slate-50 text-slate-300 border-transparent cursor-not-allowed' : 'bg-slate-100 text-slate-500 hover:text-black hover:bg-slate-200 border-slate-200'}`}
+                                className={`p-2 rounded-xl transition-all border border-transparent shadow-sm
+                                ${row.estado === 0
+                                    ? 'bg-slate-50 text-slate-300 cursor-not-allowed'
+                                    : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100'
+                                }`}
                             >
-                                <PrinterIcon className="w-4 h-4" />
+                                <PrinterIcon className={`w-4 h-4 ${pdfLoading ? 'animate-spin' : ''}`} />
                             </button>
                         )}
+
+                        {/* 🗑️ ANULAR */}
                         {canDelete && row.estado !== 0 && (
                             <button
                                 onClick={() => openAnularModal(row.id)}
                                 title="Anular Operación"
-                                className="p-1.5 bg-red-50 text-red-500 hover:text-white hover:bg-red-600 rounded-lg transition-all border border-red-100"
+                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 shadow-sm"
                             >
                                 <TrashIcon className="w-4 h-4" />
                             </button>
                         )}
+
                     </div>
                 )
             });

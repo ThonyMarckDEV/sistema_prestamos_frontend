@@ -87,44 +87,56 @@ const Index = () => {
         {
             header: 'Acciones',
             render: (row) => (
-                <div className="flex gap-2 justify-end">
+                <div className="flex gap-2 items-center justify-end">
+
+                    {/* 👁️ VER VOUCHER */}
                     {row.comprobante_url && (
                         <button 
                             onClick={() => openVoucher(row.comprobante_url)}
-                            className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                             title="Ver Voucher"
+                            className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl border border-transparent hover:border-emerald-100 transition-all shadow-sm"
                         >
                             <FileSearch className="w-4 h-4" />
                         </button>
                     )}
 
+                    {/* 🖨️ IMPRIMIR PDF */}
                     {row.estado === 1 && can('pago.generatePDF') && (
                         <button 
                             onClick={() => handleViewPdf(row.id)}
                             disabled={pdfLoading}
-                            className="p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-black hover:text-white transition-all shadow-sm"
                             title="Imprimir Recibo"
+                            className={`p-2 rounded-xl transition-all border border-transparent shadow-sm 
+                            ${pdfLoading 
+                                ? 'bg-slate-50 text-slate-300' 
+                                : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100'
+                            }`}
                         >
-                            <PrinterIcon className={`w-4 h-4 ${pdfLoading ? 'animate-pulse' : ''}`} />
+                            <PrinterIcon className={`w-4 h-4 ${pdfLoading ? 'animate-spin' : ''}`} />
                         </button>
                     )}
 
+                    {/* ✅❌ APROBAR / RECHAZAR */}
                     {row.estado === 0 && can('pago.status') && (
                         <>
                             <button 
-                                onClick={() => { setActivePagoId(row.id); setIsConfirmOpen(true); }} 
-                                className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-600 hover:text-white transition-all shadow-sm"
+                                onClick={() => { setActivePagoId(row.id); setIsConfirmOpen(true); }}
+                                title="Aprobar Pago"
+                                className="p-2 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all border border-transparent hover:border-green-100 shadow-sm"
                             >
                                 <CheckIcon className="w-4 h-4" />
                             </button>
+
                             <button 
-                                onClick={() => { setActivePagoId(row.id); setIsRechazarOpen(true); }} 
-                                className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                                onClick={() => { setActivePagoId(row.id); setIsRechazarOpen(true); }}
+                                title="Rechazar Pago"
+                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 shadow-sm"
                             >
                                 <XMarkIcon className="w-4 h-4" />
                             </button>
                         </>
                     )}
+
                 </div>
             )
         }

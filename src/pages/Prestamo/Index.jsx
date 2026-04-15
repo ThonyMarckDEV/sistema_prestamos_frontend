@@ -30,7 +30,7 @@ const Index = () => {
         const config = [];
         if (role !== 'cliente') {
             config.push({ 
-                name: 'search', type: 'text', label: 'Buscar Cliente / DNI', 
+                name: 'search', type: 'text', label: 'Buscar Cliente / DNI / RUC', 
                 placeholder: 'Ej: Mendoza...', colSpan: 'col-span-12 md:col-span-8' 
             });
         }
@@ -73,14 +73,12 @@ const Index = () => {
         }},
         { header: 'Acciones', render: (row) => (
             <div className="flex gap-2 items-center justify-end">
-                {/* 👁️ VER CRONOGRAMA */}
                 <button onClick={() => handleView(row.id)} title="Ver Cronograma" className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm">
                     <EyeIcon className="w-4 h-4" />
                 </button>
 
-                {/* 📤 SUBIR ABONO (Solo CC y Permiso) */}
                 {row.abonado_por === 'CUENTA CORRIENTE' && can('prestamo.abono') && (
-                    <label title="Subir Abono" className={`cursor-pointer p-2 rounded-xl transition-all border border-transparent shadow-sm ${uploadingAbono ? 'bg-slate-50 opacity-50' : 'text-slate-400 hover:text-orange-600 hover:bg-orange-50 hover:border-orange-100'}`}>
+                    <label title="Subir Abono" className={`cursor-pointer p-2 rounded-xl transition-all border border-transparent shadow-sm ${uploadingAbono ? 'bg-slate-50' : 'text-slate-400 hover:text-orange-600 hover:bg-orange-50 hover:border-orange-100'}`}>
                         <input 
                             type="file" className="hidden" accept="image/*"
                             onChange={(e) => {

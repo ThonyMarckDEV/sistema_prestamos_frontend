@@ -91,15 +91,26 @@ const Index = () => {
         {
             header: 'Acciones',
             render: (row) => (
-                <div className="flex items-center gap-2">
-                    <button onClick={() => handleView(row.id)}
-                        className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all">
-                        <EyeIcon className="w-5 h-5" />
+                <div className="flex items-center gap-2 justify-end">
+
+                    {/* VER */}
+                    <button 
+                        onClick={() => handleView(row.id)}
+                        title="Ver Detalle"
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm"
+                    >
+                        <EyeIcon className="w-4 h-4" />
                     </button>
-                    <Link to={`/cliente/editar/${row.id}`}
-                        className="p-2 text-slate-500 hover:text-black hover:bg-slate-50 rounded-lg transition-all">
-                        <PencilSquareIcon className="w-5 h-5" />
+
+                    {/* EDITAR */}
+                    <Link 
+                        to={`/cliente/editar/${row.id}`}
+                        title="Editar"
+                        className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-200 shadow-sm"
+                    >
+                        <PencilSquareIcon className="w-4 h-4" />
                     </Link>
+
                 </div>
             )
         }

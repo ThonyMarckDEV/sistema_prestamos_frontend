@@ -19,7 +19,7 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col">
                     <span className="font-black text-slate-800 text-[11px] uppercase tracking-tighter">
-                        {row.caja_nombre} <span className="text-slate-300 ml-1">#{row.id}</span>
+                        {row.caja_nombre} <span className="text-blue-700 ml-1">Sesion #{row.id}</span>
                     </span>
                     <span className="text-[10px] text-slate-400 font-bold truncate max-w-[180px]">
                         {row.caja_desc}

@@ -48,20 +48,29 @@ const Index = () => {
                 </button>
             )
         },
-        {
+       {
             header: 'Acciones',
             render: (row) => (
-                <div className="flex items-center gap-2">
-                    <Link to={`/entidadBancaria/editar/${row.id}`}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all border border-transparent hover:border-blue-100">
-                        <PencilSquareIcon className="w-5 h-5" />
+                <div className="flex items-center gap-2 justify-end">
+
+                    {/* EDITAR */}
+                    <Link 
+                        to={`/entidadBancaria/editar/${row.id}`}
+                        title="Editar"
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm"
+                    >
+                        <PencilSquareIcon className="w-4 h-4" />
                     </Link>
-                    {/* 🔥 Botón Eliminar */}
+
+                    {/* ELIMINAR */}
                     <button 
                         onClick={() => handleAskDelete(row.id)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100">
-                        <TrashIcon className="w-5 h-5" />
+                        title="Eliminar"
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 shadow-sm"
+                    >
+                        <TrashIcon className="w-4 h-4" />
                     </button>
+
                 </div>
             )
         }
