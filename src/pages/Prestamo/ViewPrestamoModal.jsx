@@ -3,19 +3,20 @@ import ViewModal from 'components/Shared/Modals/ViewModal';
 import { 
     CalendarIcon, 
     UserIcon, 
-    InformationCircleIcon 
+    UserGroupIcon,
+    InformationCircleIcon,
+    UsersIcon
 } from '@heroicons/react/24/outline';
 
 const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
     
-    // Función para renderizar el color del estado de la cuota
     const getStatusBadge = (estado) => {
         const styles = {
-            1: 'bg-yellow-50 text-yellow-700 border-yellow-100', // Pendiente
-            2: 'bg-green-50 text-green-700 border-green-100',   // Pagado
-            3: 'bg-blue-50 text-blue-700 border-blue-100',     // Vence hoy
-            4: 'bg-red-50 text-red-700 border-red-100',         // Vencido
-            5: 'bg-purple-50 text-purple-700 border-purple-100' // Prepagado
+            1: 'bg-yellow-50 text-yellow-700 border-yellow-100',
+            2: 'bg-green-50 text-green-700 border-green-100',   
+            3: 'bg-blue-50 text-blue-700 border-blue-100',      
+            4: 'bg-red-50 text-red-700 border-red-100',          
+            5: 'bg-purple-50 text-purple-700 border-purple-100' 
         };
         const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'PREPAGADO' };
         
@@ -35,15 +36,22 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
         >
             {data && (
                 <div className="space-y-6">
-                    {/* Header: Información del Cliente */}
+                    {/* Header: Información del Cliente / Grupo */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <UserIcon className="w-5 h-5 text-slate-500" />
+                            <div className={`p-2 rounded-lg shadow-sm ${data.es_grupal ? 'bg-blue-100' : 'bg-white'}`}>
+                                {data.es_grupal 
+                                    ? <UserGroupIcon className="w-5 h-5 text-blue-600" /> 
+                                    : <UserIcon className="w-5 h-5 text-slate-500" />
+                                }
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase">Cliente</p>
-                                <p className="text-sm font-black text-slate-800 uppercase">{data.cliente?.nombre}</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase">
+                                    {data.es_grupal ? 'Grupo Solidario' : 'Cliente Titular'}
+                                </p>
+                                <p className={`text-sm font-black uppercase ${data.es_grupal ? 'text-blue-700' : 'text-slate-800'}`}>
+                                    {data.cliente?.nombre}
+                                </p>
                                 <p className="text-[10px] font-medium text-slate-500">Doc: {data.cliente?.documento}</p>
                             </div>
                         </div>
@@ -78,6 +86,27 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                             <p className="text-lg font-black text-slate-900 italic">S/ {data.datos_economicos?.valor_cuota}</p>
                         </div>
                     </div>
+
+                    {/* SECCIÓN DE INTEGRANTES (SOLO SI ES GRUPAL) */}
+                    {data.es_grupal && data.integrantes && data.integrantes.length > 0 && (
+                        <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                            <h4 className="flex items-center gap-2 text-xs font-black text-blue-800 uppercase mb-3">
+                                <UsersIcon className="w-4 h-4" /> Desglose de Integrantes
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {data.integrantes.map((int) => (
+                                    <div key={int.id} className="flex justify-between items-center bg-white p-2 rounded border border-slate-100 shadow-sm">
+                                        <span className="text-[11px] font-bold text-slate-600 truncate mr-2" title={int.nombre}>
+                                            {int.nombre}
+                                        </span>
+                                        <span className="text-xs font-black text-blue-600 whitespace-nowrap">
+                                            S/ {int.monto}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Tabla de Cronograma */}
                     <div>

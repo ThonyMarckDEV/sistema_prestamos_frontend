@@ -12,7 +12,9 @@ import {
     EyeIcon, 
     ArrowUpTrayIcon, 
     PhotoIcon,
-    ArrowPathIcon 
+    ArrowPathIcon,
+    UserGroupIcon,
+    UserIcon
 } from '@heroicons/react/24/outline';
 
 const Index = () => {
@@ -30,8 +32,8 @@ const Index = () => {
         const config = [];
         if (role !== 'cliente') {
             config.push({ 
-                name: 'search', type: 'text', label: 'Buscar Cliente / DNI / RUC', 
-                placeholder: 'Ej: Mendoza...', colSpan: 'col-span-12 md:col-span-8' 
+                name: 'search', type: 'text', label: 'Buscar Cliente / DNI / Grupo', 
+                placeholder: 'Ej: Mendoza o Los Halcones...', colSpan: 'col-span-12 md:col-span-8' 
             });
         }
         config.push({ 
@@ -58,8 +60,14 @@ const Index = () => {
         },
         { header: 'Cliente / Producto', render: (row) => (
             <div className="flex flex-col uppercase">
-                <span className="font-black text-slate-800 text-[11px]">{row.cliente}</span>
-                <span className="text-[10px] text-blue-600 font-bold">{row.producto}</span>
+                {/* 🔥 Icono dinámico si es Grupo o Cliente Individual */}
+                <div className="flex items-center gap-1.5">
+                    {row.es_grupal ? <UserGroupIcon className="w-3.5 h-3.5 text-blue-600" /> : <UserIcon className="w-3.5 h-3.5 text-slate-400" />}
+                    <span className={`font-black text-[11px] ${row.es_grupal ? 'text-blue-700' : 'text-slate-800'}`}>
+                        {row.cliente}
+                    </span>
+                </div>
+                <span className="text-[10px] text-slate-500 font-bold mt-0.5 ml-5">{row.producto}</span>
             </div>
         )},
         { header: 'Financiero', render: (row) => (
@@ -98,7 +106,6 @@ const Index = () => {
                     </label>
                 )}
 
-                {/* 🖼️ VER ABONO EN MODAL */}
                 {row.abono_url && (
                     <button 
                         onClick={() => handleOpenAbono(row.abono_url)}
@@ -126,15 +133,9 @@ const Index = () => {
                 filters={filters} filterConfig={filterConfig}
             />
 
-            {/* Modal Cronograma */}
             <ViewPrestamoModal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} data={viewData} isLoading={viewLoading} />
 
-            {/* 🔥 Modal para Ver el Comprobante de Abono */}
-            <ViewModal
-                isOpen={isAbonoModalOpen}
-                onClose={() => setIsAbonoModalOpen(false)}
-                title="Voucher de Abono Bancario"
-            >
+            <ViewModal isOpen={isAbonoModalOpen} onClose={() => setIsAbonoModalOpen(false)} title="Voucher de Abono Bancario">
                 <div className="flex justify-center bg-slate-50 rounded-3xl overflow-hidden border-4 border-white shadow-xl">
                     {selectedAbonoUrl ? (
                         <img 

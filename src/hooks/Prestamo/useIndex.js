@@ -11,12 +11,10 @@ export const useIndex = () => {
     const filtersRef = useRef(filters);
     const [alert, setAlert] = useState(null);
 
-    // Modales y Datos
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [viewData, setViewData] = useState(null);
     const [viewLoading, setViewLoading] = useState(false);
 
-    // Estado para el Modal del Abono (Imagen)
     const [isAbonoModalOpen, setIsAbonoModalOpen] = useState(false);
     const [selectedAbonoUrl, setSelectedAbonoUrl] = useState(null);
     const [uploadingAbono, setUploadingAbono] = useState(false);
@@ -54,7 +52,6 @@ export const useIndex = () => {
         }
     };
 
-    // 🔥 Función para subir el abono
     const handleUploadAbono = async (id, file) => {
         setUploadingAbono(true);
         try {
@@ -68,7 +65,6 @@ export const useIndex = () => {
         }
     };
 
-    // 🔥 Función para abrir modal de imagen del abono
     const handleOpenAbono = (url) => {
         setSelectedAbonoUrl(url);
         setIsAbonoModalOpen(true);
