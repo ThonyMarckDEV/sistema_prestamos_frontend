@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { combobox } from 'services/clienteService'; 
-import { MagnifyingGlassIcon, XMarkIcon, ChevronRightIcon, UserIcon, IdentificationIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
+import {XMarkIcon, UserIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
 
-const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
+const ClienteSearchSelect = ({ onSelect, disabled, initialName = '', clearOnSelect = false }) => {
     const [inputValue, setInputValue] = useState(initialName);
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -11,9 +11,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
     const wrapperRef = useRef(null);
     const debounceRef = useRef(null); 
 
-    useEffect(() => {
-        setInputValue(initialName || '');
-    }, [initialName]);
+    useEffect(() => { setInputValue(initialName || ''); }, [initialName]);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -29,24 +27,21 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
             const response = await combobox(1, { search: searchTerm });
             setSuggestions(response.data || []);
             setShowSuggestions(true);
-        } catch (error) { 
-            setSuggestions([]); 
-        } finally { 
-            setLoading(false); 
-        }
+        } catch (error) { setSuggestions([]); } 
+        finally { setLoading(false); }
     };
 
     const handleChange = (e) => {
         const texto = e.target.value;
         setInputValue(texto);
         if (debounceRef.current) clearTimeout(debounceRef.current);
-        debounceRef.current = setTimeout(() => fetchClientes(texto), 500);
+        debounceRef.current = setTimeout(() => fetchClientes(texto), 400);
     };
 
     const handleSelect = (cliente) => {
         if (onSelect) {
             onSelect(cliente); 
-            setInputValue(cliente.nombre_completo); 
+            setInputValue(clearOnSelect ? '' : cliente.nombre_completo); 
         }
         setShowSuggestions(false);
     };
@@ -54,8 +49,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
     const handleClear = () => {
         if (disabled) return;
         setInputValue(''); 
-        fetchClientes(''); 
-        if (onSelect) onSelect({id: null}); 
+        if (onSelect) onSelect(null); 
     };
 
     return (
@@ -67,69 +61,56 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                     onChange={handleChange}
                     onClick={() => !showSuggestions && !disabled && fetchClientes(inputValue)}
                     disabled={disabled}
-                    placeholder="Buscar cliente (ej. Christian Ruiz, 4133...)..."
-                    className="w-full border border-slate-300 rounded-lg shadow-sm pl-9 pr-8 py-2.5 text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none bg-white transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed font-medium"
+                    placeholder="Buscar cliente..."
+                    // Mantenemos py-2.5 como el original
+                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-10 pr-10 py-2.5 text-sm font-bold focus:ring-2 focus:ring-red-500 outline-none bg-white transition-all disabled:bg-slate-50 disabled:text-slate-400"
                     autoComplete="off"
                 />
-                <div className={`absolute left-3 ${disabled ? 'text-slate-300' : 'text-slate-400'}`}>
-                    <UserIcon className="w-4 h-4" />
+                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-slate-400'}`}>
+                    <UserIcon className="w-5 h-5" />
                 </div>
                 
-                <div className="absolute right-2 flex items-center">
+                <div className="absolute right-3">
                     {loading ? (
-                        <div className="w-4 h-4 border-2 border-slate-300 border-t-red-600 rounded-full animate-spin"></div> 
-                    ) : inputValue && !disabled ? (
-                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-red-500 p-1">
-                            <XMarkIcon className="w-4 h-4" />
+                        <div className="w-4 h-4 border-2 border-slate-200 border-t-red-600 rounded-full animate-spin"></div> 
+                    ) : inputValue && !disabled && (
+                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-red-500">
+                            <XMarkIcon className="w-5 h-5" />
                         </button> 
-                    ) : (
-                        <MagnifyingGlassIcon className={`w-4 h-4 ${disabled ? 'text-slate-300' : 'text-slate-400'}`} />
                     )}
                 </div>
 
+                {/* --- DROPDOWN COMPACTO --- */}
                 {showSuggestions && !disabled && (
-                    <ul className="absolute z-50 top-full left-0 w-full bg-white border border-slate-200 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-xl">
+                    <ul className="absolute z-50 top-full left-0 w-full bg-white border border-slate-200 rounded-xl mt-1.5 max-h-56 overflow-y-auto shadow-2xl p-1">
                         {suggestions.length > 0 ? suggestions.map((cliente) => {
                             const isEmpresa = cliente.tipo === 2;
-                            const IconoCliente = isEmpresa ? BuildingOfficeIcon : UserIcon;
-                            const badgeColor = isEmpresa 
-                                ? 'bg-yellow-50 text-yellow-700 border-yellow-200' 
-                                : 'bg-red-50 text-red-700 border-red-200';
-                            const badgeText = isEmpresa ? 'EMPRESA' : 'CLIENTE';
-
                             return (
                                 <li 
                                     key={cliente.id} 
                                     onClick={() => handleSelect(cliente)} 
-                                    className="px-4 py-2.5 cursor-pointer text-sm flex items-center justify-between hover:bg-slate-50 border-b border-slate-100 last:border-0 transition-colors"
+                                    className="px-3 py-2 cursor-pointer flex items-center justify-between hover:bg-slate-50 rounded-lg border-b border-slate-50 last:border-0"
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-slate-100 p-1.5 rounded-md border border-slate-200">
-                                            <IconoCliente className="w-5 h-5 text-slate-600" />
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <div className="flex-shrink-0 bg-slate-100 p-1 rounded-md">
+                                            {isEmpresa ? <BuildingOfficeIcon className="w-3.5 h-3.5 text-slate-500"/> : <UserIcon className="w-3.5 h-3.5 text-slate-500"/>}
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="uppercase font-bold text-slate-800">
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-[11px] font-black text-slate-700 truncate uppercase leading-tight">
                                                 {cliente.nombre_completo}
                                             </span>
-                                            <span className="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
-                                                <IdentificationIcon className="w-3 h-3 text-slate-400" />
-                                                {isEmpresa ? 'RUC:' : 'DNI:'} {cliente.documento}
+                                            <span className="text-[9px] text-slate-400 font-bold flex items-center gap-1">
+                                                {cliente.documento}
                                             </span>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-widest border ${badgeColor}`}>
-                                            {badgeText}
-                                        </span>
-                                        <ChevronRightIcon className="w-4 h-4 text-slate-400" />
-                                    </div>
+                                    <span className={`flex-shrink-0 text-[8px] font-black px-1.5 py-0.5 rounded border ${isEmpresa ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                                        {isEmpresa ? 'RUC' : 'DNI'}
+                                    </span>
                                 </li>
                             );
                         }) : (
-                            <li className="px-4 py-6 text-slate-400 text-xs text-center flex flex-col items-center gap-2">
-                                <UserIcon className="w-8 h-8 text-slate-200" />
-                                <span>No se encontraron clientes activos.</span>
-                            </li>
+                            <li className="px-3 py-4 text-slate-400 text-[10px] font-bold text-center uppercase">Sin resultados</li>
                         )}
                     </ul>
                 )}

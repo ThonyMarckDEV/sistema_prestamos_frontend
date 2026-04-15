@@ -6,19 +6,14 @@ export const useIndex = () => {
     const [loading, setLoading] = useState(true);
     const [solicitudes, setSolicitudes] = useState([]);
     const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
-    
-    // Filtros por defecto: Pendientes (1)
     const [filters, setFilters] = useState({ search: '', estado: '1' });
     const filtersRef = useRef(filters);
-    
     const [alert, setAlert] = useState(null);
-    
-    // Estados para Ver Detalle
+
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [viewData, setViewData] = useState(null);
     const [viewLoading, setViewLoading] = useState(false);
 
-    // Estados para el Modal de Aprobación
     const [isApproveOpen, setIsApproveOpen] = useState(false);
     const [selectedSolicitud, setSelectedSolicitud] = useState(null);
 
@@ -32,11 +27,8 @@ export const useIndex = () => {
                 totalPages: response.last_page,
                 total: response.total
             });
-        } catch (err) { 
-            setAlert(handleApiError(err)); 
-        } finally { 
-            setLoading(false); 
-        }
+        } catch (err) { setAlert(handleApiError(err)); }
+        finally { setLoading(false); }
     }, []);
 
     useEffect(() => { fetchSolicitudes(1); }, [fetchSolicitudes]);
@@ -47,12 +39,8 @@ export const useIndex = () => {
         try {
             const response = await show(id);
             setViewData(response.data || response);
-        } catch (err) {
-            setAlert(handleApiError(err));
-            setIsViewOpen(false);
-        } finally {
-            setViewLoading(false);
-        }
+        } catch (err) { setAlert(handleApiError(err)); setIsViewOpen(false); }
+        finally { setViewLoading(false); }
     };
 
     const openApproveModal = (solicitud) => {
@@ -63,25 +51,19 @@ export const useIndex = () => {
     const handleUpdateStatus = async (id, nuevoEstado, abonadoPor = 'CAJA CHICA') => {
         setLoading(true);
         try {
-            // Mandamos estado y el origen del dinero (abonado_por)
             await changeStatus(id, nuevoEstado, abonadoPor);
             setAlert({ type: 'success', message: 'Solicitud procesada correctamente.' });
             setIsApproveOpen(false);
             fetchSolicitudes(paginationInfo.currentPage);
-        } catch (err) {
-            setAlert(handleApiError(err));
-        } finally {
-            setLoading(false);
-        }
+        } catch (err) { setAlert(handleApiError(err)); }
+        finally { setLoading(false); }
     };
 
     const handleFilterChange = (name, val) => setFilters(prev => ({ ...prev, [name]: val }));
     const handleFilterSubmit = () => { filtersRef.current = filters; fetchSolicitudes(1); };
     const handleFilterClear = () => {
         const res = { search: '', estado: '1' };
-        setFilters(res); 
-        filtersRef.current = res; 
-        fetchSolicitudes(1);
+        setFilters(res); filtersRef.current = res; fetchSolicitudes(1);
     };
 
     return { 
