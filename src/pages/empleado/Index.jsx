@@ -80,6 +80,14 @@ const Index = () => {
     ], [filters, setFilters]);
 
     const columns = useMemo(() => [
+        { 
+            header: 'ID', 
+            render: (row) => (
+                <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
+                    {row.id}
+                </span>
+            )
+        },
         {
             header: 'Empleado',
             render: (row) => (
