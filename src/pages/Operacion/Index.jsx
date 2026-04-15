@@ -23,12 +23,14 @@ const Index = () => {
 
     const columns = useMemo(() => {
         const baseColumns = [
-            { 
-                header: 'ID', 
+            {
+                header: 'Comprobante',
                 render: (row) => (
-                    <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
-                        {row.id}
-                    </span>
+                    <div className="flex flex-col">
+                        <span className="font-mono text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 w-fit">
+                            {row.numero_comprobante}
+                        </span>
+                    </div>
                 )
             },
             {
@@ -54,9 +56,6 @@ const Index = () => {
                 header: 'Detalle',
                 render: (row) => (
                     <div className="text-xs">
-                        <span className={`font-mono text-[15px] block mb-0.5 ${row.estado === 0 ? 'text-slate-400' : 'text-slate-400'}`}>
-                            {row.numero_comprobante ?? '—'}
-                        </span>
                         <span className={`font-medium block ${row.estado === 0 ? 'text-red-400 line-through' : 'text-slate-800'}`}>
                             {row.motivo}
                         </span>
@@ -75,7 +74,6 @@ const Index = () => {
                 )
             },
             {
-                // ✅ Fecha compacta en dos líneas en lugar de una larga
                 header: 'Fecha',
                 render: (row) => {
                     const d = new Date(row.fecha);
@@ -107,7 +105,7 @@ const Index = () => {
                 render: (row) => (
                     <div className="flex items-center gap-2 justify-end">
 
-                        {/* 🖨️ VER PDF */}
+                        {/* VER PDF */}
                         {canGeneratePdf && (
                             <button
                                 onClick={() => handleViewPdf(row.id)}
@@ -123,7 +121,7 @@ const Index = () => {
                             </button>
                         )}
 
-                        {/* 🗑️ ANULAR */}
+                        {/* ANULAR */}
                         {canDelete && row.estado !== 0 && (
                             <button
                                 onClick={() => openAnularModal(row.id)}
@@ -145,7 +143,7 @@ const Index = () => {
     const filterConfig = [
         { name: 'search', type: 'text', label: 'Buscar por Código (C001, D001) o Motivo', colSpan: 'col-span-8' },
         { name: 'tipo', type: 'select', label: 'Filtrar Tipo', colSpan: 'col-span-4', options: [
-            { value: '', label: 'Todas las Operaciones' }, 
+            { value: '', label: 'Todos los Movimientos' }, 
             { value: 'desembolso', label: 'Solo Desembolsos' }, 
             { value: 'cobro', label: 'Solo Cobros' }
         ]}
@@ -154,7 +152,7 @@ const Index = () => {
     return (
         <div className="container mx-auto p-4 sm:p-6 max-w-7xl">
             <PageHeader 
-                title="Historial de Operaciones" 
+                title="Historial de Movimientos" 
                 icon={DocumentTextIcon} 
                 buttonText="Ir a Caja Operativa" 
                 buttonLink="/operacion/caja" 

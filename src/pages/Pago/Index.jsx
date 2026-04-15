@@ -122,7 +122,7 @@ const Index = () => {
                     </span>
 
                     <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">
-                        Registrado por: <span className="text-slate-600">{row.registrado_por}</span>
+                        Aprobado por: <span className="text-slate-600">{row.registrado_por}</span>
                     </span>
 
                     {row.estado === 2 && row.observaciones && (

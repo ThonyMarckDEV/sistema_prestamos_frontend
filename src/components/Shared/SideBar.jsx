@@ -95,7 +95,7 @@ export const MENU_GROUPS = [
                 section: 'Operaciones', icon: CurrencyDollarIcon, 
                 subs: [
                     { name: 'Caja Operativa', link: '/operacion/caja', requiredPermission: 'operacion.store' },
-                    { name: 'Historial de operaciones', link: '/operacion/listar', requiredPermission: 'operacion.index' },
+                    { name: 'Historial de Movimientos', link: '/operacion/listar', requiredPermission: 'operacion.index' },
                 ],
             },
             { 
