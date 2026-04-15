@@ -14,6 +14,7 @@ import { FileSearch } from 'lucide-react';
 const Index = () => {
     const { 
         loading, pagos, paginationInfo, filters, setFilters, alert, setAlert, fetchPagos, handleStatusChange,
+        handleFilterSubmit, handleFilterClear,
         handleViewPdf, pdfLoading, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64 
     } = useIndex();
     const { can } = useAuth();
@@ -29,19 +30,19 @@ const Index = () => {
         setIsViewModalOpen(true);
     };
 
-    const filterConfig = [
+    const filterConfig = useMemo(() => [
         { 
             name: 'search', 
             type: 'text', 
-            label: 'Operación / Observación', 
+            label: 'Nombre / Dni / Ruc / Op.', 
             placeholder: 'Ej: 20332932...',
-            colSpan: 'col-span-12 md:col-span-7' 
+            colSpan: 'col-span-12 md:col-span-4' 
         },
         { 
             name: 'estado', 
             type: 'select', 
             label: 'Estado', 
-            colSpan: 'col-span-12 md:col-span-5',
+            colSpan: 'col-span-12 md:col-span-3',
             options: [
                 { value: '', label: 'TODOS LOS PAGOS' },
                 { value: '0', label: 'PENDIENTES' },
@@ -49,7 +50,7 @@ const Index = () => {
                 { value: '2', label: 'RECHAZADOS' }
             ]
         }
-    ];
+    ], []);
 
     const columns = useMemo(() => [
         {
@@ -141,11 +142,8 @@ const Index = () => {
                 filterConfig={filterConfig}
                 filters={filters}
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
-                onFilterSubmit={() => fetchPagos(1)}
-                onFilterClear={() => {
-                    setFilters({ search: '', estado: '' });
-                    fetchPagos(1);
-                }}
+                onFilterSubmit={handleFilterSubmit}
+                onFilterClear={handleFilterClear}
                 pagination={{ ...paginationInfo, onPageChange: fetchPagos }} 
             />
 

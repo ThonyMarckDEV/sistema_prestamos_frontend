@@ -1,12 +1,16 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { index, status, pdf } from 'services/pagoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useIndex = () => {
     const [loading, setLoading] = useState(true);
     const [pagos, setPagos] = useState([]);
-    const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1 });
+    const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
+    
     const [filters, setFilters] = useState({ search: '', estado: '' });
+    
+    const filtersRef = useRef(filters);
+    
     const [alert, setAlert] = useState(null);
 
     // Estados PDF
@@ -18,7 +22,7 @@ export const useIndex = () => {
     const fetchPagos = useCallback(async (page = 1) => {
         setLoading(true);
         try {
-            const res = await index(page, filters);
+            const res = await index(page, filtersRef.current);
             if (res && res.data) {
                 setPagos([...res.data]);
                 setPaginationInfo({
@@ -32,8 +36,9 @@ export const useIndex = () => {
         } finally {
             setLoading(false);
         }
-    }, [filters]);
+    }, []); 
 
+    // Carga inicial
     useEffect(() => { fetchPagos(1); }, [fetchPagos]);
 
     const handleViewPdf = async (id) => {
@@ -63,8 +68,21 @@ export const useIndex = () => {
         }
     };
 
+    const handleFilterSubmit = () => {
+        filtersRef.current = filters; 
+        fetchPagos(1);
+    };
+
+    const handleFilterClear = () => {
+        const initial = { search: '', estado: '' };
+        setFilters(initial);
+        filtersRef.current = initial;
+        fetchPagos(1);
+    };
+
     return { 
-        loading, pagos, paginationInfo, filters, setFilters, alert, setAlert, fetchPagos, handleStatusChange,
+        loading, pagos, paginationInfo, filters, setFilters, alert, setAlert, 
+        fetchPagos, handleStatusChange, handleFilterSubmit, handleFilterClear,
         handleViewPdf, isPdfModalOpen, setIsPdfModalOpen, pdfBase64, pdfTitle, pdfLoading
     };
 };
