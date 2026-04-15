@@ -8,12 +8,10 @@ export const useIndex = () => {
     const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
     
     const [filters, setFilters] = useState({ search: '', estado: '' });
-    
     const filtersRef = useRef(filters);
     
     const [alert, setAlert] = useState(null);
 
-    // Estados PDF
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
     const [pdfBase64, setPdfBase64] = useState(null);
     const [pdfTitle, setPdfTitle] = useState('');
@@ -38,7 +36,6 @@ export const useIndex = () => {
         }
     }, []); 
 
-    // Carga inicial
     useEffect(() => { fetchPagos(1); }, [fetchPagos]);
 
     const handleViewPdf = async (id) => {
@@ -55,11 +52,11 @@ export const useIndex = () => {
         }
     };
 
-    const handleStatusChange = async (id, nuevoEstado, motivo = '') => {
+    const handleStatusChange = async (id, nuevoEstado, montoVerificado = null, motivo = '') => {
         setLoading(true);
         try {
-            await status(id, { estado: nuevoEstado, motivo });
-            setAlert({ type: 'success', message: 'Estado actualizado.' });
+            await status(id, { estado: nuevoEstado, monto_verificado: montoVerificado, motivo });
+            setAlert({ type: 'success', message: 'Estado actualizado correctamente.' });
             fetchPagos(paginationInfo.currentPage);
         } catch (err) {
             setAlert(handleApiError(err));

@@ -5,7 +5,6 @@ import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ViewModal from 'components/Shared/Modals/ViewModal';
-import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import RechazarPagoModal from './RechazarPagoModal';
 import PdfModal from 'components/Shared/Modals/PdfModal';
 import { CheckIcon, XMarkIcon, BanknotesIcon, PrinterIcon } from '@heroicons/react/24/outline';
@@ -17,13 +16,17 @@ const Index = () => {
         handleFilterSubmit, handleFilterClear,
         handleViewPdf, pdfLoading, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64 
     } = useIndex();
+    
     const { can } = useAuth();
 
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedVoucher, setSelectedVoucher] = useState(null);
-    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    
+    const [activePago, setActivePago] = useState(null);
+    const [isAprobarOpen, setIsAprobarOpen] = useState(false);
+    const [montoVerificado, setMontoVerificado] = useState("");
+
     const [isRechazarOpen, setIsRechazarOpen] = useState(false);
-    const [activePagoId, setActivePagoId] = useState(null);
 
     const openVoucher = (url) => {
         setSelectedVoucher(url);
@@ -54,39 +57,53 @@ const Index = () => {
 
     const columns = useMemo(() => [
         { 
-            header: 'ID', 
+            header: 'ID / Fecha', 
             render: (row) => (
-                <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
-                    {row.id}
-                </span>
-            )
-        },
-        {
-            header: 'Cliente / Cuota',
-            render: (row) => (
-                <div className="text-[11px] uppercase">
-                    <p className="font-black text-slate-800">{row.cliente || 'N/A'}</p>
-                    <p className="text-slate-500 font-bold text-[10px]">
-                        Cuota #{row.cuota_nro} - Préstamo #{row.prestamo_id}
-                    </p>
+                <div className="flex flex-col">
+                    <span className="font-mono text-[14px] font-black text-slate-600">
+                        #{row.id}
+                    </span>
+                    <span className="text-[9px] text-slate-400 font-bold whitespace-nowrap">
+                        {row.fecha}
+                    </span>
                 </div>
             )
         },
         {
-            header: 'Monto',
-            render: (row) => <span className="font-black text-slate-700 text-sm">S/ {row.monto}</span>
+            header: 'Titular y Detalle',
+            render: (row) => (
+                <div className="flex flex-col uppercase">
+                    <span className="font-black text-[11px] text-slate-800 leading-tight">
+                        {row.prestamo}
+                    </span>
+                    <span className="text-[9px] text-slate-500 font-bold mt-0.5">
+                        Depositó: <span className="text-slate-700">{row.depositado_por}</span>
+                    </span>
+                    <span className="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 w-fit px-1.5 py-0.5 rounded mt-1 tracking-wider">
+                        CUOTA #{row.cuota_nro}
+                    </span>
+                </div>
+            )
         },
         {
-            header: 'Operación',
-            render: (row) => <span className="font-mono text-[10px] font-bold bg-slate-100 px-2 py-1 rounded border border-slate-200">{row.numero_operacion}</span>
-        },
-       {
-            header: 'Estado',
+            header: 'Monto y Operación',
             render: (row) => (
-                <div className="flex flex-col items-start gap-1.5">
-
-                    {/* ESTADO */}
-                    <span className={`px-2 py-1 rounded text-[9px] font-black border ${
+                <div className="flex flex-col">
+                    <span className="font-black text-emerald-600 text-sm">S/ {row.monto}</span>
+                    <span className="font-mono text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded w-fit mt-0.5 border border-slate-200">
+                        Op: {row.numero_operacion}
+                    </span>
+                    <span className="text-[8px] font-bold text-slate-400 mt-1 tracking-widest">
+                        {row.modalidad}
+                    </span>
+                </div>
+            )
+        },
+        {
+            header: 'Estado / Registro',
+            render: (row) => (
+                <div className="flex flex-col items-start gap-1">
+                    <span className={`px-2 py-0.5 rounded text-[9px] font-black border uppercase tracking-wider ${
                         row.estado === 1 ? 'bg-green-100 text-green-700 border-green-200' :
                         row.estado === 2 ? 'bg-red-100 text-red-700 border-red-200' :
                         'bg-yellow-100 text-yellow-700 border-yellow-200'
@@ -94,21 +111,17 @@ const Index = () => {
                         {row.estado === 1 ? 'APROBADO' : row.estado === 2 ? 'RECHAZADO' : 'PENDIENTE'}
                     </span>
 
-                    {/* OBSERVACIÓN */}
-                    {row.estado === 2 && row.observaciones && (
-                        <div className="flex items-center gap-2 pl-2 border-l-2 border-red-500 max-w-[180px]">
-                            
-                            <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-wide">
-                                Observación:
-                            </span>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">
+                        Cajero: <span className="text-slate-600">{row.registrado_por}</span>
+                    </span>
 
-                            <span className="text-[9px] font-semibold text-red-600 truncate">
+                    {row.estado === 2 && row.observaciones && (
+                        <div className="flex items-center gap-1 pl-2 border-l-2 border-red-500 max-w-[180px] mt-1">
+                            <span className="text-[9px] font-semibold text-red-600 truncate" title={row.observaciones}>
                                 {row.observaciones}
                             </span>
-
                         </div>
                     )}
-
                 </div>
             )
         },
@@ -116,8 +129,6 @@ const Index = () => {
             header: 'Acciones',
             render: (row) => (
                 <div className="flex gap-2 items-center justify-end">
-
-                    {/* VER VOUCHER */}
                     {row.comprobante_url && (
                         <button 
                             onClick={() => openVoucher(row.comprobante_url)}
@@ -128,7 +139,6 @@ const Index = () => {
                         </button>
                     )}
 
-                    {/* IMPRIMIR PDF */}
                     {row.estado === 1 && can('pago.generatePDF') && (
                         <button 
                             onClick={() => handleViewPdf(row.id)}
@@ -144,11 +154,14 @@ const Index = () => {
                         </button>
                     )}
 
-                    {/* APROBAR / RECHAZAR */}
                     {row.estado === 0 && can('pago.status') && (
                         <>
                             <button 
-                                onClick={() => { setActivePagoId(row.id); setIsConfirmOpen(true); }}
+                                onClick={() => { 
+                                    setActivePago(row); 
+                                    setMontoVerificado(row.monto);
+                                    setIsAprobarOpen(true); 
+                                }}
                                 title="Aprobar Pago"
                                 className="p-2 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all border border-transparent hover:border-green-100 shadow-sm"
                             >
@@ -156,7 +169,7 @@ const Index = () => {
                             </button>
 
                             <button 
-                                onClick={() => { setActivePagoId(row.id); setIsRechazarOpen(true); }}
+                                onClick={() => { setActivePago(row); setIsRechazarOpen(true); }}
                                 title="Rechazar Pago"
                                 className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 shadow-sm"
                             >
@@ -164,7 +177,6 @@ const Index = () => {
                             </button>
                         </>
                     )}
-
                 </div>
             )
         }
@@ -187,28 +199,58 @@ const Index = () => {
                 pagination={{ ...paginationInfo, onPageChange: fetchPagos }} 
             />
 
-            {/* Modal Imagen Voucher */}
             <ViewModal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} title="Voucher de Pago">
                 <div className="flex justify-center bg-slate-50 rounded-xl overflow-hidden border border-slate-200">
                     <img src={selectedVoucher} alt="Voucher" className="max-w-full h-auto object-contain" style={{ maxHeight: '70vh' }} />
                 </div>
             </ViewModal>
 
-            {/* Modal Confirmar Aprobación */}
-            {isConfirmOpen && (
-                <ConfirmModal 
-                    title="Aprobar Pago" 
-                    message="¿Confirmar este pago virtual? Se registrará el ingreso en caja." 
-                    onConfirm={async () => { await handleStatusChange(activePagoId, 1); setIsConfirmOpen(false); }} 
-                    onCancel={() => setIsConfirmOpen(false)} 
-                />
+            {/* MODAL DE APROBACIÓN VERIFICADA */}
+            {isAprobarOpen && activePago && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in duration-200">
+                        <div className="mb-4">
+                            <h3 className="text-lg font-black text-slate-800 uppercase flex items-center gap-2">
+                                <CheckIcon className="w-6 h-6 text-green-500" /> Aprobar Abono
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-2">
+                                El cliente reportó un pago de <strong className="text-slate-800">S/ {activePago.monto}</strong>. 
+                                Confirma el monto real ingresado a caja.
+                            </p>
+                        </div>
+                        
+                        <div className="mb-6">
+                            <label className="block text-[10px] font-black uppercase text-slate-400 ml-1 mb-1">Monto Confirmado (S/)</label>
+                            <input 
+                                type="number" 
+                                step="0.01"
+                                value={montoVerificado}
+                                onChange={(e) => setMontoVerificado(e.target.value)}
+                                className="w-full p-4 bg-slate-50 border-2 border-slate-200 focus:border-green-500 rounded-xl font-black text-green-600 text-lg outline-none transition-all text-center"
+                            />
+                        </div>
+
+                        <div className="flex gap-2">
+                            <button onClick={() => setIsAprobarOpen(false)} className="flex-1 py-3 text-xs font-black uppercase text-slate-500 hover:bg-slate-100 rounded-xl transition-all">Cancelar</button>
+                            <button 
+                                onClick={async () => {
+                                    await handleStatusChange(activePago.id, 1, montoVerificado);
+                                    setIsAprobarOpen(false);
+                                }} 
+                                disabled={loading || !montoVerificado || montoVerificado <= 0}
+                                className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white text-xs font-black uppercase rounded-xl transition-all shadow-md disabled:opacity-50"
+                            >
+                                Confirmar Ingreso
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
-            {/* Modal Rechazo */}
             <RechazarPagoModal 
                 isOpen={isRechazarOpen} 
                 onClose={() => setIsRechazarOpen(false)} 
-                onConfirm={async (m) => { await handleStatusChange(activePagoId, 2, m); setIsRechazarOpen(false); }} 
+                onConfirm={async (m) => { await handleStatusChange(activePago?.id, 2, null, m); setIsRechazarOpen(false); }} 
                 loading={loading} 
             />
 

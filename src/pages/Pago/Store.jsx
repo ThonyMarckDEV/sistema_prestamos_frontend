@@ -15,7 +15,6 @@ const Store = () => {
         handleConfirmarPagoVirtual
     } = useStore();
 
-    // --- Definición de Columnas para el Cronograma ---
     const columns = useMemo(() => [
         { 
             header: 'N°', 
@@ -47,8 +46,18 @@ const Store = () => {
             )
         },
         { 
-            header: 'Total a Pagar', 
-            render: (row) => <span className="font-black text-slate-900 text-sm">S/ {parseFloat(row.total_con_mora).toFixed(2)}</span> 
+            header: 'Total vs Pagado', 
+            render: (row) => {
+                const saldo = parseFloat(row.total_con_mora) - parseFloat(row.pago_realizado);
+                return (
+                    <div className="flex flex-col">
+                        <span className="font-black text-slate-900 text-sm">S/ {parseFloat(row.total_con_mora).toFixed(2)}</span>
+                        {parseFloat(row.pago_realizado) > 0 && (
+                            <span className="text-[10px] font-black text-orange-500">Resta: S/ {saldo.toFixed(2)}</span>
+                        )}
+                    </div>
+                )
+            }
         },
         { 
             header: 'Estado', 
@@ -58,7 +67,8 @@ const Store = () => {
                     2: { text: 'PAGADO', style: 'bg-green-100 text-green-700 border-green-200' },
                     3: { text: 'VENCE HOY', style: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
                     4: { text: 'VENCIDA', style: 'bg-red-100 text-red-700 border-red-200' },
-                    5: { text: 'EN REVISIÓN', style: 'bg-blue-100 text-blue-700 border-blue-200' }
+                    5: { text: 'EN REVISIÓN', style: 'bg-blue-100 text-blue-700 border-blue-200' },
+                    6: { text: 'PAGO PARCIAL', style: 'bg-orange-100 text-orange-700 border-orange-200' }
                 };
                 const current = estadoMap[row.estado] || estadoMap[1];
 
@@ -76,7 +86,7 @@ const Store = () => {
                     .filter(r => r.nro < row.nro)
                     .some(r => r.estado !== 2);
 
-                const esPagable = [1, 3, 4].includes(row.estado);
+                const esPagable = [1, 3, 4, 6].includes(row.estado);
                 const bloqueada = !esPagable || hayAnteriorPendiente;
 
                 if (row.estado === 2) return null; 
@@ -108,15 +118,12 @@ const Store = () => {
         }
     ], [setIsModalOpen, setCuotaParaPagar]);
 
-    // Pantalla de carga inicial
     if (loading && misPrestamos.length === 0) return <LoadingScreen />;
 
     return (
         <div className="container mx-auto p-4 sm:p-6 max-w-5xl">
-            {/* Cabecera Principal */}
             <PageHeader title="Mi Portal de Pagos" icon={CreditCardIcon} />
             
-            {/* Alertas del Sistema */}
             <AlertMessage 
                 type={alert?.type} 
                 message={alert?.message} 
@@ -125,8 +132,7 @@ const Store = () => {
             />
 
             <div className="space-y-6 mt-6">
-                
-                {/* --- 1. SELECCIÓN DE PRÉSTAMO --- */}
+                {/* 1. SELECCIÓN DE PRÉSTAMO */}
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
                     <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest ml-1">
                         Selecciona un préstamo activo
@@ -145,7 +151,7 @@ const Store = () => {
                     </select>
                 </div>
 
-                {/* --- 2. CRONOGRAMA DE CUOTAS --- */}
+                {/* 2. CRONOGRAMA DE CUOTAS */}
                 {prestamoSeleccionado && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="mb-3 flex justify-between items-center px-2">
@@ -157,7 +163,6 @@ const Store = () => {
                              </div>
                         </div>
                         
-                        {/* Tabla estandarizada */}
                         <Table 
                             columns={columns} 
                             data={prestamoSeleccionado.cronograma || []} 
@@ -167,7 +172,7 @@ const Store = () => {
                 )}
             </div>
 
-            {/* --- 3. MODAL DE REPORTE (SPLIT SCREEN) --- */}
+            {/* 3. MODAL DE REPORTE */}
             <ReportarPagoModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

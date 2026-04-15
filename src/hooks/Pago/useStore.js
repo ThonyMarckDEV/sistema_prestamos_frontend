@@ -43,7 +43,7 @@ export const useStore = () => {
         }
     };
 
-    // 3. Enviar el pago a MinIO
+    // 3. Enviar el pago a MinIO y DB
     const handleConfirmarPagoVirtual = async (data, file) => {
         if (!file) {
             setAlert({ type: 'error', message: 'Debes subir la foto del comprobante.' });
@@ -53,6 +53,7 @@ export const useStore = () => {
         try {
             const formData = new FormData();
             formData.append('cuota_id', cuotaParaPagar.id);
+            formData.append('monto_pagado', data.monto_pagado); 
             formData.append('numero_operacion', data.numero_operacion);
             formData.append('comprobante', file);
 
@@ -61,7 +62,7 @@ export const useStore = () => {
             setAlert({ type: 'success', message: '¡Boucher enviado! Espera la validación.' });
             setIsModalOpen(false);
             
-            // Refrescar cronograma usando el método show()
+            // Refrescar cronograma
             handleSelectPrestamo(prestamoSeleccionado.id);
         } catch (err) {
             setAlert(handleApiError(err));

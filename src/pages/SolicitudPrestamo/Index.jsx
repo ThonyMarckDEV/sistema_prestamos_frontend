@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useIndex } from 'hooks/SolicitudPrestamo/useIndex';
+import { useAuth } from 'context/AuthContext';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -18,6 +19,8 @@ const Index = () => {
         isApproveOpen, setIsApproveOpen, selectedSolicitud, openApproveModal
     } = useIndex();
 
+    const { can } = useAuth();
+
     const columns = useMemo(() => [
         { header: 'ID', render: (row) => <span className="font-black text-slate-600">#{row.id}</span> },
         { header: 'Sujeto / Grupo', render: (row) => (
@@ -34,17 +37,36 @@ const Index = () => {
         }},
         { header: 'Acciones', render: (row) => (
             <div className="flex gap-1 justify-end">
-                <button onClick={() => handleView(row.id)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg"><EyeIcon className="w-4 h-4" /></button>
+                {/* El botón de Ver Cronograma (Ojo) lo dejamos público o según decidas */}
+                <button onClick={() => handleView(row.id)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg">
+                    <EyeIcon className="w-4 h-4" />
+                </button>
+                
                 {row.estado === 1 && (
                     <>
-                        <Link to={`/solicitudPrestamo/editar/${row.id}`} className="p-1.5 text-slate-400 hover:text-blue-600"><PencilSquareIcon className="w-4 h-4"/></Link>
-                        <button onClick={() => openApproveModal(row)} className="p-1.5 text-green-500 hover:bg-green-50"><CheckIcon className="w-4 h-4 font-bold"/></button>
-                        <button onClick={() => handleUpdateStatus(row.id, 3)} className="p-1.5 text-red-400 hover:bg-red-50"><XMarkIcon className="w-4 h-4"/></button>
+                        {/* PERMISO PARA EDITAR */}
+                        {can('solicitudPrestamo.update') && (
+                            <Link to={`/solicitudPrestamo/editar/${row.id}`} className="p-1.5 text-slate-400 hover:text-blue-600">
+                                <PencilSquareIcon className="w-4 h-4"/>
+                            </Link>
+                        )}
+                        
+                        {/* PERMISO PARA APROBAR O RECHAZAR */}
+                        {can('solicitudPrestamo.status') && (
+                            <>
+                                <button onClick={() => openApproveModal(row)} className="p-1.5 text-green-500 hover:bg-green-50">
+                                    <CheckIcon className="w-4 h-4 font-bold"/>
+                                </button>
+                                <button onClick={() => handleUpdateStatus(row.id, 3)} className="p-1.5 text-red-400 hover:bg-red-50">
+                                    <XMarkIcon className="w-4 h-4"/>
+                                </button>
+                            </>
+                        )}
                     </>
                 )}
             </div>
         )}
-    ], [handleView, openApproveModal, handleUpdateStatus]);
+    ], [handleView, openApproveModal, handleUpdateStatus, can]);
 
     if (loading && solicitudes.length === 0) return <LoadingScreen />;
 
@@ -52,9 +74,33 @@ const Index = () => {
         <div className="container mx-auto p-6">
             <PageHeader title="Solicitudes" icon={DocumentTextIcon} buttonText="+ Nueva" buttonLink="/solicitudPrestamo/agregar" />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
-            <Table columns={columns} data={solicitudes} loading={loading} pagination={{ ...paginationInfo, onPageChange: fetchSolicitudes }} onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit} onFilterClear={handleFilterClear} filters={filters} filterConfig={[{ name: 'search', type: 'text', label: 'Buscar...', colSpan: 'col-span-8' }, { name: 'estado', type: 'select', label: 'Estado', options: [{ value: '1', label: 'PENDIENTES' }, { value: '2', label: 'APROBADAS' }, { value: '3', label: 'RECHAZADAS' }], colSpan: 'col-span-4' }]} />
+            
+            <Table 
+                columns={columns} 
+                data={solicitudes} 
+                loading={loading} 
+                pagination={{ ...paginationInfo, onPageChange: fetchSolicitudes }} 
+                onFilterChange={handleFilterChange} 
+                onFilterSubmit={handleFilterSubmit} 
+                onFilterClear={handleFilterClear} 
+                filters={filters} 
+                filterConfig={[
+                    { name: 'search', type: 'text', label: 'Buscar...', colSpan: 'col-span-8' }, 
+                    { name: 'estado', type: 'select', label: 'Estado', options: [{ value: '1', label: 'PENDIENTES' }, { value: '2', label: 'APROBADAS' }, { value: '3', label: 'RECHAZADAS' }], colSpan: 'col-span-4' }
+                ]} 
+            />
+            
             <ViewSolicitudModal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} data={viewData} isLoading={viewLoading} />
-            {isApproveOpen && <ApproveSolicitudModal isOpen={isApproveOpen} onClose={() => setIsApproveOpen(false)} onConfirm={handleUpdateStatus} solicitud={selectedSolicitud} loading={loading} />}
+            
+            {isApproveOpen && (
+                <ApproveSolicitudModal 
+                    isOpen={isApproveOpen} 
+                    onClose={() => setIsApproveOpen(false)} 
+                    onConfirm={handleUpdateStatus} 
+                    solicitud={selectedSolicitud} 
+                    loading={loading} 
+                />
+            )}
         </div>
     );
 };

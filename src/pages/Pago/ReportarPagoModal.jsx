@@ -22,14 +22,18 @@ const ReportarPagoModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const data = { numero_operacion: e.target.numero_operacion.value };
+        const data = { 
+            numero_operacion: e.target.numero_operacion.value,
+            monto_pagado: e.target.monto_pagado.value 
+        };
         onConfirm(data, selectedFile);
     };
 
     if (!isOpen) return null;
 
-    // Calculamos si hay mora para mostrar una alerta visual
-    const tieneMora = parseFloat(cuota?.mora) > 0;
+    const tieneMora = parseFloat(cuota?.mora || 0) > 0;
+    const pagoRealizado = parseFloat(cuota?.pago_realizado || 0);
+    const saldoPendiente = parseFloat(cuota?.total_con_mora || 0) - pagoRealizado;
 
     return (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
@@ -47,40 +51,61 @@ const ReportarPagoModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         </div>
                     </div>
 
-                    {/* 🔥 RESUMEN DE PAGO (MONTO + MORA) */}
+                    {/* RESUMEN DE PAGO (MONTO + MORA - ABONOS) */}
                     <div className={`mb-6 p-4 rounded-2xl border ${tieneMora ? 'bg-red-50 border-red-100' : 'bg-slate-50 border-slate-100'}`}>
                         <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-black text-slate-400 uppercase">Monto de Cuota</span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase">Monto Base</span>
                             <span className="text-sm font-bold text-slate-700">S/ {cuota?.monto}</span>
                         </div>
                         
                         {tieneMora && (
-                            <div className="flex justify-between items-center mb-2 pb-2 border-b border-red-200 border-dashed">
-                                <span className="text-[10px] font-black text-red-400 uppercase">Recargo por Mora</span>
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-[10px] font-black text-red-400 uppercase">Recargo Mora</span>
                                 <span className="text-sm font-black text-red-600">+ S/ {cuota?.mora}</span>
                             </div>
                         )}
 
-                        <div className="flex justify-between items-center">
-                            <span className="text-xs font-black text-slate-800 uppercase">Total a Depositar</span>
-                            <span className="text-2xl font-black text-slate-900 italic">S/ {parseFloat(cuota?.total_con_mora).toFixed(2)}</span>
+                        {pagoRealizado > 0 && (
+                            <div className="flex justify-between items-center mb-2 pb-2 border-b border-green-200 border-dashed">
+                                <span className="text-[10px] font-black text-green-500 uppercase">Ya Abonado</span>
+                                <span className="text-sm font-black text-green-600">- S/ {pagoRealizado.toFixed(2)}</span>
+                            </div>
+                        )}
+
+                        <div className={`flex justify-between items-center ${pagoRealizado === 0 && tieneMora ? 'pt-2 border-t border-red-200 border-dashed' : ''}`}>
+                            <span className="text-xs font-black text-slate-800 uppercase">Saldo a Pagar</span>
+                            <span className="text-2xl font-black text-slate-900 italic">S/ {saldoPendiente.toFixed(2)}</span>
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <div>
-                            <label className="block text-[10px] font-black uppercase text-slate-400 ml-1 mb-1">N° de Operación</label>
-                            <input 
-                                name="numero_operacion" 
-                                required 
-                                type="text" 
-                                className="w-full p-4 bg-slate-100 border-2 border-transparent rounded-2xl font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition-all" 
-                                placeholder="Ej: 832912" 
-                            />
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black uppercase text-slate-400 ml-1 mb-1">Monto Depositado *</label>
+                                <input 
+                                    name="monto_pagado" 
+                                    required 
+                                    type="number" 
+                                    step="0.01"
+                                    max={saldoPendiente}
+                                    defaultValue={saldoPendiente.toFixed(2)}
+                                    className="w-full p-4 bg-slate-100 border-2 border-transparent rounded-2xl font-black text-blue-600 outline-none focus:border-blue-500 focus:bg-white transition-all" 
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black uppercase text-slate-400 ml-1 mb-1">N° Operación *</label>
+                                <input 
+                                    name="numero_operacion" 
+                                    required 
+                                    type="text" 
+                                    className="w-full p-4 bg-slate-100 border-2 border-transparent rounded-2xl font-black text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition-all" 
+                                    placeholder="Ej: 832912" 
+                                />
+                            </div>
                         </div>
 
                         <div>
-                            <label className="block text-[10px] font-black uppercase text-slate-400 ml-1 mb-1">Subir Comprobante</label>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 ml-1 mb-1">Subir Comprobante *</label>
                             <div className="relative group">
                                 <input 
                                     name="comprobante" 
@@ -99,19 +124,11 @@ const ReportarPagoModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                             </div>
                         </div>
 
-                        <div className="flex gap-3 pt-4">
-                            <button 
-                                type="button" 
-                                onClick={onClose} 
-                                className="flex-1 py-4 font-black uppercase text-xs text-slate-400 hover:text-slate-600 transition-colors"
-                            >
+                        <div className="flex gap-3 pt-2">
+                            <button type="button" onClick={onClose} className="flex-1 py-4 font-black uppercase text-xs text-slate-400 hover:text-slate-600 transition-colors">
                                 Cancelar
                             </button>
-                            <button 
-                                type="submit" 
-                                disabled={loading || !selectedFile} 
-                                className="flex-1 py-4 bg-black text-white font-black uppercase text-xs rounded-2xl shadow-xl hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
+                            <button type="submit" disabled={loading || !selectedFile} className="flex-1 py-4 bg-black text-white font-black uppercase text-xs rounded-2xl shadow-xl hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                                 {loading ? 'Subiendo...' : 'Enviar Pago'}
                             </button>
                         </div>
@@ -120,22 +137,14 @@ const ReportarPagoModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
 
                 {/* LADO DERECHO: PREVIEW */}
                 <div className="w-full md:w-1/2 bg-slate-50 p-4 flex items-center justify-center relative min-h-[300px]">
-                    <button 
-                        onClick={onClose}
-                        className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md text-slate-400 hover:text-red-500 z-20 md:hidden"
-                    >
+                    <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md text-slate-400 hover:text-red-500 z-20 md:hidden">
                         <XMarkIcon className="w-5 h-5" />
                     </button>
-
                     {previewUrl ? (
                         <div className="w-full h-full flex flex-col items-center justify-center p-4">
                             <p className="text-[10px] font-black text-slate-400 uppercase mb-2">Vista previa del boucher</p>
                             <div className="relative w-full h-[400px] rounded-2xl overflow-hidden border-4 border-white shadow-lg">
-                                <img 
-                                    src={previewUrl} 
-                                    alt="Preview" 
-                                    className="w-full h-full object-contain bg-slate-200"
-                                />
+                                <img src={previewUrl} alt="Preview" className="w-full h-full object-contain bg-slate-200" />
                             </div>
                         </div>
                     ) : (
@@ -144,7 +153,7 @@ const ReportarPagoModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                 <PhotoIcon className="w-10 h-10 text-slate-400" />
                             </div>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-10">
-                                Sube una foto para previsualizar el comprobante aquí
+                                Sube una foto para previsualizar
                             </p>
                         </div>
                     )}
