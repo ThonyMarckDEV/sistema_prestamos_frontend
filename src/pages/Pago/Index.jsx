@@ -73,9 +73,16 @@ const Index = () => {
             header: 'Comprobante / Op.',
             render: (row) => (
                 <div className="flex flex-col">
-                    <span className="font-mono text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 w-fit">
-                        {row.numero_comprobante}
-                    </span>
+                    {row.numero_comprobante ? (
+                        <span className="font-mono text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 w-fit">
+                            {row.numero_comprobante}
+                        </span>
+                    ) : (
+                        <span className="font-mono text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 border-dashed w-fit italic">
+                            Sin Recibo (En Espera)
+                        </span>
+                    )}
+                    
                     <span className="font-mono text-[9px] font-bold text-slate-400 mt-1 uppercase">
                         Op: {row.numero_operacion || '---'}
                     </span>
