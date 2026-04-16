@@ -14,7 +14,8 @@ import {
     PhotoIcon,
     ArrowPathIcon,
     UserGroupIcon,
-    UserIcon
+    UserIcon,
+    BriefcaseIcon
 } from '@heroicons/react/24/outline';
 
 const Index = () => {
@@ -49,75 +50,84 @@ const Index = () => {
         return config;
     }, [role]);
 
-    const columns = useMemo(() => [
-        { 
-            header: 'ID', 
-            render: (row) => (
-                <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
-                    {row.id}
-                </span>
-            )
-        },
-        { header: 'Cliente / Producto', render: (row) => (
-            <div className="flex flex-col uppercase">
-                {/* 🔥 Icono dinámico si es Grupo o Cliente Individual */}
-                <div className="flex items-center gap-1.5">
-                    {row.es_grupal ? <UserGroupIcon className="w-3.5 h-3.5 text-blue-600" /> : <UserIcon className="w-3.5 h-3.5 text-slate-400" />}
-                    <span className={`font-black text-[11px] ${row.es_grupal ? 'text-blue-700' : 'text-slate-800'}`}>
-                        {row.cliente}
+    const columns = useMemo(() => {
+        const cols = [
+            { 
+                header: 'ID', 
+                render: (row) => (
+                    <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
+                        {row.id}
                     </span>
+                )
+            },
+            { header: 'Cliente / Producto', render: (row) => (
+                <div className="flex flex-col uppercase">
+                    <div className="flex items-center gap-1.5">
+                        {row.es_grupal ? <UserGroupIcon className="w-3.5 h-3.5 text-blue-600" /> : <UserIcon className="w-3.5 h-3.5 text-slate-400" />}
+                        <span className={`font-black text-[11px] ${row.es_grupal ? 'text-blue-700' : 'text-slate-800'}`}>
+                            {row.cliente}
+                        </span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 font-bold mt-0.5 ml-5">{row.producto}</span>
                 </div>
-                <span className="text-[10px] text-slate-500 font-bold mt-0.5 ml-5">{row.producto}</span>
-            </div>
-        )},
-        { header: 'Financiero', render: (row) => (
-            <div className="flex flex-col">
-                <span className="font-black text-red-600 italic text-sm">S/ {row.monto}</span>
-                <span className="text-[9px] text-slate-400 font-black uppercase tracking-tighter">{row.abonado_por}</span>
-            </div>
-        )},
-        { header: 'Cuotas', render: (row) => (
-            <div className="flex flex-col">
-                <span className="text-xs font-black text-slate-700">{row.cuotas_detalle}</span>
-                <span className="text-[9px] text-slate-400 uppercase font-bold">{row.frecuencia}</span>
-            </div>
-        )},
-        { header: 'Estado', render: (row) => {
-            const colors = { 1: 'bg-green-50 text-green-700 border-green-100', 2: 'bg-slate-50 text-slate-600 border-slate-100', 3: 'bg-blue-50 text-blue-700 border-blue-100' };
-            const labels = { 1: 'VIGENTE', 2: 'CANCELADO', 3: 'LIQUIDADO' };
-            return <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border ${colors[row.estado]}`}>{labels[row.estado]}</span>
-        }},
-        { header: 'Acciones', render: (row) => (
-            <div className="flex gap-2 items-center justify-end">
-                <button onClick={() => handleView(row.id)} title="Ver Cronograma" className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm">
-                    <EyeIcon className="w-4 h-4" />
-                </button>
-
-                {row.abonado_por === 'CUENTA CORRIENTE' && can('prestamo.abono') && (
-                    <label title="Subir Abono" className={`cursor-pointer p-2 rounded-xl transition-all border border-transparent shadow-sm ${uploadingAbono ? 'bg-slate-50' : 'text-slate-400 hover:text-orange-600 hover:bg-orange-50 hover:border-orange-100'}`}>
-                        <input 
-                            type="file" className="hidden" accept="image/*"
-                            onChange={(e) => {
-                                if (e.target.files[0]) handleUploadAbono(row.id, e.target.files[0]);
-                                e.target.value = null; 
-                            }} 
-                        />
-                        {uploadingAbono ? <ArrowPathIcon className="w-4 h-4 animate-spin" /> : <ArrowUpTrayIcon className="w-4 h-4" />}
-                    </label>
-                )}
-
-                {row.abono_url && (
-                    <button 
-                        onClick={() => handleOpenAbono(row.abono_url)}
-                        title="Ver Comprobante" 
-                        className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl border border-transparent hover:border-emerald-100 transition-all shadow-sm"
-                    >
-                        <PhotoIcon className="w-4 h-4" />
+            )},
+            { header: 'Asesor', render: (row) => (
+                <div className="flex items-center gap-1.5 text-black w-fit">
+                    <BriefcaseIcon className="w-3 h-3 text-black" />
+                    {row.asesor}
+                </div>
+            )},
+            { header: 'Financiero', render: (row) => (
+                <div className="flex flex-col">
+                    <span className="font-black text-red-600 italic text-sm">S/ {row.monto}</span>
+                    <span className="text-[9px] text-slate-400 font-black uppercase tracking-tighter">{row.abonado_por}</span>
+                </div>
+            )},
+            { header: 'Cuotas', render: (row) => (
+                <div className="flex flex-col">
+                    <span className="text-xs font-black text-slate-700">{row.cuotas_detalle}</span>
+                    <span className="text-[9px] text-slate-400 uppercase font-bold">{row.frecuencia}</span>
+                </div>
+            )},
+            { header: 'Estado', render: (row) => {
+                const colors = { 1: 'bg-green-50 text-green-700 border-green-100', 2: 'bg-slate-50 text-slate-600 border-slate-100', 3: 'bg-blue-50 text-blue-700 border-blue-100' };
+                const labels = { 1: 'VIGENTE', 2: 'CANCELADO', 3: 'LIQUIDADO' };
+                return <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border ${colors[row.estado]}`}>{labels[row.estado]}</span>
+            }},
+            { header: 'Acciones', render: (row) => (
+                <div className="flex gap-2 items-center justify-end">
+                    <button onClick={() => handleView(row.id)} title="Ver Cronograma" className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm">
+                        <EyeIcon className="w-4 h-4" />
                     </button>
-                )}
-            </div>
-        )}
-    ], [handleView, can, uploadingAbono, handleUploadAbono, handleOpenAbono]);
+
+                    {row.abonado_por === 'CUENTA CORRIENTE' && can('prestamo.abono') && (
+                        <label title="Subir Abono" className={`cursor-pointer p-2 rounded-xl transition-all border border-transparent shadow-sm ${uploadingAbono ? 'bg-slate-50' : 'text-slate-400 hover:text-orange-600 hover:bg-orange-50 hover:border-orange-100'}`}>
+                            <input 
+                                type="file" className="hidden" accept="image/*"
+                                onChange={(e) => {
+                                    if (e.target.files[0]) handleUploadAbono(row.id, e.target.files[0]);
+                                    e.target.value = null; 
+                                }} 
+                            />
+                            {uploadingAbono ? <ArrowPathIcon className="w-4 h-4 animate-spin" /> : <ArrowUpTrayIcon className="w-4 h-4" />}
+                        </label>
+                    )}
+
+                    {row.abono_url && (
+                        <button 
+                            onClick={() => handleOpenAbono(row.abono_url)}
+                            title="Ver Comprobante" 
+                            className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl border border-transparent hover:border-emerald-100 transition-all shadow-sm"
+                        >
+                            <PhotoIcon className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
+            )}
+        ];
+
+        return cols;
+    }, [handleView, can, uploadingAbono, handleUploadAbono, handleOpenAbono, role]);
 
     if (loading && prestamos.length === 0) return <LoadingScreen />;
 
