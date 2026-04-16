@@ -5,7 +5,8 @@ import {
     UserIcon, 
     UserGroupIcon,
     InformationCircleIcon,
-    UsersIcon
+    UsersIcon,
+    BanknotesIcon
 } from '@heroicons/react/24/outline';
 
 const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
@@ -17,7 +18,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
             3: 'bg-blue-50 text-blue-700 border-blue-100',      
             4: 'bg-red-50 text-red-700 border-red-100',          
             5: 'bg-purple-50 text-purple-700 border-purple-100' ,
-            6: 'bg-pink-50 text-pink-700 border-pink-100' 
+            6: 'bg-orange-50 text-orange-700 border-orange-100' 
         };
         const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'EN REVISION' , 6: 'PAGO PARCIAL' };
         
@@ -37,57 +38,33 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
         >
             {data && (
                 <div className="space-y-6">
-                    {/* Header: Información del Cliente / Grupo */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    {/* 1. Header: Información General */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg shadow-sm ${data.es_grupal ? 'bg-blue-100' : 'bg-white'}`}>
-                                {data.es_grupal 
-                                    ? <UserGroupIcon className="w-5 h-5 text-blue-600" /> 
-                                    : <UserIcon className="w-5 h-5 text-slate-500" />
-                                }
+                            <div className={`p-3 rounded-xl shadow-sm ${data.es_grupal ? 'bg-blue-600 text-white' : 'bg-white text-slate-500'}`}>
+                                {data.es_grupal ? <UserGroupIcon className="w-6 h-6" /> : <UserIcon className="w-6 h-6" />}
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     {data.es_grupal ? 'Grupo Solidario' : 'Cliente Titular'}
                                 </p>
-                                <p className={`text-sm font-black uppercase ${data.es_grupal ? 'text-blue-700' : 'text-slate-800'}`}>
-                                    {data.cliente?.nombre}
-                                </p>
-                                <p className="text-[10px] font-medium text-slate-500">Doc: {data.cliente?.documento}</p>
+                                <p className="text-sm font-black uppercase text-slate-800">{data.cliente?.nombre}</p>
+                                <p className="text-[10px] font-bold text-blue-600">Documento: {data.cliente?.documento}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <InformationCircleIcon className="w-5 h-5 text-slate-500" />
+                            <div className="p-3 bg-white rounded-xl shadow-sm text-slate-500">
+                                <InformationCircleIcon className="w-6 h-6" />
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase">Modalidad / Origen</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Desembolso</p>
                                 <p className="text-sm font-black text-slate-800 uppercase">{data.datos_economicos?.modalidad}</p>
-                                <p className="text-[10px] font-medium text-slate-500">Desembolso via: {data.datos_economicos?.abonado_por}</p>
+                                <p className="text-[10px] font-bold text-slate-500">Vía: {data.datos_economicos?.abonado_por}</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Resumen Económico */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="p-3 border border-slate-100 rounded-xl">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase">Monto Capital</p>
-                            <p className="text-lg font-black text-slate-900 italic">S/ {data.datos_economicos?.monto}</p>
-                        </div>
-                        <div className="p-3 border border-slate-100 rounded-xl">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase">Interés ({data.datos_economicos?.interes_porc}%)</p>
-                            <p className="text-lg font-black text-blue-600 italic">S/ {(data.datos_economicos?.total_prestamo - data.datos_economicos?.monto).toFixed(2)}</p>
-                        </div>
-                        <div className="p-3 bg-red-50 border border-red-100 rounded-xl">
-                            <p className="text-[10px] font-bold text-red-400 uppercase">Total a Pagar</p>
-                            <p className="text-lg font-black text-red-600 italic">S/ {data.datos_economicos?.total_prestamo}</p>
-                        </div>
-                        <div className="p-3 border border-slate-100 rounded-xl">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase">Cuota ({data.datos_economicos?.frecuencia})</p>
-                            <p className="text-lg font-black text-slate-900 italic">S/ {data.datos_economicos?.valor_cuota}</p>
-                        </div>
-                    </div>
-
+                    {/* 2. Desglose de Integrantes  */}
                     {/* SECCIÓN DE INTEGRANTES (SOLO SI ES GRUPAL) */}
                     {data.es_grupal && data.integrantes && data.integrantes.length > 0 && (
                         <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
@@ -97,7 +74,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {data.integrantes.map((int) => (
                                     <div key={int.id} className="flex justify-between items-center bg-white p-2 rounded border border-slate-100 shadow-sm">
-                                        <span className="text-[11px] font-bold text-slate-600 truncate mr-2" title={int.nombre}>
+                                        <span className="text-[13px] font-bold text-slate-600 truncate mr-2" title={int.nombre}>
                                             {int.nombre}
                                         </span>
                                         <span className="text-xs font-black text-blue-600 whitespace-nowrap">
@@ -109,55 +86,99 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                         </div>
                     )}
 
-                    {/* Tabla de Cronograma */}
+                    {/* 3. Resumen Económico */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                            <p className="text-[9px] font-black text-slate-400 uppercase">Capital Total</p>
+                            <p className="text-md font-black text-slate-800">S/ {data.datos_economicos?.monto}</p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                            <p className="text-[9px] font-black text-slate-400 uppercase">Interés ({data.datos_economicos?.interes_porc}%)</p>
+                            <p className="text-md font-black text-blue-600">S/ {(parseFloat(data.datos_economicos?.total_prestamo) - parseFloat(data.datos_economicos?.monto)).toFixed(2)}</p>
+                        </div>
+                        <div className="p-3 bg-slate-900 rounded-xl text-center shadow-lg">
+                            <p className="text-[9px] font-black text-slate-300 uppercase">Total Cobrar</p>
+                            <p className="text-md font-black text-white">S/ {data.datos_economicos?.total_prestamo}</p>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                            <p className="text-[9px] font-black text-slate-400 uppercase">Cuota</p>
+                            <p className="text-md font-black text-slate-800">S/ {data.datos_economicos?.valor_cuota}</p>
+                        </div>
+                    </div>
+
+                    {/* 4. Tabla de Cronograma */}
                     <div>
-                        <h4 className="flex items-center gap-2 text-xs font-black text-slate-700 uppercase mb-3 tracking-wider">
-                            <CalendarIcon className="w-4 h-4" /> Cronograma de Pagos
+                        <h4 className="flex items-center gap-2 text-[11px] font-black text-slate-700 uppercase mb-3 tracking-widest px-1">
+                            <CalendarIcon className="w-4 h-4 text-blue-500" /> Cronograma de Pagos y Saldos
                         </h4>
-                        <div className="overflow-hidden border border-slate-100 rounded-xl">
+                        <div className="overflow-hidden border border-slate-200 rounded-2xl shadow-sm">
                             <table className="w-full text-left border-collapse">
-                                <thead className="bg-slate-50 text-[10px] font-black text-slate-500 uppercase">
+                                <thead className="bg-slate-50 text-[9px] font-black text-slate-500 uppercase border-b border-slate-100">
                                     <tr>
-                                        <th className="px-4 py-3">N°</th>
-                                        <th className="px-4 py-3">Vencimiento</th>
-                                        <th className="px-4 py-3">Monto</th>
-                                        <th className="px-4 py-3">Mora</th>
-                                        <th className="px-4 py-3">Pagado</th>
-                                        <th className="px-4 py-3 text-center">Estado</th>
+                                        <th className="px-4 py-4 text-center">N°</th>
+                                        <th className="px-4 py-4 text-center">Vencimiento</th>
+                                        <th className="px-4 py-4">Deuda Base + Mora</th>
+                                        <th className="px-4 py-4">Abonos / Beneficios</th>
+                                        <th className="px-4 py-4">Saldo Real</th>
+                                        <th className="px-4 py-4 text-center">Estado</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-50">
-                                    {data.cronograma?.map((cuota) => (
-                                        <tr key={cuota.id} className="hover:bg-slate-50 transition-colors">
-                                            <td className="px-4 py-3 text-xs font-bold text-slate-600">
-                                                {cuota.nro.toString().padStart(2, '0')}
-                                            </td>
-                                            <td className="px-4 py-3 text-xs font-medium text-slate-700">
-                                                {cuota.vencimiento}
-                                            </td>
-                                            <td className="px-4 py-3 text-xs font-black text-slate-800">
-                                                S/ {cuota.monto}
-                                            </td>
-                                            <td className="px-4 py-3 text-xs font-bold text-red-500">
-                                                {cuota.mora > 0 ? `S/ ${cuota.mora}` : '-'}
-                                            </td>
-                                            <td className="px-4 py-3 text-xs font-bold text-green-600">
-                                                S/ {cuota.pago_realizado}
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                {getStatusBadge(cuota.estado)}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                <tbody className="divide-y divide-slate-100 bg-white">
+                                    {data.cronograma?.map((cuota) => {
+                                        const saldo = parseFloat(cuota.saldo_pendiente);
+                                        const excAnt = parseFloat(cuota.excedente_anterior);
+                                        const excGen = parseFloat(cuota.excedente);
+                                        const pagoRec = parseFloat(cuota.pago_realizado);
+                                        const moraPagada = parseFloat(cuota.mora_pagada || 0);
+
+                                        return (
+                                            <tr key={cuota.id} className="hover:bg-blue-50/20 transition-colors">
+                                                <td className="px-4 py-4 text-xs font-black text-slate-400 text-center font-mono">#{cuota.nro.toString().padStart(2, '0')}</td>
+                                                <td className="px-4 py-4 text-xs font-bold text-slate-600 text-center">{cuota.vencimiento}</td>
+                                                <td className="px-4 py-4">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[11px] font-black text-slate-800">S/ {cuota.monto}</span>
+                                                        {parseFloat(cuota.mora_total) > 0 && (
+                                                            <span className="text-[9px] font-bold text-red-500 bg-red-50 px-1 rounded w-fit mt-0.5 uppercase">Mora: +S/ {cuota.mora_total}</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <div className="flex flex-col gap-1">
+                                                        {pagoRec > 0 && (
+                                                            <span className="text-[12px] font-black text-green-600 flex items-center gap-1">
+                                                                <BanknotesIcon className="w-3 h-3" /> RECIBIDO: S/ {pagoRec.toFixed(2)}
+                                                            </span>
+                                                        )}
+                                                        {moraPagada > 0 && (
+                                                            <span className="text-[9px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100 w-fit">Mora Cubierta: S/ {moraPagada.toFixed(2)}</span>
+                                                        )}
+                                                        {excAnt > 0 && (
+                                                            <span className="text-[9px] font-black text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 w-fit">Excedente Aplicado: -S/ {excAnt.toFixed(2)}</span>
+                                                        )}
+                                                        {excGen > 0 && (
+                                                            <span className="text-[9px] font-black text-blue-600 uppercase italic">Sobra: S/ {excGen.toFixed(2)}</span>
+                                                        )}
+                                                        {!pagoRec && !excAnt && <span className="text-slate-300 text-[10px] italic uppercase tracking-tighter">Sin movimientos</span>}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <span className={`text-sm font-black italic ${saldo > 0 ? 'text-red-600 underline' : 'text-green-600'}`}>
+                                                        S/ {saldo.toFixed(2)}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-4 text-center">{getStatusBadge(cuota.estado)}</td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    {/* Info de fechas al pie */}
-                    <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase pt-2">
-                        <p>Generado: {data.fechas?.generacion}</p>
-                        <p>Inicio de Crédito: {data.fechas?.inicio}</p>
+                    <div className="flex justify-between items-center text-[10px] text-slate-400 font-black uppercase pt-4 border-t border-slate-100">
+                        <p>F. Registro: {data.fechas?.generacion}</p>
+                        <p>F. Inicio: {data.fechas?.inicio}</p>
                     </div>
                 </div>
             )}

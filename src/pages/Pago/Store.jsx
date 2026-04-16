@@ -78,7 +78,7 @@ const Store = () => {
                         <div className="flex flex-wrap gap-1 mt-1">
                             {excedenteAnterior > 0 && (
                                 <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-black bg-purple-50 text-purple-600 border border-purple-100 uppercase tracking-tighter">
-                                    ✨ Saldo a favor: S/ {excedenteAnterior.toFixed(2)}
+                                    Saldo a favor: S/ {excedenteAnterior.toFixed(2)}
                                 </span>
                             )}
                             
