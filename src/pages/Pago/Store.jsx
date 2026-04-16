@@ -34,27 +34,60 @@ const Store = () => {
             ) 
         },
         { 
-            header: 'Monto Base', 
+            header: 'Cuota Base', 
             render: (row) => <span className="font-bold text-slate-500 text-xs">S/ {row.monto}</span> 
         },
         { 
-            header: 'Mora',
+            header: 'Gestión Mora',
             render: (row) => (
-                <span className={`font-black text-xs ${parseFloat(row.mora) > 0 ? 'text-red-600' : 'text-slate-300'}`}>
-                    {parseFloat(row.mora) > 0 ? `+ S/ ${row.mora}` : 'S/ 0.00'}
-                </span>
+                <div className="flex flex-col">
+                    <span className={`font-black text-xs ${parseFloat(row.mora_total) > 0 ? 'text-red-600' : 'text-slate-300'}`}>
+                        {parseFloat(row.mora_total) > 0 ? `+ S/ ${row.mora_total}` : 'S/ 0.00'}
+                    </span>
+                    {parseFloat(row.mora_pagada) > 0 && (
+                        <span className="text-[9px] font-bold text-green-600 italic">
+                            Pagado: S/ {row.mora_pagada}
+                        </span>
+                    )}
+                </div>
             )
         },
         { 
-            header: 'Total vs Pagado', 
+            header: 'Saldo a Pagar', // Cambiamos el nombre a algo directo
             render: (row) => {
-                const saldo = parseFloat(row.total_con_mora) - parseFloat(row.pago_realizado);
+                const pagoTotal = parseFloat(row.pago_realizado) || 0;
+                const excedenteAnterior = parseFloat(row.excedente_anterior) || 0;
+                const saldoPendiente = parseFloat(row.saldo_pendiente) || 0;
+                const totalOriginal = parseFloat(row.total_con_mora) || 0;
+                
                 return (
-                    <div className="flex flex-col">
-                        <span className="font-black text-slate-900 text-sm">S/ {parseFloat(row.total_con_mora).toFixed(2)}</span>
-                        {parseFloat(row.pago_realizado) > 0 && (
-                            <span className="text-[10px] font-black text-orange-500">Resta: S/ {saldo.toFixed(2)}</span>
-                        )}
+                    <div className="flex flex-col min-w-[120px]">
+                        {/* 1. EL MONTO FINAL (LO QUE IMPORTA) */}
+                        <div className="flex items-baseline gap-1">
+                            {saldoPendiente > 0 && totalOriginal > saldoPendiente && (
+                                <span className="text-[15px] text-slate-700 line-through decoration-slate-300">
+                                    S/ {totalOriginal.toFixed(2)}
+                                </span>
+                            )}
+                            <span className={`text-lg font-black ${saldoPendiente > 0 ? 'text-slate-900' : 'text-green-600'}`}>
+                                S/ {saldoPendiente.toFixed(2)}
+                            </span>
+                        </div>
+
+                        {/* 2. EL DESGLOSE (SOLO SI HAY ALGO QUE MOSTRAR) */}
+                        <div className="flex flex-wrap gap-1 mt-1">
+                            {excedenteAnterior > 0 && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-black bg-purple-50 text-purple-600 border border-purple-100 uppercase tracking-tighter">
+                                    ✨ Saldo a favor: S/ {excedenteAnterior.toFixed(2)}
+                                </span>
+                            )}
+                            
+                            {pagoTotal > 0 && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-black bg-blue-50 text-blue-600 border border-blue-100 uppercase tracking-tighter">
+                                    Abonado: S/ {pagoTotal.toFixed(2)}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 )
             }
@@ -84,19 +117,22 @@ const Store = () => {
             render: (row, _col, allRows) => {
                 const hayAnteriorPendiente = allRows
                     .filter(r => r.nro < row.nro)
-                    .some(r => r.estado !== 2);
+                    .some(r => ![2].includes(r.estado)); 
 
                 const esPagable = [1, 3, 4, 6].includes(row.estado);
                 const bloqueada = !esPagable || hayAnteriorPendiente;
 
-                if (row.estado === 2) return null; 
+                if (row.estado === 2) return (
+                    <div className="flex justify-end pr-2">
+                        <span className="text-green-500">✓</span>
+                    </div>
+                ); 
 
                 return (
                     <div className="flex justify-end">
                         <button 
                             onClick={() => { if (!bloqueada) { setCuotaParaPagar(row); setIsModalOpen(true); }}}
                             disabled={bloqueada}
-                            title={hayAnteriorPendiente ? 'Paga la cuota anterior primero' : row.estado === 5 ? 'Pago en revisión' : 'Pagar cuota'}
                             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wide transition-all duration-150 ${
                                 row.estado === 5
                                     ? 'bg-blue-50 text-blue-600 border border-blue-200 cursor-not-allowed'
@@ -106,10 +142,10 @@ const Store = () => {
                             }`}
                         >
                             {row.estado === 5 
-                                ? <><span>⏳</span> En revisión</>
+                                ? <><span>⏳</span> Revisando</>
                                 : hayAnteriorPendiente 
                                     ? <><span>🔒</span> Bloqueada</>
-                                    : <><CloudArrowUpIcon className="w-3.5 h-3.5" /> Pagar Cuota</>
+                                    : <><CloudArrowUpIcon className="w-3.5 h-3.5" /> Pagar Ahora</>
                             }
                         </button>
                     </div>
