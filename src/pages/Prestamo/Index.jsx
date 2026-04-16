@@ -127,7 +127,7 @@ const Index = () => {
         ];
 
         return cols;
-    }, [handleView, can, uploadingAbono, handleUploadAbono, handleOpenAbono, role]);
+    }, [handleView, can, uploadingAbono, handleUploadAbono, handleOpenAbono]);
 
     if (loading && prestamos.length === 0) return <LoadingScreen />;
 
