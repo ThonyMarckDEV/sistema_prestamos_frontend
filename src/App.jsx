@@ -134,11 +134,11 @@ function AppContent() {
 
         {/* OPERACIONES */}
         <Route path="/operacion/caja" element={<ProtectedRoute requiredPermission="operacion.store" element={<RegistrarOperacion />} />} />
-        <Route path="/operacion/listar" element={<ProtectedRoute requiredPermission="operacion.store" element={<ListarOperaciones />} />} />
+        <Route path="/operacion/listar" element={<ProtectedRoute requiredPermission="operacion.index" element={<ListarOperaciones />} />} />
 
         {/* PAGOS */}
         <Route path="/pago/registrar" element={<ProtectedRoute requiredPermission="pago.store" element={<RegistrarPago />} />} />
-        <Route path="/pago/listar" element={<ProtectedRoute requiredPermission="pago.store" element={<ListarPagos />} />} />
+        <Route path="/pago/listar" element={<ProtectedRoute requiredPermission="pago.index" element={<ListarPagos />} />} />
 
         {/* GRUPOS */}
         <Route path="/grupo/listar" element={<ProtectedRoute requiredPermission="grupo.index" element={<ListarGrupos />} />} />
