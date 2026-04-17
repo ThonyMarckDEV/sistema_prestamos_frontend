@@ -60,7 +60,6 @@ import RegistrarOperacion from 'pages/Operacion/Store';
 import ListarOperaciones from 'pages/Operacion/Index';
 
 // UI PAGOS
-import RegistrarPago from 'pages/Pago/Store';
 import ListarPagos from 'pages/Pago/Index';
 
 // UI GRUPOS
@@ -137,7 +136,6 @@ function AppContent() {
         <Route path="/operacion/listar" element={<ProtectedRoute requiredPermission="operacion.index" element={<ListarOperaciones />} />} />
 
         {/* PAGOS */}
-        <Route path="/pago/registrar" element={<ProtectedRoute requiredPermission="pago.store" element={<RegistrarPago />} />} />
         <Route path="/pago/listar" element={<ProtectedRoute requiredPermission="pago.index" element={<ListarPagos />} />} />
 
         {/* GRUPOS */}

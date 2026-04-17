@@ -43,7 +43,6 @@ export const MENU_GROUPS = [
                 section: 'Pagos',
                 icon: CreditCardIcon,
                 subs: [
-                    { name: 'Pagar Cuota', link: '/pago/registrar', requiredPermission: 'pago.store' },
                     { name: 'Ver Pagos', link: '/pago/listar', requiredPermission: 'pago.index' },
                 ],
             }
