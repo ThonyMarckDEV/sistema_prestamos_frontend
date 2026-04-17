@@ -50,7 +50,7 @@ const SolicitudForm = ({ data, handleChange, addIntegrante, removeIntegrante, up
                     disabled={isUpdate || isBlocked} 
                     className={`px-8 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${data.es_grupal ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'} disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                    Grupal / Solidario
+                    Grupal
                 </button>
             </div>
 

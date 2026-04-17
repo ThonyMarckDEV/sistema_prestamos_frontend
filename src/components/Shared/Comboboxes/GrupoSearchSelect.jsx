@@ -71,7 +71,7 @@ const GrupoSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                         if (!showSuggestions && !disabled) fetchGrupos(inputValue);
                     }}
                     disabled={disabled}
-                    placeholder="Buscar grupo solidario..."
+                    placeholder="Buscar grupo.."
                     className="w-full border border-slate-300 rounded-xl shadow-sm pl-11 pr-10 py-3 text-sm font-bold focus:ring-2 focus:ring-red-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed"
                     autoComplete="off"
                 />

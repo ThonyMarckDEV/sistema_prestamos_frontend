@@ -12,7 +12,7 @@ const SectionClienteGrupo = ({ data, handleChange, isBlocked, isMainBlocked, isU
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-1">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{data.es_grupal ? 'Grupo Solidario *' : 'Cliente *'}</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{data.es_grupal ? 'Grupo *' : 'Cliente *'}</label>
                 {!data.es_grupal ? (
                     <ClienteSearchSelect 
                         onSelect={(c) => { 
