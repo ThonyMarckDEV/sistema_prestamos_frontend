@@ -2,7 +2,7 @@ import React from 'react';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import { 
     UserIcon, BuildingOfficeIcon, IdentificationIcon, PhoneIcon, 
-    MapPinIcon, CreditCardIcon, BriefcaseIcon 
+    MapPinIcon, CreditCardIcon, BriefcaseIcon, TagIcon 
 } from '@heroicons/react/24/outline';
 
 const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
@@ -66,10 +66,10 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                 </p>
                                 <div className="mt-3 flex gap-2 relative z-10">
                                     <span className="text-[10px] bg-white px-2 py-1 rounded-lg shadow-sm border border-slate-200 text-slate-600 font-bold">
-                                        {data.direccion?.tipoVivienda}
+                                        {data.direccion?.tipoVivienda || 'N/A'}
                                     </span>
                                     <span className="text-[10px] bg-white px-2 py-1 rounded-lg shadow-sm border border-slate-200 text-slate-600 font-bold">
-                                        {data.direccion?.tiempoResidencia}
+                                        {data.direccion?.tiempoResidencia || 'N/A'}
                                     </span>
                                 </div>
                             </div>
@@ -96,7 +96,34 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                             </div>
                         </div>
 
-                        {/* Fila completa: Cuentas Bancarias (CON CORRECCIÓN DE ESPACIADO) */}
+                        {data.ciiu && (
+                            <div className="md:col-span-2 space-y-3 mt-2">
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Actividad Económica (CIIU)</h4>
+                                <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:shadow-sm">
+                                    <div className="flex items-start gap-3 flex-1">
+                                        <div className="bg-blue-600 text-white font-mono font-black px-3 py-1.5 rounded-xl text-sm shadow-sm shrink-0 mt-0.5">
+                                            {data.ciiu.codigo}
+                                        </div>
+                                        <p className="text-sm font-black text-slate-800 leading-snug">
+                                            {data.ciiu.descripcion}
+                                        </p>
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-2 shrink-0">
+                                        <span className="flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-white px-2 py-1 rounded-lg uppercase border border-blue-200 shadow-sm">
+                                            <TagIcon className="w-3 h-3" /> Sec {data.ciiu.seccion}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-blue-700 bg-white px-2 py-1 rounded-lg uppercase border border-blue-200 shadow-sm">
+                                            Div {data.ciiu.division}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-blue-700 bg-white px-2 py-1 rounded-lg uppercase border border-blue-200 shadow-sm">
+                                            Grp {data.ciiu.grupo}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Fila completa: Cuentas Bancarias */}
                         <div className="md:col-span-2 mt-2 pt-6 border-t border-slate-100 space-y-4">
                             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Cuentas para Desembolso / Cobro</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -126,7 +153,7 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
 
                     {/* Acceso al Sistema */}
                     {data.usuario && (
-                        <div className="bg-slate-900 p-5 rounded-[2rem] shadow-xl border border-slate-800 flex items-center justify-between">
+                        <div className="bg-slate-900 p-5 rounded-[2rem] shadow-xl border border-slate-800 flex items-center justify-between mt-4">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
                                     <BriefcaseIcon className="w-6 h-6 text-yellow-400" />

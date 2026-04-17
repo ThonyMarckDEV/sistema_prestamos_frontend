@@ -1,0 +1,148 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { combobox } from 'services/ciiuService';
+import { MagnifyingGlassIcon, XMarkIcon, BriefcaseIcon, TagIcon } from '@heroicons/react/24/outline';
+
+const CiiuSelect = ({ onSelect, disabled, initialCiiu = null }) => {
+    // Si viene un objeto inicial, mostramos el código y descripción
+    const [inputValue, setInputValue] = useState(initialCiiu ? `${initialCiiu.codigo} - ${initialCiiu.descripcion}` : '');
+    const [suggestions, setSuggestions] = useState([]); 
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [loading, setLoading] = useState(false);
+    
+    const wrapperRef = useRef(null);
+
+    // Si cambian los props iniciales (ej. editar un cliente)
+    useEffect(() => {
+        if (initialCiiu) {
+            setInputValue(`${initialCiiu.codigo} - ${initialCiiu.descripcion}`);
+        } else {
+            setInputValue('');
+        }
+    }, [initialCiiu]);
+
+    // Cerrar al clickear afuera
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) setShowSuggestions(false);
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [wrapperRef]);
+
+    // Lógica de búsqueda con Debounce (para no saturar la base de datos)
+    useEffect(() => {
+        if (!inputValue || inputValue.length < 2 || !showSuggestions) {
+            setSuggestions([]);
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setLoading(true);
+            try {
+                const response = await combobox({ search: inputValue });
+                setSuggestions(response.data || response || []);
+            } catch (error) { 
+                setSuggestions([]); 
+            } finally { 
+                setLoading(false); 
+            }
+        }, 400); // Espera 400ms después de que el usuario deja de escribir
+
+        return () => clearTimeout(timer);
+    }, [inputValue, showSuggestions]);
+
+    const handleChange = (e) => {
+        setInputValue(e.target.value);
+        setShowSuggestions(true);
+    };
+
+    const handleSelect = (ciiu) => {
+        if (onSelect) {
+            onSelect(ciiu); 
+            setInputValue(`${ciiu.codigo} - ${ciiu.descripcion}`); 
+        }
+        setShowSuggestions(false);
+    };
+
+    const handleClear = () => {
+        if (disabled) return;
+        setInputValue(''); 
+        setSuggestions([]); 
+        if (onSelect) onSelect(null); 
+    };
+
+    return (
+        <div className="relative w-full" ref={wrapperRef}>
+            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1.5 tracking-widest ml-1">
+                Actividad Económica (CIIU)
+            </label>
+            <div className="relative flex items-center group">
+                <input
+                    type="text" 
+                    value={inputValue} 
+                    onChange={handleChange}
+                    onClick={() => { if (!disabled && !inputValue) setShowSuggestions(true); }}
+                    disabled={disabled}
+                    placeholder="Escribe el código (ej: 4771) o palabra (ej: ropa)..."
+                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-10 pr-10 py-3 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed font-medium"
+                    autoComplete="off"
+                />
+                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-red-600'}`}>
+                    <BriefcaseIcon className="w-5 h-5" />
+                </div>
+                
+                <div className="absolute right-3 flex items-center">
+                    {loading ? (
+                        <div className="w-4 h-4 border-2 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div> 
+                    ) : inputValue && !disabled ? (
+                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-red-500 p-1 transition-colors">
+                            <XMarkIcon className="w-5 h-5" />
+                        </button> 
+                    ) : (
+                        <MagnifyingGlassIcon className={`w-5 h-5 ${disabled ? 'text-slate-300' : 'text-slate-400'}`} />
+                    )}
+                </div>
+
+                {showSuggestions && !disabled && (inputValue.length >= 2) && (
+                    <ul className="absolute z-[9999] top-full left-0 w-full bg-white border border-slate-200 rounded-xl mt-2 max-h-72 overflow-y-auto shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+                        {loading && suggestions.length === 0 ? (
+                            <li className="px-4 py-4 text-center text-sm font-bold text-slate-400 animate-pulse">Buscando...</li>
+                        ) : suggestions.length > 0 ? (
+                            suggestions.map((ciiu) => (
+                                <li 
+                                    key={ciiu.id} 
+                                    onClick={() => handleSelect(ciiu)} 
+                                    className="px-4 py-3 cursor-pointer flex flex-col gap-1 hover:bg-red-50 border-b border-slate-100 last:border-0 transition-colors"
+                                >
+                                    <div className="flex items-start gap-2">
+                                        <span className="bg-red-100 text-red-700 font-mono font-black px-2 py-0.5 rounded text-xs shrink-0 mt-0.5">
+                                            {ciiu.codigo}
+                                        </span>
+                                        <span className="font-bold text-slate-700 text-sm leading-tight">
+                                            {ciiu.descripcion}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 pl-[52px] text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
+                                        <span className="flex items-center gap-0.5" title={`Sección ${ciiu.seccion}`}><TagIcon className="w-3 h-3"/> Sec {ciiu.seccion}</span>
+                                        <span>•</span>
+                                        <span title={`División ${ciiu.division}`}>Div {ciiu.division}</span>
+                                        <span>•</span>
+                                        <span title={`Grupo ${ciiu.grupo}`}>Grp {ciiu.grupo}</span>
+                                    </div>
+                                </li>
+                            ))
+                        ) : (
+                            <li className="px-4 py-6 text-slate-400 text-xs text-center flex flex-col items-center gap-2">
+                                <BriefcaseIcon className="w-8 h-8 text-slate-200" />
+                                <span>No se encontraron actividades. Intenta otra palabra.</span>
+                            </li>
+                        )}
+                    </ul>
+                )}
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1.5 ml-1">Escribe al menos 2 letras para buscar en el catálogo oficial.</p>
+        </div>
+    );
+};
+
+export default CiiuSelect;

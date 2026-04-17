@@ -1,6 +1,7 @@
 import React from 'react';
 import { IdentificationIcon, BuildingOfficeIcon, UserIcon } from '@heroicons/react/24/outline';
 import { onlyLetters, onlyNumbers } from 'utilities/Validations/validations';
+import CiiuSelect from 'components/Shared/Comboboxes/CiiuSearchSelect';
 
 const DatosPersonalesForm = ({ data, handleNestedChange, isEditing = false }) => {
     const c = data.datos_cliente;
@@ -96,8 +97,18 @@ const DatosPersonalesForm = ({ data, handleNestedChange, isEditing = false }) =>
                         </div>
                     </>
                 )}
+
+                {/* 🔥 BUSCADOR INTELIGENTE CIIU COMPARTIDO */}
+                <div className="sm:col-span-2 mt-2 pt-4 border-t border-slate-100">
+                    <CiiuSelect 
+                        onSelect={(ciiu) => onC('ciiu_id', ciiu ? ciiu.id : null)}
+                        initialCiiu={c.ciiu || null} 
+                    />
+                </div>
+                
             </div>
         </div>
     );
 };
+
 export default DatosPersonalesForm;
