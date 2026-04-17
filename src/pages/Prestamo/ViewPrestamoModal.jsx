@@ -74,10 +74,11 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {data.integrantes.map((int) => (
                                     <div key={int.id} className="flex justify-between items-center bg-white p-2 rounded border border-slate-100 shadow-sm">
-                                        <span className="text-[13px] font-bold text-slate-600 truncate mr-2" title={int.nombre}>
-                                            {int.nombre}
-                                        </span>
-                                        <span className="text-xs font-black text-blue-600 whitespace-nowrap">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-slate-700 uppercase">{int.nombre}</span>
+                                            <span className="text-[10px] text-blue-600 font-bold">CARGO: {int.cargo} </span>
+                                        </div>
+                                        <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100">
                                             S/ {int.monto}
                                         </span>
                                     </div>
