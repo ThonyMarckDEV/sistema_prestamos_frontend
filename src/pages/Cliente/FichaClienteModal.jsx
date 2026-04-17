@@ -2,7 +2,8 @@ import React from 'react';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import { 
     UserIcon, BuildingOfficeIcon, IdentificationIcon, PhoneIcon, 
-    MapPinIcon, CreditCardIcon, BriefcaseIcon, TagIcon 
+    MapPinIcon, CreditCardIcon, BriefcaseIcon, TagIcon,
+    ComputerDesktopIcon
 } from '@heroicons/react/24/outline';
 
 const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
@@ -18,7 +19,7 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
         <ViewModal isOpen={isOpen} onClose={onClose} title="Ficha Detallada del Cliente" isLoading={isLoading}>
             {data && (
                 <div className="space-y-6">
-                    {/* Cabecera: Perfil y Documentos */}
+                    {/* Cabecera: Perfil, Documentos y ACCESO */}
                     <div className="flex flex-col md:flex-row gap-5 border-b border-slate-100 pb-6">
                         <div className={`w-20 h-20 rounded-2xl flex items-center justify-center border-2 shrink-0 ${
                             data.tipo === 2 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'
@@ -37,15 +38,36 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                             <h2 className="text-2xl font-black text-slate-900 uppercase mt-1 leading-tight">
                                 {data.nombre_completo}
                             </h2>
-                            <div className="flex flex-wrap gap-4 mt-3">
-                                <div className="flex items-center gap-1.5 text-sm font-bold text-slate-600">
-                                    <IdentificationIcon className="w-5 h-5 text-slate-400"/>
+                            
+                            <div className="flex flex-wrap items-center gap-2.5 mt-3">
+                                {/* DNI / RUC */}
+                                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
+                                    <IdentificationIcon className="w-4 h-4 text-slate-400"/>
                                     {data.tipo === 2 ? data.ruc : data.dni}
                                 </div>
+                                
+                                {/* Teléfono */}
                                 {data.contacto?.telefonoMovil && (
-                                    <div className="flex items-center gap-1.5 text-sm font-bold text-slate-600">
-                                        <PhoneIcon className="w-5 h-5 text-slate-400"/>
+                                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
+                                        <PhoneIcon className="w-4 h-4 text-slate-400"/>
                                         {data.contacto.telefonoMovil}
+                                    </div>
+                                )}
+
+                                {/* Usuario de Sistema */}
+                                {data.usuario && (
+                                    <div className="flex items-center gap-2 text-xs font-bold text-white bg-slate-900 px-3 py-1.5 rounded-lg shadow-sm border border-slate-800">
+                                        <ComputerDesktopIcon className="w-4 h-4 text-slate-400"/>
+                                        {data.usuario.username}
+                                        {/* Punto de estado con brillo si está activo */}
+                                        <span 
+                                            className={`ml-1 flex items-center justify-center w-2 h-2 rounded-full ${
+                                                data.usuario.estado 
+                                                ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' 
+                                                : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]'
+                                            }`} 
+                                            title={data.usuario.estado ? 'Acceso Activo' : 'Cuenta Bloqueada'}
+                                        />
                                     </div>
                                 )}
                             </div>
@@ -96,6 +118,7 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                             </div>
                         </div>
 
+                        {/* Actividad Económica CIIU */}
                         {data.ciiu && (
                             <div className="md:col-span-2 space-y-3 mt-2">
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Actividad Económica (CIIU)</h4>
@@ -123,7 +146,7 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                             </div>
                         )}
 
-                        {/* Fila completa: Cuentas Bancarias */}
+                        {/* Cuentas Bancarias */}
                         <div className="md:col-span-2 mt-2 pt-6 border-t border-slate-100 space-y-4">
                             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Cuentas para Desembolso / Cobro</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -150,26 +173,6 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                             </div>
                         </div>
                     </div>
-
-                    {/* Acceso al Sistema */}
-                    {data.usuario && (
-                        <div className="bg-slate-900 p-5 rounded-[2rem] shadow-xl border border-slate-800 flex items-center justify-between mt-4">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
-                                    <BriefcaseIcon className="w-6 h-6 text-yellow-400" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Usuario de Sistema</p>
-                                    <p className="text-lg font-bold text-white leading-none">{data.usuario.username}</p>
-                                </div>
-                            </div>
-                            <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-lg ${
-                                data.usuario.estado ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-red-500 text-white shadow-red-500/20'
-                            }`}>
-                                {data.usuario.estado ? 'Acceso Activo' : 'Cuenta Bloqueada'}
-                            </div>
-                        </div>
-                    )}
                 </div>
             )}
         </ViewModal>
