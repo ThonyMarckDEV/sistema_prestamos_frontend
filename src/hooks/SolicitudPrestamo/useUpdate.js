@@ -22,7 +22,8 @@ export const useUpdate = () => {
                         id: i.id, 
                         nombre: i.nombre_completo, 
                         monto: i.monto,
-                        modalidad: i.modalidad 
+                        modalidad: i.modalidad,
+                        cargo: i.cargo || 'INTEGRANTE'
                     }))
                 });
             } catch (err) { setAlert(handleApiError(err)); }
@@ -31,7 +32,6 @@ export const useUpdate = () => {
         load();
     }, [id]);
 
-    // VALIDACIÓN PROFUNDA PARA EDICIÓN
     const isBlocked = formData ? (
         formData.modalidad === 'RCS' || 
         (formData.modalidad && formData.modalidad.includes('VIGENTE')) ||
@@ -45,7 +45,6 @@ export const useUpdate = () => {
         } else { setFormData(prev => ({ ...prev, [field]: value })); }
     };
 
-    // Actualizar suma al cambiar monto
     useEffect(() => {
         if (formData?.es_grupal) {
             const total = formData.integrantes.reduce((acc, i) => acc + parseFloat(i.monto || 0), 0);
@@ -53,20 +52,25 @@ export const useUpdate = () => {
                 setFormData(prev => ({ ...prev, monto_solicitado: total }));
             }
         }
-        // eslint-disable-next-line
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData?.integrantes, formData?.es_grupal]);
 
     const addIntegrante = (cliente) => {
         if (!cliente || formData.integrantes.find(i => i.id === cliente.usuario_id)) return;
-        setFormData(prev => ({
-            ...prev,
-            integrantes: [...prev.integrantes, { 
-                id: cliente.usuario_id, 
-                nombre: cliente.nombre_completo, 
-                modalidad: cliente.modalidad_cliente,
-                monto: '' 
-            }]
-        }));
+        setFormData(prev => {
+            const hasPresidente = prev.integrantes.some(i => i.cargo === 'PRESIDENTE');
+            const cargo = !hasPresidente ? 'PRESIDENTE' : 'INTEGRANTE';
+            return {
+                ...prev,
+                integrantes: [...prev.integrantes, { 
+                    id: cliente.usuario_id, 
+                    nombre: cliente.nombre_completo, 
+                    modalidad: cliente.modalidad_cliente,
+                    monto: '',
+                    cargo: cargo
+                }]
+            };
+        });
     };
 
     const removeIntegrante = (id) => {
@@ -77,6 +81,13 @@ export const useUpdate = () => {
         setFormData(prev => ({
             ...prev,
             integrantes: prev.integrantes.map(i => i.id === id ? { ...i, monto } : i)
+        }));
+    };
+
+    const updateCargoIntegrante = (id, cargo) => {
+        setFormData(prev => ({
+            ...prev,
+            integrantes: prev.integrantes.map(i => i.id === id ? { ...i, cargo } : i)
         }));
     };
 
@@ -92,5 +103,5 @@ export const useUpdate = () => {
         finally { setSaving(false); }
     };
 
-    return { formData, loading, saving, alert, setAlert, handleChange, handleSubmit, navigate, addIntegrante, removeIntegrante, updateMontoIntegrante, isBlocked };
+    return { formData, loading, saving, alert, setAlert, handleChange, handleSubmit, navigate, addIntegrante, removeIntegrante, updateMontoIntegrante, updateCargoIntegrante, isBlocked };
 };

@@ -94,7 +94,7 @@ const ViewSolicitudModal = ({ isOpen, onClose, data, isLoading }) => {
                                     <div key={idx} className="flex justify-between items-center bg-white p-3 rounded-xl border border-blue-50 shadow-sm transition-hover hover:border-blue-200">
                                         <div className="flex flex-col">
                                             <span className="text-[10px] font-black text-slate-700 uppercase">{int.nombre_completo}</span>
-                                            <span className="text-[8px] text-slate-400 font-bold">SOCIO INTEGRANTE</span>
+                                            <span className="text-[10px] text-blue-600 font-bold">CARGO: {int.cargo} </span>
                                         </div>
                                         <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100">
                                             S/ {int.monto}

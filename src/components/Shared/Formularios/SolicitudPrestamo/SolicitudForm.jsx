@@ -8,7 +8,15 @@ import SectionCondiciones from './SectionCondiciones';
 import SectionAval from './SectionAval';
 import SectionNotas from './SectionNotas';
 
-const SolicitudForm = ({ data, handleChange, addIntegrante, removeIntegrante, updateMontoIntegrante, isUpdate = false }) => {
+const SolicitudForm = ({ 
+    data, 
+    handleChange, 
+    addIntegrante, 
+    removeIntegrante, 
+    updateMontoIntegrante,
+    updateCargoIntegrante,
+    isUpdate = false 
+}) => {
     
     // Conecta el Hook
     const { 
@@ -63,7 +71,8 @@ const SolicitudForm = ({ data, handleChange, addIntegrante, removeIntegrante, up
                 isUpdate={isUpdate} 
                 addIntegrante={addIntegrante} 
                 removeIntegrante={removeIntegrante} 
-                updateMontoIntegrante={updateMontoIntegrante} 
+                updateMontoIntegrante={updateMontoIntegrante}
+                updateCargoIntegrante={updateCargoIntegrante}
             />
 
             <SectionCondiciones 

@@ -23,7 +23,6 @@ export const useStore = () => {
         aval: null
     });
 
-    // VALIDACIÓN PROFUNDA: Revisa principal e integrantes
     const isBlocked = 
         formData.modalidad === 'RCS' || 
         (formData.modalidad && formData.modalidad.includes('VIGENTE')) ||
@@ -36,7 +35,6 @@ export const useStore = () => {
         } else {
             setFormData(prev => {
                 const newData = { ...prev, [field]: value };
-                
                 if (field === 'es_grupal') {
                     if (value === true) {
                         newData.modalidad = 'GRUPAL';
@@ -44,7 +42,7 @@ export const useStore = () => {
                     } else {
                         newData.modalidad = ''; 
                         newData.grupo_id = ''; 
-                        newData.integrantes = []; // Limpiamos tabla al cambiar a individual
+                        newData.integrantes = []; 
                     }
                 }
                 return newData;
@@ -61,15 +59,19 @@ export const useStore = () => {
 
     const addIntegrante = (cliente) => {
         if (!cliente || formData.integrantes.find(i => i.id === cliente.usuario_id)) return;
-        setFormData(prev => ({
-            ...prev,
-            integrantes: [...prev.integrantes, { 
-                id: cliente.usuario_id, 
-                nombre: cliente.nombre_completo, 
-                modalidad: cliente.modalidad_cliente,
-                monto: 0 
-            }]
-        }));
+        setFormData(prev => {
+            const cargo = prev.integrantes.length === 0 ? 'PRESIDENTE' : 'INTEGRANTE';
+            return {
+                ...prev,
+                integrantes: [...prev.integrantes, { 
+                    id: cliente.usuario_id, 
+                    nombre: cliente.nombre_completo, 
+                    modalidad: cliente.modalidad_cliente,
+                    monto: 0,
+                    cargo: cargo
+                }]
+            };
+        });
     };
 
     const removeIntegrante = (id) => {
@@ -80,6 +82,13 @@ export const useStore = () => {
         setFormData(prev => ({
             ...prev,
             integrantes: prev.integrantes.map(i => i.id === id ? { ...i, monto: parseFloat(monto) || 0 } : i)
+        }));
+    };
+
+    const updateCargoIntegrante = (id, cargo) => {
+        setFormData(prev => ({
+            ...prev,
+            integrantes: prev.integrantes.map(i => i.id === id ? { ...i, cargo } : i)
         }));
     };
 
@@ -95,5 +104,5 @@ export const useStore = () => {
         finally { setLoading(false); }
     };
 
-    return { formData, loading, alert, setAlert, handleChange, handleSubmit, isBlocked, addIntegrante, removeIntegrante, updateMontoIntegrante };
+    return { formData, loading, alert, setAlert, handleChange, handleSubmit, isBlocked, addIntegrante, removeIntegrante, updateMontoIntegrante, updateCargoIntegrante };
 };
