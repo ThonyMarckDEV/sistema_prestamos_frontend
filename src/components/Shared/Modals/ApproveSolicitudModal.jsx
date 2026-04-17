@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { BanknotesIcon, BuildingLibraryIcon, CheckBadgeIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import React from 'react';
+import { BuildingLibraryIcon, CheckBadgeIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const ApproveSolicitudModal = ({ isOpen, onClose, onConfirm, solicitud, loading }) => {
-    const [abonadoPor, setAbonadoPor] = useState('CAJA CHICA');
-
     if (!isOpen) return null;
 
     return (
@@ -16,7 +14,7 @@ const ApproveSolicitudModal = ({ isOpen, onClose, onConfirm, solicitud, loading 
                 <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100 opacity-100">
                     
                     {/* Botón cerrar */}
-                    <button onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 z-10">
+                    <button onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 z-10 transition-colors">
                         <XMarkIcon className="w-6 h-6" />
                     </button>
 
@@ -27,56 +25,41 @@ const ApproveSolicitudModal = ({ isOpen, onClose, onConfirm, solicitud, loading 
                         </div>
                         <h3 className="text-xl font-black text-slate-800 uppercase">Aprobar Préstamo</h3>
                         <p className="text-xs text-slate-500 font-bold mt-1 uppercase tracking-tight">
-                            Cliente: <span className="text-red-600">{solicitud?.cliente_nombre}</span>
+                            Cliente: <span className="text-blue-600">{solicitud?.cliente_nombre}</span>
                         </p>
                     </div>
 
                     {/* Body */}
-                    <div className="p-8">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center mb-6">
-                            ¿De dónde sale el dinero?
-                        </label>
+                    <div className="p-8 text-center space-y-4">
+                        <p className="text-sm font-bold text-slate-600">
+                            ¿Estás seguro de aprobar esta solicitud por <span className="text-black font-black">S/ {solicitud?.monto_solicitado}</span>?
+                        </p>
                         
-                        <div className="grid grid-cols-1 gap-3">
-                            <button 
-                                onClick={() => setAbonadoPor('CAJA CHICA')}
-                                className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${
-                                    abonadoPor === 'CAJA CHICA' ? 'border-green-600 bg-green-50 shadow-inner' : 'border-slate-100 hover:border-slate-200'
-                                }`}
-                            >
-                                <BanknotesIcon className={`w-8 h-8 ${abonadoPor === 'CAJA CHICA' ? 'text-green-600' : 'text-slate-400'}`} />
-                                <div className="text-left">
-                                    <p className="font-black text-slate-800 text-sm uppercase">Caja Chica</p>
-                                    <p className="text-[10px] text-slate-500 font-medium">Efectivo en Oficina</p>
-                                </div>
-                            </button>
-
-                            <button 
-                                onClick={() => setAbonadoPor('CUENTA CORRIENTE')}
-                                className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${
-                                    abonadoPor === 'CUENTA CORRIENTE' ? 'border-blue-600 bg-blue-50 shadow-inner' : 'border-slate-100 hover:border-slate-200'
-                                }`}
-                            >
-                                <BuildingLibraryIcon className={`w-8 h-8 ${abonadoPor === 'CUENTA CORRIENTE' ? 'text-blue-600' : 'text-slate-400'}`} />
-                                <div className="text-left">
-                                    <p className="font-black text-slate-800 text-sm uppercase">Cta. Corriente</p>
-                                    <p className="text-[10px] text-slate-500 font-medium">Transferencia Bancaria</p>
-                                </div>
-                            </button>
+                        <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center gap-3 justify-center">
+                            <BuildingLibraryIcon className="w-6 h-6 text-blue-600" />
+                            <div className="text-left">
+                                <p className="text-[10px] font-black text-blue-800 uppercase tracking-widest">Modalidad de Desembolso</p>
+                                <p className="text-xs font-bold text-blue-600">Transferencia Bancaria (Cta. Corriente)</p>
+                            </div>
                         </div>
                     </div>
 
                     {/* Footer */}
                     <div className="p-6 bg-slate-50 flex gap-3">
-                        <button onClick={onClose} className="flex-1 px-4 py-3 text-xs font-black text-slate-400 uppercase hover:text-slate-600 transition-colors">
+                        <button onClick={onClose} disabled={loading} className="flex-1 px-4 py-3 text-xs font-black text-slate-400 uppercase hover:text-slate-600 transition-colors disabled:opacity-50">
                             Cancelar
                         </button>
                         <button 
                             disabled={loading}
-                            onClick={() => onConfirm(solicitud.id, 2, abonadoPor)}
-                            className="flex-[2] bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-xs shadow-xl hover:bg-black transition-all disabled:opacity-50 active:scale-95"
+                            onClick={() => onConfirm(solicitud.id, 2, 'CUENTA CORRIENTE')} // 🔥 Forzamos CUENTA CORRIENTE
+                            className="flex-[2] bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-xs shadow-xl hover:bg-black transition-all disabled:opacity-50 active:scale-95 flex justify-center items-center gap-2"
                         >
-                            {loading ? 'Procesando...' : 'Confirmar Desembolso'}
+                            {loading ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                    Procesando...
+                                </>
+                            ) : 'Confirmar Desembolso'}
                         </button>
                     </div>
                 </div>

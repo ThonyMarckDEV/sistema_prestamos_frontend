@@ -48,7 +48,8 @@ export const useIndex = () => {
         setIsApproveOpen(true);
     };
 
-    const handleUpdateStatus = async (id, nuevoEstado, abonadoPor = 'CAJA CHICA') => {
+    // 🔥 Actualizado el valor por defecto a CUENTA CORRIENTE por si acaso
+    const handleUpdateStatus = async (id, nuevoEstado, abonadoPor = 'CUENTA CORRIENTE') => {
         setLoading(true);
         try {
             await changeStatus(id, nuevoEstado, abonadoPor);
