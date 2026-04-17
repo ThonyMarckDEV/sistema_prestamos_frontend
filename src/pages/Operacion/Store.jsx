@@ -9,7 +9,8 @@ import PdfModal from 'components/Shared/Modals/PdfModal';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import Table from 'components/Shared/Tables/Table';
-import { CurrencyDollarIcon, LockClosedIcon, LockOpenIcon, BanknotesIcon } from '@heroicons/react/24/outline';
+import { CurrencyDollarIcon, LockClosedIcon, BanknotesIcon } from '@heroicons/react/24/outline';
+import { LockOpenIcon } from 'lucide-react';
 
 const Store = () => {
     const { 
@@ -20,17 +21,17 @@ const Store = () => {
         handleAbrirSesion, handleCerrarSesion, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64 
     } = useStore();
 
-    // --- Definición de Columnas para el Cronograma (Caja) ---
+    // --- Definición de Columnas para el Cronograma ---
     const columns = useMemo(() => [
         { 
             header: 'N°', 
-            render: (row) => <span className="font-bold text-slate-400">#{row.nro}</span> 
+            render: (row) => <span className="font-black text-slate-400">#{row.nro}</span> 
         },
         { 
             header: 'Vencimiento', 
             render: (row) => (
                 <div className="flex flex-col">
-                    <span className="font-medium text-slate-800">{row.vencimiento}</span>
+                    <span className="font-bold text-slate-700">{row.vencimiento}</span>
                     {row.dias_atraso > 0 && (
                         <span className="text-[9px] font-black text-red-600 uppercase">
                             {row.dias_atraso} días atraso
@@ -40,11 +41,11 @@ const Store = () => {
             ) 
         },
         { 
-            header: 'Monto Base', 
+            header: 'Monto Cuota', 
             render: (row) => <span className="font-bold text-slate-500 text-xs">S/ {row.monto}</span> 
         },
         { 
-            header: 'Mora',
+            header: 'Mora Gen.',
             render: (row) => (
                 <span className={`font-black text-xs ${parseFloat(row.mora) > 0 ? 'text-red-600' : 'text-slate-300'}`}>
                     {parseFloat(row.mora) > 0 ? `+ S/ ${row.mora}` : 'S/ 0.00'}
@@ -53,7 +54,14 @@ const Store = () => {
         },
         { 
             header: 'Total a Cobrar', 
-            render: (row) => <span className="font-black text-slate-900 text-sm">S/ {parseFloat(row.total_con_mora).toFixed(2)}</span> 
+            render: (row) => (
+                <div className="flex flex-col">
+                    <span className="font-black text-slate-900 text-sm">S/ {parseFloat(row.total_con_mora).toFixed(2)}</span>
+                    {row.pago_acumulado > 0 && (
+                        <span className="text-[9px] font-bold text-blue-600 uppercase">Pagado: S/ {row.pago_acumulado}</span>
+                    )}
+                </div>
+            )
         },
         { 
             header: 'Estado', 
@@ -63,7 +71,7 @@ const Store = () => {
                     2: { text: 'PAGADO', style: 'bg-green-100 text-green-700 border-green-200' },
                     3: { text: 'VENCE HOY', style: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
                     4: { text: 'VENCIDA', style: 'bg-red-100 text-red-700 border-red-200' },
-                    5: { text: 'EN REVISIÓN', style: 'bg-blue-100 text-blue-700 border-blue-200' }
+                    6: { text: 'PAGO PARCIAL', style: 'bg-blue-100 text-blue-700 border-blue-200' }
                 };
                 const current = estadoMap[row.estado] || estadoMap[1];
 
@@ -77,37 +85,28 @@ const Store = () => {
         { 
             header: 'Acción', 
             render: (row, _col, allRows) => {
-                // Bloqueamos si hay alguna cuota anterior que NO esté pagada (estado 2)
+                // Bloqueo de prelación: No cobrar si la anterior no está pagada (estado 2)
                 const hayAnteriorPendiente = allRows
                     .filter(r => r.nro < row.nro)
                     .some(r => r.estado !== 2);
 
-                //  Se puede cobrar si está PENDIENTE (1), VENCE HOY (3) o VENCIDA (4)
-                const esPagable = [1, 3, 4].includes(row.estado);
+                const esPagable = [1, 3, 4, 6].includes(row.estado);
                 const bloqueada = !esPagable || hayAnteriorPendiente;
 
-                if (row.estado === 2) return null; // Si está pagada, no mostramos botón
+                if (row.estado === 2) return <span className="text-[10px] font-black text-green-600 uppercase">✓ Completado</span>;
 
                 return (
                     <div className="flex justify-end">
                         <button 
                             onClick={() => !bloqueada && openPagoModal(row)} 
                             disabled={bloqueada}
-                            title={hayAnteriorPendiente ? 'Cobra la cuota anterior primero' : row.estado === 5 ? 'Pago en revisión' : 'Registrar cobro'}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wide transition-all duration-150 ${
-                                row.estado === 5
-                                    ? 'bg-blue-50 text-blue-600 border border-blue-200 cursor-not-allowed'
-                                    : bloqueada
-                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                        : 'bg-black text-white hover:scale-105 shadow-md active:scale-95'
+                            className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${
+                                bloqueada
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                    : 'bg-slate-900 text-white hover:bg-black shadow-lg active:scale-95'
                             }`}
                         >
-                            {row.estado === 5 
-                                ? <><span>⏳</span> En revisión</>
-                                : hayAnteriorPendiente 
-                                    ? <><span>🔒</span> Bloqueada</>
-                                    : <><BanknotesIcon className="w-3.5 h-3.5" /> Cobrar</>
-                            }
+                            {hayAnteriorPendiente ? '🔒 Bloqueada' : <><BanknotesIcon className="w-3.5 h-3.5" /> Cobrar</>}
                         </button>
                     </div>
                 );
@@ -117,7 +116,7 @@ const Store = () => {
 
     if (loading && sesionActiva === undefined) return <LoadingScreen />;
 
-    return (
+ return (
         <div className="container mx-auto p-6 max-w-5xl">
             <PageHeader title="Caja Operativa" icon={CurrencyDollarIcon} />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />

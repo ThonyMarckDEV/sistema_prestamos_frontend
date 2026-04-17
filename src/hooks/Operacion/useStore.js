@@ -19,7 +19,6 @@ export const useStore = () => {
     const [isAbrirModalOpen, setIsAbrirModalOpen] = useState(false);
     const [isCerrarModalOpen, setIsCerrarModalOpen] = useState(false);
 
-    // 🔥 Estados para el PDF (ahora guardamos el base64 directo)
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
     const [pdfTitle, setPdfTitle] = useState('');
     const [pdfBase64, setPdfBase64] = useState(null);
@@ -113,19 +112,17 @@ export const useStore = () => {
         setIsPagoModalOpen(true);
     };
 
-    const handleConfirmarPago = async (pagoData) => {
+    const handleConfirmarPago = async (formData) => {
         setLoading(true);
         try {
-            const response = await cobrarCuota({ cuota_id: cuotaSeleccionada.id, ...pagoData });
+            const response = await cobrarCuota(formData);
             setAlert({ type: 'success', message: '¡Pago registrado exitosamente!' });
             setIsPagoModalOpen(false);
             
-            if (prestamoSeleccionado) {
-                handleSelectPrestamo(prestamoSeleccionado);
-            }
+            if (prestamoSeleccionado) handleSelectPrestamo(prestamoSeleccionado);
             verifySesion(); 
 
-            if (response.data && response.data.pdf) {
+            if (response.data?.pdf) {
                 setPdfBase64(response.data.pdf);
                 setPdfTitle('Recibo de Pago de Cuota');
                 setIsPdfModalOpen(true);
