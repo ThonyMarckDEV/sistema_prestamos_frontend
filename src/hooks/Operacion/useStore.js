@@ -1,21 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import { desembolsar, cobrarCuota } from 'services/operacionService';
 import { show as getPrestamoDetails } from 'services/prestamoService';
-import { getMiSesion, abrirCaja, cerrarCaja } from 'services/cajaSesionService'; 
+import { getMiSesion, abrirCaja, cerrarCaja } from 'services/cajaSesionService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useStore = () => {
     const [loading, setLoading] = useState(true);
-    const [sesionActiva, setSesionActiva] = useState(undefined); 
+    const [sesionActiva, setSesionActiva] = useState(undefined);
     const [alert, setAlert] = useState(null);
-    
-    const [tipoOperacion, setTipoOperacion] = useState('cobro'); 
+
+    const [tipoOperacion, setTipoOperacion] = useState('cobro');
     const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
     const [prestamoDetalle, setPrestamoDetalle] = useState(null);
 
     const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
     const [cuotaSeleccionada, setCuotaSeleccionada] = useState(null);
-    
+
     const [isAbrirModalOpen, setIsAbrirModalOpen] = useState(false);
     const [isCerrarModalOpen, setIsCerrarModalOpen] = useState(false);
 
@@ -39,8 +39,8 @@ export const useStore = () => {
         }
     }, []);
 
-    useEffect(() => { 
-        verifySesion(); 
+    useEffect(() => {
+        verifySesion();
     }, [verifySesion]);
 
     const handleAbrirSesion = async (data) => {
@@ -87,19 +87,18 @@ export const useStore = () => {
         }
     }, [tipoOperacion]);
 
-    const handleDesembolsar = async () => {
+    const handleDesembolsar = async (formData) => {
         setLoading(true);
         try {
-            const response = await desembolsar(prestamoSeleccionado.id);
-            setAlert({ type: 'success', message: 'Desembolso registrado con éxito.' });
-            setPrestamoSeleccionado(null);
-            verifySesion(); 
-            
-            if (response.data && response.data.pdf) {
-                setPdfBase64(response.data.pdf);
-                setPdfTitle('Voucher de Desembolso');
-                setIsPdfModalOpen(true);
+            // Log de diagnóstico — eliminar en producción
+            for (let [k, v] of formData.entries()) {
+                console.log(`[handleDesembolsar payload] ${k}:`, v);
             }
+
+            await desembolsar(formData);
+            setAlert({ type: 'success', message: 'Desembolso procesado correctamente.' });
+            setPrestamoSeleccionado(null);
+            verifySesion();
         } catch (err) {
             setAlert(handleApiError(err));
         } finally {
@@ -118,9 +117,9 @@ export const useStore = () => {
             const response = await cobrarCuota(formData);
             setAlert({ type: 'success', message: '¡Pago registrado exitosamente!' });
             setIsPagoModalOpen(false);
-            
+
             if (prestamoSeleccionado) handleSelectPrestamo(prestamoSeleccionado);
-            verifySesion(); 
+            verifySesion();
 
             if (response.data?.pdf) {
                 setPdfBase64(response.data.pdf);
@@ -142,6 +141,6 @@ export const useStore = () => {
         isAbrirModalOpen, setIsAbrirModalOpen,
         isCerrarModalOpen, setIsCerrarModalOpen,
         handleAbrirSesion, handleCerrarSesion,
-        isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64 
+        isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64
     };
 };

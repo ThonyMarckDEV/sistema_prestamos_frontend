@@ -1,16 +1,23 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useStore } from 'hooks/Operacion/useStore';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import PrestamoSearchSelect from 'components/Shared/Comboboxes/PrestamoSearchSelect';
 import PagoCuotaModal from './PagoCuotaModal'; 
+import DesembolsoModal from './DesembolsoModal';
 import AbrirSesionModal from './AbrirSesionModal';
 import CerrarSesionModal from './CerrarSesionModal';
 import PdfModal from 'components/Shared/Modals/PdfModal'; 
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import Table from 'components/Shared/Tables/Table';
-import { CurrencyDollarIcon, LockClosedIcon, BanknotesIcon } from '@heroicons/react/24/outline';
-import { LockOpenIcon } from 'lucide-react';
+import { 
+    CurrencyDollarIcon, 
+    LockClosedIcon, 
+    LockOpenIcon, 
+    BanknotesIcon, 
+    ArrowUpCircleIcon, 
+    ArrowDownCircleIcon 
+} from '@heroicons/react/24/outline';
 
 const Store = () => {
     const { 
@@ -21,7 +28,10 @@ const Store = () => {
         handleAbrirSesion, handleCerrarSesion, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64 
     } = useStore();
 
-    // --- Definición de Columnas para el Cronograma ---
+    // Estado local para controlar el modal de desembolso con foto
+    const [isDesembolsoModalOpen, setIsDesembolsoModalOpen] = useState(false);
+
+    // --- Definición de Columnas para el Cronograma de Pagos ---
     const columns = useMemo(() => [
         { 
             header: 'N°', 
@@ -58,7 +68,7 @@ const Store = () => {
                 <div className="flex flex-col">
                     <span className="font-black text-slate-900 text-sm">S/ {parseFloat(row.total_con_mora).toFixed(2)}</span>
                     {row.pago_acumulado > 0 && (
-                        <span className="text-[9px] font-bold text-blue-600 uppercase">Pagado: S/ {row.pago_acumulado}</span>
+                        <span className="text-[9px] font-bold text-blue-600 uppercase">Abonado: S/ {row.pago_acumulado}</span>
                     )}
                 </div>
             )
@@ -85,7 +95,6 @@ const Store = () => {
         { 
             header: 'Acción', 
             render: (row, _col, allRows) => {
-                // Bloqueo de prelación: No cobrar si la anterior no está pagada (estado 2)
                 const hayAnteriorPendiente = allRows
                     .filter(r => r.nro < row.nro)
                     .some(r => r.estado !== 2);
@@ -93,7 +102,7 @@ const Store = () => {
                 const esPagable = [1, 3, 4, 6].includes(row.estado);
                 const bloqueada = !esPagable || hayAnteriorPendiente;
 
-                if (row.estado === 2) return <span className="text-[10px] font-black text-green-600 uppercase">✓ Completado</span>;
+                if (row.estado === 2) return <span className="text-[10px] font-black text-green-600 uppercase italic">✓ Cobrado</span>;
 
                 return (
                     <div className="flex justify-end">
@@ -102,7 +111,7 @@ const Store = () => {
                             disabled={bloqueada}
                             className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${
                                 bloqueada
-                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                    ? 'bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100'
                                     : 'bg-slate-900 text-white hover:bg-black shadow-lg active:scale-95'
                             }`}
                         >
@@ -116,58 +125,98 @@ const Store = () => {
 
     if (loading && sesionActiva === undefined) return <LoadingScreen />;
 
- return (
-        <div className="container mx-auto p-6 max-w-5xl">
+    return (
+        <div className="container mx-auto p-4 sm:p-6 max-w-5xl">
             <PageHeader title="Caja Operativa" icon={CurrencyDollarIcon} />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
             {!sesionActiva && !loading ? (
-                <div className="mt-10 bg-white p-10 rounded-3xl border border-red-100 shadow-sm text-center max-w-2xl mx-auto">
-                    <div className="bg-red-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                /* VISTA: CAJA CERRADA */
+                <div className="mt-10 bg-white p-12 rounded-[40px] border border-slate-100 shadow-2xl text-center max-w-xl mx-auto">
+                    <div className="bg-red-50 w-24 h-24 rounded-[32px] flex items-center justify-center mx-auto mb-8 transform -rotate-6 shadow-inner">
                         <LockClosedIcon className="w-12 h-12 text-red-600" />
                     </div>
-                    <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tight mb-2">Turno Cerrado</h2>
-                    <p className="text-slate-500 text-sm font-medium mb-8">Abre un turno para cobrar o desembolsar.</p>
-                    <button onClick={() => setIsAbrirModalOpen(true)} className="bg-red-600 text-white px-10 py-4 rounded-xl font-black uppercase text-sm shadow-xl transition-all hover:scale-105">
-                        <LockOpenIcon className="w-5 h-5 inline mr-2" /> Abrir Turno
+                    <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tight mb-3">Turno Cerrado</h2>
+                    <p className="text-slate-500 text-sm font-medium mb-10 px-6 leading-relaxed">
+                        Para registrar cobros de cuotas o autorizar desembolsos, es necesario que realices la apertura de tu turno físico.
+                    </p>
+                    <button onClick={() => setIsAbrirModalOpen(true)} className="bg-red-600 text-white px-12 py-4 rounded-2xl font-black uppercase text-xs shadow-xl shadow-red-200 hover:bg-red-700 transition-all active:scale-95 flex items-center gap-2 mx-auto">
+                        <LockOpenIcon className="w-4 h-4" /> Aperturar Turno de Caja
                     </button>
                 </div>
             ) : (
-                <div className="mt-6 space-y-6">
-                    <div className="flex items-center justify-between bg-black p-5 rounded-2xl shadow-xl text-white">
-                        <div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Caja activa</span>
-                            <span className="text-lg font-black">{sesionActiva?.caja?.nombre}</span>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Efectivo Esperado</span>
-                                <span className="text-xl font-black text-green-400">S/ {sesionActiva?.saldo_esperado}</span>
+                /* VISTA: CAJA ABIERTA */
+                <div className="mt-6 space-y-6 animate-in fade-in duration-500">
+                    {/* Header de la Sesión */}
+                    <div className="flex flex-col md:flex-row items-center justify-between bg-slate-900 p-6 md:p-8 rounded-[32px] shadow-2xl text-white gap-6">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-white/10 rounded-2xl">
+                                <BanknotesIcon className="w-8 h-8 text-green-400" />
                             </div>
-                            <button onClick={() => setIsCerrarModalOpen(true)} className="bg-white text-black px-6 py-2 rounded-lg font-black uppercase text-xs hover:bg-red-600 hover:text-white transition-colors">Cerrar Turno</button>
+                            <div>
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">Cajero de Turno</span>
+                                <span className="text-lg font-black">{sesionActiva?.usuario?.datos_empleado?.nombre_completo || 'Usuario del Sistema'}</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-8 border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-8 w-full md:w-auto justify-between md:justify-start">
+                            <div className="text-right">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">Saldo en Efectivo</span>
+                                <span className="text-3xl font-black text-green-400 tracking-tighter">S/ {parseFloat(sesionActiva?.saldo_esperado || 0).toFixed(2)}</span>
+                            </div>
+                            <button onClick={() => setIsCerrarModalOpen(true)} className="bg-white/5 hover:bg-red-600 px-6 py-3 rounded-xl font-black uppercase text-[10px] transition-all border border-white/10 hover:border-red-500 active:scale-95">Cerrar Turno</button>
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                        <div className="flex gap-4 mb-6">
-                            <button onClick={() => { setTipoOperacion('cobro'); handleSelectPrestamo(null); }} className={`flex-1 py-3 rounded-xl font-black text-xs uppercase border-2 transition-all ${tipoOperacion === 'cobro' ? 'border-green-600 bg-green-50 text-green-700' : 'border-slate-100 text-slate-400'}`}>Cobrar Cuota</button>
-                            <button onClick={() => { setTipoOperacion('desembolso'); handleSelectPrestamo(null); }} className={`flex-1 py-3 rounded-xl font-black text-xs uppercase border-2 transition-all ${tipoOperacion === 'desembolso' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-100 text-slate-400'}`}>Realizar Desembolso</button>
+                    {/* Área de Trabajo */}
+                    <div className="bg-white p-4 md:p-8 rounded-[40px] border border-slate-100 shadow-sm">
+                        {/* Switcher de Operación */}
+                        <div className="flex gap-2 mb-8 bg-slate-100 p-1.5 rounded-2xl w-full sm:w-fit mx-auto border border-slate-200">
+                            <button 
+                                onClick={() => { setTipoOperacion('cobro'); handleSelectPrestamo(null); }} 
+                                className={`flex-1 sm:px-10 py-3 rounded-xl font-black text-[10px] uppercase transition-all flex items-center justify-center gap-2 ${tipoOperacion === 'cobro' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                            >
+                                <ArrowUpCircleIcon className="w-4 h-4" /> Cobrar Cuota
+                            </button>
+                            <button 
+                                onClick={() => { setTipoOperacion('desembolso'); handleSelectPrestamo(null); }} 
+                                className={`flex-1 sm:px-10 py-3 rounded-xl font-black text-[10px] uppercase transition-all flex items-center justify-center gap-2 ${tipoOperacion === 'desembolso' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                            >
+                                <ArrowDownCircleIcon className="w-4 h-4" /> Desembolsar
+                            </button>
                         </div>
 
+                        {/* Buscador de Préstamos */}
                         <PrestamoSearchSelect tipoOperacion={tipoOperacion} onSelect={handleSelectPrestamo} disabled={loading} />
 
+                        {/* Contenido Dinámico: DESEMBOLSO */}
                         {prestamoSeleccionado && tipoOperacion === 'desembolso' && (
-                            <div className="mt-6 p-8 bg-blue-50 rounded-2xl border border-blue-200 text-center animate-in fade-in">
-                                <h4 className="font-black text-blue-900 uppercase text-lg mb-2">Autorizar Desembolso</h4>
-                                <p className="text-sm font-bold text-blue-700">Cliente: {prestamoSeleccionado.cliente}</p>
-                                <h2 className="text-5xl font-black text-blue-600 italic my-6">S/ {prestamoSeleccionado.monto}</h2>
-                                <button onClick={handleDesembolsar} disabled={loading} className="px-12 py-4 bg-blue-600 text-white rounded-xl font-black uppercase shadow-lg disabled:opacity-50">Entregar Dinero</button>
+                            <div className="mt-8 p-10 bg-blue-50/50 rounded-[32px] border-2 border-dashed border-blue-200 text-center animate-in zoom-in-95 duration-300">
+                                <h4 className="font-black text-blue-900 uppercase text-lg mb-1 tracking-tight">Autorizar Desembolso</h4>
+                                <p className="text-xs font-bold text-blue-700 uppercase tracking-widest">{prestamoSeleccionado.cliente}</p>
+                                <div className="my-10">
+                                    <span className="text-[10px] font-black text-blue-400 uppercase block mb-2 tracking-[0.3em]">Importe Neto a Entregar</span>
+                                    <h2 className="text-7xl font-black text-blue-600 italic tracking-tighter">S/ {prestamoSeleccionado.monto}</h2>
+                                </div>
+                                <button 
+                                    onClick={() => setIsDesembolsoModalOpen(true)} 
+                                    disabled={loading} 
+                                    className="px-16 py-5 bg-blue-600 text-white rounded-2xl font-black uppercase text-sm shadow-2xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 flex items-center gap-3 mx-auto"
+                                >
+                                    {loading ? 'Procesando...' : 'Siguiente: Adjuntar Voucher'}
+                                </button>
                             </div>
                         )}
 
+                        {/* Contenido Dinámico: COBRO */}
                         {prestamoSeleccionado && tipoOperacion === 'cobro' && prestamoDetalle && (
-                            <div className="mt-6 animate-in fade-in">
-                                <h4 className="font-black text-slate-700 uppercase text-xs mb-3 px-2">Cronograma del Préstamo</h4>
+                            <div className="mt-10 animate-in slide-in-from-bottom-6 duration-500">
+                                <div className="flex items-center justify-between mb-6 px-4">
+                                    <h4 className="font-black text-slate-800 uppercase text-xs tracking-[0.2em]">Cronograma de Pagos</h4>
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase italic">Referencia: {prestamoSeleccionado.cliente}</span>
+                                    </div>
+                                </div>
                                 <Table columns={columns} data={prestamoDetalle.cronograma || []} loading={loading} />
                             </div>
                         )}
@@ -175,7 +224,26 @@ const Store = () => {
                 </div>
             )}
 
-            <PagoCuotaModal isOpen={isPagoModalOpen} onClose={() => setIsPagoModalOpen(false)} cuota={cuotaSeleccionada} onConfirm={handleConfirmarPago} loading={loading} />
+            {/* MODALES DE GESTIÓN */}
+            <PagoCuotaModal 
+                isOpen={isPagoModalOpen} 
+                onClose={() => setIsPagoModalOpen(false)} 
+                cuota={cuotaSeleccionada} 
+                onConfirm={handleConfirmarPago} 
+                loading={loading} 
+            />
+
+            <DesembolsoModal 
+                isOpen={isDesembolsoModalOpen} 
+                onClose={() => setIsDesembolsoModalOpen(false)} 
+                prestamo={prestamoSeleccionado}
+                onConfirm={async (fd) => {
+                    await handleDesembolsar(fd);
+                    setIsDesembolsoModalOpen(false);
+                }}
+                loading={loading}
+            />
+
             <AbrirSesionModal isOpen={isAbrirModalOpen} onClose={() => setIsAbrirModalOpen(false)} onConfirm={handleAbrirSesion} loading={loading} />
             <CerrarSesionModal isOpen={isCerrarModalOpen} onClose={() => setIsCerrarModalOpen(false)} onConfirm={handleCerrarSesion} sesionActiva={sesionActiva} loading={loading} />
             <PdfModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} title={pdfTitle} base64={pdfBase64} />

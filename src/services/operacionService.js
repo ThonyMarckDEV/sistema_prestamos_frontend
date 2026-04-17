@@ -4,11 +4,10 @@ import { handleResponse } from 'utilities/Responses/handleResponse';
 
 const BASE_URL = `${API_BASE_URL}/api/operacion-caja`;
 
-export const desembolsar = async (prestamo_id) => {
+export const desembolsar = async (formData) => {
     const response = await fetchWithAuth(`${BASE_URL}/desembolsar`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prestamo_id }),
+        body: formData,
     });
     return handleResponse(response);
 };
