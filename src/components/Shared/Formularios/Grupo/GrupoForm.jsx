@@ -19,7 +19,7 @@ const GrupoForm = ({ data, handleChange }) => {
                             value={data.codigo_recaudo || ''} 
                             onChange={(e) => handleChange('codigo_recaudo', e.target.value)} 
                             className="w-full pl-10 p-3.5 text-sm font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all uppercase" 
-                            placeholder="Ej: GRP-001" 
+                            placeholder="Ej: 0000000060" 
                             required 
                         />
                     </div>
