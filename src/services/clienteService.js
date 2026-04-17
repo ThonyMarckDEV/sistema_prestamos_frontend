@@ -55,3 +55,8 @@ export const toggleStatus = async (id) => {
     });
     return handleResponse(response);
 };
+
+export const descargarFichaPdf = async (id) => {
+    const response = await fetchWithAuth(`${BASE_URL}/pdf/${id}`, { method: 'GET' });
+    return handleResponse(response);
+};
