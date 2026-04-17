@@ -11,7 +11,10 @@ export const useUpdate = () => {
     const [saving, setSaving] = useState(false);
     const [alert, setAlert] = useState(null);
 
-    const [formData, setFormData] = useState({ nombre: ''});
+    const [formData, setFormData] = useState({ 
+        codigo_recaudo: '' ,
+        nombre: ''
+    });
 
     useEffect(() => {
         const loadGrupo = async () => {
@@ -19,6 +22,7 @@ export const useUpdate = () => {
                 const response = await show(id);
                 const data = response.data || response;
                 setFormData({
+                    codigo_recaudo: data.codigo_recaudo || '',
                     nombre: data.nombre || ''
                 });
             } catch (err) {

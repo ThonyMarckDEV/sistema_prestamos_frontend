@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserGroupIcon, TagIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, TagIcon, HashtagIcon } from '@heroicons/react/24/outline';
 
 const GrupoForm = ({ data, handleChange }) => {
     return (
@@ -9,6 +9,22 @@ const GrupoForm = ({ data, handleChange }) => {
             </h3>
             
             <div className="space-y-6">
+
+                <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Código de Recaudo *</label>
+                    <div className="relative">
+                        <HashtagIcon className="w-5 h-5 absolute left-3 top-3.5 text-slate-400"/>
+                        <input 
+                            type="text" 
+                            value={data.codigo_recaudo || ''} 
+                            onChange={(e) => handleChange('codigo_recaudo', e.target.value)} 
+                            className="w-full pl-10 p-3.5 text-sm font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all uppercase" 
+                            placeholder="Ej: GRP-001" 
+                            required 
+                        />
+                    </div>
+                </div>
+
                 <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Nombre del Grupo Solidario *</label>
                     <div className="relative">
@@ -23,6 +39,7 @@ const GrupoForm = ({ data, handleChange }) => {
                         />
                     </div>
                 </div>
+
             </div>
         </div>
     );

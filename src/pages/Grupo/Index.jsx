@@ -24,6 +24,14 @@ const Index = () => {
                 </span>
             )
         },
+        { 
+            header: 'Codigo Recaudo', 
+            render: (row) => (
+                <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
+                    {row.codigo_recaudo}
+                </span>
+            )
+        },
         {
             header: 'Grupo Solidario',
             render: (row) => (
