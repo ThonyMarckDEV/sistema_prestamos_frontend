@@ -46,12 +46,12 @@ const Index = () => {
             )
         },
         {
-            header: 'Actividad',
+            header: 'Ciclos',
             render: (row) => (
                 <div className="flex items-center gap-2">
                     <ChartBarIcon className="w-4 h-4 text-slate-400" />
                     <span className="text-xs font-bold text-slate-600">
-                        {row.solicitudes_count} Solicitudes
+                        {row.ciclos_count} Ciclos
                     </span>
                 </div>
             )
