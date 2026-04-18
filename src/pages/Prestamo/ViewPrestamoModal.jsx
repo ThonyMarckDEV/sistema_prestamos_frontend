@@ -2,14 +2,9 @@ import React, { useState } from 'react';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import PdfModal from 'components/Shared/Modals/PdfModal';
 import { 
-    CalendarIcon, 
-    UserIcon, 
-    UserGroupIcon,
-    InformationCircleIcon,
-    UsersIcon,
-    BanknotesIcon,
-    ArrowPathIcon,
-    ArrowDownTrayIcon
+    CalendarIcon, UserIcon, UserGroupIcon,
+    InformationCircleIcon, UsersIcon, BanknotesIcon,
+    ArrowPathIcon, ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 import { showIntegrante, descargarCronograma } from 'services/prestamoService';
 
@@ -61,10 +56,10 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
     const getStatusBadge = (estado) => {
         const styles = {
             1: 'bg-yellow-50 text-yellow-700 border-yellow-100',
-            2: 'bg-green-50 text-green-700 border-green-100',   
-            3: 'bg-blue-50 text-blue-700 border-blue-100',      
-            4: 'bg-red-50 text-red-700 border-red-100',          
-            5: 'bg-orange-50 text-orange-700 border-orange-100' 
+            2: 'bg-green-50 text-green-700 border-green-100',
+            3: 'bg-blue-50 text-blue-700 border-blue-100',
+            4: 'bg-red-50 text-red-700 border-red-100',
+            5: 'bg-orange-50 text-orange-700 border-orange-100'
         };
         const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'PAGO PARCIAL' };
         return (
@@ -80,8 +75,8 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
 
     return (
         <>
-            <ViewModal 
-                isOpen={isOpen} 
+            <ViewModal
+                isOpen={isOpen}
                 onClose={handleClose}
                 title={`Detalle de Préstamo #${data?.id?.toString().padStart(5, '0')}`}
                 isLoading={isLoading}
@@ -126,12 +121,12 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                 </p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     {data.integrantes.map((int) => (
-                                        <div 
-                                            key={int.id} 
+                                        <div
+                                            key={int.id}
                                             onClick={() => handleSelectIntegrante(int.id)}
                                             className={`flex justify-between items-center bg-white p-2 rounded border shadow-sm cursor-pointer transition-all
-                                                ${integranteSeleccionado === int.id 
-                                                    ? 'border-blue-400 ring-1 ring-blue-300 bg-blue-50' 
+                                                ${integranteSeleccionado === int.id
+                                                    ? 'border-blue-400 ring-1 ring-blue-300 bg-blue-50'
                                                     : 'border-slate-100 hover:border-blue-200'
                                                 }`}
                                         >
@@ -192,7 +187,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                             </button>
                         </div>
 
-                        {/* 5. Tabla */}
+                        {/* 5. Tabla — mismas columnas para grupal e individual */}
                         {loadingIntegrante ? (
                             <div className="flex items-center justify-center py-12">
                                 <ArrowPathIcon className="w-6 h-6 animate-spin text-blue-400" />
@@ -205,91 +200,88 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                         <tr>
                                             <th className="px-4 py-4 text-center">N°</th>
                                             <th className="px-4 py-4 text-center">Vencimiento</th>
-                                            <th className="px-4 py-4">Deuda Base {!esVistaIntegrante && '+ Mora'}</th>
-                                            {!esVistaIntegrante && <th className="px-4 py-4">Abonos / Beneficios</th>}
+                                            <th className="px-4 py-4">Deuda Base</th>
+                                            <th className="px-4 py-4">Mora</th>
+                                            <th className="px-4 py-4">Abonos</th>
                                             <th className="px-4 py-4">Saldo Real</th>
                                             <th className="px-4 py-4 text-center">Estado</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 bg-white">
-                                        {esVistaIntegrante ? (
-                                            cronogramaActivo?.map((cuota) => (
-                                                <tr key={cuota.nro} className="hover:bg-blue-50/20 transition-colors">
+                                        {cronogramaActivo?.map((cuota, i) => {
+                                            const nro        = cuota.nro ?? (i + 1);
+                                            const deuda      = esVistaIntegrante ? cuota.total_cuota : cuota.monto;
+                                            const mora       = esVistaIntegrante ? parseFloat(cuota.mora || 0) : parseFloat(cuota.mora_total || 0);
+                                            const abonado    = esVistaIntegrante ? parseFloat(cuota.pago_acumulado || 0) : parseFloat(cuota.pago_realizado || 0);
+                                            const saldo      = esVistaIntegrante ? parseFloat(cuota.saldo_real ?? cuota.saldo) : parseFloat(cuota.saldo_pendiente);
+                                            const diasAtraso = esVistaIntegrante ? 0 : (cuota.dias_atraso || 0);
+                                            const moraPagada = esVistaIntegrante ? 0 : parseFloat(cuota.mora_pagada || 0);
+                                            const excAnt     = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_anterior || 0);
+                                            const excGen     = esVistaIntegrante ? 0 : parseFloat(cuota.excedente || 0);
+
+                                            return (
+                                                <tr key={nro} className="hover:bg-blue-50/20 transition-colors">
                                                     <td className="px-4 py-4 text-xs font-black text-slate-400 text-center font-mono">
-                                                        #{cuota.nro.toString().padStart(2, '0')}
+                                                        #{nro.toString().padStart(2, '0')}
                                                     </td>
-                                                    <td className="px-4 py-4 text-xs font-bold text-slate-600 text-center">{cuota.vencimiento}</td>
+                                                    <td className="px-4 py-4 text-center">
+                                                        <span className="text-xs font-bold text-slate-600 block">{cuota.vencimiento}</span>
+                                                        {diasAtraso > 0 && (
+                                                            <span className="text-[9px] font-black text-red-600 uppercase">{diasAtraso} días atraso</span>
+                                                        )}
+                                                    </td>
                                                     <td className="px-4 py-4">
-                                                        <span className="text-[11px] font-black text-slate-800">S/ {cuota.total_cuota}</span>
+                                                        <span className="text-[11px] font-black text-slate-800">S/ {deuda}</span>
                                                     </td>
                                                     <td className="px-4 py-4">
-                                                        <span className={`text-sm font-black italic ${parseFloat(cuota.saldo) > 0 ? 'text-red-600 underline' : 'text-green-600'}`}>
-                                                            S/ {parseFloat(cuota.saldo).toFixed(2)}
-                                                        </span>
+                                                        {mora > 0
+                                                            ? <span className="text-[11px] font-black text-red-600">+S/ {mora.toFixed(2)}</span>
+                                                            : <span className="text-[10px] text-slate-300 font-bold">—</span>
+                                                        }
                                                     </td>
-                                                    <td className="px-4 py-4 text-center">{getStatusBadge(cuota.estado)}</td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            cronogramaActivo?.map((cuota) => {
-                                                const saldo      = parseFloat(cuota.saldo_pendiente);
-                                                const excAnt     = parseFloat(cuota.excedente_anterior);
-                                                const excGen     = parseFloat(cuota.excedente);
-                                                const pagoRec    = parseFloat(cuota.pago_realizado);
-                                                const moraPagada = parseFloat(cuota.mora_pagada || 0);
-                                                return (
-                                                    <tr key={cuota.id} className="hover:bg-blue-50/20 transition-colors">
-                                                        <td className="px-4 py-4 text-xs font-black text-slate-400 text-center font-mono">
-                                                            #{cuota.nro.toString().padStart(2, '0')}
-                                                        </td>
-                                                        <td className="px-4 py-4 text-xs font-bold text-slate-600 text-center">{cuota.vencimiento}</td>
-                                                        <td className="px-4 py-4">
-                                                            <div className="flex flex-col">
-                                                                <span className="text-[11px] font-black text-slate-800">S/ {cuota.monto}</span>
-                                                                {parseFloat(cuota.mora_total) > 0 && (
-                                                                    <span className="text-[9px] font-bold text-red-500 bg-red-50 px-1 rounded w-fit mt-0.5 uppercase">
-                                                                        Mora: +S/ {cuota.mora_total}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4 py-4">
-                                                            <div className="flex flex-col gap-1">
-                                                                {pagoRec > 0 && (
-                                                                    <span className="text-[12px] font-black text-green-600 flex items-center gap-1">
-                                                                        <BanknotesIcon className="w-3 h-3" /> RECIBIDO: S/ {pagoRec.toFixed(2)}
-                                                                    </span>
-                                                                )}
-                                                                {moraPagada > 0 && (
-                                                                    <span className="text-[9px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100 w-fit">
-                                                                        Mora Cubierta: S/ {moraPagada.toFixed(2)}
-                                                                    </span>
-                                                                )}
-                                                                {excAnt > 0 && (
-                                                                    <span className="text-[9px] font-black text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 w-fit">
-                                                                        Excedente Aplicado: -S/ {excAnt.toFixed(2)}
-                                                                    </span>
-                                                                )}
-                                                                {excGen > 0 && (
-                                                                    <span className="text-[9px] font-black text-blue-600 uppercase italic">
-                                                                        Sobra: S/ {excGen.toFixed(2)}
-                                                                    </span>
-                                                                )}
-                                                                {!pagoRec && !excAnt && (
-                                                                    <span className="text-slate-300 text-[10px] italic uppercase tracking-tighter">Sin movimientos</span>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4 py-4">
+                                                    <td className="px-4 py-4">
+                                                        <div className="flex flex-col gap-1">
+                                                            {abonado > 0 && (
+                                                                <span className="text-[11px] font-black text-green-600 flex items-center gap-1">
+                                                                    <BanknotesIcon className="w-3 h-3" /> S/ {abonado.toFixed(2)}
+                                                                </span>
+                                                            )}
+                                                            {moraPagada > 0 && (
+                                                                <span className="text-[9px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100 w-fit">
+                                                                    Mora cub.: S/ {moraPagada.toFixed(2)}
+                                                                </span>
+                                                            )}
+                                                            {excAnt > 0 && (
+                                                                <span className="text-[9px] font-black text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 w-fit">
+                                                                    Exc.: -S/ {excAnt.toFixed(2)}
+                                                                </span>
+                                                            )}
+                                                            {excGen > 0 && (
+                                                                <span className="text-[9px] font-black text-blue-600 italic">
+                                                                    Sobra: S/ {excGen.toFixed(2)}
+                                                                </span>
+                                                            )}
+                                                            {abonado === 0 && excAnt === 0 && (
+                                                                <span className="text-[10px] text-slate-300 font-bold">—</span>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-4">
+                                                        <div className="flex flex-col">
                                                             <span className={`text-sm font-black italic ${saldo > 0 ? 'text-red-600 underline' : 'text-green-600'}`}>
                                                                 S/ {saldo.toFixed(2)}
                                                             </span>
-                                                        </td>
-                                                        <td className="px-4 py-4 text-center">{getStatusBadge(cuota.estado)}</td>
-                                                    </tr>
-                                                );
-                                            })
-                                        )}
+                                                            {esVistaIntegrante && mora > 0 && parseFloat(cuota.saldo || 0) > 0 && (
+                                                                <span className="text-[9px] text-slate-400 font-bold">
+                                                                    Cap: S/ {parseFloat(cuota.saldo).toFixed(2)} + Mora: S/ {mora.toFixed(2)}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-4 text-center">{getStatusBadge(cuota.estado)}</td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
@@ -303,7 +295,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                 )}
             </ViewModal>
 
-            {/* PDF Modal */}
             <PdfModal
                 isOpen={pdfOpen}
                 onClose={() => { setPdfOpen(false); setPdfBase64(null); }}

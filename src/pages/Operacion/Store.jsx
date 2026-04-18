@@ -28,10 +28,8 @@ const Store = () => {
         handleAbrirSesion, handleCerrarSesion, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64 
     } = useStore();
 
-    // Estado local para controlar el modal de desembolso con foto
     const [isDesembolsoModalOpen, setIsDesembolsoModalOpen] = useState(false);
 
-    // --- Definición de Columnas para el Cronograma de Pagos ---
     const columns = useMemo(() => [
         { 
             header: 'N°', 
@@ -63,12 +61,16 @@ const Store = () => {
             )
         },
         { 
-            header: 'Total a Cobrar', 
+            header: 'Saldo a Cobrar', 
             render: (row) => (
                 <div className="flex flex-col">
-                    <span className="font-black text-slate-900 text-sm">S/ {parseFloat(row.total_con_mora).toFixed(2)}</span>
-                    {row.pago_acumulado > 0 && (
-                        <span className="text-[9px] font-bold text-blue-600 uppercase">Abonado: S/ {row.pago_acumulado}</span>
+                    <span className="font-black text-slate-900 text-sm">
+                        S/ {parseFloat(row.saldo_pendiente).toFixed(2)}
+                    </span>
+                    {parseFloat(row.pago_acumulado) > 0 && (
+                        <span className="text-[9px] font-bold text-blue-600 uppercase">
+                            Abonado: S/ {parseFloat(row.pago_acumulado).toFixed(2)}
+                        </span>
                     )}
                 </div>
             )
@@ -77,14 +79,13 @@ const Store = () => {
             header: 'Estado', 
             render: (row) => {
                 const estadoMap = {
-                    1: { text: 'PENDIENTE', style: 'bg-slate-100 text-slate-600 border-slate-200' },
-                    2: { text: 'PAGADO', style: 'bg-green-100 text-green-700 border-green-200' },
-                    3: { text: 'VENCE HOY', style: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-                    4: { text: 'VENCIDA', style: 'bg-red-100 text-red-700 border-red-200' },
+                    1: { text: 'PENDIENTE',    style: 'bg-slate-100 text-slate-600 border-slate-200' },
+                    2: { text: 'PAGADO',       style: 'bg-green-100 text-green-700 border-green-200' },
+                    3: { text: 'VENCE HOY',    style: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+                    4: { text: 'VENCIDA',      style: 'bg-red-100 text-red-700 border-red-200' },
                     5: { text: 'PAGO PARCIAL', style: 'bg-blue-100 text-blue-700 border-blue-200' }
                 };
                 const current = estadoMap[row.estado] || estadoMap[1];
-
                 return (
                     <span className={`px-2 py-1 rounded-full text-[9px] font-black border ${current.style}`}>
                         {current.text}
@@ -102,7 +103,9 @@ const Store = () => {
                 const esPagable = [1, 3, 4, 5].includes(row.estado);
                 const bloqueada = !esPagable || hayAnteriorPendiente;
 
-                if (row.estado === 2) return <span className="text-[10px] font-black text-green-600 uppercase italic">✓ Cobrado</span>;
+                if (row.estado === 2) return (
+                    <span className="text-[10px] font-black text-green-600 uppercase italic">✓ Cobrado</span>
+                );
 
                 return (
                     <div className="flex justify-end">
@@ -131,7 +134,6 @@ const Store = () => {
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
             {!sesionActiva && !loading ? (
-                /* VISTA: CAJA CERRADA */
                 <div className="mt-10 bg-white p-12 rounded-[40px] border border-slate-100 shadow-2xl text-center max-w-xl mx-auto">
                     <div className="bg-red-50 w-24 h-24 rounded-[32px] flex items-center justify-center mx-auto mb-8 transform -rotate-6 shadow-inner">
                         <LockClosedIcon className="w-12 h-12 text-red-600" />
@@ -145,9 +147,7 @@ const Store = () => {
                     </button>
                 </div>
             ) : (
-                /* VISTA: CAJA ABIERTA */
                 <div className="mt-6 space-y-6 animate-in fade-in duration-500">
-                    {/* Header de la Sesión */}
                     <div className="flex flex-col md:flex-row items-center justify-between bg-slate-900 p-6 md:p-8 rounded-[32px] shadow-2xl text-white gap-6">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-white/10 rounded-2xl">
@@ -167,9 +167,7 @@ const Store = () => {
                         </div>
                     </div>
 
-                    {/* Área de Trabajo */}
                     <div className="bg-white p-4 md:p-8 rounded-[40px] border border-slate-100 shadow-sm">
-                        {/* Switcher de Operación */}
                         <div className="flex gap-2 mb-8 bg-slate-100 p-1.5 rounded-2xl w-full sm:w-fit mx-auto border border-slate-200">
                             <button 
                                 onClick={() => { setTipoOperacion('cobro'); handleSelectPrestamo(null); }} 
@@ -185,10 +183,8 @@ const Store = () => {
                             </button>
                         </div>
 
-                        {/* Buscador de Préstamos */}
                         <PrestamoSearchSelect tipoOperacion={tipoOperacion} onSelect={handleSelectPrestamo} disabled={loading} />
 
-                        {/* Contenido Dinámico: DESEMBOLSO */}
                         {prestamoSeleccionado && tipoOperacion === 'desembolso' && (
                             <div className="mt-8 p-10 bg-blue-50/50 rounded-[32px] border-2 border-dashed border-blue-200 text-center animate-in zoom-in-95 duration-300">
                                 <h4 className="font-black text-blue-900 uppercase text-lg mb-1 tracking-tight">Autorizar Desembolso</h4>
@@ -207,7 +203,6 @@ const Store = () => {
                             </div>
                         )}
 
-                        {/* Contenido Dinámico: COBRO */}
                         {prestamoSeleccionado && tipoOperacion === 'cobro' && prestamoDetalle && (
                             <div className="mt-10 animate-in slide-in-from-bottom-6 duration-500">
                                 <div className="flex items-center justify-between mb-6 px-4">
@@ -224,7 +219,6 @@ const Store = () => {
                 </div>
             )}
 
-            {/* MODALES DE GESTIÓN */}
             <PagoCuotaModal 
                 isOpen={isPagoModalOpen} 
                 onClose={() => setIsPagoModalOpen(false)} 

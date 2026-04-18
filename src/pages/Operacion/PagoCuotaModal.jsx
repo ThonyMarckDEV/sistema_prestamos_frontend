@@ -14,9 +14,9 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     const [esParcial, setEsParcial]       = useState(false);
     const [distribucion, setDistribucion] = useState({});
 
-    const montoBase   = parseFloat(cuota?.saldo_pendiente || cuota?.monto || 0);
+    // saldo_pendiente ya incluye mora (saldo_cuota + saldo_mora en el modelo)
+    const totalAPagar = parseFloat(cuota?.saldo_pendiente || cuota?.monto || 0).toFixed(2);
     const mora        = parseFloat(cuota?.mora || 0);
-    const totalAPagar = (montoBase + mora).toFixed(2);
     const esGrupal    = !!(cuota?.integrantes && cuota.integrantes.length > 0);
 
     // Solo integrantes que aún tienen saldo pendiente
@@ -74,12 +74,26 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
         onConfirm(formData);
     };
 
-    // Total distribuido: completos aportan su saldo, parciales su monto ingresado
+    // Si es grupal parcial, recalcula el monto recibido según la distribución
     const totalDistribuido = integrantesPendientes.reduce((acc, int) => {
         const val = distribucion[int.id];
         const pagaCompleto = !val || val === '';
         return acc + (pagaCompleto ? parseFloat(int.saldo || 0) : parseFloat(val || 0));
     }, 0);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+   useEffect(() => {
+    if (esGrupal && esParcial && integrantesPendientes.length > 0) {
+        setRecibido(totalDistribuido.toFixed(2));
+    }
+}, [totalDistribuido, esGrupal, esParcial, integrantesPendientes.length]);
+
+    // Si es grupal sin parcial, siempre usa el total pendiente
+    useEffect(() => {
+        if (esGrupal && !esParcial) {
+            setRecibido(totalAPagar);
+        }
+    }, [esParcial, esGrupal, totalAPagar]);
 
     return (
         <ViewModal isOpen={isOpen} onClose={reset} title={`Cobrar Cuota N° ${cuota?.nro}`} size="xl">
