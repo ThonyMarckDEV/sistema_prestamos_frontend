@@ -41,9 +41,8 @@ const Index = () => {
             colSpan: 'col-span-12 md:col-span-3',
             options: [
                 { value: '', label: 'TODOS LOS PAGOS' },
-                { value: '0', label: 'PENDIENTES' },
+                { value: '0', label: 'ANULADOS' },
                 { value: '1', label: 'APROBADOS' },
-                { value: '2', label: 'RECHAZADOS' }
             ]
         }
     ], []);
@@ -68,7 +67,7 @@ const Index = () => {
                         </span>
                     ) : (
                         <span className="font-mono text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 border-dashed w-fit italic">
-                            Sin Recibo (En Espera)
+                            Sin Recibo
                         </span>
                     )}
                     <span className="font-mono text-[9px] font-bold text-slate-400 mt-1 uppercase">
@@ -103,20 +102,20 @@ const Index = () => {
             )
         },
         {
-            header: 'Estado / Registro',
+            header: 'Estado / Cajero',
             render: (row) => (
                 <div className="flex flex-col items-start gap-1">
                     <span className={`px-2 py-0.5 rounded text-[9px] font-black border uppercase tracking-wider ${
-                        row.estado === 1 ? 'bg-green-100 text-green-700 border-green-200' :
-                        row.estado === 2 ? 'bg-red-100 text-red-700 border-red-200' :
-                        'bg-yellow-100 text-yellow-700 border-yellow-200'
+                        row.estado === 1
+                            ? 'bg-green-100 text-green-700 border-green-200'
+                            : 'bg-red-100 text-red-700 border-red-200'
                     }`}>
-                        {row.estado === 1 ? 'APROBADO' : row.estado === 2 ? 'RECHAZADO' : 'PENDIENTE'}
+                        {row.estado === 1 ? 'APROBADO' : 'ANULADO'}
                     </span>
                     <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">
                         Cajero: <span className="text-slate-600">{row.registrado_por}</span>
                     </span>
-                    {row.estado === 2 && row.observaciones && (
+                    {row.estado === 0 && row.observaciones && (
                         <div className="flex items-center gap-1 pl-2 border-l-2 border-red-500 max-w-[180px] mt-1">
                             <span className="text-[9px] font-semibold text-red-600 truncate" title={row.observaciones}>
                                 {row.observaciones}
@@ -139,7 +138,6 @@ const Index = () => {
                             <FileSearch className="w-4 h-4" />
                         </button>
                     )}
-
                     {row.estado === 1 && can('pago.generatePDF') && (
                         <button 
                             onClick={() => handleViewPdf(row.id)}
