@@ -10,7 +10,6 @@ import ViewPrestamoModal from './ViewPrestamoModal';
 import { 
     BanknotesIcon, 
     EyeIcon, 
-    ArrowUpTrayIcon, 
     PhotoIcon,
     ArrowPathIcon,
     UserGroupIcon,
@@ -23,11 +22,10 @@ const Index = () => {
         loading, prestamos, paginationInfo, filters, alert, setAlert,
         handleFilterChange, handleFilterSubmit, handleFilterClear, fetchPrestamos,
         handleView, isViewOpen, setIsViewOpen, viewData, viewLoading,
-        handleUploadAbono, uploadingAbono,
         handleOpenAbono, isAbonoModalOpen, setIsAbonoModalOpen, selectedAbonoUrl
     } = useIndex();
 
-    const { role, can } = useAuth();
+    const { role } = useAuth();
 
     const filterConfig = useMemo(() => {
         const config = [];
@@ -100,19 +98,6 @@ const Index = () => {
                         <EyeIcon className="w-4 h-4" />
                     </button>
 
-                    {row.abonado_por === 'CUENTA CORRIENTE' && can('prestamo.abono') && (
-                        <label title="Subir Abono" className={`cursor-pointer p-2 rounded-xl transition-all border border-transparent shadow-sm ${uploadingAbono ? 'bg-slate-50' : 'text-slate-400 hover:text-orange-600 hover:bg-orange-50 hover:border-orange-100'}`}>
-                            <input 
-                                type="file" className="hidden" accept="image/*"
-                                onChange={(e) => {
-                                    if (e.target.files[0]) handleUploadAbono(row.id, e.target.files[0]);
-                                    e.target.value = null; 
-                                }} 
-                            />
-                            {uploadingAbono ? <ArrowPathIcon className="w-4 h-4 animate-spin" /> : <ArrowUpTrayIcon className="w-4 h-4" />}
-                        </label>
-                    )}
-
                     {row.abono_url && (
                         <button 
                             onClick={() => handleOpenAbono(row.abono_url)}
@@ -127,7 +112,7 @@ const Index = () => {
         ];
 
         return cols;
-    }, [handleView, can, uploadingAbono, handleUploadAbono, handleOpenAbono]);
+    }, [handleView, handleOpenAbono]);
 
     if (loading && prestamos.length === 0) return <LoadingScreen />;
 

@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { index, show, uploadAbono } from 'services/prestamoService';
+import { index, show } from 'services/prestamoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useIndex = () => {
@@ -17,7 +17,6 @@ export const useIndex = () => {
 
     const [isAbonoModalOpen, setIsAbonoModalOpen] = useState(false);
     const [selectedAbonoUrl, setSelectedAbonoUrl] = useState(null);
-    const [uploadingAbono, setUploadingAbono] = useState(false);
 
     const fetchPrestamos = useCallback(async (page = 1) => {
         setLoading(true);
@@ -52,19 +51,6 @@ export const useIndex = () => {
         }
     };
 
-    const handleUploadAbono = async (id, file) => {
-        setUploadingAbono(true);
-        try {
-            await uploadAbono(id, file);
-            setAlert({ type: 'success', message: 'Comprobante de abono subido correctamente.' });
-            fetchPrestamos(paginationInfo.currentPage);
-        } catch (err) {
-            setAlert(handleApiError(err));
-        } finally {
-            setUploadingAbono(false);
-        }
-    };
-
     const handleOpenAbono = (url) => {
         setSelectedAbonoUrl(url);
         setIsAbonoModalOpen(true);
@@ -83,7 +69,6 @@ export const useIndex = () => {
         loading, prestamos, paginationInfo, filters, alert, setAlert,
         handleFilterChange, handleFilterSubmit, handleFilterClear, fetchPrestamos,
         handleView, isViewOpen, setIsViewOpen, viewData, viewLoading,
-        handleUploadAbono, uploadingAbono,
         handleOpenAbono, isAbonoModalOpen, setIsAbonoModalOpen, selectedAbonoUrl
     };
 };

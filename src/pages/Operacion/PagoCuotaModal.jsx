@@ -68,7 +68,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         <input type="file" accept="image/*" onChange={(e) => setArchivo(e.target.files[0])} className="absolute inset-0 opacity-0 cursor-pointer" />
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-white shadow-sm rounded-lg"><PhotoIcon className="w-6 h-6 text-slate-400" /></div>
-                            <span className="text-xs font-bold text-slate-500">{archivo ? archivo.name : 'Subir Comprobante (WhatsApp)'}</span>
+                            <span className="text-xs font-bold text-slate-500">{archivo ? archivo.name : 'Subir Comprobante'}</span>
                         </div>
                     </div>
                 </div>

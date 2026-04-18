@@ -19,23 +19,6 @@ export const show = async (id) => {
     return handleResponse(response);
 };
 
-export const store = async (formData) => {
-    const response = await fetchWithAuth(`${BASE_URL}/store`, {
-        method: 'POST',
-        body: formData,
-    });
-    return handleResponse(response);
-};
-
-export const status = async (id, data) => {
-    const response = await fetchWithAuth(`${BASE_URL}/${id}/status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-    });
-    return handleResponse(response);
-};
-
 export const pdf = async (id) => {
     const response = await fetchWithAuth(`${BASE_URL}/${id}/pdf`, { method: 'GET' });
     return handleResponse(response);
