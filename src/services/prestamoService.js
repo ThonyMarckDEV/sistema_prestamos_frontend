@@ -20,6 +20,11 @@ export const show = async (id) => {
     return handleResponse(response);
 };
 
+export const showIntegrante = async (prestamoId, clienteId) => {
+    const response = await fetchWithAuth(`${BASE_URL}/show/${prestamoId}/integrante/${clienteId}`, { method: 'GET' });
+    return handleResponse(response);
+};
+
 export const combobox = async (tipoOperacion, search = '') => {
     const params = new URLSearchParams({
         tipo_operacion: tipoOperacion,
