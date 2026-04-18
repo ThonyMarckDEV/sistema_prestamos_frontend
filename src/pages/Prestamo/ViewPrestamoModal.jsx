@@ -64,10 +64,9 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
             2: 'bg-green-50 text-green-700 border-green-100',   
             3: 'bg-blue-50 text-blue-700 border-blue-100',      
             4: 'bg-red-50 text-red-700 border-red-100',          
-            5: 'bg-purple-50 text-purple-700 border-purple-100',
-            6: 'bg-orange-50 text-orange-700 border-orange-100' 
+            5: 'bg-orange-50 text-orange-700 border-orange-100' 
         };
-        const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'EN REVISION', 6: 'PAGO PARCIAL' };
+        const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'PAGO PARCIAL' };
         return (
             <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border ${styles[estado] || styles[1]}`}>
                 {labels[estado] || 'PENDIENTE'}

@@ -114,7 +114,7 @@ const Index = () => {
                         {row.estado === 1 ? 'APROBADO' : row.estado === 2 ? 'RECHAZADO' : 'PENDIENTE'}
                     </span>
                     <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">
-                        Aprobado por: <span className="text-slate-600">{row.registrado_por}</span>
+                        Cajero: <span className="text-slate-600">{row.registrado_por}</span>
                     </span>
                     {row.estado === 2 && row.observaciones && (
                         <div className="flex items-center gap-1 pl-2 border-l-2 border-red-500 max-w-[180px] mt-1">

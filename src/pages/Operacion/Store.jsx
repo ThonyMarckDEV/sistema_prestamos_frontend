@@ -81,7 +81,7 @@ const Store = () => {
                     2: { text: 'PAGADO', style: 'bg-green-100 text-green-700 border-green-200' },
                     3: { text: 'VENCE HOY', style: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
                     4: { text: 'VENCIDA', style: 'bg-red-100 text-red-700 border-red-200' },
-                    6: { text: 'PAGO PARCIAL', style: 'bg-blue-100 text-blue-700 border-blue-200' }
+                    5: { text: 'PAGO PARCIAL', style: 'bg-blue-100 text-blue-700 border-blue-200' }
                 };
                 const current = estadoMap[row.estado] || estadoMap[1];
 
@@ -99,7 +99,7 @@ const Store = () => {
                     .filter(r => r.nro < row.nro)
                     .some(r => r.estado !== 2);
 
-                const esPagable = [1, 3, 4, 6].includes(row.estado);
+                const esPagable = [1, 3, 4, 5].includes(row.estado);
                 const bloqueada = !esPagable || hayAnteriorPendiente;
 
                 if (row.estado === 2) return <span className="text-[10px] font-black text-green-600 uppercase italic">✓ Cobrado</span>;

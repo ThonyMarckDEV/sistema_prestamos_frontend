@@ -14,10 +14,13 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     const [esParcial, setEsParcial]       = useState(false);
     const [distribucion, setDistribucion] = useState({});
 
-    const montoBase   = parseFloat(cuota?.monto || 0);
+    const montoBase   = parseFloat(cuota?.saldo_pendiente || cuota?.monto || 0);
     const mora        = parseFloat(cuota?.mora || 0);
     const totalAPagar = (montoBase + mora).toFixed(2);
     const esGrupal    = !!(cuota?.integrantes && cuota.integrantes.length > 0);
+
+    // Solo integrantes que aún tienen saldo pendiente
+    const integrantesPendientes = cuota?.integrantes?.filter(i => !i.pagado) ?? [];
 
     useEffect(() => {
         if (isOpen) {
@@ -44,11 +47,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
         setDistribucion(prev => ({ ...prev, [clienteId]: sanitized }));
     };
 
-    const reset = () => {
-        setArchivo(null);
-        setPreview(null);
-        onClose();
-    };
+    const reset = () => { setArchivo(null); setPreview(null); onClose(); };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -62,10 +61,11 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
         if (esGrupal && esParcial) {
             formData.append('es_parcial_grupal', '1');
             formData.append('distribucion', JSON.stringify(
-                cuota.integrantes.map(int => ({
+                integrantesPendientes.map(int => ({
                     cliente_id:    int.id,
+                    // total_cuota aquí es el SALDO pendiente del socio
+                    total_cuota:   parseFloat(int.saldo || 0),
                     monto:         parseFloat(distribucion[int.id] || 0),
-                    total_cuota:   parseFloat(int.total_cuota || 0),
                     pago_completo: !distribucion[int.id] || distribucion[int.id] === ''
                 }))
             ));
@@ -74,11 +74,12 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
         onConfirm(formData);
     };
 
-    const totalDistribuido = cuota?.integrantes?.reduce((acc, int) => {
+    // Total distribuido: completos aportan su saldo, parciales su monto ingresado
+    const totalDistribuido = integrantesPendientes.reduce((acc, int) => {
         const val = distribucion[int.id];
         const pagaCompleto = !val || val === '';
-        return acc + (pagaCompleto ? parseFloat(int.total_cuota || 0) : parseFloat(val || 0));
-    }, 0) ?? 0;
+        return acc + (pagaCompleto ? parseFloat(int.saldo || 0) : parseFloat(val || 0));
+    }, 0);
 
     return (
         <ViewModal isOpen={isOpen} onClose={reset} title={`Cobrar Cuota N° ${cuota?.nro}`} size="xl">
@@ -92,11 +93,18 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         <div className="bg-slate-900 p-6 rounded-[28px] text-white shadow-xl">
                             <div className="flex items-center gap-2 mb-2">
                                 <BanknotesIcon className="w-4 h-4 text-green-400" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Total a Cobrar</span>
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                    {parseFloat(cuota?.pago_acumulado) > 0 ? 'Saldo Pendiente' : 'Total a Cobrar'}
+                                </span>
                             </div>
                             <h2 className="text-4xl font-black italic tracking-tighter text-green-400">S/ {totalAPagar}</h2>
                             {mora > 0 && (
                                 <p className="text-[10px] font-bold text-red-400 mt-1">Incluye mora: S/ {mora.toFixed(2)}</p>
+                            )}
+                            {parseFloat(cuota?.pago_acumulado) > 0 && (
+                                <p className="text-[10px] font-bold text-blue-400 mt-1">
+                                    Ya abonado: S/ {parseFloat(cuota.pago_acumulado).toFixed(2)}
+                                </p>
                             )}
                             <div className="mt-5 pt-5 border-t border-white/10">
                                 <p className="text-[10px] font-bold uppercase text-slate-400 mb-1.5">
@@ -124,9 +132,21 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Monto a Registrar *</label>
-                                <input type="number" step="0.01" required value={recibido}
-                                    onChange={e => setRecibido(e.target.value)}
-                                    className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold focus:border-red-500 focus:bg-white outline-none transition-all" />
+                                <input
+                                    type="number" step="0.01" required value={recibido}
+                                    readOnly={esGrupal}
+                                    onChange={e => !esGrupal && setRecibido(e.target.value)}
+                                    className={`w-full p-4 border-2 rounded-2xl text-sm font-bold outline-none transition-all ${
+                                        esGrupal
+                                            ? 'bg-slate-50 border-slate-100 cursor-not-allowed opacity-70'
+                                            : 'bg-slate-50 border-slate-100 focus:border-red-500 focus:bg-white'
+                                    }`}
+                                />
+                                {!esGrupal && (
+                                    <p className="text-[9px] text-slate-400 font-bold mt-1 ml-1">
+                                        Puedes ajustar el monto si el cliente paga una cantidad diferente.
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">N° Operación / Referencia</label>
@@ -136,7 +156,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                             </div>
                         </div>
 
-                        {/* Subir voucher */}
+                        {/* Voucher */}
                         <div>
                             <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Comprobante</label>
                             <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" id="pago-cuota-upload" />
@@ -150,16 +170,20 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                             </label>
                         </div>
 
-                        {/* Toggle parcial grupal */}
-                        {esGrupal && (
+                        {/* Toggle parcial — solo si hay integrantes pendientes */}
+                        {esGrupal && integrantesPendientes.length > 0 && (
                             <div onClick={() => setEsParcial(prev => !prev)}
                                 className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all select-none
                                     ${esParcial ? 'border-orange-400 bg-orange-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
                                 <div className="flex items-center gap-3">
                                     <UserGroupIcon className={`w-5 h-5 ${esParcial ? 'text-orange-500' : 'text-slate-400'}`} />
                                     <div>
-                                        <p className={`text-xs font-black uppercase ${esParcial ? 'text-orange-700' : 'text-slate-600'}`}>Pago Parcial del Grupo</p>
-                                        <p className="text-[9px] text-slate-400 font-bold">Algún socio no pagó su parte completa</p>
+                                        <p className={`text-xs font-black uppercase ${esParcial ? 'text-orange-700' : 'text-slate-600'}`}>
+                                            Pago Parcial del Grupo
+                                        </p>
+                                        <p className="text-[9px] text-slate-400 font-bold">
+                                            {integrantesPendientes.length} socio{integrantesPendientes.length > 1 ? 's' : ''} con saldo pendiente
+                                        </p>
                                     </div>
                                 </div>
                                 <div className={`w-10 h-5 rounded-full transition-all relative flex-shrink-0 ${esParcial ? 'bg-orange-500' : 'bg-slate-300'}`}>
@@ -168,24 +192,35 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                             </div>
                         )}
 
-                        {/* Distribución */}
-                        {esGrupal && esParcial && (
+                        {/* Distribución — solo pendientes */}
+                        {esGrupal && esParcial && integrantesPendientes.length > 0 && (
                             <div className="border border-orange-200 rounded-2xl overflow-hidden">
                                 <div className="bg-orange-50 px-4 py-2.5 border-b border-orange-200">
-                                    <p className="text-[10px] font-black text-orange-700 uppercase">Distribución por Socio</p>
-                                    <p className="text-[9px] text-orange-500 font-bold mt-0.5">Vacío = pagó completo. Ingresa monto solo si pagó menos.</p>
+                                    <p className="text-[10px] font-black text-orange-700 uppercase">Socios con Saldo Pendiente</p>
+                                    <p className="text-[9px] text-orange-500 font-bold mt-0.5">
+                                        Vacío = pagó su saldo completo. Ingresa monto si pagó menos.
+                                    </p>
                                 </div>
                                 <div className="divide-y divide-slate-100 bg-white">
-                                    {cuota.integrantes.map((int) => {
-                                        const montoPuesto     = parseFloat(distribucion[int.id] || 0);
-                                        const totalIndividual = parseFloat(int.total_cuota || 0);
-                                        const pagaCompleto    = !distribucion[int.id] || distribucion[int.id] === '';
-                                        const pagaMas         = montoPuesto >= totalIndividual && !pagaCompleto;
+                                    {integrantesPendientes.map((int) => {
+                                        const montoPuesto  = parseFloat(distribucion[int.id] || 0);
+                                        const saldo        = parseFloat(int.saldo || 0);
+                                        const pagaCompleto = !distribucion[int.id] || distribucion[int.id] === '';
+                                        const pagaMas      = montoPuesto >= saldo && !pagaCompleto;
                                         return (
                                             <div key={int.id} className="flex items-center gap-3 px-4 py-3">
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-[11px] font-black text-slate-700 uppercase truncate">{int.nombre}</p>
-                                                    <p className="text-[9px] text-slate-400 font-bold">Su cuota: S/ {totalIndividual.toFixed(2)}</p>
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        <p className="text-[9px] text-slate-400 font-bold">
+                                                            Saldo: S/ {saldo.toFixed(2)}
+                                                        </p>
+                                                        {int.pago_acumulado > 0 && (
+                                                            <p className="text-[9px] text-blue-500 font-bold">
+                                                                · Ya pagó: S/ {parseFloat(int.pago_acumulado).toFixed(2)}
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <input type="text" inputMode="decimal"
                                                     value={distribucion[int.id] ?? ''}
