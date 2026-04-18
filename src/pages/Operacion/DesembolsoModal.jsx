@@ -80,7 +80,7 @@ const DesembolsoModal = ({ isOpen, onClose, prestamo, onConfirm, loading }) => {
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Evidencia del WhatsApp *</label>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Evidencia*</label>
                                 <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" id="modal-desembolso-upload" />
                                 <label
                                     htmlFor="modal-desembolso-upload"

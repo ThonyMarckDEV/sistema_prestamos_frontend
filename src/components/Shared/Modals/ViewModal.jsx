@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
-const ViewModal = ({ isOpen, onClose, title, children, isLoading = false }) => {
+const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size = 'lg' }) => {
+
+    const sizeClass = { sm: 'max-w-lg', md: 'max-w-2xl', lg: 'max-w-4xl', xl: 'max-w-5xl', '2xl': 'max-w-6xl', full: 'max-w-[95vw]' }[size] ?? 'max-w-4xl';
     
     useEffect(() => {
         if (isOpen) {
@@ -16,7 +18,7 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden transform transition-all">
+            <div className={`bg-white rounded-lg shadow-xl w-full ${sizeClass} overflow-hidden transform transition-all`}>
                 
                 {/* Header */}
                 <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">

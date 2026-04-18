@@ -12,11 +12,10 @@ export const desembolsar = async (formData) => {
     return handleResponse(response);
 };
 
-export const cobrarCuota = async (data) => {
+export const cobrarCuota = async (formData) => {
     const response = await fetchWithAuth(`${BASE_URL}/cobrar`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: formData,
     });
     return handleResponse(response);
 };
