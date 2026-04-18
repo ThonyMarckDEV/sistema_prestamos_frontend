@@ -20,7 +20,7 @@ import { useAuth } from 'context/AuthContext';
 
 // Importamos el logo
 import logo from 'assets/img/logo.png'; 
-import { ChevronDownIcon, ChevronLeftIcon, CreditCardIcon, ScaleIcon, ShoppingBagIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronLeftIcon, CreditCardIcon, MapIcon, ScaleIcon, ShoppingBagIcon } from 'lucide-react';
 
 // =======================================================================
 // CONFIGURACIÓN MAESTRA DEL MENÚ - SISTEMA DE PRÉSTAMOS
@@ -122,6 +122,13 @@ export const MENU_GROUPS = [
     {
         groupName: 'Administración y Ajustes',
         items: [
+            { 
+                section: 'Zonas Operativas', icon: MapIcon,
+                subs: [
+                    { name: 'Listar Zonas', link: '/zona/listar', requiredPermission: 'zona.index' },
+                    { name: 'Nueva Zona', link: '/zona/agregar', requiredPermission: 'zona.store' },
+                ],
+            },
             { 
                 section: 'Entidades Bancarias', icon: BuildingLibraryIcon,
                 subs: [

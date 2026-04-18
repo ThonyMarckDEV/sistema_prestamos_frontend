@@ -67,6 +67,11 @@ import ListarGrupos from 'pages/Grupo/Index';
 import AgregarGrupo from 'pages/Grupo/Store';
 import EditarGrupo from 'pages/Grupo/Update';
 
+// UI ZONAS
+import AgregarZona from 'pages/Zona/Store';
+import EditarZona from 'pages/Zona/Update';
+import ListarZonas from 'pages/Zona/Index';
+
 
 // SETTINGS ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
@@ -142,6 +147,11 @@ function AppContent() {
         <Route path="/grupo/listar" element={<ProtectedRoute requiredPermission="grupo.index" element={<ListarGrupos />} />} />
         <Route path="/grupo/agregar" element={<ProtectedRoute requiredPermission="grupo.store" element={<AgregarGrupo />} />} />
         <Route path="/grupo/editar/:id" element={<ProtectedRoute requiredPermission="grupo.update" element={<EditarGrupo />} />} />
+
+        {/* ZONAS OPERATIVAS */}
+        <Route path="/zona/listar" element={<ProtectedRoute requiredPermission="zona.index" element={<ListarZonas />} />} />
+        <Route path="/zona/agregar" element={<ProtectedRoute requiredPermission="zona.store" element={<AgregarZona />} />} />
+        <Route path="/zona/editar/:id" element={<ProtectedRoute requiredPermission="zona.update" element={<EditarZona />} />} />
 
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />
