@@ -16,7 +16,9 @@ export const useUpdate = () => {
             tipo: 1, nombre: '', apellidoPaterno: '', apellidoMaterno: '',
             dni: '', fechaNacimiento: '', sexo: '', ruc: '', razon_social: '', nombre_comercial: '',
             ciiu_id: null,
-            ciiu: null
+            ciiu: null,
+            zona_id: null,
+            zona_nombre: ''
         },
         contacto: { telefonoMovil: '', telefonoFijo: '', correo: '' },
         direccion: { direccionFiscal: '', departamento: '', provincia: '', distrito: '', tipoVivienda: '', tiempoResidencia: '' },
@@ -46,7 +48,9 @@ export const useUpdate = () => {
                         apellidoMaterno: data.apellidoMaterno || '', dni: data.dni || '', fechaNacimiento: data.fechaNacimiento || '',
                         sexo: data.sexo || '', ruc: data.ruc || '', razon_social: data.razon_social || '', nombre_comercial: data.nombre_comercial || '',
                         ciiu_id: data.ciiu_id || null,
-                        ciiu: data.ciiu || null
+                        ciiu: data.ciiu || null,
+                        zona_id: data.zona_id || null,
+                        zona_nombre: data.zona?.nombre || '' 
                     },
                     contacto: {
                         telefonoMovil: data.contacto?.telefonoMovil || '', telefonoFijo: data.contacto?.telefonoFijo || '', correo: data.contacto?.correo || ''
@@ -85,6 +89,11 @@ export const useUpdate = () => {
         if (formData.usuario.password && formData.usuario.password !== formData.usuario.password_confirmation) {
             return setAlert({ type: 'error', message: 'Las contraseñas no coinciden.' });
         }
+
+        if (!formData.datos_cliente.zona_id) {
+            return setAlert({ type: 'error', message: 'Por favor, seleccione una Zona Operativa obligatoriamente.' });
+        }
+
         setLoading(true);
         setAlert(null);
         try {

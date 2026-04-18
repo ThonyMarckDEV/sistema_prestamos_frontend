@@ -13,7 +13,8 @@ export const useStore = () => {
             tipo: 1, nombre: '', apellidoPaterno: '', apellidoMaterno: '',
             dni: '', fechaNacimiento: '', sexo: '', ruc: '', razon_social: '', nombre_comercial: '',
             ciiu_id: null,
-            ciiu: null 
+            ciiu: null, 
+            zona_id: null
         },
         contacto: { telefonoMovil: '', telefonoFijo: '', correo: '' },
         direccion: { direccionFiscal: '', departamento: '', provincia: '', distrito: '', tipoVivienda: '', tiempoResidencia: '' },
@@ -32,9 +33,15 @@ export const useStore = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
         if (formData.usuario.password !== formData.usuario.password_confirmation) {
             return setAlert({ type: 'error', message: 'Las contraseñas no coinciden.' });
         }
+
+        if (!formData.datos_cliente.zona_id) {
+            return setAlert({ type: 'error', message: 'Por favor, seleccione una Zona Operativa obligatoriamente.' });
+        }
+
         setLoading(true); setAlert(null);
         try {
             await store(formData);

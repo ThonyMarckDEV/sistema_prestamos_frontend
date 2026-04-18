@@ -1,15 +1,17 @@
 import React, { useMemo } from 'react';
 import { MapPinIcon } from '@heroicons/react/24/outline';
 import peruData from 'utilities/data/peruData';
+import ZonaSearchSelect from 'components/Shared/Comboboxes/ZonaSearchSelect'; 
 
 const DireccionForm = ({ data, handleNestedChange }) => {
     const d = data.direccion;
+    const dc = data.datos_cliente;
+
     const onD = (field, value) => handleNestedChange('direccion', field, value);
 
     // ==========================================
     // LÓGICA DE CASCADA PARA UBICACIÓN (UBIGEO)
     // ==========================================
-    
     const handleDepartamentoChange = (e) => {
         const nuevoDepto = e.target.value;
         onD('departamento', nuevoDepto);
@@ -40,7 +42,7 @@ const DireccionForm = ({ data, handleNestedChange }) => {
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
             <h3 className="text-base font-black text-slate-800 flex items-center gap-2 mb-5 uppercase tracking-wide border-b border-slate-100 pb-3">
-                <MapPinIcon className="w-5 h-5 text-red-600" /> Dirección
+                <MapPinIcon className="w-5 h-5 text-red-600" /> Dirección y Zona
             </h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -130,6 +132,15 @@ const DireccionForm = ({ data, handleNestedChange }) => {
                         <option value="Hipotecada">Hipotecada</option>
                     </select>
                 </div>
+
+                <div className="sm:col-span-2 pt-2 border-t border-slate-100 mt-2">
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Zona Operativa Comercial *</label>
+                    <ZonaSearchSelect 
+                        initialName={dc.zona_nombre || ''}
+                        onSelect={(zona) => handleNestedChange('datos_cliente', 'zona_id', zona ? zona.id : null)}
+                    />
+                </div>
+
             </div>
         </div>
     );
