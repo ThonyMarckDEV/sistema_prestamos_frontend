@@ -214,7 +214,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                             const mora       = esVistaIntegrante ? parseFloat(cuota.mora || 0) : parseFloat(cuota.mora_total || 0);
                                             const abonado    = esVistaIntegrante ? parseFloat(cuota.pago_acumulado || 0) : parseFloat(cuota.pago_realizado || 0);
                                             const saldo      = esVistaIntegrante ? parseFloat(cuota.saldo_real ?? cuota.saldo) : parseFloat(cuota.saldo_pendiente);
-                                            const diasAtraso = esVistaIntegrante ? 0 : (cuota.dias_atraso || 0);
+                                            const diasAtraso = cuota.dias_atraso || 0;
                                             const moraPagada = esVistaIntegrante ? 0 : parseFloat(cuota.mora_pagada || 0);
                                             const excAnt     = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_anterior || 0);
                                             const excGen     = esVistaIntegrante ? 0 : parseFloat(cuota.excedente || 0);
