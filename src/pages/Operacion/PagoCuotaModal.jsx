@@ -74,19 +74,44 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
         onConfirm(formData);
     };
 
-    // Si es grupal parcial, recalcula el monto recibido según la distribución
-    const totalDistribuido = integrantesPendientes.reduce((acc, int) => {
-        const val = distribucion[int.id];
-        const pagaCompleto = !val || val === '';
-        return acc + (pagaCompleto ? parseFloat(int.saldo || 0) : parseFloat(val || 0));
-    }, 0);
+    // Mora proporcional: se reparte entre los que tienen saldo pendiente
+    const totalSaldoPendientes = integrantesPendientes.reduce((acc, int) => acc + parseFloat(int.saldo || 0), 0);
+    const getMoraProporcional = (int) => {
+        if (totalSaldoPendientes <= 0 || mora <= 0) return 0;
+        const proporcion = parseFloat(int.saldo || 0) / totalSaldoPendientes;
+        return parseFloat((mora * proporcion).toFixed(2));
+    };
+
+    // Total distribuido — si hay 1 solo pendiente y está en FULL, usa totalAPagar exacto
+    const totalDistribuido = (() => {
+        if (integrantesPendientes.length === 1) {
+            const int = integrantesPendientes[0];
+            const val = distribucion[int.id];
+            const pagaCompleto = !val || val === '';
+            if (pagaCompleto) return parseFloat(totalAPagar);
+            return parseFloat(val || 0);
+        }
+        return integrantesPendientes.reduce((acc, int) => {
+            const val = distribucion[int.id];
+            const pagaCompleto = !val || val === '';
+            const moraProp = getMoraProporcional(int);
+            return acc + (pagaCompleto
+                ? parseFloat(int.saldo || 0) + moraProp
+                : parseFloat(val || 0));
+        }, 0);
+    })();
+
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-   useEffect(() => {
-    if (esGrupal && esParcial && integrantesPendientes.length > 0) {
-        setRecibido(totalDistribuido.toFixed(2));
-    }
-}, [totalDistribuido, esGrupal, esParcial, integrantesPendientes.length]);
+    useEffect(() => {
+        if (esGrupal && esParcial && integrantesPendientes.length > 0) {
+            // Si solo 1 pendiente → usa totalAPagar exacto para evitar diferencias de redondeo
+            const total = integrantesPendientes.length === 1
+                ? totalAPagar
+                : totalDistribuido.toFixed(2);
+            setRecibido(total);
+        }
+    }, [totalDistribuido, esGrupal, esParcial, integrantesPendientes.length, totalAPagar]);
 
     // Si es grupal sin parcial, siempre usa el total pendiente
     useEffect(() => {
@@ -219,19 +244,33 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                     {integrantesPendientes.map((int) => {
                                         const montoPuesto  = parseFloat(distribucion[int.id] || 0);
                                         const saldo        = parseFloat(int.saldo || 0);
+                                        const moraProp     = getMoraProporcional(int);
+                                        const saldoTotal   = saldo + moraProp;
                                         const pagaCompleto = !distribucion[int.id] || distribucion[int.id] === '';
-                                        const pagaMas      = montoPuesto >= saldo && !pagaCompleto;
+                                        const pagaMas      = montoPuesto >= saldoTotal && !pagaCompleto;
                                         return (
                                             <div key={int.id} className="flex items-center gap-3 px-4 py-3">
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-[11px] font-black text-slate-700 uppercase truncate">{int.nombre}</p>
-                                                    <div className="flex items-center gap-2 mt-0.5">
-                                                        <p className="text-[9px] text-slate-400 font-bold">
-                                                            Saldo: S/ {saldo.toFixed(2)}
-                                                        </p>
+                                                    <div className="flex flex-col mt-0.5">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-[9px] text-slate-400 font-bold">
+                                                                Capital: S/ {saldo.toFixed(2)}
+                                                            </p>
+                                                            {moraProp > 0 && (
+                                                                <p className="text-[9px] text-red-500 font-bold">
+                                                                    + Mora: S/ {moraProp.toFixed(2)}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        {moraProp > 0 && (
+                                                            <p className="text-[9px] font-black text-slate-600">
+                                                                Total: S/ {saldoTotal.toFixed(2)}
+                                                            </p>
+                                                        )}
                                                         {int.pago_acumulado > 0 && (
                                                             <p className="text-[9px] text-blue-500 font-bold">
-                                                                · Ya pagó: S/ {parseFloat(int.pago_acumulado).toFixed(2)}
+                                                                Ya pagó: S/ {parseFloat(int.pago_acumulado).toFixed(2)}
                                                             </p>
                                                         )}
                                                     </div>
