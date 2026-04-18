@@ -9,6 +9,7 @@ export const index = async (page = 1, filters = {}) => {
         page: page,
         search: filters.search || '',
         activo: filters.activo !== undefined ? filters.activo : '',
+        zona_id: filters.zona_id || '',
     });
     const response = await fetchWithAuth(`${BASE_URL}/index/?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);

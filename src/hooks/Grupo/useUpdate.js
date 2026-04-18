@@ -12,8 +12,10 @@ export const useUpdate = () => {
     const [alert, setAlert] = useState(null);
 
     const [formData, setFormData] = useState({ 
-        codigo_recaudo: '' ,
-        nombre: ''
+        codigo_recaudo: '',
+        nombre: '',
+        zona_id: null, 
+        zona_nombre: '' 
     });
 
     useEffect(() => {
@@ -23,7 +25,9 @@ export const useUpdate = () => {
                 const data = response.data || response;
                 setFormData({
                     codigo_recaudo: data.codigo_recaudo || '',
-                    nombre: data.nombre || ''
+                    nombre: data.nombre || '',
+                    zona_id: data.zona_id || null, 
+                    zona_nombre: data.zona?.nombre || '' 
                 });
             } catch (err) {
                 setAlert(handleApiError(err, 'No se pudo cargar la información del grupo.'));
@@ -40,6 +44,11 @@ export const useUpdate = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!formData.zona_id) {
+            return setAlert({ type: 'error', message: 'La Zona Operativa es obligatoria.' });
+        }
+
         setSaving(true); 
         setAlert(null);
         try {

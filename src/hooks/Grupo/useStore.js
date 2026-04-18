@@ -10,7 +10,8 @@ export const useStore = () => {
 
     const [formData, setFormData] = useState({
         codigo_recaudo: '',
-        nombre: ''
+        nombre: '',
+        zona_id: null
     });
 
     const handleChange = (field, value) => {
@@ -19,6 +20,11 @@ export const useStore = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!formData.zona_id) {
+            return setAlert({ type: 'error', message: 'Por favor, selecciona una Zona Operativa.' });
+        }
+
         setAlert(null);
         setLoading(true);
 

@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useIndex } from 'hooks/Grupo/useIndex';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
+import ZonaSearchSelect from 'components/Shared/Comboboxes/ZonaSearchSelect';
 import { UserGroupIcon, PencilSquareIcon, TrashIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 
 const Index = () => {
@@ -14,6 +15,13 @@ const Index = () => {
         fetchGrupos, handleAskDelete, handleConfirmDelete,
         handleFilterChange, handleFilterSubmit, handleFilterClear
     } = useIndex();
+
+    const [zonaKey, setZonaKey] = useState(Date.now());
+
+    const onClearFilters = () => {
+        handleFilterClear();
+        setZonaKey(Date.now());
+    };
 
     const columns = useMemo(() => [
         { 
@@ -43,6 +51,14 @@ const Index = () => {
                         <span className="font-black text-slate-800 text-sm uppercase">{row.nombre}</span>
                     </div>
                 </div>
+            )
+        },
+        {
+            header: 'Zona Operativa',
+            render: (row) => (
+                <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 uppercase">
+                    {row.zona}
+                </span>
             )
         },
         {
@@ -82,15 +98,29 @@ const Index = () => {
             <PageHeader title="Grupos Solidarios" icon={UserGroupIcon} buttonText="+ Nuevo Grupo" buttonLink="/grupo/agregar" />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
-            <Table
-                columns={columns} data={grupos} loading={loading}
-                filterConfig={[
-                    { name: 'search', type: 'text', label: 'Buscar Grupo', colSpan: 'col-span-8' }, 
-                    { name: 'activo', type: 'select', label: 'Estado', colSpan: 'col-span-4', options: [{ value: '', label: 'Todos' }, { value: '1', label: 'Activos' }, { value: '0', label: 'Inactivos' }] }
-                ]} 
-                filters={filters} onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit} onFilterClear={handleFilterClear}
-                pagination={{ ...paginationInfo, onPageChange: fetchGrupos }}
-            />
+            <div className="relative z-10">
+                <Table
+                    columns={columns} data={grupos} loading={loading}
+                    filterConfig={[
+                        { name: 'search', type: 'text', label: 'Buscar Grupo o Recaudo', colSpan: 'col-span-12 md:col-span-8' }, 
+                        { 
+                            name: 'zona_id', 
+                            type: 'custom', 
+                            label: 'Filtrar por Zona', 
+                            colSpan: 'col-span-12 md:col-span-4 relative z-20', 
+                            render: () => (
+                                <ZonaSearchSelect 
+                                    key={zonaKey}
+                                    onSelect={(zona) => handleFilterChange('zona_id', zona ? zona.id : '')}
+                                />
+                            )
+                        }
+                    ]} 
+                    filters={filters} onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit} onFilterClear={onClearFilters}
+                    pagination={{ ...paginationInfo, onPageChange: fetchGrupos }}
+                />
+            </div>
+            
             {showDelete && <ConfirmModal title="¿Eliminar Grupo?" message="Esta acción solo es posible si el grupo no tiene historial de préstamos." confirmText="Sí, Eliminar" onConfirm={handleConfirmDelete} onCancel={() => setShowDelete(false)} />}
         </div>
     );

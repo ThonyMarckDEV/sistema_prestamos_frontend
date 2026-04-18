@@ -1,5 +1,6 @@
 import React from 'react';
 import { UserGroupIcon, TagIcon, HashtagIcon } from '@heroicons/react/24/outline';
+import ZonaSearchSelect from 'components/Shared/Comboboxes/ZonaSearchSelect';
 
 const GrupoForm = ({ data, handleChange }) => {
     return (
@@ -38,6 +39,14 @@ const GrupoForm = ({ data, handleChange }) => {
                             required 
                         />
                     </div>
+                </div>
+
+                <div className="border-t border-slate-100 pt-4">
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Zona Operativa (Asignación) *</label>
+                    <ZonaSearchSelect 
+                        initialName={data.zona_nombre || ''}
+                        onSelect={(zona) => handleChange('zona_id', zona ? zona.id : null)}
+                    />
                 </div>
 
             </div>
