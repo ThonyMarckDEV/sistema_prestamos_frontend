@@ -300,7 +300,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                     <span className="text-[10px] font-black text-slate-500 uppercase">Total distribuido:</span>
                                     <span className={`text-sm font-black ${Math.abs(totalDistribuido - parseFloat(recibido)) < 0.01 ? 'text-green-600' : 'text-orange-600'}`}>
                                         S/ {totalDistribuido.toFixed(2)}
-                                        <span className="text-[9px] text-slate-400 font-bold ml-1">/ S/ {recibido}</span>
+                                        <span className="text-[9px] text-slate-400 font-bold ml-1">/ S/ {totalAPagar}</span>
                                     </span>
                                 </div>
                             </div>

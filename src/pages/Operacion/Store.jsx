@@ -67,9 +67,19 @@ const Store = () => {
                     <span className="font-black text-slate-900 text-sm">
                         S/ {parseFloat(row.saldo_pendiente).toFixed(2)}
                     </span>
-                    {parseFloat(row.pago_acumulado) > 0 && (
+                    {parseFloat(row.pago_realizado || 0) > 0 && (
                         <span className="text-[9px] font-bold text-blue-600 uppercase">
-                            Abonado: S/ {parseFloat(row.pago_acumulado).toFixed(2)}
+                            Recibido: S/ {parseFloat(row.pago_realizado).toFixed(2)}
+                        </span>
+                    )}
+                    {parseFloat(row.excedente_anterior || 0) > 0 && (
+                        <span className="text-[9px] font-bold text-purple-600 uppercase">
+                            Excedente.: -S/ {parseFloat(row.excedente_anterior).toFixed(2)}
+                        </span>
+                    )}
+                    {parseFloat(row.excedente || 0) > 0 && (
+                        <span className="text-[9px] font-bold text-orange-600 uppercase">
+                            Sobra: S/ {parseFloat(row.excedente).toFixed(2)}
                         </span>
                     )}
                 </div>
