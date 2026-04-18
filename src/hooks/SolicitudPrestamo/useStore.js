@@ -81,7 +81,7 @@ export const useStore = () => {
     const updateMontoIntegrante = (id, monto) => {
         setFormData(prev => ({
             ...prev,
-            integrantes: prev.integrantes.map(i => i.id === id ? { ...i, monto: parseFloat(monto) || 0 } : i)
+            integrantes: prev.integrantes.map(i => i.id === id ? { ...i, monto } : i)
         }));
     };
 

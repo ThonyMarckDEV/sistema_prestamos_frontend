@@ -46,7 +46,8 @@ export const useSolicitudForm = (data, handleChange) => {
     const porcentajeInteres = parseFloat(data.tasa_interes) || 0;
     const nCuotas = parseInt(data.cuotas_solicitadas) || 1;
     
-    const interesGenerado = montoBase * (porcentajeInteres / 100);
+    // FLAT
+    const interesGenerado = montoBase * (porcentajeInteres / 100) * nCuotas;
     const totalAPagar = montoBase + interesGenerado;
     const valorCuotaAprox = totalAPagar / nCuotas;
 
