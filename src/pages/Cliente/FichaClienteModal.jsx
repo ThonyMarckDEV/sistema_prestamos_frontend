@@ -118,6 +118,11 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                     <p className="text-xs text-slate-500 uppercase font-medium mt-1 relative z-10">
                                         {data.direccion?.distrito} - {data.direccion?.provincia}
                                     </p>
+                                    {data.zona && (
+                                        <span className="inline-block mt-2 text-[10px] font-black bg-red-100 text-red-700 px-2 py-1 rounded-lg border border-red-200">
+                                            ZONA: {data.zona.nombre}
+                                        </span>
+                                    )}
                                     <div className="mt-3 flex gap-2 relative z-10">
                                         <span className="text-[10px] bg-white px-2 py-1 rounded-lg shadow-sm border border-slate-200 text-slate-600 font-bold">
                                             {data.direccion?.tipoVivienda || 'N/A'}
