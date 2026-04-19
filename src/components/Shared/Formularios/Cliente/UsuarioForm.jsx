@@ -1,5 +1,6 @@
 import React from 'react';
 import { UserIcon, KeyIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { toUpper } from 'utilities/Validations/validations';
 
 const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
     const pass    = form.usuario.password || '';
@@ -21,9 +22,9 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
                         <input
                             type="text"
                             value={form.usuario.username || ''}
-                            onChange={(e) => handleNestedChange('usuario', 'username', e.target.value)}
+                            onChange={(e) => handleNestedChange('usuario', 'username', toUpper(e.target.value))}
                             className="w-full pl-9 p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
-                            placeholder="Ej: jperez"
+                            placeholder="Ej: JPEREZ"
                             required
                         />
                     </div>

@@ -4,7 +4,7 @@
  */
 export const onlyLetters = (value) => {
     if (!value) return '';
-    return value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    return value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toUpperCase();
 };
 
 /**
@@ -25,3 +25,5 @@ export const onlyAlphanumeric = (value) => {
     if (!value) return '';
     return value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '');
 };
+
+export const toUpper = (value) => (value || '').toUpperCase();
