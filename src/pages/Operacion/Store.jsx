@@ -55,23 +55,22 @@ const Store = () => {
         { 
             header: 'Mora Gen.',
             render: (row) => {
-                const moraTotal = parseFloat(row.mora_total || row.mora || 0);
-                const moraPagada = parseFloat(row.mora_pagada || 0);
+                const moraTotal     = parseFloat(row.mora_total || row.mora || 0);
+                const moraPagada    = parseFloat(row.mora_pagada || 0);
                 const moraPendiente = moraTotal - moraPagada;
+
+                if (moraTotal <= 0) return <span className="text-slate-300 font-black text-xs">—</span>;
 
                 return (
                     <div className="flex flex-col">
-                        <span className={`font-black text-xs ${moraPendiente > 0 ? 'text-red-600' : 'text-slate-300'}`}>
-                            {moraPendiente > 0 ? `+ S/ ${moraPendiente.toFixed(2)}` : 'S/ 0.00'}
-                        </span>
-                        {moraTotal > 0 && (
-                            <span className="text-[12px] text-slate-400 font-bold leading-none mt-1">
-                                {moraPagada > 0 
-                                    ? (moraPendiente === 0 ? 'Mora 100% Cubierta' : `De un total de S/ ${moraTotal.toFixed(2)}`) 
-                                    : 'Mora Nueva'
-                                }
-                            </span>
+                        {moraPendiente > 0 ? (
+                            <span className="font-black text-xs text-red-600">+ S/ {moraPendiente.toFixed(2)}</span>
+                        ) : (
+                            <span className="font-black text-xs text-slate-400 line-through">S/ {moraTotal.toFixed(2)}</span>
                         )}
+                        <span className={`text-[9px] font-bold mt-0.5 ${moraPendiente === 0 ? 'text-green-600' : 'text-slate-400'}`}>
+                            {moraPendiente === 0 ? '✓ Cubierta' : `De S/ ${moraTotal.toFixed(2)}`}
+                        </span>
                     </div>
                 );
             }
@@ -84,18 +83,28 @@ const Store = () => {
                         S/ {parseFloat(row.saldo_pendiente).toFixed(2)}
                     </span>
                     {parseFloat(row.pago_realizado || 0) > 0 && (
-                        <span className="text-[9px] font-bold text-blue-600 uppercase">
+                        <span className="text-[9px] font-bold text-blue-500 uppercase">
                             Recibido: S/ {parseFloat(row.pago_realizado).toFixed(2)}
                         </span>
                     )}
+                    {parseFloat(row.pago_acumulado || 0) > 0 && (
+                        <span className="text-[9px] font-bold text-green-700 uppercase">
+                            Acumulado: S/ {parseFloat(row.pago_acumulado).toFixed(2)}
+                        </span>
+                    )}
+                    {parseFloat(row.mora_pagada || 0) > 0 && (
+                        <span className="text-[9px] font-bold text-yellow-600 uppercase">
+                            Mora Cubierta: S/ {parseFloat(row.mora_pagada).toFixed(2)}
+                        </span>
+                    )}
                     {parseFloat(row.excedente_anterior || 0) > 0 && (
-                        <span className="text-[9px] font-bold text-purple-600 uppercase">
-                            Excedente.: -S/ {parseFloat(row.excedente_anterior).toFixed(2)}
+                        <span className="text-[9px] font-black text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 w-fit">
+                            Exc.: -S/ {parseFloat(row.excedente_anterior).toFixed(2)}
                         </span>
                     )}
                     {parseFloat(row.excedente || 0) > 0 && (
-                        <span className="text-[9px] font-bold text-orange-600 uppercase">
-                            Sobra: S/ {parseFloat(row.excedente).toFixed(2)}
+                        <span className="text-[9px] font-black text-orange-500 italic">
+                            EXCEDENTE: S/ {parseFloat(row.excedente).toFixed(2)}
                         </span>
                     )}
                 </div>
@@ -136,13 +145,7 @@ const Store = () => {
                 return (
                     <div className="flex justify-end">
                         <button 
-                            onClick={() => {
-                                if (!bloqueada) {
-                                    // 🔥 Mandamos la mora neta (ya restando lo pagado) para no marear al modal
-                                    const moraNeta = parseFloat(row.mora_total || row.mora || 0) - parseFloat(row.mora_pagada || 0);
-                                    openPagoModal({ ...row, mora: moraNeta.toFixed(2) });
-                                }
-                            }} 
+                            onClick={() => !bloqueada && openPagoModal(row)} 
                             disabled={bloqueada}
                             className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${
                                 bloqueada

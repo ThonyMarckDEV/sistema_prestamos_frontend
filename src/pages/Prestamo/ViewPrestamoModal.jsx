@@ -239,38 +239,46 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                     </td>
                                                     <td className="px-4 py-4">
                                                         <div className="flex flex-col">
-                                                            <span className={`text-[11px] font-black ${moraPendiente > 0 ? 'text-red-600' : 'text-slate-300'}`}>
-                                                                {moraPendiente > 0 ? `+S/ ${moraPendiente.toFixed(2)}` : '—'}
-                                                            </span>
-                                                            {moraTotal > 0 && (
-                                                                <span className="text-[8px] text-slate-400 font-bold mt-0.5">
-                                                                    {moraPagada > 0
-                                                                        ? (moraPendiente === 0 ? 'Cubierta 100%' : `De S/ ${moraTotal.toFixed(2)}`)
-                                                                        : 'Nueva'}
-                                                                </span>
+                                                            {moraTotal <= 0 ? (
+                                                                <span className="text-slate-300 font-black text-[11px]">—</span>
+                                                            ) : moraPendiente > 0 ? (
+                                                                <>
+                                                                    <span className="font-black text-[11px] text-red-600">+S/ {moraPendiente.toFixed(2)}</span>
+                                                                    <span className="text-[8px] text-slate-400 font-bold mt-0.5">De S/ {moraTotal.toFixed(2)}</span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <span className="font-black text-[12px] text-red-600 line-through">S/ {moraTotal.toFixed(2)}</span>
+                                                                    <span className="text-[11px] text-green-600 font-bold mt-0.5">✓ Cubierta</span>
+                                                                </>
                                                             )}
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-4">
                                                         <div className="flex flex-col gap-1">
                                                             {abonado > 0 && (
-                                                                <span className="text-[11px] font-black text-green-600 flex items-center gap-1">
-                                                                    <BanknotesIcon className="w-3 h-3" /> S/ {abonado.toFixed(2)}
+                                                                <span className="text-[9px] font-bold text-blue-500 uppercase">
+                                                                     Recibido: S/ {abonado.toFixed(2)}
+                                                                </span>
+                                                            )}
+                                                            {!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0 && (
+                                                                <span className="text-[9px] font-bold text-green-700 uppercase">
+                                                                    Acumulado: S/ {parseFloat(cuota.pago_acumulado).toFixed(2)}
                                                                 </span>
                                                             )}
                                                             {moraPagada > 0 && (
-                                                                <span className="text-[9px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100 w-fit">
-                                                                    Mora cub.: S/ {moraPagada.toFixed(2)}
+                                                                <span className="text-[9px] font-bold text-yellow-600 uppercase">
+                                                                    Mora Cubierta.: S/ {moraPagada.toFixed(2)}
                                                                 </span>
                                                             )}
                                                             {excAnt > 0 && (
-                                                                <span className="text-[9px] font-black text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 w-fit">
+                                                                <span className="text-[9px] font-black text-purple-500 uppercase">
                                                                     Exc.: -S/ {excAnt.toFixed(2)}
                                                                 </span>
                                                             )}
                                                             {excGen > 0 && (
-                                                                <span className="text-[9px] font-black text-blue-600 italic">
-                                                                    Sobra: S/ {excGen.toFixed(2)}
+                                                                <span className="text-[9px] font-black text-orange-500 uppercase">
+                                                                    Excedente: S/ {excGen.toFixed(2)}
                                                                 </span>
                                                             )}
                                                             {abonado === 0 && excAnt === 0 && moraPagada === 0 && (
