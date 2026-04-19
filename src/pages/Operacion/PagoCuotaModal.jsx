@@ -124,6 +124,16 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                             {mora > 0 && (
                                 <p className="text-[10px] font-bold text-red-400 mt-1">Incluye mora: S/ {mora.toFixed(2)}</p>
                             )}
+                            {parseFloat(cuota?.mora_pagada || 0) > 0 && (
+                                <p className="text-[10px] font-bold text-orange-400 mt-1">
+                                    Mora ya cubierta: S/ {parseFloat(cuota.mora_pagada).toFixed(2)}
+                                </p>
+                            )}
+                            {parseFloat(cuota?.excedente_anterior || 0) > 0 && (
+                                <p className="text-[10px] font-bold text-purple-400 mt-1">
+                                    Excedente aplicado: -S/ {parseFloat(cuota.excedente_anterior).toFixed(2)}
+                                </p>
+                            )}
                             {parseFloat(cuota?.pago_acumulado) > 0 && (
                                 <p className="text-[10px] font-bold text-blue-400 mt-1">
                                     Ya abonado: S/ {parseFloat(cuota.pago_acumulado).toFixed(2)}

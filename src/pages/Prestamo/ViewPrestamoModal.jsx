@@ -188,7 +188,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                             </button>
                         </div>
 
-                        {/* 5. Tabla — mismas columnas para grupal e individual */}
+                        {/* 5. Tabla */}
                         {loadingIntegrante ? (
                             <div className="flex items-center justify-center py-12">
                                 <ArrowPathIcon className="w-6 h-6 animate-spin text-blue-400" />
@@ -210,19 +210,18 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 bg-white">
                                         {cronogramaActivo?.map((cuota, i) => {
-                                            // 🔥 VARIABLES CORREGIDAS
-                                            const nro        = cuota.nro ?? (i + 1);
-                                            const deuda      = parseFloat(cuota.total_cuota ?? cuota.monto ?? 0);
-                                            const moraTotal  = parseFloat(cuota.cargo_mora ?? cuota.mora_total ?? cuota.mora ?? 0);
-                                            const moraPagada = parseFloat(cuota.mora_pagada ?? 0);
+                                            const nro           = cuota.nro ?? (i + 1);
+                                            const deuda         = parseFloat(cuota.total_cuota ?? cuota.monto ?? 0);
+                                            const moraTotal     = parseFloat(cuota.cargo_mora ?? cuota.mora_total ?? cuota.mora ?? 0);
+                                            const moraPagada    = parseFloat(cuota.mora_pagada ?? 0);
                                             const moraPendiente = moraTotal - moraPagada;
-                                            
-                                            const abonado    = parseFloat(cuota.pago_acumulado ?? cuota.pago_realizado ?? 0);
-                                            const saldo      = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? cuota.saldo ?? 0);
-                                            
-                                            const diasAtraso = cuota.dias_atraso || 0;
-                                            const excAnt     = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_anterior || 0);
-                                            const excGen     = esVistaIntegrante ? 0 : parseFloat(cuota.excedente || 0);
+                                            const abonado       = esVistaIntegrante
+                                                ? parseFloat(cuota.pago_acumulado ?? 0)
+                                                : parseFloat(cuota.pago_realizado ?? cuota.pago_acumulado ?? 0);
+                                            const saldo         = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? cuota.saldo ?? 0);
+                                            const diasAtraso    = cuota.dias_atraso || 0;
+                                            const excAnt        = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_anterior || 0);
+                                            const excGen        = esVistaIntegrante ? 0 : parseFloat(cuota.excedente || 0);
 
                                             return (
                                                 <tr key={nro} className="hover:bg-blue-50/20 transition-colors">
@@ -238,24 +237,20 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                     <td className="px-4 py-4">
                                                         <span className="text-[11px] font-black text-slate-800">S/ {deuda.toFixed(2)}</span>
                                                     </td>
-                                                    
-                                                    {/* 🔥 COLUMNA DE MORA LIMPIA */}
                                                     <td className="px-4 py-4">
                                                         <div className="flex flex-col">
                                                             <span className={`text-[11px] font-black ${moraPendiente > 0 ? 'text-red-600' : 'text-slate-300'}`}>
                                                                 {moraPendiente > 0 ? `+S/ ${moraPendiente.toFixed(2)}` : '—'}
                                                             </span>
                                                             {moraTotal > 0 && (
-                                                                <span className="text-[8px] text-slate-400 font-bold leading-none mt-1">
-                                                                    {moraPagada > 0 
-                                                                        ? (moraPendiente === 0 ? 'Cubierta 100%' : `De S/ ${moraTotal.toFixed(2)}`) 
-                                                                        : 'Nueva'
-                                                                    }
+                                                                <span className="text-[8px] text-slate-400 font-bold mt-0.5">
+                                                                    {moraPagada > 0
+                                                                        ? (moraPendiente === 0 ? 'Cubierta 100%' : `De S/ ${moraTotal.toFixed(2)}`)
+                                                                        : 'Nueva'}
                                                                 </span>
                                                             )}
                                                         </div>
                                                     </td>
-
                                                     <td className="px-4 py-4">
                                                         <div className="flex flex-col gap-1">
                                                             {abonado > 0 && (
@@ -283,8 +278,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             )}
                                                         </div>
                                                     </td>
-
-                                                    {/* 🔥 COLUMNA DE SALDO LIMPIA */}
                                                     <td className="px-4 py-4">
                                                         <div className="flex flex-col">
                                                             <span className={`text-sm font-black italic ${saldo > 0 ? 'text-red-600 underline' : 'text-green-600'}`}>
