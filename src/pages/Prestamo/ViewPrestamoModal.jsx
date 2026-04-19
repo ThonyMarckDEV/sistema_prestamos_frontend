@@ -80,6 +80,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                 onClose={handleClose}
                 title={`Detalle de Préstamo #${data?.id?.toString().padStart(5, '0')}`}
                 isLoading={isLoading}
+                size="xl"
             >
                 {data && (
                     <div className="space-y-6">
@@ -194,8 +195,8 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                 <span className="ml-2 text-xs text-slate-400 font-bold uppercase">Cargando cronograma...</span>
                             </div>
                         ) : (
-                            <div className="overflow-hidden border border-slate-200 rounded-2xl shadow-sm">
-                                <table className="w-full text-left border-collapse">
+                            <div className="overflow-hidden border border-slate-200 rounded-2xl shadow-sm overflow-x-auto">
+                                <table className="w-full text-left border-collapse min-w-[700px]">
                                     <thead className="bg-slate-50 text-[9px] font-black text-slate-500 uppercase border-b border-slate-100">
                                         <tr>
                                             <th className="px-4 py-4 text-center">N°</th>
@@ -209,13 +210,17 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 bg-white">
                                         {cronogramaActivo?.map((cuota, i) => {
+                                            // 🔥 VARIABLES CORREGIDAS
                                             const nro        = cuota.nro ?? (i + 1);
-                                            const deuda      = esVistaIntegrante ? cuota.total_cuota : cuota.monto;
-                                            const mora       = esVistaIntegrante ? parseFloat(cuota.mora || 0) : parseFloat(cuota.mora_total || 0);
-                                            const abonado    = esVistaIntegrante ? parseFloat(cuota.pago_acumulado || 0) : parseFloat(cuota.pago_realizado || 0);
-                                            const saldo      = esVistaIntegrante ? parseFloat(cuota.saldo_real ?? cuota.saldo) : parseFloat(cuota.saldo_pendiente);
+                                            const deuda      = parseFloat(cuota.total_cuota ?? cuota.monto ?? 0);
+                                            const moraTotal  = parseFloat(cuota.cargo_mora ?? cuota.mora_total ?? cuota.mora ?? 0);
+                                            const moraPagada = parseFloat(cuota.mora_pagada ?? 0);
+                                            const moraPendiente = moraTotal - moraPagada;
+                                            
+                                            const abonado    = parseFloat(cuota.pago_acumulado ?? cuota.pago_realizado ?? 0);
+                                            const saldo      = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? cuota.saldo ?? 0);
+                                            
                                             const diasAtraso = cuota.dias_atraso || 0;
-                                            const moraPagada = esVistaIntegrante ? 0 : parseFloat(cuota.mora_pagada || 0);
                                             const excAnt     = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_anterior || 0);
                                             const excGen     = esVistaIntegrante ? 0 : parseFloat(cuota.excedente || 0);
 
@@ -231,14 +236,26 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                         )}
                                                     </td>
                                                     <td className="px-4 py-4">
-                                                        <span className="text-[11px] font-black text-slate-800">S/ {deuda}</span>
+                                                        <span className="text-[11px] font-black text-slate-800">S/ {deuda.toFixed(2)}</span>
                                                     </td>
+                                                    
+                                                    {/* 🔥 COLUMNA DE MORA LIMPIA */}
                                                     <td className="px-4 py-4">
-                                                        {mora > 0
-                                                            ? <span className="text-[11px] font-black text-red-600">+S/ {mora.toFixed(2)}</span>
-                                                            : <span className="text-[10px] text-slate-300 font-bold">—</span>
-                                                        }
+                                                        <div className="flex flex-col">
+                                                            <span className={`text-[11px] font-black ${moraPendiente > 0 ? 'text-red-600' : 'text-slate-300'}`}>
+                                                                {moraPendiente > 0 ? `+S/ ${moraPendiente.toFixed(2)}` : '—'}
+                                                            </span>
+                                                            {moraTotal > 0 && (
+                                                                <span className="text-[8px] text-slate-400 font-bold leading-none mt-1">
+                                                                    {moraPagada > 0 
+                                                                        ? (moraPendiente === 0 ? 'Cubierta 100%' : `De S/ ${moraTotal.toFixed(2)}`) 
+                                                                        : 'Nueva'
+                                                                    }
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </td>
+
                                                     <td className="px-4 py-4">
                                                         <div className="flex flex-col gap-1">
                                                             {abonado > 0 && (
@@ -261,19 +278,21 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                                     Sobra: S/ {excGen.toFixed(2)}
                                                                 </span>
                                                             )}
-                                                            {abonado === 0 && excAnt === 0 && (
+                                                            {abonado === 0 && excAnt === 0 && moraPagada === 0 && (
                                                                 <span className="text-[10px] text-slate-300 font-bold">—</span>
                                                             )}
                                                         </div>
                                                     </td>
+
+                                                    {/* 🔥 COLUMNA DE SALDO LIMPIA */}
                                                     <td className="px-4 py-4">
                                                         <div className="flex flex-col">
                                                             <span className={`text-sm font-black italic ${saldo > 0 ? 'text-red-600 underline' : 'text-green-600'}`}>
                                                                 S/ {saldo.toFixed(2)}
                                                             </span>
-                                                            {esVistaIntegrante && mora > 0 && parseFloat(cuota.saldo || 0) > 0 && (
+                                                            {moraPendiente > 0 && saldo > 0 && (
                                                                 <span className="text-[9px] text-slate-400 font-bold">
-                                                                    Cap: S/ {parseFloat(cuota.saldo).toFixed(2)} + Mora: S/ {mora.toFixed(2)}
+                                                                    C: {Math.max(0, deuda - abonado).toFixed(2)} | M: {moraPendiente.toFixed(2)}
                                                                 </span>
                                                             )}
                                                         </div>
