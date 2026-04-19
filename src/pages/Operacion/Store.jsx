@@ -54,11 +54,27 @@ const Store = () => {
         },
         { 
             header: 'Mora Gen.',
-            render: (row) => (
-                <span className={`font-black text-xs ${parseFloat(row.mora) > 0 ? 'text-red-600' : 'text-slate-300'}`}>
-                    {parseFloat(row.mora) > 0 ? `+ S/ ${row.mora}` : 'S/ 0.00'}
-                </span>
-            )
+            render: (row) => {
+                const moraTotal = parseFloat(row.mora_total || row.mora || 0);
+                const moraPagada = parseFloat(row.mora_pagada || 0);
+                const moraPendiente = moraTotal - moraPagada;
+
+                return (
+                    <div className="flex flex-col">
+                        <span className={`font-black text-xs ${moraPendiente > 0 ? 'text-red-600' : 'text-slate-300'}`}>
+                            {moraPendiente > 0 ? `+ S/ ${moraPendiente.toFixed(2)}` : 'S/ 0.00'}
+                        </span>
+                        {moraTotal > 0 && (
+                            <span className="text-[12px] text-slate-400 font-bold leading-none mt-1">
+                                {moraPagada > 0 
+                                    ? (moraPendiente === 0 ? 'Mora 100% Cubierta' : `De un total de S/ ${moraTotal.toFixed(2)}`) 
+                                    : 'Mora Nueva'
+                                }
+                            </span>
+                        )}
+                    </div>
+                );
+            }
         },
         { 
             header: 'Saldo a Cobrar', 
@@ -120,7 +136,13 @@ const Store = () => {
                 return (
                     <div className="flex justify-end">
                         <button 
-                            onClick={() => !bloqueada && openPagoModal(row)} 
+                            onClick={() => {
+                                if (!bloqueada) {
+                                    // 🔥 Mandamos la mora neta (ya restando lo pagado) para no marear al modal
+                                    const moraNeta = parseFloat(row.mora_total || row.mora || 0) - parseFloat(row.mora_pagada || 0);
+                                    openPagoModal({ ...row, mora: moraNeta.toFixed(2) });
+                                }
+                            }} 
                             disabled={bloqueada}
                             className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${
                                 bloqueada

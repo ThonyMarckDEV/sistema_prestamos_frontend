@@ -243,11 +243,15 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                 <div className="divide-y divide-slate-100 bg-white">
                                     {integrantesPendientes.map((int) => {
                                         const montoPuesto  = parseFloat(distribucion[int.id] || 0);
-                                        const saldo        = parseFloat(int.saldo || 0);
-                                        const moraProp     = getMoraProporcional(int);
-                                        const saldoTotal   = saldo + moraProp;
+                                        
+                                        // 🔥 AHORA LEEMOS LA DATA REAL O USAMOS EL SALDO COMO RESPALDO
+                                        const saldoCapital = int.saldo_capital !== undefined ? parseFloat(int.saldo_capital) : parseFloat(int.saldo || 0);
+                                        const moraProp     = int.mora_pendiente !== undefined ? parseFloat(int.mora_pendiente) : getMoraProporcional(int);
+                                        const saldoTotal   = saldoCapital + moraProp;
+                                        
                                         const pagaCompleto = !distribucion[int.id] || distribucion[int.id] === '';
                                         const pagaMas      = montoPuesto >= saldoTotal && !pagaCompleto;
+
                                         return (
                                             <div key={int.id} className="flex items-center gap-3 px-4 py-3">
                                                 <div className="flex-1 min-w-0">
@@ -255,7 +259,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                     <div className="flex flex-col mt-0.5">
                                                         <div className="flex items-center gap-2">
                                                             <p className="text-[9px] text-slate-400 font-bold">
-                                                                Capital: S/ {saldo.toFixed(2)}
+                                                                Capital: S/ {saldoCapital.toFixed(2)}
                                                             </p>
                                                             {moraProp > 0 && (
                                                                 <p className="text-[9px] text-red-500 font-bold">
@@ -270,7 +274,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                         )}
                                                         {int.pago_acumulado > 0 && (
                                                             <p className="text-[9px] text-blue-500 font-bold">
-                                                                Ya pagó: S/ {parseFloat(int.pago_acumulado).toFixed(2)}
+                                                                Ya pagó cap.: S/ {parseFloat(int.pago_acumulado).toFixed(2)}
                                                             </p>
                                                         )}
                                                     </div>
