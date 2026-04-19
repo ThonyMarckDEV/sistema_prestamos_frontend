@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Modal from 'components/Shared/Modals/ViewModal';
 import { PhotoIcon, DocumentCheckIcon, ArrowsRightLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
@@ -6,10 +6,6 @@ const DesembolsoModal = ({ isOpen, onClose, prestamo, onConfirm, loading }) => {
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null);
     const [nroOperacion, setNroOperacion] = useState('');
-
-    useEffect(() => {
-        if (prestamo) console.log('[DesembolsoModal] prestamo recibido:', JSON.stringify(prestamo));
-    }, [prestamo]);
 
     const handleFileChange = (e) => {
         const selected = e.target.files[0];

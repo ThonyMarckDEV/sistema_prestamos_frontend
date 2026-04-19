@@ -14,12 +14,9 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     const [esParcial, setEsParcial]       = useState(false);
     const [distribucion, setDistribucion] = useState({});
 
-    // saldo_pendiente ya incluye mora (saldo_cuota + saldo_mora en el modelo)
     const totalAPagar = parseFloat(cuota?.saldo_pendiente || cuota?.monto || 0).toFixed(2);
     const mora        = parseFloat(cuota?.mora || 0);
     const esGrupal    = !!(cuota?.integrantes && cuota.integrantes.length > 0);
-
-    // Solo integrantes que aún tienen saldo pendiente
     const integrantesPendientes = cuota?.integrantes?.filter(i => !i.pagado) ?? [];
 
     useEffect(() => {
@@ -63,7 +60,6 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
             formData.append('distribucion', JSON.stringify(
                 integrantesPendientes.map(int => ({
                     cliente_id:    int.id,
-                    // total_cuota aquí es el SALDO pendiente del socio
                     total_cuota:   parseFloat(int.saldo || 0),
                     monto:         parseFloat(distribucion[int.id] || 0),
                     pago_completo: !distribucion[int.id] || distribucion[int.id] === ''
@@ -74,46 +70,34 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
         onConfirm(formData);
     };
 
-    // Mora proporcional: se reparte entre los que tienen saldo pendiente
-    const totalSaldoPendientes = integrantesPendientes.reduce((acc, int) => acc + parseFloat(int.saldo || 0), 0);
-    const getMoraProporcional = (int) => {
-        if (totalSaldoPendientes <= 0 || mora <= 0) return 0;
-        const proporcion = parseFloat(int.saldo || 0) / totalSaldoPendientes;
-        return parseFloat((mora * proporcion).toFixed(2));
-    };
+    // Total distribuido — si todos están en FULL usa totalAPagar exacto
+    const todosEnFull = integrantesPendientes.every(int => !distribucion[int.id] || distribucion[int.id] === '');
 
-    // Total distribuido — si hay 1 solo pendiente y está en FULL, usa totalAPagar exacto
     const totalDistribuido = (() => {
-        if (integrantesPendientes.length === 1) {
+        // Si hay 1 solo pendiente o todos en FULL → totalAPagar exacto
+        if (integrantesPendientes.length === 1 || todosEnFull) {
             const int = integrantesPendientes[0];
-            const val = distribucion[int.id];
-            const pagaCompleto = !val || val === '';
-            if (pagaCompleto) return parseFloat(totalAPagar);
-            return parseFloat(val || 0);
+            const val = distribucion[int?.id];
+            if (integrantesPendientes.length === 1 && val && val !== '') return parseFloat(val || 0);
+            return parseFloat(totalAPagar);
         }
         return integrantesPendientes.reduce((acc, int) => {
-            const val = distribucion[int.id];
+            const val          = distribucion[int.id];
             const pagaCompleto = !val || val === '';
-            const moraProp = getMoraProporcional(int);
+            const saldoCap     = parseFloat(int.saldo_capital ?? int.saldo ?? 0);
+            const moraPend     = parseFloat(int.mora_pendiente ?? 0);
             return acc + (pagaCompleto
-                ? parseFloat(int.saldo || 0) + moraProp
+                ? saldoCap + moraPend
                 : parseFloat(val || 0));
         }, 0);
     })();
 
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (esGrupal && esParcial && integrantesPendientes.length > 0) {
-            // Si solo 1 pendiente → usa totalAPagar exacto para evitar diferencias de redondeo
-            const total = integrantesPendientes.length === 1
-                ? totalAPagar
-                : totalDistribuido.toFixed(2);
-            setRecibido(total);
+            setRecibido(todosEnFull ? totalAPagar : totalDistribuido.toFixed(2));
         }
-    }, [totalDistribuido, esGrupal, esParcial, integrantesPendientes.length, totalAPagar]);
+    }, [totalDistribuido, todosEnFull, esGrupal, esParcial, integrantesPendientes.length, totalAPagar]);
 
-    // Si es grupal sin parcial, siempre usa el total pendiente
     useEffect(() => {
         if (esGrupal && !esParcial) {
             setRecibido(totalAPagar);
@@ -209,7 +193,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                             </label>
                         </div>
 
-                        {/* Toggle parcial — solo si hay integrantes pendientes */}
+                        {/* Toggle parcial */}
                         {esGrupal && integrantesPendientes.length > 0 && (
                             <div onClick={() => setEsParcial(prev => !prev)}
                                 className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all select-none
@@ -231,7 +215,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                             </div>
                         )}
 
-                        {/* Distribución — solo pendientes */}
+                        {/* Distribución */}
                         {esGrupal && esParcial && integrantesPendientes.length > 0 && (
                             <div className="border border-orange-200 rounded-2xl overflow-hidden">
                                 <div className="bg-orange-50 px-4 py-2.5 border-b border-orange-200">
@@ -243,12 +227,10 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                 <div className="divide-y divide-slate-100 bg-white">
                                     {integrantesPendientes.map((int) => {
                                         const montoPuesto  = parseFloat(distribucion[int.id] || 0);
-                                        
-                                        // 🔥 AHORA LEEMOS LA DATA REAL O USAMOS EL SALDO COMO RESPALDO
-                                        const saldoCapital = int.saldo_capital !== undefined ? parseFloat(int.saldo_capital) : parseFloat(int.saldo || 0);
-                                        const moraProp     = int.mora_pendiente !== undefined ? parseFloat(int.mora_pendiente) : getMoraProporcional(int);
-                                        const saldoTotal   = saldoCapital + moraProp;
-                                        
+                                        // Lee directo del backend — sin calcular en frontend
+                                        const saldoCap     = parseFloat(int.saldo_capital ?? int.saldo ?? 0);
+                                        const moraPend     = parseFloat(int.mora_pendiente ?? 0);
+                                        const saldoTotal   = saldoCap + moraPend;
                                         const pagaCompleto = !distribucion[int.id] || distribucion[int.id] === '';
                                         const pagaMas      = montoPuesto >= saldoTotal && !pagaCompleto;
 
@@ -259,15 +241,15 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                     <div className="flex flex-col mt-0.5">
                                                         <div className="flex items-center gap-2">
                                                             <p className="text-[9px] text-slate-400 font-bold">
-                                                                Capital: S/ {saldoCapital.toFixed(2)}
+                                                                Capital: S/ {saldoCap.toFixed(2)}
                                                             </p>
-                                                            {moraProp > 0 && (
+                                                            {moraPend > 0 && (
                                                                 <p className="text-[9px] text-red-500 font-bold">
-                                                                    + Mora: S/ {moraProp.toFixed(2)}
+                                                                    + Mora: S/ {moraPend.toFixed(2)}
                                                                 </p>
                                                             )}
                                                         </div>
-                                                        {moraProp > 0 && (
+                                                        {moraPend > 0 && (
                                                             <p className="text-[9px] font-black text-slate-600">
                                                                 Total: S/ {saldoTotal.toFixed(2)}
                                                             </p>
