@@ -307,7 +307,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             </span>
                                                             {moraPendiente > 0 && saldo > 0 && (
                                                                 <span className="text-[9px] text-slate-400 font-bold">
-                                                                    C: {Math.max(0, deuda - abonado).toFixed(2)} | M: {moraPendiente.toFixed(2)}
+                                                                    Cuota: {Math.max(0, deuda - abonado).toFixed(2)} | Mora: {moraPendiente.toFixed(2)}
                                                                 </span>
                                                             )}
                                                         </div>
