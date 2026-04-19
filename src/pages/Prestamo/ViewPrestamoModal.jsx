@@ -3,7 +3,7 @@ import ViewModal from 'components/Shared/Modals/ViewModal';
 import PdfModal from 'components/Shared/Modals/PdfModal';
 import { 
     CalendarIcon, UserIcon, UserGroupIcon,
-    InformationCircleIcon, UsersIcon, BanknotesIcon,
+    InformationCircleIcon, UsersIcon,
     ArrowPathIcon, ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 import { showIntegrante, descargarCronograma } from 'services/prestamoService';
@@ -220,7 +220,11 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                 : parseFloat(cuota.pago_realizado ?? cuota.pago_acumulado ?? 0);
                                             const saldo         = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? cuota.saldo ?? 0);
                                             const diasAtraso    = cuota.dias_atraso || 0;
-                                            const excAnt        = esVistaIntegrante ? 0 : (parseFloat(cuota.excedente_consumido || 0) > 0 ? parseFloat(cuota.excedente_consumido) : parseFloat(cuota.excedente_anterior || 0));
+                                            const excAnt = esVistaIntegrante
+                                            ? parseFloat(cuota.excedente_aplicado || 0)  // ← para integrante: exc proporcional
+                                            : (parseFloat(cuota.excedente_consumido || 0) > 0
+                                                ? parseFloat(cuota.excedente_consumido)
+                                                : parseFloat(cuota.excedente_anterior || 0));
                                             const excGen        = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_generado || 0);
 
                                             return (
@@ -276,12 +280,15 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             )}
                                                             {excAnt > 0 && (
                                                                 <span className="text-[9px] font-bold text-purple-600 uppercase">
-                                                                    Exc. usado: -S/ {excAnt.toFixed(2)}
+                                                                    {esVistaIntegrante
+                                                                        ? `Excedente. aplicado: -S/ ${excAnt.toFixed(2)}`
+                                                                        : `Excedente. usado: -S/ ${excAnt.toFixed(2)}`
+                                                                    }
                                                                 </span>
                                                             )}
                                                             {excGen > 0 && (
                                                                 <span className="text-[9px] font-bold text-orange-500 uppercase">
-                                                                    EXCEDENTE: S/ {excGen.toFixed(2)}
+                                                                    Excedente: S/ {excGen.toFixed(2)}
                                                                 </span>
                                                             )}
                                                             {abonado === 0 && excAnt === 0 && moraPagada === 0 && (
