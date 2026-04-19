@@ -99,12 +99,17 @@ const Store = () => {
                     )}
                     {parseFloat(row.excedente_consumido || 0) > 0 && (
                         <span className="text-[9px] font-bold text-purple-600 uppercase">
-                            Exc. usado: -S/ {parseFloat(row.excedente_consumido).toFixed(2)}
+                            Excedente. usado: -S/ {parseFloat(row.excedente_consumido).toFixed(2)}
+                        </span>
+                    )}
+                    {parseFloat(row.excedente_consumido || 0) === 0 && parseFloat(row.excedente_anterior || 0) > 0 && (
+                        <span className="text-[9px] font-bold text-purple-600 uppercase">
+                            Excedente. aplicado: -S/ {parseFloat(row.excedente_anterior).toFixed(2)}
                         </span>
                     )}
                     {parseFloat(row.excedente_generado || 0) > 0 && (
                         <span className="text-[9px] font-bold text-orange-500 uppercase">
-                            EXCEDENTE: S/ {parseFloat(row.excedente_generado).toFixed(2)}
+                            Excedente: S/ {parseFloat(row.excedente_generado).toFixed(2)}
                         </span>
                     )}
                 </div>
@@ -242,10 +247,6 @@ const Store = () => {
                             <div className="mt-10 animate-in slide-in-from-bottom-6 duration-500">
                                 <div className="flex items-center justify-between mb-6 px-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-[0.2em]">Cronograma de Pagos</h4>
-                                    <div className="flex items-center gap-2">
-                                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase italic">Referencia: {prestamoSeleccionado.cliente}</span>
-                                    </div>
                                 </div>
                                 <Table columns={columns} data={prestamoDetalle.cronograma || []} loading={loading} />
                             </div>
