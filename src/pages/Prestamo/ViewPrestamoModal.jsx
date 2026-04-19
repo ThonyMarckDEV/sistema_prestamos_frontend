@@ -220,8 +220,8 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                 : parseFloat(cuota.pago_realizado ?? cuota.pago_acumulado ?? 0);
                                             const saldo         = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? cuota.saldo ?? 0);
                                             const diasAtraso    = cuota.dias_atraso || 0;
-                                            const excAnt        = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_anterior || 0);
-                                            const excGen        = esVistaIntegrante ? 0 : parseFloat(cuota.excedente || 0);
+                                            const excAnt        = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_consumido || 0);
+                                            const excGen        = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_generado || 0);
 
                                             return (
                                                 <tr key={nro} className="hover:bg-blue-50/20 transition-colors">
@@ -249,7 +249,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             ) : (
                                                                 <>
                                                                     <span className="font-black text-[12px] text-red-600 line-through">S/ {moraTotal.toFixed(2)}</span>
-                                                                    <span className="text-[11px] text-green-600 font-bold mt-0.5">✓ Cubierta</span>
+                                                                    <span className="text-[10px] text-green-600 font-bold mt-0.5">✓ Cubierta</span>
                                                                 </>
                                                             )}
                                                         </div>
@@ -257,8 +257,8 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                     <td className="px-4 py-4">
                                                         <div className="flex flex-col gap-1">
                                                             {abonado > 0 && (
-                                                                <span className="text-[9px] font-bold text-blue-500 uppercase">
-                                                                     Recibido: S/ {abonado.toFixed(2)}
+                                                                <span className="text-[9px] font-bold text-blue-600 uppercase">
+                                                                    Recibido: S/ {abonado.toFixed(2)}
                                                                 </span>
                                                             )}
                                                             {!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0 && (
@@ -268,17 +268,17 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             )}
                                                             {moraPagada > 0 && (
                                                                 <span className="text-[9px] font-bold text-yellow-600 uppercase">
-                                                                    Mora Cubierta.: S/ {moraPagada.toFixed(2)}
+                                                                    Mora Cubierta: S/ {moraPagada.toFixed(2)}
                                                                 </span>
                                                             )}
                                                             {excAnt > 0 && (
-                                                                <span className="text-[9px] font-black text-purple-500 uppercase">
-                                                                    Exc.: -S/ {excAnt.toFixed(2)}
+                                                                <span className="text-[9px] font-bold text-purple-600 uppercase">
+                                                                    Exc. usado: -S/ {excAnt.toFixed(2)}
                                                                 </span>
                                                             )}
                                                             {excGen > 0 && (
-                                                                <span className="text-[9px] font-black text-orange-500 uppercase">
-                                                                    Excedente: S/ {excGen.toFixed(2)}
+                                                                <span className="text-[9px] font-bold text-orange-500 uppercase">
+                                                                    EXCEDENTE: S/ {excGen.toFixed(2)}
                                                                 </span>
                                                             )}
                                                             {abonado === 0 && excAnt === 0 && moraPagada === 0 && (

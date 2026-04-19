@@ -66,9 +66,9 @@ const Store = () => {
                         {moraPendiente > 0 ? (
                             <span className="font-black text-xs text-red-600">+ S/ {moraPendiente.toFixed(2)}</span>
                         ) : (
-                            <span className="font-black text-xs text-slate-400 line-through">S/ {moraTotal.toFixed(2)}</span>
+                            <span className="font-black text-xs text-red-600 line-through">S/ {moraTotal.toFixed(2)}</span>
                         )}
-                        <span className={`text-[9px] font-bold mt-0.5 ${moraPendiente === 0 ? 'text-green-600' : 'text-slate-400'}`}>
+                        <span className={`text-[10px] font-bold mt-0.5 ${moraPendiente === 0 ? 'text-green-600' : 'text-slate-400'}`}>
                             {moraPendiente === 0 ? '✓ Cubierta' : `De S/ ${moraTotal.toFixed(2)}`}
                         </span>
                     </div>
@@ -97,14 +97,14 @@ const Store = () => {
                             Mora Cubierta: S/ {parseFloat(row.mora_pagada).toFixed(2)}
                         </span>
                     )}
-                    {parseFloat(row.excedente_anterior || 0) > 0 && (
-                        <span className="text-[9px] font-black text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 w-fit">
-                            Exc.: -S/ {parseFloat(row.excedente_anterior).toFixed(2)}
+                    {parseFloat(row.excedente_consumido || 0) > 0 && (
+                        <span className="text-[9px] font-bold text-purple-600 uppercase">
+                            Exc. usado: -S/ {parseFloat(row.excedente_consumido).toFixed(2)}
                         </span>
                     )}
-                    {parseFloat(row.excedente || 0) > 0 && (
-                        <span className="text-[9px] font-black text-orange-500 italic">
-                            EXCEDENTE: S/ {parseFloat(row.excedente).toFixed(2)}
+                    {parseFloat(row.excedente_generado || 0) > 0 && (
+                        <span className="text-[9px] font-bold text-orange-500 uppercase">
+                            EXCEDENTE: S/ {parseFloat(row.excedente_generado).toFixed(2)}
                         </span>
                     )}
                 </div>
