@@ -57,7 +57,7 @@ export const useIndex = () => {
 
     return {
         loading, prospectos, paginationInfo, filters, alert, setAlert,
-        isViewOpen, setIsViewOpen, viewData, viewLoading,
+        isViewOpen, setIsViewOpen, viewData, setViewData, viewLoading,
         fetchProspectos, handleView,
         handleFilterChange, handleFilterSubmit, handleFilterClear,
     };

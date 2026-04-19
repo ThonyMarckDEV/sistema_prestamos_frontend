@@ -6,7 +6,7 @@ import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import { EstadoBadge, ESTADOS_LABEL } from 'components/Shared/Formularios/Prospecto/ProspectoForm';
 import { toUpper } from 'utilities/Validations/validations';
 
-const ESTADOS_OPCIONES = [1, 2, 3, 4, 5]; // excluye 6 (convertido — flujo aparte)
+const ESTADOS_OPCIONES = [2, 3]; // Contactado, En Evaluación
 
 const SeguimientoModal = ({ isOpen, onClose, prospecto, onSuccess }) => {
     const [estadoNuevo, setEstadoNuevo] = useState('');

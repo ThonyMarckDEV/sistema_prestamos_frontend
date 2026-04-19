@@ -89,15 +89,6 @@ const ProspectoStore = () => {
                                     </p>
                                     <p className="text-[11px] text-amber-600 mt-0.5">
                                         {busquedaResult.data?.nombre_completo}
-                                        {busquedaResult.tipo === 'prospecto' && (
-                                            <button
-                                                type="button"
-                                                onClick={() => navigate(`/prospecto/ver/${busquedaResult.data?.id}`)}
-                                                className="ml-2 underline font-black"
-                                            >
-                                                Ver ficha →
-                                            </button>
-                                        )}
                                     </p>
                                 </>
                             ) : (

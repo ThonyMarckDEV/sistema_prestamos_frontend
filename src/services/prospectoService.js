@@ -24,7 +24,7 @@ export const show = async (id) => {
 
 export const combobox = async (documento) => {
     const params = new URLSearchParams({ documento });
-    const response = await fetchWithAuth(`${BASE_URL}/combobox?${params.toString()}`, { method: 'GET' });
+    const response = await fetchWithAuth(`${BASE_URL}/buscar?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);
 };
 
@@ -55,9 +55,9 @@ export const registrarSeguimiento = async (id, data) => {
     return handleResponse(response);
 };
 
-export const convertir = async (id, data) => {
-    const response = await fetchWithAuth(`${BASE_URL}/convertir/${id}`, {
-        method:  'POST',
+export const status = async (id, data) => {
+    const response = await fetchWithAuth(`${BASE_URL}/status/${id}`, {
+        method:  'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(data),
     });

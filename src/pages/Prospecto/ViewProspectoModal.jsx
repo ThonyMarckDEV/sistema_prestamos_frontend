@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import SeguimientoModal from './SeguimientoModal';
+import StatusModal from './StatusModal';
 import { EstadoBadge } from 'components/Shared/Formularios/Prospecto/ProspectoForm';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from 'context/AuthContext';
 import {
-    UserIcon,CurrencyDollarIcon, ClockIcon,
-    ArrowPathIcon, PencilSquareIcon, ArrowRightIcon
+    UserIcon, CurrencyDollarIcon, ClockIcon,
+    ArrowPathIcon, PencilSquareIcon, ArrowRightIcon,
+    CheckCircleIcon
 } from '@heroicons/react/24/outline';
 
 const Row = ({ label, value }) => (
@@ -17,7 +20,17 @@ const Row = ({ label, value }) => (
 
 const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuccess }) => {
     const navigate = useNavigate();
+    const { can } = useAuth();
+
     const [seguimientoOpen, setSeguimientoOpen] = useState(false);
+    const [statusOpen,      setStatusOpen]      = useState(false);
+
+    const puedeSegumiento = can('prospecto.seguimiento');
+    const puedeStatus     = can('prospecto.status');
+
+    const handleSuccess = (updatedData) => {
+        onSeguimientoSuccess?.(updatedData);
+    };
 
     return (
         <>
@@ -47,11 +60,11 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-1">
                                     <UserIcon className="w-3 h-3" /> Información
                                 </h4>
-                                <Row label="Teléfono"  value={data.telefono} />
-                                <Row label="Correo"    value={data.correo} />
-                                <Row label="Zona"      value={data.zona} />
-                                <Row label="Asesor"    value={data.asesor} />
-                                <Row label="Registro"  value={data.created_at?.split(' ')[0]} />
+                                <Row label="Teléfono" value={data.telefono} />
+                                <Row label="Correo"   value={data.correo} />
+                                <Row label="Zona"     value={data.zona} />
+                                <Row label="Asesor"   value={data.asesor} />
+                                <Row label="Registro" value={data.created_at?.split(' ')[0]} />
                             </div>
 
                             {/* Financiero */}
@@ -59,9 +72,9 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-1">
                                     <CurrencyDollarIcon className="w-3 h-3" /> Datos Financieros
                                 </h4>
-                                <Row label="Ingreso Est."  value={data.ingreso_estimado ? `S/ ${data.ingreso_estimado}` : null} />
-                                <Row label="Monto Solic."  value={data.monto_solicitado ? `S/ ${data.monto_solicitado}` : null} />
-                                <Row label="Propósito"     value={data.proposito} />
+                                <Row label="Ingreso Est." value={data.ingreso_estimado ? `S/ ${data.ingreso_estimado}` : null} />
+                                <Row label="Monto Solic." value={data.monto_solicitado ? `S/ ${data.monto_solicitado}` : null} />
+                                <Row label="Propósito"    value={data.proposito} />
                                 {data.observaciones && (
                                     <div className="mt-2 p-2 bg-slate-50 rounded-lg">
                                         <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Observaciones</p>
@@ -71,7 +84,7 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                             </div>
                         </div>
 
-                        {/* Historial de seguimientos */}
+                        {/* Historial */}
                         {data.seguimientos && data.seguimientos.length > 0 && (
                             <div className="bg-white border border-slate-100 rounded-xl p-4">
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-1">
@@ -100,22 +113,32 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                         {/* Acciones */}
                         {data.estado !== 6 && (
                             <div className="flex flex-wrap gap-3 pt-2 border-t border-slate-100">
-                                <button
-                                    onClick={() => setSeguimientoOpen(true)}
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-black text-xs uppercase hover:bg-slate-700 transition-all">
-                                    <ArrowPathIcon className="w-4 h-4" /> Registrar Seguimiento
-                                </button>
-                                <button
-                                    onClick={() => { onClose(); navigate(`/prospecto/editar/${data.id}`); }}
+                                {puedeSegumiento && (
+                                    <button onClick={() => setSeguimientoOpen(true)}
+                                        className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-black text-xs uppercase hover:bg-slate-700 transition-all">
+                                        <ArrowPathIcon className="w-4 h-4" /> Registrar Seguimiento
+                                    </button>
+                                )}
+                                {puedeStatus && [1, 2, 3].includes(data.estado) && (
+                                    <button onClick={() => setStatusOpen(true)}
+                                        className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-black text-xs uppercase hover:bg-blue-700 transition-all">
+                                        <CheckCircleIcon className="w-4 h-4" /> Aprobar / Rechazar
+                                    </button>
+                                )}
+                                <button onClick={() => { onClose(); navigate(`/prospecto/editar/${data.id}`); }}
                                     className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl font-black text-xs uppercase hover:bg-slate-200 transition-all">
                                     <PencilSquareIcon className="w-4 h-4" /> Editar Datos
                                 </button>
                             </div>
                         )}
+
                         {data.estado === 6 && data.cliente_id && (
                             <div className="p-3 bg-purple-50 border border-purple-100 rounded-xl">
                                 <p className="text-xs font-black text-purple-700">
-                                    ✓ Convertido a cliente. <button onClick={() => navigate(`/cliente/editar/${data.cliente_id}`)} className="underline">Ver ficha →</button>
+                                    ✓ Convertido a cliente.{' '}
+                                    <button onClick={() => navigate(`/cliente/editar/${data.cliente_id}`)} className="underline">
+                                        Ver ficha →
+                                    </button>
                                 </p>
                             </div>
                         )}
@@ -127,7 +150,14 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                 isOpen={seguimientoOpen}
                 onClose={() => setSeguimientoOpen(false)}
                 prospecto={data}
-                onSuccess={onSeguimientoSuccess}
+                onSuccess={handleSuccess}
+            />
+
+            <StatusModal
+                isOpen={statusOpen}
+                onClose={() => setStatusOpen(false)}
+                prospecto={data}
+                onSuccess={handleSuccess}
             />
         </>
     );

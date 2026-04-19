@@ -15,7 +15,7 @@ import {
 const Index = () => {
     const {
         loading, prospectos, paginationInfo, filters, alert, setAlert,
-        isViewOpen, setIsViewOpen, viewData, viewLoading,
+        isViewOpen, setIsViewOpen, viewData, setViewData, viewLoading,
         fetchProspectos, handleView,
         handleFilterChange, handleFilterSubmit, handleFilterClear,
     } = useIndex();
@@ -130,8 +130,13 @@ const Index = () => {
         },
     ], [handleView]);
 
-    const handleSeguimientoSuccess = (updatedData) => {
+    const handleSeguimientoSuccess = async (updatedData) => {
         fetchProspectos(paginationInfo.currentPage);
+        // Refrescar el modal con los datos actualizados
+        if (updatedData) {
+            setIsViewOpen(true);
+            setViewData(updatedData);
+        }
     };
 
     return (
