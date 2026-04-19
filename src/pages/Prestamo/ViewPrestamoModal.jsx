@@ -224,6 +224,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                             const excAnt        = esVistaIntegrante
                                                 ? parseFloat(cuota.excedente_aplicado || 0)
                                                 : (parseFloat(cuota.excedente_consumido || 0) > 0 ? parseFloat(cuota.excedente_consumido) : parseFloat(cuota.excedente_anterior || 0));
+                                            const excConsumidoInd = esVistaIntegrante ? parseFloat(cuota.excedente_consumido || 0) : 0;
                                             const excGen        = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_generado || 0);
 
                                             return (
@@ -279,12 +280,14 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                                     Mora cubierta: S/ {moraPagada.toFixed(2)}
                                                                 </span>
                                                             )}
-                                                             {excAnt > 0 && (
+                                                            {excAnt > 0 && (
                                                                 <span className="text-[9px] font-bold text-purple-600 uppercase">
-                                                                    {esVistaIntegrante
-                                                                        ? `Excedente. aplicado: -S/ ${excAnt.toFixed(2)}`
-                                                                        : `Excedente. usado: -S/ ${excAnt.toFixed(2)}`
-                                                                    }
+                                                                    {esVistaIntegrante ? 'Excedente. aplicado' : 'Excedente. usado'}: -S/ {excAnt.toFixed(2)}
+                                                                </span>
+                                                            )}
+                                                            {esVistaIntegrante && excConsumidoInd > 0 && (
+                                                                <span className="text-[9px] font-bold text-purple-600 uppercase">
+                                                                    Excedente. Usado: -S/ {excConsumidoInd.toFixed(2)}
                                                                 </span>
                                                             )}
                                                             {excGen > 0 && (
@@ -292,7 +295,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                                     Excedente: S/ {excGen.toFixed(2)}
                                                                 </span>
                                                             )}
-                                                            {abonado === 0 && excAnt === 0 && moraPagada === 0 && (
+                                                            {abonado === 0 && excAnt === 0 && moraPagada === 0 && excGen === 0 && excConsumidoInd === 0 && (
                                                                 <span className="text-[10px] text-slate-300 font-bold">—</span>
                                                             )}
                                                         </div>
@@ -304,7 +307,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             </span>
                                                             {moraPendiente > 0 && saldo > 0 && (
                                                                 <span className="text-[9px] text-slate-400 font-bold">
-                                                                    Capital: {Math.max(0, deuda - abonado).toFixed(2)} | Mora: {moraPendiente.toFixed(2)}
+                                                                    C: {Math.max(0, deuda - abonado).toFixed(2)} | M: {moraPendiente.toFixed(2)}
                                                                 </span>
                                                             )}
                                                         </div>
