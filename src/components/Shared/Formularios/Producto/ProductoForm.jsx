@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShoppingBagIcon, PresentationChartLineIcon } from '@heroicons/react/24/outline';
+import { toUpper } from 'utilities/Validations/validations';
 
 const ProductoForm = ({ data, handleChange }) => {
     return (
@@ -14,9 +15,9 @@ const ProductoForm = ({ data, handleChange }) => {
                     <input 
                         type="text" 
                         value={data.nombre || ''} 
-                        onChange={(e) => handleChange('nombre', e.target.value)} 
+                        onChange={(e) => handleChange('nombre', toUpper(e.target.value))} 
                         className="w-full p-3.5 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" 
-                        placeholder="Ej: Préstamo Personal Consumo" 
+                        placeholder="EJ: PRÉSTAMO PERSONAL CONSUMO" 
                         required 
                     />
                 </div>
@@ -28,9 +29,9 @@ const ProductoForm = ({ data, handleChange }) => {
                         <input 
                             type="text" 
                             value={data.rango_tasa || ''} 
-                            onChange={(e) => handleChange('rango_tasa', e.target.value)} 
+                            onChange={(e) => handleChange('rango_tasa', toUpper(e.target.value))} 
                             className="w-full pl-10 p-3.5 text-sm font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" 
-                            placeholder="Ej: 15% - 25% anual" 
+                            placeholder="EJ: 15% - 25% ANUAL" 
                             required 
                         />
                     </div>

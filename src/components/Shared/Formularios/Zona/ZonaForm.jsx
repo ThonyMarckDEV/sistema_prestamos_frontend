@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapPinIcon } from '@heroicons/react/24/outline';
+import { toUpper } from 'utilities/Validations/validations';
 
 const ZonaForm = ({ data, handleChange }) => {
     return (
@@ -14,9 +15,9 @@ const ZonaForm = ({ data, handleChange }) => {
                     <input 
                         type="text" 
                         value={data.nombre || ''} 
-                        onChange={(e) => handleChange('nombre', e.target.value)} 
+                        onChange={(e) => handleChange('nombre', toUpper(e.target.value))} 
                         className="w-full p-3.5 text-sm font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all" 
-                        placeholder="Ej: TALARA ALTA 2" 
+                        placeholder="EJ: TALARA ALTA 2" 
                         required 
                     />
                     <p className="text-[10px] text-slate-400 mt-2 ml-1 italic">

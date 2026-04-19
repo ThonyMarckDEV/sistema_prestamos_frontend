@@ -1,5 +1,6 @@
 import React from 'react';
 import { UserGroupIcon, TagIcon, HashtagIcon } from '@heroicons/react/24/outline';
+import { toUpper } from 'utilities/Validations/validations';
 import ZonaSearchSelect from 'components/Shared/Comboboxes/ZonaSearchSelect';
 
 const GrupoForm = ({ data, handleChange }) => {
@@ -10,7 +11,6 @@ const GrupoForm = ({ data, handleChange }) => {
             </h3>
             
             <div className="space-y-6">
-
                 <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Código de Recaudo *</label>
                     <div className="relative">
@@ -18,9 +18,9 @@ const GrupoForm = ({ data, handleChange }) => {
                         <input 
                             type="text" 
                             value={data.codigo_recaudo || ''} 
-                            onChange={(e) => handleChange('codigo_recaudo', e.target.value)} 
-                            className="w-full pl-10 p-3.5 text-sm font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all uppercase" 
-                            placeholder="Ej: 0000000060" 
+                            onChange={(e) => handleChange('codigo_recaudo', toUpper(e.target.value))} 
+                            className="w-full pl-10 p-3.5 text-sm font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all" 
+                            placeholder="EJ: 0000000060" 
                             required 
                         />
                     </div>
@@ -33,9 +33,9 @@ const GrupoForm = ({ data, handleChange }) => {
                         <input 
                             type="text" 
                             value={data.nombre || ''} 
-                            onChange={(e) => handleChange('nombre', e.target.value)} 
+                            onChange={(e) => handleChange('nombre', toUpper(e.target.value))} 
                             className="w-full pl-10 p-3.5 text-sm font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all" 
-                            placeholder="Ej: Las Guerreras de Piura" 
+                            placeholder="EJ: LAS GUERRERAS DE PIURA" 
                             required 
                         />
                     </div>
@@ -48,7 +48,6 @@ const GrupoForm = ({ data, handleChange }) => {
                         onSelect={(zona) => handleChange('zona_id', zona ? zona.id : null)}
                     />
                 </div>
-
             </div>
         </div>
     );

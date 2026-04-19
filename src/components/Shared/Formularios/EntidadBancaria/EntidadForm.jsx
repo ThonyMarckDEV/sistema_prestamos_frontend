@@ -1,6 +1,6 @@
 import React from 'react';
 import { BuildingLibraryIcon, HashtagIcon } from '@heroicons/react/24/outline';
-import { onlyNumbers } from 'utilities/Validations/validations';
+import { onlyNumbers, toUpper } from 'utilities/Validations/validations';
 
 const EntidadForm = ({ data, handleChange }) => {
     return (
@@ -15,9 +15,9 @@ const EntidadForm = ({ data, handleChange }) => {
                     <input 
                         type="text" 
                         value={data.nombre} 
-                        onChange={(e) => handleChange('nombre', e.target.value)} 
+                        onChange={(e) => handleChange('nombre', toUpper(e.target.value))} 
                         className="w-full p-3.5 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all" 
-                        placeholder="Ej: Banco de Crédito del Perú (BCP)" 
+                        placeholder="EJ: BANCO DE CRÉDITO DEL PERÚ (BCP)" 
                         required 
                     />
                 </div>

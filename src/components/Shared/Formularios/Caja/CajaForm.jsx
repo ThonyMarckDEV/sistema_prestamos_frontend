@@ -1,5 +1,6 @@
 import React from 'react';
 import { InboxStackIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { toUpper } from 'utilities/Validations/validations';
 
 const CajaForm = ({ data, handleChange }) => {
     return (
@@ -14,9 +15,9 @@ const CajaForm = ({ data, handleChange }) => {
                     <input 
                         type="text" 
                         value={data.nombre || ''} 
-                        onChange={(e) => handleChange('nombre', e.target.value)} 
+                        onChange={(e) => handleChange('nombre', toUpper(e.target.value))} 
                         className="w-full p-3.5 text-sm font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all" 
-                        placeholder="Ej: Caja 01" 
+                        placeholder="EJ: CAJA 01" 
                         required 
                     />
                 </div>
@@ -27,9 +28,9 @@ const CajaForm = ({ data, handleChange }) => {
                         <DocumentTextIcon className="w-5 h-5 absolute left-3 top-3.5 text-slate-400"/>
                         <textarea 
                             value={data.descripcion || ''} 
-                            onChange={(e) => handleChange('descripcion', e.target.value)} 
+                            onChange={(e) => handleChange('descripcion', toUpper(e.target.value))} 
                             className="w-full pl-10 p-3.5 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all min-h-[100px]" 
-                            placeholder="Detalles sobre dónde se ubica o para qué se usa..."
+                            placeholder="DETALLES SOBRE DÓNDE SE UBICA O PARA QUÉ SE USA..."
                         />
                     </div>
                 </div>
