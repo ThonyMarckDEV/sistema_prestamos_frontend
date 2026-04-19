@@ -72,6 +72,11 @@ import AgregarZona from 'pages/Zona/Store';
 import EditarZona from 'pages/Zona/Update';
 import ListarZonas from 'pages/Zona/Index';
 
+// UI PROSPECTOS
+import ListarProspectos from 'pages/Prospecto/Index';
+import AgregarProspecto from 'pages/Prospecto/Store';
+import EditarProspecto  from 'pages/Prospecto/Update';
+
 
 // SETTINGS ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
@@ -152,6 +157,11 @@ function AppContent() {
         <Route path="/zona/listar" element={<ProtectedRoute requiredPermission="zona.index" element={<ListarZonas />} />} />
         <Route path="/zona/agregar" element={<ProtectedRoute requiredPermission="zona.store" element={<AgregarZona />} />} />
         <Route path="/zona/editar/:id" element={<ProtectedRoute requiredPermission="zona.update" element={<EditarZona />} />} />
+
+        {/* PROSPECTOS */}
+        <Route path="/prospecto/listar"       element={<ProtectedRoute requiredPermission="prospecto.index"  element={<ListarProspectos />} />} />
+        <Route path="/prospecto/agregar"      element={<ProtectedRoute requiredPermission="prospecto.store"  element={<AgregarProspecto />} />} />
+        <Route path="/prospecto/editar/:id"   element={<ProtectedRoute requiredPermission="prospecto.update" element={<EditarProspecto  />} />} />
 
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />

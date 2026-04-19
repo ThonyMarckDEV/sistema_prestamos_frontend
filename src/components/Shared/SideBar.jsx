@@ -20,7 +20,7 @@ import { useAuth } from 'context/AuthContext';
 
 // Importamos el logo
 import logo from 'assets/img/logo.png'; 
-import { ChevronDownIcon, ChevronLeftIcon, CreditCardIcon, MapIcon, ScaleIcon, ShoppingBagIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronLeftIcon, CreditCardIcon, MapIcon, ScaleIcon, ShoppingBagIcon, UserPlusIcon } from 'lucide-react';
 
 // =======================================================================
 // CONFIGURACIÓN MAESTRA DEL MENÚ - SISTEMA DE PRÉSTAMOS
@@ -62,6 +62,13 @@ export const MENU_GROUPS = [
     {
         groupName: 'Gestión de Cartera',
         items: [
+            {
+                section: 'Prospectos', icon: UserPlusIcon,
+                subs: [
+                    { name: 'Listar Prospectos', link: '/prospecto/listar', requiredPermission: 'prospecto.index' },
+                    { name: 'Nuevo Prospecto',   link: '/prospecto/agregar', requiredPermission: 'prospecto.store' },
+                ],
+            },
             { 
                 section: 'Clientes', icon: UsersIcon,
                 subs: [
