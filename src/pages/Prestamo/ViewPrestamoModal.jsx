@@ -221,7 +221,9 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                             const acumuladoInd  = esVistaIntegrante ? parseFloat(cuota.pago_acumulado ?? 0) : 0;
                                             const saldo         = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? cuota.saldo ?? 0);
                                             const diasAtraso    = cuota.dias_atraso || 0;
-                                            const excAnt        = esVistaIntegrante ? 0 : (parseFloat(cuota.excedente_consumido || 0) > 0 ? parseFloat(cuota.excedente_consumido) : parseFloat(cuota.excedente_anterior || 0));
+                                            const excAnt        = esVistaIntegrante
+                                                ? parseFloat(cuota.excedente_aplicado || 0)
+                                                : (parseFloat(cuota.excedente_consumido || 0) > 0 ? parseFloat(cuota.excedente_consumido) : parseFloat(cuota.excedente_anterior || 0));
                                             const excGen        = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_generado || 0);
 
                                             return (
@@ -274,7 +276,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             )}
                                                             {moraPagada > 0 && (
                                                                 <span className="text-[9px] font-bold text-yellow-600 uppercase">
-                                                                    Mora cubierta.: S/ {moraPagada.toFixed(2)}
+                                                                    Mora cubierta: S/ {moraPagada.toFixed(2)}
                                                                 </span>
                                                             )}
                                                              {excAnt > 0 && (
@@ -302,7 +304,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             </span>
                                                             {moraPendiente > 0 && saldo > 0 && (
                                                                 <span className="text-[9px] text-slate-400 font-bold">
-                                                                    Capital: {Math.max(0, deuda - abonado).toFixed(2)} | M: {moraPendiente.toFixed(2)}
+                                                                    Capital: {Math.max(0, deuda - abonado).toFixed(2)} | Mora: {moraPendiente.toFixed(2)}
                                                                 </span>
                                                             )}
                                                         </div>
