@@ -273,7 +273,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             {moraPagada > 0 && (
                                                                 <span className="text-[9px] font-bold text-yellow-600 uppercase">
                                                                     {esVistaIntegrante 
-                                                                        ? 'Mora cubierta por el grupo' 
+                                                                        ? 'Mora cubierta' 
                                                                         : `Mora Cubierta: S/ ${moraPagada.toFixed(2)}`
                                                                     }
                                                                 </span>

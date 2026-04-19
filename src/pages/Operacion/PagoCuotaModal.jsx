@@ -251,7 +251,17 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                     <div className="flex flex-col mt-0.5">
                                                         <div className="flex items-center gap-2">
                                                             <p className="text-[9px] text-slate-400 font-bold">
-                                                                Capital: S/ {saldoCap.toFixed(2)}
+                                                                Cuota: S/ {parseFloat(int.total_cuota || 0).toFixed(2)}
+                                                            </p>
+                                                            {parseFloat(int.pago_acumulado || 0) > 0 && (
+                                                                <p className="text-[9px] text-green-600 font-bold">
+                                                                    Pagó: S/ {parseFloat(int.pago_acumulado).toFixed(2)}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-[9px] font-black text-slate-600">
+                                                                Falta: S/ {saldoCap.toFixed(2)}
                                                             </p>
                                                             {moraPend > 0 && (
                                                                 <p className="text-[9px] text-red-500 font-bold">
@@ -260,13 +270,8 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                             )}
                                                         </div>
                                                         {moraPend > 0 && (
-                                                            <p className="text-[9px] font-black text-slate-600">
-                                                                Total: S/ {saldoTotal.toFixed(2)}
-                                                            </p>
-                                                        )}
-                                                        {int.pago_acumulado > 0 && (
-                                                            <p className="text-[9px] text-blue-500 font-bold">
-                                                                Ya pagó cap.: S/ {parseFloat(int.pago_acumulado).toFixed(2)}
+                                                            <p className="text-[9px] font-black text-slate-500">
+                                                                Total pendiente: S/ {saldoTotal.toFixed(2)}
                                                             </p>
                                                         )}
                                                     </div>
