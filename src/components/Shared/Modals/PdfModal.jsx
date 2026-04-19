@@ -120,7 +120,7 @@ const PdfModal = ({ isOpen, onClose, title, pdfUrl, base64 }) => {
                         <Viewer
                             fileUrl={activeUrl}
                             plugins={[zoomPluginInstance]}
-                            defaultScale={1.5}
+                            defaultScale={1.3}
                             imageResourcesScale={2}
                         />
                     </Worker>
