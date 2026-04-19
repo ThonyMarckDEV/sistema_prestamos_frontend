@@ -212,19 +212,16 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                         {cronogramaActivo?.map((cuota, i) => {
                                             const nro           = cuota.nro ?? (i + 1);
                                             const deuda         = parseFloat(cuota.total_cuota ?? cuota.monto ?? 0);
-                                            const moraTotal     = parseFloat(cuota.cargo_mora ?? cuota.mora_total ?? cuota.mora ?? 0);
+                                            const moraTotal     = parseFloat(cuota.mora_total ?? cuota.mora ?? 0);
                                             const moraPagada    = parseFloat(cuota.mora_pagada ?? 0);
-                                            const moraPendiente = moraTotal - moraPagada;
+                                            const moraPendiente = Math.max(0, moraTotal - moraPagada);
                                             const abonado       = esVistaIntegrante
-                                                ? parseFloat(cuota.pago_acumulado ?? 0)
+                                                ? parseFloat(cuota.pago_total_real ?? cuota.pago_acumulado ?? 0)
                                                 : parseFloat(cuota.pago_realizado ?? cuota.pago_acumulado ?? 0);
+                                            const acumuladoInd  = esVistaIntegrante ? parseFloat(cuota.pago_acumulado ?? 0) : 0;
                                             const saldo         = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? cuota.saldo ?? 0);
                                             const diasAtraso    = cuota.dias_atraso || 0;
-                                            const excAnt = esVistaIntegrante
-                                            ? parseFloat(cuota.excedente_aplicado || 0)  // ← para integrante: exc proporcional
-                                            : (parseFloat(cuota.excedente_consumido || 0) > 0
-                                                ? parseFloat(cuota.excedente_consumido)
-                                                : parseFloat(cuota.excedente_anterior || 0));
+                                            const excAnt        = esVistaIntegrante ? 0 : (parseFloat(cuota.excedente_consumido || 0) > 0 ? parseFloat(cuota.excedente_consumido) : parseFloat(cuota.excedente_anterior || 0));
                                             const excGen        = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_generado || 0);
 
                                             return (
@@ -252,8 +249,8 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                                 </>
                                                             ) : (
                                                                 <>
-                                                                    <span className="font-black text-[12px] text-red-600 line-through">S/ {moraTotal.toFixed(2)}</span>
-                                                                    <span className="text-[10px] text-green-600 font-bold mt-0.5">✓ Cubierta</span>
+                                                                    <span className="font-black text-[11px] text-red-600 line-through">S/ {moraTotal.toFixed(2)}</span>
+                                                                    <span className="text-[8px] text-green-600 font-bold mt-0.5">✓ Cubierta</span>
                                                                 </>
                                                             )}
                                                         </div>
@@ -265,6 +262,11 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                                     Recibido: S/ {abonado.toFixed(2)}
                                                                 </span>
                                                             )}
+                                                            {esVistaIntegrante && acumuladoInd > 0 && acumuladoInd !== abonado && (
+                                                                <span className="text-[9px] font-bold text-green-700 uppercase">
+                                                                    Acumulado: S/ {acumuladoInd.toFixed(2)}
+                                                                </span>
+                                                            )}
                                                             {!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0 && (
                                                                 <span className="text-[9px] font-bold text-green-700 uppercase">
                                                                     Acumulado: S/ {parseFloat(cuota.pago_acumulado).toFixed(2)}
@@ -272,13 +274,10 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             )}
                                                             {moraPagada > 0 && (
                                                                 <span className="text-[9px] font-bold text-yellow-600 uppercase">
-                                                                    {esVistaIntegrante 
-                                                                        ? 'Mora cubierta' 
-                                                                        : `Mora Cubierta: S/ ${moraPagada.toFixed(2)}`
-                                                                    }
+                                                                    Mora cubierta.: S/ {moraPagada.toFixed(2)}
                                                                 </span>
                                                             )}
-                                                            {excAnt > 0 && (
+                                                             {excAnt > 0 && (
                                                                 <span className="text-[9px] font-bold text-purple-600 uppercase">
                                                                     {esVistaIntegrante
                                                                         ? `Excedente. aplicado: -S/ ${excAnt.toFixed(2)}`
@@ -303,7 +302,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                                             </span>
                                                             {moraPendiente > 0 && saldo > 0 && (
                                                                 <span className="text-[9px] text-slate-400 font-bold">
-                                                                    Capital: {Math.max(0, deuda - abonado).toFixed(2)} + Mora: {moraPendiente.toFixed(2)}
+                                                                    Capital: {Math.max(0, deuda - abonado).toFixed(2)} | M: {moraPendiente.toFixed(2)}
                                                                 </span>
                                                             )}
                                                         </div>
