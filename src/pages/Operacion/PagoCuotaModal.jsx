@@ -87,7 +87,6 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
             const pagaCompleto = !val || val === '';
             const saldoCap     = parseFloat(int.saldo_capital ?? int.saldo ?? 0);
             const moraPend     = parseFloat(int.mora_pendiente ?? 0);
-            const excAplicado  = parseFloat(int.excedente_aplicado ?? 0);
             // saldo real = saldo_capital + mora - excedente_aplicado (ya está en saldo_capital del backend)
             const saldoReal    = saldoCap + moraPend;
             return acc + (pagaCompleto
