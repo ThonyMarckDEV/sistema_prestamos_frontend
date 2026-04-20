@@ -59,10 +59,11 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
             formData.append('es_parcial_grupal', '1');
             formData.append('distribucion', JSON.stringify(
                 integrantesPendientes.map(int => ({
-                    cliente_id:    int.id,
-                    total_cuota:   parseFloat(int.saldo || 0),
-                    monto:         parseFloat(distribucion[int.id] || 0),
-                    pago_completo: !distribucion[int.id] || distribucion[int.id] === ''
+                    cliente_id:         int.id,
+                    total_cuota:        parseFloat(int.saldo || 0),
+                    monto:              parseFloat(distribucion[int.id] || 0),
+                    pago_completo:      !distribucion[int.id] || distribucion[int.id] === '',
+                    excedente_aplicado: parseFloat(int.excedente_aplicado ?? 0),
                 }))
             ));
         }
@@ -86,8 +87,11 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
             const pagaCompleto = !val || val === '';
             const saldoCap     = parseFloat(int.saldo_capital ?? int.saldo ?? 0);
             const moraPend     = parseFloat(int.mora_pendiente ?? 0);
+            const excAplicado  = parseFloat(int.excedente_aplicado ?? 0);
+            // saldo real = saldo_capital + mora - excedente_aplicado (ya está en saldo_capital del backend)
+            const saldoReal    = saldoCap + moraPend;
             return acc + (pagaCompleto
-                ? saldoCap + moraPend
+                ? saldoReal
                 : parseFloat(val || 0));
         }, 0);
     })();
@@ -259,6 +263,11 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                                 </p>
                                                             )}
                                                         </div>
+                                                        {parseFloat(int.excedente_aplicado ?? 0) > 0 && (
+                                                            <p className="text-[9px] text-purple-600 font-bold">
+                                                                Excedente. aplicado: -S/ {parseFloat(int.excedente_aplicado).toFixed(2)}
+                                                            </p>
+                                                        )}
                                                         <div className="flex items-center gap-2">
                                                             <p className="text-[9px] font-black text-slate-600">
                                                                 Falta: S/ {saldoCap.toFixed(2)}
