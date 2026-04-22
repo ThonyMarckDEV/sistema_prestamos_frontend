@@ -11,7 +11,7 @@ export const useStore = () => {
     const [formData, setFormData] = useState({
         datos_cliente: {
             tipo: 1, nombre: '', apellidoPaterno: '', apellidoMaterno: '',
-            dni: '', fechaNacimiento: '', sexo: '', ruc: '', razon_social: '', nombre_comercial: '',
+            dni: '', fechaNacimiento: '', fechaVencimientoDni: '', sexo: '', ruc: '', razon_social: '', nombre_comercial: '', // 🔥 Agregado
             ciiu_id: null,
             ciiu: null, 
             zona_id: null

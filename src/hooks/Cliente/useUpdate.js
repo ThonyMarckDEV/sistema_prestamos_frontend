@@ -14,7 +14,7 @@ export const useUpdate = () => {
     const [formData, setFormData] = useState({
         datos_cliente: {
             tipo: 1, nombre: '', apellidoPaterno: '', apellidoMaterno: '',
-            dni: '', fechaNacimiento: '', sexo: '', ruc: '', razon_social: '', nombre_comercial: '',
+            dni: '', fechaNacimiento: '', fechaVencimientoDni: '', sexo: '', ruc: '', razon_social: '', nombre_comercial: '', // 🔥 Agregado
             ciiu_id: null,
             ciiu: null,
             zona_id: null,
@@ -45,7 +45,8 @@ export const useUpdate = () => {
                 setFormData({
                     datos_cliente: {
                         tipo: data.tipo || 1, nombre: data.nombre || '', apellidoPaterno: data.apellidoPaterno || '',
-                        apellidoMaterno: data.apellidoMaterno || '', dni: data.dni || '', fechaNacimiento: data.fechaNacimiento || '',
+                        apellidoMaterno: data.apellidoMaterno || '', dni: data.dni || '', 
+                        fechaNacimiento: data.fechaNacimiento || '', fechaVencimientoDni: data.fechaVencimientoDni || '', // 🔥 Seteado del backend
                         sexo: data.sexo || '', ruc: data.ruc || '', razon_social: data.razon_social || '', nombre_comercial: data.nombre_comercial || '',
                         ciiu_id: data.ciiu_id || null,
                         ciiu: data.ciiu || null,

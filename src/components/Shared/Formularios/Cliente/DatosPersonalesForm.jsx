@@ -57,8 +57,20 @@ const DatosPersonalesForm = ({ data, handleNestedChange, isEditing = false }) =>
                             <input type="text" value={c.dni || ''} onChange={(e) => onC('dni', onlyNumbers(e.target.value, 8))} className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" required />
                         </div>
                         <div>
+                            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Vencimiento DNI *</label>
+                            <input type="date" value={c.fechaVencimientoDni || ''} onChange={(e) => onC('fechaVencimientoDni', e.target.value)} className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" required />
+                        </div>
+                        <div>
                             <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">F. Nacimiento *</label>
                             <input type="date" value={c.fechaNacimiento || ''} onChange={(e) => onC('fechaNacimiento', e.target.value)} className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" required />
+                        </div>
+                        <div>
+                            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Sexo *</label>
+                            <select value={c.sexo || ''} onChange={(e) => onC('sexo', e.target.value)} className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" required>
+                                <option value="">-- Seleccionar --</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                            </select>
                         </div>
                         <div className="sm:col-span-2">
                             <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Nombres *</label>
@@ -71,14 +83,6 @@ const DatosPersonalesForm = ({ data, handleNestedChange, isEditing = false }) =>
                         <div>
                             <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Ap. Materno *</label>
                             <input type="text" value={c.apellidoMaterno || ''} onChange={(e) => onC('apellidoMaterno', onlyLetters(e.target.value))} className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" required />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Sexo *</label>
-                            <select value={c.sexo || ''} onChange={(e) => onC('sexo', e.target.value)} className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" required>
-                                <option value="">-- Seleccionar --</option>
-                                <option value="Masculino">Masculino</option>
-                                <option value="Femenino">Femenino</option>
-                            </select>
                         </div>
                     </>
                 ) : (
@@ -98,7 +102,6 @@ const DatosPersonalesForm = ({ data, handleNestedChange, isEditing = false }) =>
                     </>
                 )}
 
-                {/* 🔥 BUSCADOR INTELIGENTE CIIU COMPARTIDO */}
                 <div className="sm:col-span-2 mt-2 pt-4 border-t border-slate-100">
                     <CiiuSelect 
                         onSelect={(ciiu) => onC('ciiu_id', ciiu ? ciiu.id : null)}

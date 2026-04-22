@@ -73,10 +73,15 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                 </h2>
                                 
                                 <div className="flex flex-wrap items-center gap-2.5 mt-3">
-                                    {/* DNI / RUC */}
+                                    {/* 🔥 DNI / RUC ACTUALIZADO CON VENCIMIENTO 🔥 */}
                                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
                                         <IdentificationIcon className="w-4 h-4 text-slate-400"/>
                                         {data.tipo === 2 ? data.ruc : data.dni}
+                                        {data.tipo === 1 && data.fechaVencimientoDni && (
+                                            <span className="text-[9px] text-red-500 font-black uppercase ml-1">
+                                                (Vence: {data.fechaVencimientoDni})
+                                            </span>
+                                        )}
                                     </div>
                                     
                                     {/* Teléfono */}
