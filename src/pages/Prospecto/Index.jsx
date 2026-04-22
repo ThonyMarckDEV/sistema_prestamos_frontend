@@ -11,8 +11,12 @@ import {
     PhoneIcon, CalendarDaysIcon, UserIcon, BuildingOfficeIcon,
     CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from 'context/AuthContext';
 
 const Index = () => {
+
+    const { can } = useAuth();
+
     const {
         loading, prospectos, paginationInfo, filters, alert, setAlert,
         isViewOpen, setIsViewOpen, viewData, setViewData, viewLoading,
@@ -114,24 +118,30 @@ const Index = () => {
         },
         {
             header: 'Acciones',
-            render: (row) => (
-                <div className="flex items-center gap-2 justify-end">
-                    <button onClick={() => handleView(row.id)} title="Ver Detalle"
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm">
-                        <EyeIcon className="w-4 h-4" />
-                    </button>
-                    <Link to={`/prospecto/editar/${row.id}`} title="Editar"
-                        className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-200 shadow-sm">
-                        <PencilSquareIcon className="w-4 h-4" />
-                    </Link>
-                </div>
-            )
+            render: (row) => {
+                const puedeEditar = can('prospecto.update') && [1, 2, 3].includes(row.estado);
+
+                return (
+                    <div className="flex items-center gap-2 justify-end">
+                        <button onClick={() => handleView(row.id)} title="Ver Detalle"
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm">
+                            <EyeIcon className="w-4 h-4" />
+                        </button>
+                        
+                        {puedeEditar && (
+                            <Link to={`/prospecto/editar/${row.id}`} title="Editar"
+                                className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-200 shadow-sm">
+                                <PencilSquareIcon className="w-4 h-4" />
+                            </Link>
+                        )}
+                    </div>
+                );
+            }
         },
-    ], [handleView]);
+    ], [handleView, can]);
 
     const handleSeguimientoSuccess = async (updatedData) => {
         fetchProspectos(paginationInfo.currentPage);
-        // Refrescar el modal con los datos actualizados
         if (updatedData) {
             setIsViewOpen(true);
             setViewData(updatedData);
