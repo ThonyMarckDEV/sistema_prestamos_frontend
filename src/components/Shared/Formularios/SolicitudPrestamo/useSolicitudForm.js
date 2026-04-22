@@ -3,9 +3,13 @@ import peruData from 'utilities/data/peruData';
 import { onlyLetters, onlyNumbers } from 'utilities/Validations/validations';
 
 export const useSolicitudForm = (data, handleChange) => {
-    // 1. LÓGICA DE BLOQUEO (Riesgo Crediticio)
-    const isMainBlocked = data.modalidad === 'RCS' || (data.modalidad && data.modalidad.includes('VIGENTE'));
-    const hasBlockedIntegrante = data.integrantes?.some(int => int.modalidad === 'RCS' || (int.modalidad && int.modalidad.includes('VIGENTE')));
+    // 1. LÓGICA DE BLOQUEO (Riesgo Crediticio + DNI DEL BACKEND)
+    const isMainBlocked = data.modalidad === 'RCS' || (data.modalidad && data.modalidad.includes('VIGENTE')) || data.dni_status?.estado === 'VENCIDO';
+    
+    const hasBlockedIntegrante = data.integrantes?.some(int => 
+        int.modalidad === 'RCS' || (int.modalidad && int.modalidad.includes('VIGENTE')) || int.dni_status?.estado === 'VENCIDO'
+    );
+    
     const isBlocked = isMainBlocked || hasBlockedIntegrante;
 
     // 2. ESTADOS Y LÓGICA DEL AVAL
@@ -46,7 +50,6 @@ export const useSolicitudForm = (data, handleChange) => {
     const porcentajeInteres = parseFloat(data.tasa_interes) || 0;
     const nCuotas = parseInt(data.cuotas_solicitadas) || 1;
     
-    // FLAT
     const interesGenerado = montoBase * (porcentajeInteres / 100) * nCuotas;
     const totalAPagar = montoBase + interesGenerado;
     const valorCuotaAprox = totalAPagar / nCuotas;
@@ -55,11 +58,7 @@ export const useSolicitudForm = (data, handleChange) => {
         isBlocked,
         isMainBlocked,
         hasBlockedIntegrante,
-        avalConfig: {
-            tieneAval, handleToggleAval, handleAvalInputChange, provincias, distritos
-        },
-        calculadora: {
-            montoBase, porcentajeInteres, nCuotas, interesGenerado, totalAPagar, valorCuotaAprox
-        }
+        avalConfig: { tieneAval, handleToggleAval, handleAvalInputChange, provincias, distritos },
+        calculadora: { montoBase, porcentajeInteres, nCuotas, interesGenerado, totalAPagar, valorCuotaAprox }
     };
 };

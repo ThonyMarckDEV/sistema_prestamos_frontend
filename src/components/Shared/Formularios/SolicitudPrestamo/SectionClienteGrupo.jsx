@@ -2,12 +2,36 @@ import React from 'react';
 import ClienteSearchSelect from 'components/Shared/Comboboxes/ClienteSearchSelect';
 import ProductoSearchSelect from 'components/Shared/Comboboxes/ProductoSearchSelect';
 import GrupoSearchSelect from 'components/Shared/Comboboxes/GrupoSearchSelect';
-import { UserIcon, UserGroupIcon, ShieldCheckIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { UserIcon, UserGroupIcon, ShieldCheckIcon, TrashIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
-const SectionClienteGrupo = ({ data, handleChange, isBlocked, isMainBlocked, isUpdate, addIntegrante, removeIntegrante, updateMontoIntegrante, updateCargoIntegrante }) => {
+const SectionClienteGrupo = ({ 
+    data, handleChange, isBlocked, isMainBlocked, isUpdate, 
+    addIntegrante, removeIntegrante, updateMontoIntegrante, updateCargoIntegrante
+}) => {
 
     const isPresidenteTaken = (currentId) => data.integrantes.some(i => i.cargo === 'PRESIDENTE' && i.id !== currentId);
     const isSecretarioTaken = (currentId) => data.integrantes.some(i => i.cargo === 'SECRETARIO' && i.id !== currentId);
+
+    let alertClass = 'bg-slate-50 border-slate-200 text-slate-400';
+    let alertMessage = 'ESPERANDO SELECCIÓN...';
+    let AlertIcon = ShieldCheckIcon;
+
+    if (data.dni_status?.estado === 'VENCIDO') {
+        alertClass = 'bg-red-50 border-red-200 text-red-600';
+        alertMessage = `BLOQUEADO: DNI VENCIDO (${data.dni_status.fecha_texto})`;
+        AlertIcon = ExclamationTriangleIcon;
+    } else if (isMainBlocked) {
+        alertClass = 'bg-red-50 border-red-200 text-red-600';
+        alertMessage = data.modalidad; 
+    } else if (data.modalidad) {
+        alertClass = 'bg-green-50 border-green-200 text-green-600';
+        alertMessage = data.modalidad;
+        if (data.dni_status?.estado === 'POR_VENCER') {
+            alertClass = 'bg-yellow-50 border-yellow-200 text-yellow-700';
+            alertMessage = `${data.modalidad} | DNI VENCE EN ${data.dni_status.dias_restantes} DÍAS (${data.dni_status.fecha_texto})`;
+            AlertIcon = ExclamationTriangleIcon;
+        }
+    }
 
     return (
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
@@ -23,6 +47,8 @@ const SectionClienteGrupo = ({ data, handleChange, isBlocked, isMainBlocked, isU
                             onSelect={(c) => { 
                                 handleChange('cliente_id', c?.usuario_id); 
                                 handleChange('modalidad', c ? c.modalidad_cliente : ''); 
+                                handleChange('fechaVencimientoDni', c ? c.fechaVencimientoDni : null); 
+                                handleChange('dni_status', c ? c.dni_status : null);
                             }} 
                             initialName={data.cliente_nombre || data.cliente?.nombre_completo}
                             disabled={isUpdate} 
@@ -37,9 +63,9 @@ const SectionClienteGrupo = ({ data, handleChange, isBlocked, isMainBlocked, isU
                 </div>
 
                 <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Modalidad Detectada</label>
-                    <div className={`p-2.5 rounded-lg border text-xs font-black flex items-center gap-2 h-[42px] ${isMainBlocked ? 'bg-red-50 border-red-200 text-red-600' : (data.modalidad ? 'bg-green-50 border-green-200 text-green-600' : 'bg-slate-50 border-slate-200 text-slate-400')}`}>
-                        <ShieldCheckIcon className="w-4 h-4" /> {data.modalidad || 'ESPERANDO SELECCIÓN...'}
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Estado de Riesgo</label>
+                    <div className={`p-2.5 rounded-lg border text-xs font-black flex items-center gap-2 h-[42px] ${alertClass}`}>
+                        <AlertIcon className="w-4 h-4" /> {alertMessage}
                     </div>
                 </div>
 
@@ -74,14 +100,24 @@ const SectionClienteGrupo = ({ data, handleChange, isBlocked, isMainBlocked, isU
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {data.integrantes.map((int) => {
-                                    const isRed = int.modalidad === 'RCS' || int.modalidad?.includes('VIGENTE');
+                                    const isRed = int.modalidad === 'RCS' || int.modalidad?.includes('VIGENTE') || int.dni_status?.estado === 'VENCIDO';
+                                    const isYellow = int.dni_status?.estado === 'POR_VENCER' && !isRed;
+
                                     return (
-                                        <tr key={int.id} className={isRed ? 'bg-red-50/50' : ''}>
+                                        <tr key={int.id} className={isRed ? 'bg-red-50/50' : (isYellow ? 'bg-yellow-50/50' : '')}>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`font-bold uppercase text-[11px] ${isRed ? 'text-red-700' : 'text-slate-700'}`}>{int.nombre}</span>
-                                                    <span className={`px-2 py-0.5 rounded text-[8px] font-black border ${isRed ? 'bg-red-100 text-red-600 border-red-200' : 'bg-green-50 text-green-600 border-green-100'}`}>
-                                                        {int.modalidad}
+                                                    <span className={`px-2 py-0.5 rounded text-[11px] font-black border ${
+                                                        isRed ? 'bg-red-100 text-red-600 border-red-200' : 
+                                                        isYellow ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 
+                                                        'bg-green-50 text-green-600 border-green-100'
+                                                    }`}>
+                                                        {int.dni_status?.estado === 'VENCIDO' 
+                                                            ? `DNI VENCIDO (${int.dni_status.fecha_texto})` 
+                                                            : (isYellow 
+                                                                ? `VENCE EN ${int.dni_status.dias_restantes} DÍAS (${int.dni_status.fecha_texto})` 
+                                                                : int.modalidad)}
                                                     </span>
                                                 </div>
                                             </td>

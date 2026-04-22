@@ -11,6 +11,8 @@ export const useStore = () => {
     const [formData, setFormData] = useState({
         es_grupal: false,
         cliente_id: '',
+        fechaVencimientoDni: '',
+        dni_status: null,
         grupo_id: '',
         integrantes: [],
         producto_id: '',
@@ -23,10 +25,9 @@ export const useStore = () => {
         aval: null
     });
 
-    const isBlocked = 
-        formData.modalidad === 'RCS' || 
-        (formData.modalidad && formData.modalidad.includes('VIGENTE')) ||
-        formData.integrantes.some(i => i.modalidad === 'RCS' || (i.modalidad && i.modalidad.includes('VIGENTE')));
+    const isMainBlocked = formData.modalidad === 'RCS' || (formData.modalidad && formData.modalidad.includes('VIGENTE')) || formData.dni_status?.estado === 'VENCIDO';
+    const hasBlockedIntegrante = formData.integrantes.some(i => i.modalidad === 'RCS' || (i.modalidad && i.modalidad.includes('VIGENTE')) || i.dni_status?.estado === 'VENCIDO');
+    const isBlocked = isMainBlocked || hasBlockedIntegrante;
 
     const handleChange = (field, value) => {
         if (field.includes('.')) {
@@ -39,6 +40,8 @@ export const useStore = () => {
                     if (value === true) {
                         newData.modalidad = 'GRUPAL';
                         newData.cliente_id = '';
+                        newData.fechaVencimientoDni = '';
+                        newData.dni_status = null;
                     } else {
                         newData.modalidad = ''; 
                         newData.grupo_id = ''; 
@@ -68,7 +71,9 @@ export const useStore = () => {
                     nombre: cliente.nombre_completo, 
                     modalidad: cliente.modalidad_cliente,
                     monto: 0,
-                    cargo: cargo
+                    cargo: cargo,
+                    fechaVencimientoDni: cliente.fechaVencimientoDni,
+                    dni_status: cliente.dni_status
                 }]
             };
         });
@@ -94,7 +99,10 @@ export const useStore = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (isBlocked) return;
+        if (isBlocked) {
+            setAlert({ type: 'error', message: 'No se puede enviar la solicitud. Hay integrantes con DNI vencido o en Riesgo Crediticio.' });
+            return;
+        }
         setLoading(true);
         try {
             await store(formData);
