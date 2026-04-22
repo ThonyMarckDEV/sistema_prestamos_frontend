@@ -7,6 +7,7 @@ import DesembolsoModal from './DesembolsoModal';
 import AbrirSesionModal from 'components/Shared/Modals/AbrirSesionModal';
 import CerrarSesionModal from 'components/Shared/Modals/CerrarSesionModal';
 import PdfModal from 'components/Shared/Modals/PdfModal'; 
+import HistorialMoraModal from 'components/Shared/Modals/HistorialMoraModal'; 
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import Table from 'components/Shared/Tables/Table';
@@ -16,7 +17,8 @@ import {
     LockOpenIcon, 
     BanknotesIcon, 
     ArrowUpCircleIcon, 
-    ArrowDownCircleIcon 
+    ArrowDownCircleIcon,
+    ClockIcon
 } from '@heroicons/react/24/outline';
 
 const Store = () => {
@@ -29,6 +31,7 @@ const Store = () => {
     } = useStore();
 
     const [isDesembolsoModalOpen, setIsDesembolsoModalOpen] = useState(false);
+    const [historialModal, setHistorialModal] = useState(null);
 
     const columns = useMemo(() => [
         { 
@@ -68,9 +71,21 @@ const Store = () => {
                         ) : (
                             <span className="font-black text-xs text-red-600 line-through">S/ {moraTotal.toFixed(2)}</span>
                         )}
-                        <span className={`text-[10px] font-bold mt-0.5 ${moraPendiente === 0 ? 'text-green-600' : 'text-slate-400'}`}>
-                            {moraPendiente === 0 ? '✓ Cubierta' : `De S/ ${moraTotal.toFixed(2)}`}
-                        </span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className={`text-[10px] font-bold ${moraPendiente === 0 ? 'text-green-600' : 'text-slate-400'}`}>
+                                {moraPendiente === 0 ? '✓ Cubierta' : `De S/ ${moraTotal.toFixed(2)}`}
+                            </span>
+                            
+                            {row.historial_mora && row.historial_mora.length > 0 && (
+                                <button
+                                    onClick={() => setHistorialModal({ nro: row.nro, historial: row.historial_mora, total: moraTotal })}
+                                    className="text-slate-400 hover:text-blue-500 transition-all p-0.5 rounded-full hover:bg-blue-50 active:scale-95"
+                                    title="Ver historial de mora"
+                                >
+                                    <ClockIcon className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 );
             }
@@ -188,6 +203,7 @@ const Store = () => {
                 </div>
             ) : (
                 <div className="mt-6 space-y-6 animate-in fade-in duration-500">
+                    {/* (Cabecera y Botones de acción igual que antes) */}
                     <div className="flex flex-col md:flex-row items-center justify-between bg-slate-900 p-6 md:p-8 rounded-[32px] shadow-2xl text-white gap-6">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-white/10 rounded-2xl">
@@ -277,6 +293,12 @@ const Store = () => {
             <AbrirSesionModal isOpen={isAbrirModalOpen} onClose={() => setIsAbrirModalOpen(false)} onConfirm={handleAbrirSesion} loading={loading} />
             <CerrarSesionModal isOpen={isCerrarModalOpen} onClose={() => setIsCerrarModalOpen(false)} onConfirm={handleCerrarSesion} sesionActiva={sesionActiva} loading={loading} />
             <PdfModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} title={pdfTitle} base64={pdfBase64} />
+                
+            <HistorialMoraModal 
+                isOpen={!!historialModal} 
+                onClose={() => setHistorialModal(null)} 
+                data={historialModal} 
+            />
         </div>
     );
 };

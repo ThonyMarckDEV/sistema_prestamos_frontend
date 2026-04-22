@@ -19,6 +19,24 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     const esGrupal    = !!(cuota?.integrantes && cuota.integrantes.length > 0);
     const integrantesPendientes = cuota?.integrantes?.filter(i => !i.pagado) ?? [];
 
+    // Validación mora individual en modo parcial grupal
+    const integrantesSinCubrirMora = esGrupal && esParcial
+        ? integrantesPendientes.filter(int => {
+            const moraPend     = parseFloat(int.mora_pendiente ?? 0);
+            if (moraPend <= 0) return false;
+            const pagaCompleto = !distribucion[int.id] || distribucion[int.id] === '';
+            if (pagaCompleto) return false;
+            const montoPuesto  = parseFloat(distribucion[int.id] || 0);
+            return montoPuesto < moraPend;
+        })
+        : [];
+
+    // Validación mora individual (no grupal)
+    const montoRecibidoNum = parseFloat(recibido || 0);
+    const hayMoraPendiente = mora > 0;
+    const noСubreMora      = !esGrupal && hayMoraPendiente && montoRecibidoNum > 0 && montoRecibidoNum < mora;
+    const puedeSubmit      = !noСubreMora && integrantesSinCubrirMora.length === 0;
+
     useEffect(() => {
         if (isOpen) {
             setMetodo('DEPOSITO');
@@ -60,7 +78,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
             formData.append('distribucion', JSON.stringify(
                 integrantesPendientes.map(int => ({
                     cliente_id:         int.id,
-                    total_cuota:        parseFloat(int.saldo || 0),
+                    total_cuota:        parseFloat(int.saldo || 0),  // saldo ya tiene excedente descontado
                     monto:              parseFloat(distribucion[int.id] || 0),
                     pago_completo:      !distribucion[int.id] || distribucion[int.id] === '',
                     excedente_aplicado: parseFloat(int.excedente_aplicado ?? 0),
@@ -262,11 +280,6 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                                 </p>
                                                             )}
                                                         </div>
-                                                        {parseFloat(int.excedente_aplicado ?? 0) > 0 && (
-                                                            <p className="text-[9px] text-purple-600 font-bold">
-                                                                Excedente. aplicado: -S/ {parseFloat(int.excedente_aplicado).toFixed(2)}
-                                                            </p>
-                                                        )}
                                                         <div className="flex items-center gap-2">
                                                             <p className="text-[9px] font-black text-slate-600">
                                                                 Falta: S/ {saldoCap.toFixed(2)}
@@ -277,6 +290,11 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                                 </p>
                                                             )}
                                                         </div>
+                                                        {parseFloat(int.excedente_aplicado ?? 0) > 0 && (
+                                                            <p className="text-[9px] text-purple-600 font-bold">
+                                                                Exc. aplicado: -S/ {parseFloat(int.excedente_aplicado).toFixed(2)}
+                                                            </p>
+                                                        )}
                                                         {moraPend > 0 && (
                                                             <p className="text-[9px] font-black text-slate-500">
                                                                 Total pendiente: S/ {saldoTotal.toFixed(2)}
@@ -326,9 +344,38 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         </div>
                     )}
 
+                    {/* Aviso mora individual */}
+                    {noСubreMora && (
+                        <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+                            <p className="text-xs font-black text-red-700 uppercase">⚠ Debe cubrir la mora primero</p>
+                            <p className="text-[11px] text-red-500 mt-1">
+                                El monto mínimo a pagar es <span className="font-black">S/ {mora.toFixed(2)}</span> para cubrir la mora pendiente antes de aplicar el excedente.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Aviso mora por integrante (grupal parcial) */}
+                    {integrantesSinCubrirMora.length > 0 && (
+                        <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+                            <p className="text-xs font-black text-red-700 uppercase">⚠ Mora pendiente sin cubrir</p>
+                            <div className="mt-1.5 space-y-1">
+                                {integrantesSinCubrirMora.map(int => (
+                                    <p key={int.id} className="text-[11px] text-red-500">
+                                        <span className="font-black">{int.nombre}</span>
+                                        {' '}— mora pendiente:{' '}
+                                        <span className="font-black">S/ {parseFloat(int.mora_pendiente).toFixed(2)}</span>
+                                    </p>
+                                ))}
+                            </div>
+                            <p className="text-[10px] text-red-400 font-bold mt-2">
+                                Ingrese al menos el monto de la mora o deje vacío para pago completo.
+                            </p>
+                        </div>
+                    )}
+
                     {/* Botón */}
                     <div className="pt-6 md:pt-4">
-                        <button onClick={handleSubmit} disabled={loading}
+                        <button onClick={handleSubmit} disabled={loading || !puedeSubmit}
                             className="w-full bg-red-600 text-white py-5 rounded-2xl font-black uppercase text-xs shadow-lg shadow-red-100 hover:bg-red-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-95">
                             {loading
                                 ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />

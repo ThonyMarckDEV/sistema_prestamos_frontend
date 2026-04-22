@@ -90,11 +90,6 @@ export const useStore = () => {
     const handleDesembolsar = async (formData) => {
         setLoading(true);
         try {
-            // Log de diagnóstico — eliminar en producción
-            for (let [k, v] of formData.entries()) {
-                console.log(`[handleDesembolsar payload] ${k}:`, v);
-            }
-
             await desembolsar(formData);
             setAlert({ type: 'success', message: 'Desembolso procesado correctamente.' });
             setPrestamoSeleccionado(null);
