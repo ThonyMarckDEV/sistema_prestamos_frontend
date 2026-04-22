@@ -1,35 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { store, combobox } from 'services/prospectoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
+import peruData from 'utilities/data/peruData';
 
 const initialForm = {
-    tipo:             1,
-    dni:              '',
-    ruc:              '',
-    nombre_completo:  '',
-    telefono:         '',
-    correo:           '',
-    zona_id:          null,
-    ingreso_estimado: '',
-    monto_solicitado: '',
-    proposito:        '',
-    observaciones:    '',
+    tipo: 1,
+    dni: '', nombre: '', apellidoPaterno: '', apellidoMaterno: '', fechaNacimiento: '', fechaVencimientoDni: '', sexo: '',
+    ruc: '', razon_social: '', nombre_comercial: '',
+    ciiu_id: null, zona_id: null,
+    telefono: '', telefonoFijo: '', correo: '',
+    direccionFiscal: '', departamento: '', provincia: '', distrito: '', tipoVivienda: '', tiempoResidencia: '',
+    ingreso_estimado: '', monto_solicitado: '', proposito: '', observaciones: '',
 };
 
 export const useStore = () => {
     const navigate = useNavigate();
 
-    // Fase 1: búsqueda de documento
     const [documento,      setDocumento]      = useState('');
     const [buscando,       setBuscando]       = useState(false);
     const [busquedaHecha,  setBusquedaHecha]  = useState(false);
-    const [busquedaResult, setBusquedaResult] = useState(null); // { encontrado, tipo, data }
+    const [busquedaResult, setBusquedaResult] = useState(null);
 
-    // Fase 2: formulario
     const [formData, setFormData] = useState(initialForm);
     const [loading,  setLoading]  = useState(false);
     const [alert,    setAlert]    = useState(null);
+
+    const [provincias, setProvincias] = useState([]);
+    const [distritos, setDistritos] = useState([]);
+
+    // Efecto para cargar provincias cuando cambia el departamento
+    useEffect(() => {
+        const dep = formData.departamento;
+        setProvincias(dep && peruData[dep] ? Object.keys(peruData[dep]) : []);
+    }, [formData.departamento]);
+
+    // Efecto para cargar distritos cuando cambia la provincia
+    useEffect(() => {
+        const dep = formData.departamento;
+        const prov = formData.provincia;
+        setDistritos(dep && prov && peruData[dep][prov] ? peruData[dep][prov] : []);
+    }, [formData.provincia, formData.departamento]);
 
     const handleBuscar = async () => {
         if (!documento || documento.length < 8) {
@@ -43,7 +54,6 @@ export const useStore = () => {
             setBusquedaResult(result);
             setBusquedaHecha(true);
 
-            // Pre-llenar DNI/RUC si no se encontró nada
             if (!result.encontrado) {
                 const esRuc = documento.length === 11;
                 setFormData(prev => ({
@@ -60,14 +70,21 @@ export const useStore = () => {
     };
 
     const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData(prev => {
+            const newData = { ...prev, [field]: value };
+            if (field === 'departamento') {
+                newData.provincia = '';
+                newData.distrito = '';
+            }
+            if (field === 'provincia') {
+                newData.distrito = '';
+            }
+            return newData;
+        });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.nombre_completo) return setAlert({ type: 'error', message: 'El nombre completo es obligatorio.' });
-        if (!formData.telefono)        return setAlert({ type: 'error', message: 'El teléfono es obligatorio.' });
-
         setLoading(true);
         setAlert(null);
         try {
@@ -90,11 +107,9 @@ export const useStore = () => {
     };
 
     return {
-        documento, setDocumento,
-        buscando, busquedaHecha, busquedaResult,
-        formData, handleChange,
-        loading, alert, setAlert,
-        handleBuscar, handleSubmit, resetBusqueda,
-        navigate,
+        documento, setDocumento, buscando, busquedaHecha, busquedaResult,
+        formData, handleChange, loading, alert, setAlert,
+        handleBuscar, handleSubmit, resetBusqueda, navigate,
+        provincias, distritos // 🔥 Exportamos para usarlos en el formulario
     };
 };
