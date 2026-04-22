@@ -13,7 +13,7 @@ const CiiuSelect = ({ onSelect, disabled, initialCiiu = null }) => {
 
     // Si cambian los props iniciales (ej. editar un cliente)
     useEffect(() => {
-        if (initialCiiu) {
+        if (initialCiiu && initialCiiu.codigo) {
             setInputValue(`${initialCiiu.codigo} - ${initialCiiu.descripcion}`);
         } else {
             setInputValue('');

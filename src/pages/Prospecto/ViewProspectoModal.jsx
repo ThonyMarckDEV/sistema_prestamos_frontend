@@ -8,7 +8,7 @@ import { useAuth } from 'context/AuthContext';
 import {
     UserIcon, CurrencyDollarIcon, ClockIcon,
     ArrowPathIcon, PencilSquareIcon, ArrowRightIcon,
-    CheckCircleIcon
+    CheckCircleIcon, MapPinIcon, IdentificationIcon
 } from '@heroicons/react/24/outline';
 
 const Row = ({ label, value }) => (
@@ -48,35 +48,70 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                                 </div>
                                 <div>
                                     <p className="font-black text-slate-800 text-sm uppercase">{data.nombre_completo}</p>
-                                    <p className="text-[11px] text-slate-500">{data.documento} · {data.tipo === 2 ? 'Empresa' : 'Persona'}</p>
+                                    <p className="text-[11px] text-slate-500">
+                                        {data.tipo === 1 ? `DNI: ${data.dni}` : `RUC: ${data.ruc}`} · {data.tipo === 2 ? 'Empresa' : 'Persona Natural'}
+                                    </p>
                                 </div>
                             </div>
                             <EstadoBadge estado={data.estado} />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Datos */}
+                            
+                            {/* Identificación */}
                             <div className="bg-white border border-slate-100 rounded-xl p-4">
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-1">
-                                    <UserIcon className="w-3 h-3" /> Información
+                                    <IdentificationIcon className="w-3 h-3" /> Identificación
                                 </h4>
-                                <Row label="Teléfono" value={data.telefono} />
-                                <Row label="Correo"   value={data.correo} />
-                                <Row label="Zona"     value={data.zona} />
-                                <Row label="Asesor"   value={data.asesor} />
+                                {data.tipo === 1 ? (
+                                    <>
+                                        <Row label="DNI" value={data.dni} />
+                                        <Row label="Vencimiento" value={data.fechaVencimientoDni} />
+                                        <Row label="F. Nacimiento" value={data.fechaNacimiento} />
+                                        <Row label="Sexo" value={data.sexo} />
+                                    </>
+                                ) : (
+                                    <>
+                                        <Row label="RUC" value={data.ruc} />
+                                        <Row label="Razón Social" value={data.razon_social} />
+                                        <Row label="N. Comercial" value={data.nombre_comercial} />
+                                    </>
+                                )}
+                                <Row label="CIIU" value={data.ciiu ? `${data.ciiu.codigo} - ${data.ciiu.descripcion}` : 'No registrado'} />
                                 <Row label="Registro" value={data.created_at?.split(' ')[0]} />
+                                <Row label="Asesor" value={data.asesor} />
                             </div>
 
-                            {/* Financiero */}
+                            {/* Contacto y Residencia */}
                             <div className="bg-white border border-slate-100 rounded-xl p-4">
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-1">
-                                    <CurrencyDollarIcon className="w-3 h-3" /> Datos Financieros
+                                    <MapPinIcon className="w-3 h-3" /> Contacto y Residencia
                                 </h4>
-                                <Row label="Ingreso Est." value={data.ingreso_estimado ? `S/ ${data.ingreso_estimado}` : null} />
-                                <Row label="Monto Solic." value={data.monto_solicitado ? `S/ ${data.monto_solicitado}` : null} />
-                                <Row label="Propósito"    value={data.proposito} />
+                                <Row label="Celular" value={data.telefono} />
+                                <Row label="Fijo" value={data.telefonoFijo} />
+                                <Row label="Correo" value={data.correo} />
+                                <Row label="Zona" value={data.zona} />
+                                <Row label="Ubicación" value={data.departamento ? `${data.distrito}, ${data.provincia}, ${data.departamento}` : null} />
+                                <Row label="Dirección" value={data.direccionFiscal} />
+                                <Row label="Vivienda" value={data.tipoVivienda ? `${data.tipoVivienda} (${data.tiempoResidencia})` : null} />
+                            </div>
+
+                            {/* Financiero (Ancho completo) */}
+                            <div className="bg-white border border-slate-100 rounded-xl p-4 md:col-span-2">
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-1">
+                                    <CurrencyDollarIcon className="w-3 h-3" /> Datos Financieros y Propósito
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                                    <div>
+                                        <Row label="Ingreso Est." value={data.ingreso_estimado ? `S/ ${data.ingreso_estimado}` : null} />
+                                        <Row label="Monto Solic." value={data.monto_solicitado ? `S/ ${data.monto_solicitado}` : null} />
+                                    </div>
+                                    <div>
+                                        <Row label="Propósito" value={data.proposito} />
+                                    </div>
+                                </div>
                                 {data.observaciones && (
-                                    <div className="mt-2 p-2 bg-slate-50 rounded-lg">
+                                    <div className="mt-3 p-2.5 bg-slate-50 rounded-lg border border-slate-100">
                                         <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Observaciones</p>
                                         <p className="text-xs text-slate-600">{data.observaciones}</p>
                                     </div>
@@ -90,19 +125,21 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-1">
                                     <ClockIcon className="w-3 h-3" /> Historial de Seguimientos
                                 </h4>
-                                <div className="space-y-2 max-h-48 overflow-y-auto">
+                                <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
                                     {data.seguimientos.map((s) => (
-                                        <div key={s.id} className="flex items-start gap-3 p-2.5 bg-slate-50 rounded-lg">
+                                        <div key={s.id} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
                                             <ArrowRightIcon className="w-3 h-3 text-slate-400 mt-0.5 flex-shrink-0" />
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2 flex-wrap">
                                                     <EstadoBadge estado={s.estado_anterior} />
                                                     <ArrowRightIcon className="w-3 h-3 text-slate-300" />
                                                     <EstadoBadge estado={s.estado_nuevo} />
-                                                    <span className="text-[9px] text-slate-400 ml-auto">{s.fecha}</span>
+                                                    <span className="text-[9px] font-black text-slate-400 ml-auto bg-white px-2 py-1 rounded-md border border-slate-200">
+                                                        {s.fecha}
+                                                    </span>
                                                 </div>
-                                                {s.nota && <p className="text-[11px] text-slate-500 mt-1">{s.nota}</p>}
-                                                <p className="text-[9px] text-slate-400 mt-0.5">Por: {s.asesor}</p>
+                                                {s.nota && <p className="text-xs font-medium text-slate-600 mt-2">{s.nota}</p>}
+                                                <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase">Por: {s.asesor}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -115,13 +152,13 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                             <div className="flex flex-wrap gap-3 pt-2 border-t border-slate-100">
                                 {puedeSegumiento && (
                                     <button onClick={() => setSeguimientoOpen(true)}
-                                        className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-black text-xs uppercase hover:bg-slate-700 transition-all">
+                                        className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-black text-xs uppercase hover:bg-slate-700 transition-all shadow-sm">
                                         <ArrowPathIcon className="w-4 h-4" /> Registrar Seguimiento
                                     </button>
                                 )}
                                 {puedeStatus && [1, 2, 3].includes(data.estado) && (
                                     <button onClick={() => setStatusOpen(true)}
-                                        className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-black text-xs uppercase hover:bg-blue-700 transition-all">
+                                        className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-black text-xs uppercase hover:bg-blue-700 transition-all shadow-sm">
                                         <CheckCircleIcon className="w-4 h-4" /> Aprobar / Rechazar
                                     </button>
                                 )}
@@ -133,11 +170,11 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                         )}
 
                         {data.estado === 6 && data.cliente_id && (
-                            <div className="p-3 bg-purple-50 border border-purple-100 rounded-xl">
-                                <p className="text-xs font-black text-purple-700">
-                                    ✓ Convertido a cliente.{' '}
-                                    <button onClick={() => navigate(`/cliente/editar/${data.cliente_id}`)} className="underline">
-                                        Ver ficha →
+                            <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl shadow-sm">
+                                <p className="text-xs font-black text-purple-700 flex items-center gap-2">
+                                    <CheckCircleIcon className="w-5 h-5" /> Convertido a cliente.
+                                    <button onClick={() => navigate(`/cliente/editar/${data.cliente_id}`)} className="underline hover:text-purple-900 ml-auto">
+                                        Ver ficha del cliente →
                                     </button>
                                 </p>
                             </div>

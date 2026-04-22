@@ -115,7 +115,6 @@ const ProspectoForm = ({ data, onChange, isEditing = false }) => {
                     )}
 
                     <div className="sm:col-span-2">
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Actividad Económica (CIIU) *</label>
                         <CiiuSelect onSelect={(ciiu) => onChange('ciiu_id', ciiu ? ciiu.id : null)} initialCiiu={data.ciiu || null} />
                     </div>
                 </div>
@@ -142,7 +141,13 @@ const ProspectoForm = ({ data, onChange, isEditing = false }) => {
 
                     <div className="sm:col-span-2 mt-2">
                         <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Zona Operativa *</label>
-                        <ZonaSearchSelect initialName={data.zona_nombre || ''} onSelect={(zona) => onChange('zona_id', zona ? zona.id : null)} />
+                        <ZonaSearchSelect 
+                            initialName={data.zona_nombre}
+                            onSelect={(zona) => {
+                                onChange('zona_id', zona ? zona.id : null);
+                                onChange('zona_nombre', zona ? zona.nombre : '');
+                            }} 
+                        />
                     </div>
 
                     <div className="sm:col-span-2">

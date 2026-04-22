@@ -42,9 +42,13 @@ export const useUpdate = () => {
                     razon_social:        data.razon_social        || '',
                     nombre_comercial:    data.nombre_comercial    || '',
                     ciiu_id:             data.ciiu_id             || null,
-                    ciiu:                data.ciiu                || null, 
+                    ciiu: data.ciiu ? {
+                        id: data.ciiu.id,
+                        codigo: data.ciiu.codigo,
+                        descripcion: data.ciiu.descripcion
+                    } : null,
                     zona_id:             data.zona_id             || null,
-                    zona_nombre:         data.zona?.nombre        || '',
+                    zona_nombre:         data.zona                || '',
                     telefono:            data.telefono            || '',
                     telefonoFijo:        data.telefonoFijo        || '',
                     correo:              data.correo              || '',
