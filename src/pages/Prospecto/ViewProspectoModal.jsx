@@ -173,9 +173,6 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                             <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl shadow-sm">
                                 <p className="text-xs font-black text-purple-700 flex items-center gap-2">
                                     <CheckCircleIcon className="w-5 h-5" /> Convertido a cliente.
-                                    <button onClick={() => navigate(`/cliente/editar/${data.cliente_id}`)} className="underline hover:text-purple-900 ml-auto">
-                                        Ver ficha del cliente →
-                                    </button>
                                 </p>
                             </div>
                         )}
