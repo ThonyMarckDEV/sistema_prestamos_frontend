@@ -68,8 +68,8 @@ const DatosPersonalesForm = ({ data, handleNestedChange, isEditing = false }) =>
                             <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Sexo *</label>
                             <select value={c.sexo || ''} onChange={(e) => onC('sexo', e.target.value)} className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none" required>
                                 <option value="">-- Seleccionar --</option>
-                                <option value="Masculino">Masculino</option>
-                                <option value="Femenino">Femenino</option>
+                                <option value="MASCULINO">MASCULINO</option>
+                                <option value="FEMENINO">FEMENINO</option>
                             </select>
                         </div>
                         <div className="sm:col-span-2">
