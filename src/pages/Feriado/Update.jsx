@@ -14,7 +14,7 @@ const Update = () => {
     return (
         <div className="container mx-auto p-6 max-w-5xl">
             <PageHeader title="Editar Feriado" subtitle={`Fecha original: ${formData.fecha}`} buttonText="Volver" buttonLink="/feriados/index" />
-            <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+            <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6 bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
                 <div className="flex flex-col items-center">

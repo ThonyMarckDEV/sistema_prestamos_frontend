@@ -78,7 +78,7 @@ const Index = () => {
     return (
         <div className="container mx-auto p-6">
             <PageHeader title="Gestión de Roles y Permisos" icon={ShieldCheckIcon} />
-            <AlertMessage type={alert?.type} message={alert?.message} onClose={() => setAlert(null)} />
+            <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             
             {!isEditing ? (
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mt-6 animate-fade-in">
