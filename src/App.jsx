@@ -90,6 +90,7 @@ import ListarRoles from 'pages/Rol/Index';
 import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
 import ProtectedRoute from 'utilities/ProtectedRoutes/ProtectedRoute';
 import { AuthProvider } from 'context/AuthContext';
+import { NotificacionProvider } from 'components/Shared/Notificaciones/NotificacionContext';
 
 
 function AppContent() {
@@ -186,14 +187,16 @@ function AppContent() {
 }
 
 function App() {
-  return (
+  return (   
     <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-white text-primary">
-          <AppContent />
-          <ToastContainer position="top-right" autoClose={3000} />
-        </div>
-      </Router>
+     <NotificacionProvider>
+        <Router>
+          <div className="min-h-screen bg-white text-primary">
+            <AppContent />
+            <ToastContainer position="top-right" autoClose={3000} />
+          </div>
+        </Router>
+      </NotificacionProvider>
     </AuthProvider>
   );
 }
