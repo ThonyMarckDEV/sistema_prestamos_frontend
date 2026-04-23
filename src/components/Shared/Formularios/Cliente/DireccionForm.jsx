@@ -120,10 +120,10 @@ const DireccionForm = ({ data, handleNestedChange }) => {
                         required
                     >
                         <option value="">-- Seleccione --</option>
-                        <option value="Propia">Propia</option>
-                        <option value="Alquilada">Alquilada</option>
-                        <option value="Familiar">Familiar</option>
-                        <option value="Hipotecada">Hipotecada</option>
+                        <option value="PROPIA">PROPIA</option>
+                        <option value="ALQUILADA">ALQUILADA</option>
+                        <option value="FAMILIAR">FAMILIAR</option>
+                        <option value="HIPOTECADA">HIPOTECADA</option>
                     </select>
                 </div>
 

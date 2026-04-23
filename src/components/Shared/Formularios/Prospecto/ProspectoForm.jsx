@@ -194,8 +194,7 @@ const ProspectoForm = ({ data, onChange, isEditing = false }) => {
                                 <option value="PROPIA">PROPIA</option>
                                 <option value="ALQUILADA">ALQUILADA</option>
                                 <option value="FAMILIAR">FAMILIAR</option>
-                                <option value="ALOJADO">ALOJADO</option>
-                                <option value="OTROS">OTROS</option>
+                                <option value="HIPOTECADA">HIPOTECADA</option>
                             </select>
                         </div>
                         <div className="flex-1">

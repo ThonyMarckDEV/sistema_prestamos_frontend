@@ -8,42 +8,81 @@ import EmpleoForm from 'components/Shared/Formularios/Cliente/EmpleoForm';
 import UsuarioForm from 'components/Shared/Formularios/Cliente/UsuarioForm';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
-import { UserPlusIcon } from '@heroicons/react/24/outline';
+import LoadingScreen from 'components/Shared/LoadingScreen';
+import { UserPlusIcon, ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 
 const Store = () => {
-    const { formData, loading, alert, setAlert, handleNestedChange, handleSubmit } = useStore();
+    const {
+        formData, loading, loadingProspecto,
+        alert, setAlert,
+        handleNestedChange, handleSubmit,
+        prospectoId,
+    } = useStore();
+
     const esPersona = Number(formData.datos_cliente.tipo) === 1;
+
+    if (loadingProspecto) return <LoadingScreen />;
 
     return (
         <div className="container mx-auto p-4 sm:p-6">
-            <PageHeader title="Registrar Nuevo Cliente" icon={UserPlusIcon} buttonText="Volver al Listado" buttonLink="/cliente/listar" />
+            <PageHeader
+                title={prospectoId ? 'Convertir Prospecto a Cliente' : 'Registrar Nuevo Cliente'}
+                subtitle={prospectoId ? `Prospecto #${prospectoId} — datos precargados` : undefined}
+                icon={prospectoId ? ArrowRightCircleIcon : UserPlusIcon}
+                buttonText="Volver al Listado"
+                buttonLink={prospectoId ? '/prospecto/listar' : '/cliente/listar'}
+            />
+
+            {/* Banner informativo si viene de prospecto */}
+            {prospectoId && (
+                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-2xl flex items-center gap-3">
+                    <ArrowRightCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <div>
+                        <p className="text-xs font-black text-green-700 uppercase">Conversión desde Prospecto</p>
+                        <p className="text-[11px] text-green-600 mt-0.5">
+                            Los datos del prospecto han sido precargados. Completa los campos faltantes y guarda.
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
-            
+
             <form onSubmit={handleSubmit} className="mt-4">
-                {/* Usamos Grid. En movil 1 col, en Desktop 3 col */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    {/* Columna Izquierda (Datos Principales ocupa 1 columna entera) */}
                     <div className="lg:col-span-1 flex flex-col gap-6">
-                        <DatosPersonalesForm data={formData} handleNestedChange={handleNestedChange} isEditing={false} />
-                        <UsuarioForm form={formData} handleNestedChange={handleNestedChange} isEditing={false} />
+                        {/* tipo bloqueado si viene de prospecto */}
+                        <DatosPersonalesForm
+                            data={formData}
+                            handleNestedChange={handleNestedChange}
+                            isEditing={!!prospectoId}
+                        />
+                        <UsuarioForm
+                            form={formData}
+                            handleNestedChange={handleNestedChange}
+                            isEditing={false}
+                        />
                     </div>
 
-                    {/* Columna Central y Derecha */}
                     <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <DireccionForm data={formData} handleNestedChange={handleNestedChange} />
-                        <ContactoForm data={formData} handleNestedChange={handleNestedChange} />
-                        
+                        <ContactoForm  data={formData} handleNestedChange={handleNestedChange} />
                         {esPersona && <EmpleoForm data={formData} handleNestedChange={handleNestedChange} />}
                         <CuentaBancariaForm data={formData} handleNestedChange={handleNestedChange} />
                     </div>
                 </div>
 
-                {/* Boton Flotante / Footer de Acción */}
-                <div className="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-end sticky bottom-4 z-10">
+                <div className="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-end sticky bottom-4 z-20">
                     <button type="submit" disabled={loading}
-                        className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-red-700 text-white px-10 py-3.5 rounded-xl font-black uppercase hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 shadow-lg shadow-red-500/30">
-                        {loading ? 'Procesando...' : 'Guardar Cliente'}
+                        className={`w-full sm:w-auto text-white px-10 py-3.5 rounded-xl font-black uppercase transition-all disabled:opacity-50 shadow-lg ${
+                            prospectoId
+                                ? 'bg-green-600 hover:bg-green-700 shadow-green-500/30'
+                                : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-red-500/30'
+                        }`}>
+                        {loading
+                            ? 'Procesando...'
+                            : prospectoId ? 'Convertir a Cliente' : 'Guardar Cliente'
+                        }
                     </button>
                 </div>
             </form>

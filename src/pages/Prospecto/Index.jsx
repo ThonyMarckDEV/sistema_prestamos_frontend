@@ -7,16 +7,14 @@ import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ViewProspectoModal from './ViewProspectoModal';
 import { EstadoBadge } from 'components/Shared/Formularios/Prospecto/ProspectoForm';
 import {
-    UsersIcon, EyeIcon, PencilSquareIcon,
+    UsersIcon, EyeIcon, PencilSquareIcon, ArrowRightCircleIcon,
     PhoneIcon, CalendarDaysIcon, UserIcon, BuildingOfficeIcon,
     CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from 'context/AuthContext';
 
 const Index = () => {
-
     const { can } = useAuth();
-
     const {
         loading, prospectos, paginationInfo, filters, alert, setAlert,
         isViewOpen, setIsViewOpen, viewData, setViewData, viewLoading,
@@ -73,9 +71,7 @@ const Index = () => {
                     <span className="text-xs text-slate-600 flex items-center gap-1">
                         <PhoneIcon className="w-3 h-3 text-slate-400" /> {row.telefono}
                     </span>
-                    {row.correo && (
-                        <span className="text-[11px] text-slate-400">{row.correo}</span>
-                    )}
+                    {row.correo && <span className="text-[11px] text-slate-400">{row.correo}</span>}
                 </div>
             )
         },
@@ -120,7 +116,8 @@ const Index = () => {
         {
             header: 'Acciones',
             render: (row) => {
-                const puedeEditar = can('prospecto.update') && [1, 2, 3].includes(row.estado);
+                const puedeEditar    = can('prospecto.update') && [1, 2, 3].includes(row.estado);
+                const puedeConvertir = can('prospecto.convertir') && row.estado === 4;
 
                 return (
                     <div className="flex items-center gap-2 justify-end">
@@ -128,11 +125,21 @@ const Index = () => {
                             className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm">
                             <EyeIcon className="w-4 h-4" />
                         </button>
-                        
+
                         {puedeEditar && (
                             <Link to={`/prospecto/editar/${row.id}`} title="Editar"
                                 className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-200 shadow-sm">
                                 <PencilSquareIcon className="w-4 h-4" />
+                            </Link>
+                        )}
+
+                        {puedeConvertir && (
+                            <Link
+                                to={`/cliente/agregar?prospecto_id=${row.id}`}
+                                title="Convertir a Cliente"
+                                className="p-2 text-green-500 hover:text-white hover:bg-green-500 rounded-xl transition-all border border-green-200 hover:border-green-500 shadow-sm"
+                            >
+                                <ArrowRightCircleIcon className="w-4 h-4" />
                             </Link>
                         )}
                     </div>
