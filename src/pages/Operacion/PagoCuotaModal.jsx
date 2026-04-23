@@ -126,8 +126,8 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     }, [esParcial, esGrupal, totalAPagar]);
 
     return (
-        <ViewModal isOpen={isOpen} onClose={reset} title={`Cobrar Cuota N° ${cuota?.nro}`} size="xl">
-            <div className="flex flex-col md:flex-row -m-6 md:h-[580px] overflow-y-auto md:overflow-hidden">
+        <ViewModal isOpen={isOpen} onClose={reset} title={`Cobrar Cuota N° ${cuota?.nro}`} size="2xl">
+            <div className="flex flex-col md:flex-row -m-5 h-full min-h-[600px] max-h-[80vh]">
 
                 {/* Panel izquierdo */}
                 <div className="w-full md:w-[55%] p-8 flex flex-col bg-white border-r border-slate-100">
