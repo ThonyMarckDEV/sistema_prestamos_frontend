@@ -34,6 +34,7 @@ const Index = () => {
               { value: '3', label: 'En Evaluación' },
               { value: '4', label: 'Aprobado' },
               { value: '5', label: 'Rechazado' },
+              { value: '6', label: 'Convertido' },
           ]},
         { name: 'tipo', type: 'select', label: 'Tipo', colSpan: 'col-span-12 md:col-span-4',
           options: [{ value: '', label: 'Todos' }, { value: '1', label: 'Persona' }, { value: '2', label: 'Empresa' }] },
