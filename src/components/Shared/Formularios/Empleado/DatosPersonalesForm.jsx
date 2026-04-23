@@ -53,8 +53,8 @@ const DatosPersonalesForm = ({ data, handleNestedChange }) => {
                         className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none bg-white font-medium"
                     >
                         <option value="">-- Seleccionar --</option>
-                        <option value="Masculino">Masculino</option>
-                        <option value="Femenino">Femenino</option>
+                        <option value="MASCULINO">MASCULINO</option>
+                        <option value="FEMENINO">FEMENINO</option>
                     </select>
                 </div>
 
