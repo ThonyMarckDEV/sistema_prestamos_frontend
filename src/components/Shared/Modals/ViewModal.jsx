@@ -2,8 +2,15 @@ import React, { useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size = 'lg' }) => {
-
-    const sizeClass = { sm: 'max-w-lg', md: 'max-w-2xl', lg: 'max-w-4xl', xl: 'max-w-5xl', '2xl': 'max-w-6xl', full: 'max-w-[95vw]' }[size] ?? 'max-w-4xl';
+    
+    const sizeClass = { 
+        sm: 'max-w-md', 
+        md: 'max-w-2xl', 
+        lg: 'max-w-4xl', 
+        xl: 'max-w-6xl', 
+        '2xl': 'max-w-7xl', 
+        full: 'max-w-[98vw]' 
+    }[size] ?? 'max-w-4xl';
     
     useEffect(() => {
         if (isOpen) {
@@ -17,39 +24,62 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size =
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity">
-            <div className={`bg-white rounded-lg shadow-xl w-full ${sizeClass} overflow-hidden transform transition-all`}>
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all">
+            {/* Overlay con desenfoque más pro */}
+            <div 
+                className="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] transition-opacity" 
+                onClick={onClose}
+            />
+
+            {/* Contenedor del Modal */}
+            <div className={`
+                relative bg-white w-full ${sizeClass} 
+                flex flex-col
+                rounded-t-2xl sm:rounded-2xl 
+                shadow-2xl 
+                max-h-[95vh] sm:max-h-[90vh]
+                animate-in slide-in-from-bottom sm:zoom-in-95 duration-200
+            `}>
                 
-                {/* Header */}
-                <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="text-lg font-bold text-gray-800">{title}</h3>
+                {/* Header: Siempre visible en la parte superior */}
+                <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-white sticky top-0 z-10 rounded-t-2xl">
+                    <div className="flex flex-col">
+                        <h3 className="text-sm sm:text-base font-black text-slate-800 uppercase tracking-tight">
+                            {title}
+                        </h3>
+                    </div>
                     <button 
                         onClick={onClose} 
-                        className="text-gray-400 hover:text-red-500 transition-colors"
+                        className="p-2 -mr-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
                     >
                         <XMarkIcon className="w-6 h-6" />
                     </button>
                 </div>
 
-                {/* Body */}
-                <div className="p-6 max-h-[80vh] overflow-y-auto">
+                {/* Body: Area con scroll independiente */}
+                <div className="p-5 overflow-y-auto custom-scrollbar bg-white flex-1">
                     {isLoading ? (
-                        <div className="flex flex-col items-center justify-center py-12">
-                            <div className="w-10 h-10 border-4 border-gray-200 border-t-black rounded-full animate-spin mb-4"></div>
-                            <p className="text-gray-500">Cargando detalles...</p>
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <div className="relative w-12 h-12">
+                                <div className="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                                <div className="absolute inset-0 border-4 border-t-blue-600 rounded-full animate-spin"></div>
+                            </div>
+                            <p className="mt-4 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Cargando información...</p>
                         </div>
                     ) : (
-                        children
+                        <div className="animate-in fade-in duration-500">
+                            {children}
+                        </div>
                     )}
                 </div>
 
-                {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                {/* Footer: Siempre visible en la parte inferior */}
+                <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 sticky bottom-0 z-10 rounded-b-2xl">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 font-medium"
+                        className="w-full sm:w-auto px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-slate-200"
                     >
-                        Cerrar
+                        Cerrar Ventana
                     </button>
                 </div>
             </div>
