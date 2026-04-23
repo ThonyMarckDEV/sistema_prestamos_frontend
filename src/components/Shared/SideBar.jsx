@@ -143,13 +143,6 @@ export const MENU_GROUPS = [
                     { name: 'Agregar Banco', link: '/entidadBancaria/agregar', requiredPermission: 'entidadBancaria.store' },
                 ],
             },
-            {  
-                section: 'Configuración Mora', icon: ScaleIcon,
-                subs: [
-                    { name: 'Calendario Feriados', link: '/feriados/index', requiredPermission: 'feriado.index' },
-                    { name: 'Monto de Mora', link: '/configuracion/mora', requiredPermission: 'configuracion.mora' },
-                ],
-            },
             { 
                 section: 'Productos', icon: ShoppingBagIcon,
                 subs: [
@@ -162,6 +155,13 @@ export const MENU_GROUPS = [
                 subs: [
                     { name: 'Listar Personal', link: '/empleado/listar', requiredPermission: 'empleado.index' },
                     { name: 'Agregar Empleado', link: '/empleado/agregar', requiredPermission: 'empleado.store' },
+                ],
+            },
+            {  
+                section: 'Configuración Mora', icon: ScaleIcon,
+                subs: [
+                    { name: 'Calendario Feriados', link: '/feriados/index', requiredPermission: 'feriado.index' },
+                    { name: 'Monto de Mora', link: '/configuracion/mora', requiredPermission: 'configuracion.mora' },
                 ],
             },
             { 
