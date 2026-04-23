@@ -25,7 +25,12 @@ const Login = () => {
     
     try {
       const result = await authService.login(username, password, rememberMe);
-      const { access_token } = result;
+      
+      const access_token = result.data ? result.data.access_token : result.access_token;
+      
+      if (!access_token) {
+        throw new Error("No se pudo obtener el token de acceso.");
+      }
       
       document.cookie = `access_token=${access_token}; path=/; Secure; SameSite=Strict`;
 
@@ -34,7 +39,7 @@ const Login = () => {
       toast.success(`Bienvenido al sistema`);
       
     } catch (error) {
-      const msg = error.response?.data?.message || 'Credenciales inválidas';
+      const msg = error.response?.data?.message || error.message || 'Credenciales inválidas';
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -43,7 +48,22 @@ const Login = () => {
 
   const handleForgotPassword = async (e) => { 
     e.preventDefault();
-    toast.info("Enlace de recuperación enviado.");
+    setLoading(true);
+
+    try {
+      const result = await authService.forgotPassword(dni);
+      
+      toast.success(result.message || "Enlace enviado a tu correo o WhatsApp.");
+      
+      setDni('');
+      setShowForgotPassword(false);
+
+    } catch (error) {
+      const msg = error.response?.data?.message || 'Error al solicitar recuperación. Verifica tu documento.';
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -111,7 +131,7 @@ const Login = () => {
         {/* Footer */}
         <div className="mt-10 text-center">
             <p className="text-[10px] text-slate-400 font-medium tracking-wider">
-                © {new Date().getFullYear()} TALARA CRÉDITOS. VERSIÓN 2.0
+                © {new Date().getFullYear()} TALARA CRÉDITOS E INVERSIONES 2026
             </p>
         </div>
       </div>
