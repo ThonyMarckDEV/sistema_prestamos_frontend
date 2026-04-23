@@ -180,8 +180,15 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                                 disabled={loadingPdf}
                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-sm"
                             >
-                                {loadingPdf ? <ArrowPathIcon className="w-3.5 h-3.5 animate-spin" /> : <ArrowDownTrayIcon className="w-3.5 h-3.5" />}
-                                {esVistaIntegrante ? 'PDF Individual' : 'PDF Grupal'}
+                                {loadingPdf ? (
+                                    <ArrowPathIcon className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                    <ArrowDownTrayIcon className="w-3.5 h-3.5" />
+                                )}
+                                {esVistaIntegrante 
+                                    ? 'PDF Individual' 
+                                    : (data.es_grupal ? 'PDF Grupal' : 'Descargar PDF')
+                                }
                             </button>
                         </div>
 
