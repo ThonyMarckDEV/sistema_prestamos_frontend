@@ -77,6 +77,11 @@ import ListarProspectos from 'pages/Prospecto/Index';
 import AgregarProspecto from 'pages/Prospecto/Store';
 import EditarProspecto  from 'pages/Prospecto/Update';
 
+// UI FERIADOS
+import ListarFeriados from 'pages/Feriado/Index';
+import AgregarFeriado from 'pages/Feriado/Store';
+import EditarFeriado from 'pages/Feriado/Update';
+
 
 // SETTINGS ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
@@ -162,6 +167,11 @@ function AppContent() {
         <Route path="/prospecto/listar"       element={<ProtectedRoute requiredPermission="prospecto.index"  element={<ListarProspectos />} />} />
         <Route path="/prospecto/agregar"      element={<ProtectedRoute requiredPermission="prospecto.store"  element={<AgregarProspecto />} />} />
         <Route path="/prospecto/editar/:id"   element={<ProtectedRoute requiredPermission="prospecto.update" element={<EditarProspecto  />} />} />
+
+        {/* FERIADOS */}
+        <Route path="/feriados/index" element={<ProtectedRoute requiredPermission="feriado.index" element={<ListarFeriados />} />} />
+        <Route path="/feriados/agregar" element={<ProtectedRoute requiredPermission="feriado.store" element={<AgregarFeriado />} />} />
+        <Route path="/feriados/editar/:id" element={<ProtectedRoute requiredPermission="feriado.update" element={<EditarFeriado />} />} />
 
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />

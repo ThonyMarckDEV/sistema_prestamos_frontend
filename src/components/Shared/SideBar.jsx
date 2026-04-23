@@ -143,11 +143,11 @@ export const MENU_GROUPS = [
                     { name: 'Agregar Banco', link: '/entidadBancaria/agregar', requiredPermission: 'entidadBancaria.store' },
                 ],
             },
-            { 
-                section: 'Cargos de Mora', icon: ScaleIcon,
+            {  
+                section: 'Configuración Mora', icon: ScaleIcon,
                 subs: [
-                    { name: 'Configurar Tarifas', link: '/cargoMora/listar', requiredPermission: 'cargoMora.index' },
-                    { name: 'Nuevo Rango de Mora', link: '/cargoMora/agregar', requiredPermission: 'cargoMora.store' },
+                    { name: 'Calendario Feriados', link: '/feriados/index', requiredPermission: 'feriado.index' },
+                    { name: 'Monto de Mora', link: '/configuracion/mora', requiredPermission: 'configuracion.mora' },
                 ],
             },
             { 
