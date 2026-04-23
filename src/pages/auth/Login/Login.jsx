@@ -93,13 +93,12 @@ const Login = () => {
                className="h-full w-full object-contain"
              />
           </div>
-
-          <h2 className="text-[10px] font-black text-yellow-500 tracking-[0.3em] uppercase mb-1">
-             Préstamos e Inversiones
-          </h2>
           <h1 className="text-2xl font-extrabold text-slate-800 text-center tracking-tight">
-            Talara <span className="text-red-600">Créditos</span>
+            Talara
           </h1>
+          <h2 className="text-[10px] font-black text-red-500 tracking-[0.3em] uppercase mb-1">
+             Créditos e Inversiones
+          </h2>
         </div>
 
         <div>
