@@ -130,7 +130,7 @@ const Login = () => {
         {/* Footer */}
         <div className="mt-10 text-center">
             <p className="text-[10px] text-slate-400 font-medium tracking-wider">
-                © {new Date().getFullYear()} TALARA CRÉDITOS E INVERSIONES 2026
+                © {new Date().getFullYear()} TALARA CRÉDITOS E INVERSIONES.
             </p>
         </div>
       </div>
