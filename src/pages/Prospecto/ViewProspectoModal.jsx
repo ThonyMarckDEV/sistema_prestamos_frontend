@@ -35,7 +35,7 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
     const [seguimientoOpen, setSeguimientoOpen] = useState(false);
     const [statusOpen,      setStatusOpen]      = useState(false);
 
-    const puedeSeguimiento = can('prospecto.seguimiento') && [1, 2, 3, 5].includes(data?.estado);
+    const puedeSeguimiento = can('prospecto.seguimiento') && [1, 2, 5].includes(data?.estado);
     const puedeEditar      = can('prospecto.update')      && [1, 2, 3, 5].includes(data?.estado);
     const puedeStatus      = can('prospecto.status')      && [1, 2, 3].includes(data?.estado);
 
