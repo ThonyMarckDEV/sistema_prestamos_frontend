@@ -71,7 +71,7 @@ export const NotificacionProvider = ({ children }) => {
         }
     };
 
-    useEffect(() => {
+   useEffect(() => {
         if (!user) {
             setNotificaciones([]);
             setNoLeidas(0);
@@ -80,16 +80,39 @@ export const NotificacionProvider = ({ children }) => {
 
         refresh();
 
-        window.Echo.private(`App.Models.User.${user.id}`)
+        const channelName = `App.Models.User.${user.id}`;
+
+        //  Desconectar antes de conectar
+        window.Echo.leave(channelName);
+
+        window.Echo.private(channelName)
             .listen('NotificacionEnviada', (e) => {
                 const nuevaNotificacion = e.notificacion || e;
-                setNotificaciones(prev => [nuevaNotificacion, ...prev]);
-                setNoLeidas(prev => prev + 1);
-                reproducirSonido();
+                
+                // PROTECCIÓN EXTRA: Evitar meter duplicados al estado
+                setNotificaciones(prev => {
+                    // Si ya existe una notificación con este ID, no la agregues de nuevo
+                    if (prev.some(n => n.id === nuevaNotificacion.id)) {
+                        return prev;
+                    }
+                    return [nuevaNotificacion, ...prev];
+                });
+                
+                // Solo subimos el contador si no es duplicada (validamos por ID)
+                setNotificaciones(prev => {
+                    const esDuplicada = prev.some(n => n.id === nuevaNotificacion.id && n !== nuevaNotificacion); // Comprobación más estricta
+                    
+                    if(!esDuplicada){
+                         setNoLeidas(prevNoLeidas => prevNoLeidas + 1);
+                         reproducirSonido();
+                    }
+                    return prev;
+                })
+
             });
 
         return () => {
-            window.Echo.leave(`App.Models.User.${user.id}`);
+            window.Echo.leave(channelName);
         };
     }, [user, refresh, reproducirSonido]);
 
