@@ -221,9 +221,6 @@ const OperacionForm = ({ prestamoDetalle, loading, openPagoModal, onHistorialMod
                             <h4 className="font-black text-slate-800 uppercase text-xs tracking-[0.15em]">
                                 Desglose de Integrantes
                             </h4>
-                            <p className="text-[10px] text-slate-400 font-medium mt-0.5">
-                                Haz click en un socio para ver su cronograma individual
-                            </p>
                         </div>
                     </div>
 

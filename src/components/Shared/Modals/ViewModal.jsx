@@ -8,7 +8,7 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size =
         md: 'max-w-2xl', 
         lg: 'max-w-4xl', 
         xl: 'max-w-6xl', 
-        '2xl': 'max-w-7xl',
+        '2xl': 'max-w-7xl', 
         full: 'max-w-[98vw]' 
     }[size] ?? 'max-w-4xl';
     
@@ -24,7 +24,7 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size =
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-2 transition-all">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all">
             <div 
                 className="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] transition-opacity" 
                 onClick={onClose}
@@ -33,13 +33,13 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size =
                 relative bg-white w-full ${sizeClass} 
                 flex flex-col
                 rounded-t-2xl sm:rounded-2xl 
-                shadow-2xl 
-                max-h-[98vh] sm:max-h-[96vh]
+                shadow-2xl overflow-hidden
+                max-h-[95vh] sm:max-h-[92vh]
                 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200
             `}>
                 
                 {/* Header */}
-                <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-white sticky top-0 z-10 rounded-t-2xl shrink-0">
+                <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-white shrink-0 rounded-t-2xl">
                     <h3 className="text-sm sm:text-base font-black text-slate-800 uppercase tracking-tight">
                         {title}
                     </h3>
@@ -52,7 +52,7 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size =
                 </div>
 
                 {/* Body */}
-                <div className={`bg-white flex-1 min-h-0 ${hideFooter ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar p-5'}`}>
+                <div className={`bg-white flex-1 min-h-0 ${hideFooter ? 'overflow-y-auto md:overflow-hidden' : 'overflow-y-auto p-5'}`}>
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <div className="relative w-12 h-12">
@@ -70,7 +70,7 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size =
 
                 {/* Footer */}
                 {!hideFooter && (
-                    <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 sticky bottom-0 z-10 rounded-b-2xl shrink-0">
+                    <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 shrink-0 rounded-b-2xl">
                         <button
                             onClick={onClose}
                             className="w-full sm:w-auto px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-slate-200"
