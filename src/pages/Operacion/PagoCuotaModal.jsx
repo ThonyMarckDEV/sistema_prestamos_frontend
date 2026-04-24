@@ -280,6 +280,11 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                                 </p>
                                                             )}
                                                         </div>
+                                                        {parseFloat(int.excedente_aplicado ?? 0) > 0 && (
+                                                            <p className="text-[9px] text-purple-600 font-bold">
+                                                                Exc. aplicado: -S/ {parseFloat(int.excedente_aplicado).toFixed(2)}
+                                                            </p>
+                                                        )}
                                                         <div className="flex items-center gap-2">
                                                             <p className="text-[9px] font-black text-slate-600">
                                                                 Falta: S/ {saldoCap.toFixed(2)}
@@ -290,11 +295,6 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                                 </p>
                                                             )}
                                                         </div>
-                                                        {parseFloat(int.excedente_aplicado ?? 0) > 0 && (
-                                                            <p className="text-[9px] text-purple-600 font-bold">
-                                                                Exc. aplicado: -S/ {parseFloat(int.excedente_aplicado).toFixed(2)}
-                                                            </p>
-                                                        )}
                                                         {moraPend > 0 && (
                                                             <p className="text-[9px] font-black text-slate-500">
                                                                 Total pendiente: S/ {saldoTotal.toFixed(2)}
