@@ -1,40 +1,51 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
-import { fetchWithAuth } from './authToken'; 
+import { fetchWithAuth } from './authToken';
 
 window.Pusher = Pusher;
 
 window.Echo = new Echo({
     broadcaster: 'reverb',
     key: process.env.REACT_APP_REVERB_APP_KEY,
+
     wsHost: process.env.REACT_APP_REVERB_HOST,
-    wsPort: process.env.REACT_APP_REVERB_PORT,
-    wssPort: process.env.REACT_APP_REVERB_PORT,
-    forceTLS: process.env.REACT_APP_REVERB_SCHEME === 'https',
+    wsPort: Number(process.env.REACT_APP_REVERB_PORT),
+    wssPort: Number(process.env.REACT_APP_REVERB_PORT),
+
+    forceTLS: true,
+    encrypted: true,
+
     enabledTransports: ['ws', 'wss'],
-    authorizer: (channel, options) => {
-        return {
-            authorize: async (socketId, callback) => {
-                try {
-                    const response = await fetchWithAuth(`${process.env.REACT_APP_API_BASE_URL}/api/broadcasting/auth`, {
+    disableStats: true,
+
+    authorizer: (channel) => ({
+        authorize: async (socketId, callback) => {
+            try {
+                const response = await fetchWithAuth(
+                    `${process.env.REACT_APP_API_BASE_URL}/api/broadcasting/auth`,
+                    {
                         method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
                         body: JSON.stringify({
                             socket_id: socketId,
-                            channel_name: channel.name
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                            channel_name: channel.name,
+                        }),
                     }
+                );
 
-                    const data = await response.json();
-                    callback(false, data);
-                } catch (error) {
-                    console.error("Error autorizando WebSockets:", error);
-                    callback(true, error);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Authorization failed');
                 }
+
+                callback(false, data);
+            } catch (error) {
+                console.error('Error autorizando WebSockets:', error);
+                callback(true, error);
             }
-        };
-    },
+        },
+    }),
 });
