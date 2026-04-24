@@ -5,8 +5,9 @@ import { descargarFichaPdf } from 'services/clienteService';
 import { 
     UserIcon, BuildingOfficeIcon, IdentificationIcon, PhoneIcon, 
     MapPinIcon, CreditCardIcon, TagIcon,
-    ComputerDesktopIcon, PrinterIcon, ArrowPathIcon
+    ComputerDesktopIcon, PrinterIcon, ArrowPathIcon, ShieldCheckIcon
 } from '@heroicons/react/24/outline';
+import BarraRiesgoSBS from './BarraRiesgoSBS';
 
 const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
     const [pdfModalOpen, setPdfModalOpen] = useState(false);
@@ -73,7 +74,6 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                 </h2>
                                 
                                 <div className="flex flex-wrap items-center gap-2.5 mt-3">
-                                    {/* 🔥 DNI / RUC ACTUALIZADO CON VENCIMIENTO 🔥 */}
                                     <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
                                         <IdentificationIcon className="w-4 h-4 text-slate-400"/>
                                         {data.tipo === 2 ? data.ruc : data.dni}
@@ -84,7 +84,6 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                         )}
                                     </div>
                                     
-                                    {/* Teléfono */}
                                     {data.contacto?.telefonoMovil && (
                                         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
                                             <PhoneIcon className="w-4 h-4 text-slate-400"/>
@@ -92,7 +91,6 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                         </div>
                                     )}
 
-                                    {/* Usuario de Sistema */}
                                     {data.usuario && (
                                         <div className="flex items-center gap-2 text-xs font-bold text-white bg-slate-900 px-3 py-1.5 rounded-lg shadow-sm border border-slate-800">
                                             <ComputerDesktopIcon className="w-4 h-4 text-slate-400"/>
@@ -111,10 +109,24 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                             </div>
                         </div>
 
-                        {/* Cuerpo: Información en Grid */}
+                        {data.sbs && (
+                            <div className="md:col-span-2 pt-2 pb-2">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-1.5 bg-slate-100 rounded-lg">
+                                        <ShieldCheckIcon className="w-5 h-5 text-slate-600" />
+                                    </div>
+                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                                        Calificación de Riesgo Crediticio (SBS)
+                                    </h4>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <BarraRiesgoSBS titulo="Riesgo SBS Actual" sbs={data.sbs.actual} />
+                                    <BarraRiesgoSBS titulo="Peor Atraso Histórico" sbs={data.sbs.historico} />
+                                </div>
+                            </div>
+                        )}
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            
-                            {/* Columna: Ubicación */}
                             <div className="space-y-3">
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Residencia</h4>
                                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 relative overflow-hidden h-full">
@@ -139,7 +151,6 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                 </div>
                             </div>
 
-                            {/* Columna: Empleo */}
                             <div className="space-y-3">
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Situación Laboral</h4>
                                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 h-full">
@@ -160,7 +171,6 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                 </div>
                             </div>
 
-                            {/* Actividad Económica CIIU */}
                             {data.ciiu && (
                                 <div className="md:col-span-2 space-y-3 mt-2">
                                     <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Actividad Económica (CIIU)</h4>
@@ -188,7 +198,6 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                 </div>
                             )}
 
-                            {/* Cuentas Bancarias */}
                             <div className="md:col-span-2 mt-2 pt-6 border-t border-slate-100 space-y-4">
                                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Cuentas para Desembolso / Cobro</h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

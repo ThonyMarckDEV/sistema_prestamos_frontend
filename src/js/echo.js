@@ -12,8 +12,8 @@ window.Echo = new Echo({
     wsPort: Number(process.env.REACT_APP_REVERB_PORT),
     wssPort: Number(process.env.REACT_APP_REVERB_PORT),
 
-    forceTLS: true,
-    encrypted: true,
+    forceTLS: process.env.REACT_APP_REVERB_SCHEME === 'https',
+    encrypted: process.env.REACT_APP_REVERB_SCHEME === 'https',
 
     enabledTransports: ['ws', 'wss'],
     disableStats: true,
