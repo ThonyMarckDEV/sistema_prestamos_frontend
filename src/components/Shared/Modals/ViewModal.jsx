@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
-const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size = 'lg' }) => {
+const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size = 'lg', hideFooter = false }) => {
     
     const sizeClass = { 
         sm: 'max-w-md', 
@@ -25,13 +25,10 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size =
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all">
-            {/* Overlay con desenfoque más pro */}
             <div 
                 className="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] transition-opacity" 
                 onClick={onClose}
             />
-
-            {/* Contenedor del Modal */}
             <div className={`
                 relative bg-white w-full ${sizeClass} 
                 flex flex-col
@@ -41,13 +38,11 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size =
                 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200
             `}>
                 
-                {/* Header: Siempre visible en la parte superior */}
+                {/* Header */}
                 <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 bg-white sticky top-0 z-10 rounded-t-2xl">
-                    <div className="flex flex-col">
-                        <h3 className="text-sm sm:text-base font-black text-slate-800 uppercase tracking-tight">
-                            {title}
-                        </h3>
-                    </div>
+                    <h3 className="text-sm sm:text-base font-black text-slate-800 uppercase tracking-tight">
+                        {title}
+                    </h3>
                     <button 
                         onClick={onClose} 
                         className="p-2 -mr-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
@@ -56,8 +51,8 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size =
                     </button>
                 </div>
 
-                {/* Body: Area con scroll independiente */}
-                <div className="p-5 overflow-y-auto custom-scrollbar bg-white flex-1">
+                {/* Body */}
+                <div className={`overflow-y-auto custom-scrollbar bg-white flex-1 ${hideFooter ? '' : 'p-5'}`}>
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <div className="relative w-12 h-12">
@@ -67,21 +62,23 @@ const ViewModal = ({ isOpen, onClose, title, children, isLoading = false, size =
                             <p className="mt-4 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Cargando información...</p>
                         </div>
                     ) : (
-                        <div className="animate-in fade-in duration-500">
+                        <div className={hideFooter ? 'h-full' : 'animate-in fade-in duration-500'}>
                             {children}
                         </div>
                     )}
                 </div>
 
-                {/* Footer: Siempre visible en la parte inferior */}
-                <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 sticky bottom-0 z-10 rounded-b-2xl">
-                    <button
-                        onClick={onClose}
-                        className="w-full sm:w-auto px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-slate-200"
-                    >
-                        Cerrar Ventana
-                    </button>
-                </div>
+                {/* Footer — oculto si hideFooter=true */}
+                {!hideFooter && (
+                    <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 sticky bottom-0 z-10 rounded-b-2xl">
+                        <button
+                            onClick={onClose}
+                            className="w-full sm:w-auto px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-slate-200"
+                        >
+                            Cerrar Ventana
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
