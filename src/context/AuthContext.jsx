@@ -23,10 +23,11 @@ export const AuthProvider = ({ children }) => {
 
         try {
             const response = await authService.verifySession();
-            const userData = response.data || response;
+            
+            const userData = response.data;
 
             setUser(userData); 
-            setRole(userData.rol?.nombre || userData.rol || null);
+            setRole(userData.rol || null);
             setPermissions(userData.permisos || []);
             setIsAuthenticated(true);
 
@@ -47,7 +48,6 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     };
 
-    // Función mágica para validar si el usuario tiene un permiso específico
     const can = (permissionName) => {
         return permissions.includes(permissionName);
     };
