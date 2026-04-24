@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const LoginForm = ({
   username,
@@ -10,6 +11,8 @@ const LoginForm = ({
   setRememberMe,
   setShowForgotPassword
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className="w-full animate-fade-in">
       <div className="mb-8 text-center">
@@ -34,18 +37,28 @@ const LoginForm = ({
           />
         </div>
 
-        <div className="space-y-1 relative">
+        <div className="relative">
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="block w-full px-5 py-4 bg-slate-50 border border-transparent text-slate-900 rounded-2xl placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300 text-sm font-medium"
+            className="block w-full px-5 py-4 pr-12 bg-slate-50 border border-transparent text-slate-900 rounded-2xl placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300 text-sm font-medium"
             placeholder="Contraseña"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(v => !v)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            {showPassword
+              ? <EyeSlashIcon className="w-5 h-5" />
+              : <EyeIcon className="w-5 h-5" />
+            }
+          </button>
         </div>
-        
+
         <div className="flex items-center justify-between pt-2 pb-4">
           <div className="flex items-center">
             <input
@@ -59,7 +72,7 @@ const LoginForm = ({
               Recordar sesión
             </label>
           </div>
-          
+
           <button
             type="button"
             onClick={() => setShowForgotPassword(true)}
