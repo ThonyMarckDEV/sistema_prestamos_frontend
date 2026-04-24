@@ -7,6 +7,7 @@ import {
   UserCircle,
   NotepadText
 } from "lucide-react"; 
+import { toUpper } from 'utilities/Validations/validations';
 
 const Home = () => {
   const token = jwtUtils.getAccessTokenFromCookie();
@@ -63,7 +64,7 @@ const Home = () => {
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Nombre Completo</p>
-                  <p className="font-bold text-slate-800 text-sm">{userData?.name || 'No disponible'}</p>
+                  <p className="font-bold text-slate-800 text-sm">{toUpper(userData?.name) || 'No disponible'}</p>
                 </div>
               </div>
 
@@ -73,7 +74,7 @@ const Home = () => {
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Username</p>
-                  <p className="font-bold text-slate-800 text-sm">{userData?.username || 'No disponible'}</p>
+                  <p className="font-bold text-slate-800 text-sm">{toUpper(userData?.username) || 'No disponible'}</p>
                 </div>
               </div>
 
@@ -83,7 +84,7 @@ const Home = () => {
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Rol</p>
-                  <p className="font-bold text-slate-800 text-sm">{userData?.role}</p>
+                  <p className="font-bold text-slate-800 text-sm">{toUpper(userData?.role) || 'No disponible'}</p>
                 </div>
               </div>
               
