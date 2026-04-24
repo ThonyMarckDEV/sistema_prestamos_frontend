@@ -29,11 +29,6 @@ import AgregarEntidadBancaria from 'pages/EntidadBancaria/Store';
 import EditarEntidadBancaria from 'pages/EntidadBancaria/Update';
 import ListarEntidadBancarias from 'pages/EntidadBancaria/Index';
 
-// UI CARGO MORA
-import AgregarCargoMora from 'pages/CargoMora/Store';
-import EditarCargoMora from 'pages/CargoMora/Update';
-import ListarCargoMora from 'pages/CargoMora/Index';
-
 // UI PRODUCTO
 import AgregarProducto from 'pages/Producto/Store';
 import EditarProducto from 'pages/Producto/Update';
@@ -121,12 +116,7 @@ function AppContent() {
         <Route path="/entidadBancaria/editar/:id" element={<ProtectedRoute requiredPermission="entidadBancaria.update" element={<EditarEntidadBancaria />} />} />
         <Route path="/entidadBancaria/listar" element={<ProtectedRoute requiredPermission="entidadBancaria.index" element={<ListarEntidadBancarias />} />} />
 
-        {/* CARGO MORA */}
-        <Route path="/cargoMora/agregar" element={<ProtectedRoute requiredPermission="cargoMora.store" element={<AgregarCargoMora />} />} />
-        <Route path="/cargoMora/editar/:id" element={<ProtectedRoute requiredPermission="cargoMora.update" element={<EditarCargoMora />} />} />
-        <Route path="/cargoMora/listar" element={<ProtectedRoute requiredPermission="cargoMora.index" element={<ListarCargoMora />} />} />
-
-        {/* CARGO MORA */}
+        {/* PRODUCTO */}
         <Route path="/producto/agregar" element={<ProtectedRoute requiredPermission="producto.store" element={<AgregarProducto />} />} />
         <Route path="/producto/editar/:id" element={<ProtectedRoute requiredPermission="producto.update" element={<EditarProducto />} />} />
         <Route path="/producto/listar" element={<ProtectedRoute requiredPermission="producto.index" element={<ListarProducto />} />} />

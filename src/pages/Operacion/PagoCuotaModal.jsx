@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ViewModal from 'components/Shared/Modals/ViewModal';
+import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { 
     BanknotesIcon, DevicePhoneMobileIcon, PhotoIcon, 
     UserGroupIcon, DocumentCheckIcon, XMarkIcon 
@@ -13,6 +14,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     const [preview, setPreview]           = useState(null);
     const [esParcial, setEsParcial]       = useState(false);
     const [distribucion, setDistribucion] = useState({});
+    const [alertLocal, setAlertLocal]     = useState(null);
 
     const totalAPagar = parseFloat(cuota?.saldo_pendiente || cuota?.monto || 0).toFixed(2);
     const mora        = parseFloat(cuota?.mora || 0);
@@ -46,6 +48,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
             setPreview(null);
             setEsParcial(false);
             setDistribucion({});
+            setAlertLocal(null);
         }
     }, [isOpen, totalAPagar]);
 
@@ -86,7 +89,8 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
             ));
         }
 
-        onConfirm(formData);
+        setAlertLocal(null);
+        onConfirm(formData, setAlertLocal);
     };
 
     // Total distribuido — si todos están en FULL usa totalAPagar exacto
@@ -258,7 +262,6 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                 <div className="divide-y divide-slate-100 bg-white">
                                     {integrantesPendientes.map((int) => {
                                         const montoPuesto  = parseFloat(distribucion[int.id] || 0);
-                                        // Lee directo del backend — sin calcular en frontend
                                         const saldoCap     = parseFloat(int.saldo_capital ?? int.saldo ?? 0);
                                         const moraPend     = parseFloat(int.mora_pendiente ?? 0);
                                         const saldoTotal   = saldoCap + moraPend;
@@ -371,6 +374,16 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                 Ingrese al menos el monto de la mora o deje vacío para pago completo.
                             </p>
                         </div>
+                    )}
+
+                    {/* Alert local — errores del backend */}
+                    {alertLocal && (
+                        <AlertMessage
+                            type={alertLocal.type}
+                            message={alertLocal.message}
+                            details={alertLocal.details}
+                            onClose={() => setAlertLocal(null)}
+                        />
                     )}
 
                     {/* Botón */}

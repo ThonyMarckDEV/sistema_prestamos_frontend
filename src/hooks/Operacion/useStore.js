@@ -106,7 +106,7 @@ export const useStore = () => {
         setIsPagoModalOpen(true);
     };
 
-    const handleConfirmarPago = async (formData) => {
+    const handleConfirmarPago = async (formData, setAlertLocal) => {
         setLoading(true);
         try {
             const response = await cobrarCuota(formData);
@@ -122,7 +122,12 @@ export const useStore = () => {
                 setIsPdfModalOpen(true);
             }
         } catch (err) {
-            setAlert(handleApiError(err));
+            const error = handleApiError(err);
+            if (setAlertLocal) {
+                setAlertLocal(error); // error se muestra dentro del modal
+            } else {
+                setAlert(error);
+            }
         } finally {
             setLoading(false);
         }
