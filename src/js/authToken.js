@@ -2,80 +2,82 @@ import API_BASE_URL from './urlHelper';
 import jwtUtils from 'utilities/Token/jwtUtils';
 import { logout } from 'js/logout';
 
+let isRefreshing        = false;
+let refreshSubscribers  = [];
+
+const onRefreshed = (token) => {
+    refreshSubscribers.forEach(cb => cb(token));
+    refreshSubscribers = [];
+};
+
+const addSubscriber = (cb) => refreshSubscribers.push(cb);
+
 export async function fetchWithAuth(url, options = {}) {
-  // -----------------------------------------------------------------------
-  // 1. PREPARACIÓN: Inyección del Access Token
-  // -----------------------------------------------------------------------
-  
-  let access_token = jwtUtils.getAccessTokenFromCookie();
+    const access_token = jwtUtils.getAccessTokenFromCookie();
 
-  const headers = {
-    'Accept': 'application/json',
-    ...options.headers,
-  };
+    const headers = {
+        'Accept': 'application/json',
+        ...options.headers,
+    };
 
-  if (!(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
-  }
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
 
-  if (access_token) {
-    headers['Authorization'] = `Bearer ${access_token}`;
-  }
+    if (access_token) {
+        headers['Authorization'] = `Bearer ${access_token}`;
+    }
 
-  // -----------------------------------------------------------------------
-  // 2. EJECUCIÓN INICIAL: Primer intento
-  // -----------------------------------------------------------------------
+    // Primer intento
+    let response = await fetch(url, { ...options, headers, credentials: 'include' });
 
-  let response = await fetch(url, { ...options, headers });
+    if (response.status !== 401) return response;
 
-  // -----------------------------------------------------------------------
-  // 3. INTERCEPCIÓN DE ERRORES: Manejo de Token Expirado (401)
-  // -----------------------------------------------------------------------
-  if (response.status === 401) {
-    // console.log("[Auth] 401 detectado. Intentando estrategia de Refresh Token...");
+    // Si ya hay un refresh en curso — encolar y esperar
+    if (isRefreshing) {
+        return new Promise((resolve) => {
+            addSubscriber(async (newToken) => {
+                headers['Authorization'] = `Bearer ${newToken}`;
+                resolve(await fetch(url, { ...options, headers, credentials: 'include' }));
+            });
+        });
+    }
+
+    // Iniciar refresh
+    isRefreshing = true;
 
     try {
-      // -------------------------------------------------------
-      // A) Petición de Refresh 
-      // -------------------------------------------------------
-      const refreshResponse = await fetch(`${API_BASE_URL}/api/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include' 
-      });
+        const refreshResponse = await fetch(`${API_BASE_URL}/api/refresh`, {
+            method:      'POST',
+            headers:     { 'Content-Type': 'application/json' },
+            credentials: 'include',
+        });
 
-      // Si el refresh falla (ej. el refresh token también expiró o fue revocado)
-      if (!refreshResponse.ok) {
-        throw new Error('No se pudo renovar el token (Refresh token inválido o expirado).');
-      }
+        if (!refreshResponse.ok) {
+            throw new Error('Refresh inválido');
+        }
 
-      // -------------------------------------------------------
-      // B) Actualización del Estado Local
-      // -------------------------------------------------------
-      const data = await refreshResponse.json();
-      const newAccessToken = data.access_token;
+        const json          = await refreshResponse.json();
+        const newAccessToken = json?.data?.access_token;
 
-      jwtUtils.setAccessTokenInCookie(newAccessToken);
+        if (!newAccessToken) throw new Error('Token no recibido');
 
-      // -------------------------------------------------------
-      // C) REINTENTO: Ejecutar la petición original de nuevo
-      // -------------------------------------------------------
-      headers['Authorization'] = `Bearer ${newAccessToken}`;
-      
-      response = await fetch(url, { ...options, headers });
+        jwtUtils.setAccessTokenInCookie(newAccessToken);
+        onRefreshed(newAccessToken);
+
+        // Reintentar petición original
+        headers['Authorization'] = `Bearer ${newAccessToken}`;
+        response = await fetch(url, { ...options, headers, credentials: 'include' });
+
+        return response;
 
     } catch (error) {
-      // -------------------------------------------------------
-      // D) Fallo Fatal: Logout
-      // -------------------------------------------------------
-      console.error("[Auth] Sesión expirada totalmente. Forzando logout...", error);
-      
-      // Si falló el refresh logout (Usará la versión importada con UI)
-      logout();
-      
-      return response; 
-    }
-  }
+        console.error('[Auth] Refresh falló, forzando logout...', error);
+        refreshSubscribers = [];
+        logout();
+        return response;
 
-  return response;
+    } finally {
+        isRefreshing = false;
+    }
 }
