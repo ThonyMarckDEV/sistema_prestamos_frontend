@@ -1,48 +1,75 @@
 import React from 'react';
 
 const BarraRiesgoSBS = ({ titulo, sbs }) => {
-    if (!sbs) return null;
-    
-    const { calificacion, dias_atraso, color } = sbs;
-
-    // Estructura de la barra Sentinel
     const niveles = [
-        { id: 'NORMAL', label: 'NORMAL', bgColor: 'bg-green-500' },
-        { id: 'CPP', label: 'CPP', bgColor: 'bg-yellow-400' },
-        { id: 'DEFICIENTE', label: 'DEFIC.', bgColor: 'bg-orange-500' },
-        { id: 'DUDOSO', label: 'DUDOSO', bgColor: 'bg-red-500' },
-        { id: 'PERDIDA', label: 'PÉRDIDA', bgColor: 'bg-slate-900' },
+        { id: 'NORMAL',     label: 'NORMAL',  bgColor: 'bg-green-500'  },
+        { id: 'CPP',        label: 'CPP',      bgColor: 'bg-yellow-400' },
+        { id: 'DEFICIENTE', label: 'DEFIC.',   bgColor: 'bg-orange-500' },
+        { id: 'DUDOSO',     label: 'DUDOSO',   bgColor: 'bg-red-500'    },
+        { id: 'PERDIDA',    label: 'PÉRDIDA',  bgColor: 'bg-slate-900'  },
     ];
+
+    if (!sbs) {
+        return (
+            <div className="flex flex-col items-center justify-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm w-full h-full">
+                <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 text-center">
+                    {titulo}
+                </h4>
+                <div className="w-full max-w-[280px] flex flex-col">
+                    <div className="flex w-full mb-1.5 h-3" />
+                    <div className="flex w-full h-3.5 rounded-sm overflow-hidden shadow-inner opacity-20">
+                        {niveles.map((n) => (
+                            <div key={n.id} className={`flex-1 ${n.bgColor}`} />
+                        ))}
+                    </div>
+                    <div className="flex w-full mt-2">
+                        {niveles.map((n) => (
+                            <div key={n.id} className="flex-1 text-center text-[9px] font-bold text-slate-300 uppercase tracking-tight">
+                                {n.label}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="mt-6 text-center flex flex-col items-center">
+                    <span className="text-[10px] px-4 py-1.5 rounded-lg font-black uppercase border shadow-sm bg-slate-100 text-slate-400 border-slate-200">
+                        SIN DATOS
+                    </span>
+                    <span className="text-xs text-slate-400 font-bold mt-2.5 uppercase tracking-wide">
+                        Sin préstamos registrados
+                    </span>
+                </div>
+            </div>
+        );
+    }
+
+    const { calificacion, dias_atraso, color, prestamo_id, numero_cuota, es_grupal, grupo_nombre } = sbs;
 
     return (
         <div className="flex flex-col items-center justify-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative hover:shadow-md transition-all w-full h-full">
             <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 text-center">
                 {titulo}
             </h4>
-            
-            {/* Contenedor de la Barra SBS */}
+
             <div className="w-full max-w-[280px] flex flex-col">
-                
-                {/* 1. Fila de Flechas (Indicador) */}
+                {/* Fila de flechas */}
                 <div className="flex w-full mb-1.5 h-3">
                     {niveles.map((nivel) => (
                         <div key={`arrow-${nivel.id}`} className="flex-1 flex justify-center items-end">
                             {calificacion === nivel.id && (
-                                /* Triángulo dibujado con CSS (Bordes) + Animación de caída */
-                                <div className="w-0 h-0 border-l-[7px] border-r-[7px] border-t-[9px] border-l-transparent border-r-transparent border-t-slate-800 animate-in slide-in-from-top-3 fade-in duration-500"></div>
+                                <div className="w-0 h-0 border-l-[7px] border-r-[7px] border-t-[9px] border-l-transparent border-r-transparent border-t-slate-800 animate-in slide-in-from-top-3 fade-in duration-500" />
                             )}
                         </div>
                     ))}
                 </div>
 
-                {/* 2. Fila de Colores (La Barra Principal) */}
+                {/* Barra principal */}
                 <div className="flex w-full h-3.5 rounded-sm overflow-hidden shadow-inner">
                     {niveles.map((nivel) => (
-                        <div key={`bar-${nivel.id}`} className={`flex-1 ${nivel.bgColor}`}></div>
+                        <div key={`bar-${nivel.id}`} className={`flex-1 ${nivel.bgColor}`} />
                     ))}
                 </div>
 
-                {/* 3. Fila de Textos (Etiquetas) */}
+                {/* Etiquetas */}
                 <div className="flex w-full mt-2">
                     {niveles.map((nivel) => (
                         <div key={`label-${nivel.id}`} className="flex-1 text-center text-[9px] font-bold text-slate-400 uppercase tracking-tight">
@@ -52,9 +79,8 @@ const BarraRiesgoSBS = ({ titulo, sbs }) => {
                 </div>
             </div>
 
-            {/* Detalles Inferiores (Badge y Días) */}
+            {/* Badge y días */}
             <div className="mt-6 text-center flex flex-col items-center">
-                {/* El color del badge viene desde tu backend de Laravel */}
                 <span className={`text-[10px] px-4 py-1.5 rounded-lg font-black uppercase border shadow-sm ${color}`}>
                     {calificacion}
                 </span>
@@ -62,6 +88,19 @@ const BarraRiesgoSBS = ({ titulo, sbs }) => {
                     {dias_atraso} Días de atraso
                 </span>
             </div>
+
+            {/* Contexto préstamo */}
+            {prestamo_id && (
+                <div className="mt-3 text-center text-[11px] text-slate-700 font-bold space-y-0.5 border-t border-slate-100 pt-3 w-full">
+                    <p>
+                        Préstamo #{String(prestamo_id).padStart(5, '0')}
+                        {es_grupal && grupo_nombre && (
+                            <span className="ml-1 text-slate-700">— {grupo_nombre}</span>
+                        )}
+                    </p>
+                    <p>Cuota N° {numero_cuota}</p>
+                </div>
+            )}
         </div>
     );
 };
