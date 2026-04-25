@@ -5,7 +5,7 @@ import LoginForm from './components/LoginForm';
 import ForgotPasswordForm from './components/ForgotPasswordForm';
 import authService from 'services/authService';
 import { useAuth } from 'context/AuthContext';
-import { notify, ToastContainer } from 'components/Shared/Notificaciones/ToastNotification';
+import { notify } from 'components/Shared/Notificaciones/ToastNotification';
 import background from 'assets/img/background.jpg';
 import logo from 'assets/img/logo.png';
 
