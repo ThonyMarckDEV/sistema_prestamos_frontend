@@ -28,8 +28,10 @@ const Store = () => {
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <form onSubmit={handleSubmit} className="mt-6">
                 <ProductoForm data={formData} handleChange={(f, v) => setFormData({...formData, [f]: v})} />
+                
                 <div className="mt-8 flex justify-end">
-                    <button type="submit" disabled={loading} className="bg-red-600 text-white px-10 py-4 rounded-2xl font-black uppercase shadow-lg shadow-red-500/30 hover:bg-red-700 transition-all">
+                    {/* 🔥 Botón Sólido Corporativo */}
+                    <button type="submit" disabled={loading} className="w-full sm:w-auto bg-brand-red text-white px-10 py-3.5 rounded-xl font-black uppercase shadow-lg shadow-brand-red/30 hover:bg-brand-red-dark transition-all disabled:opacity-50 tracking-wide">
                         {loading ? 'Guardando...' : 'Guardar Producto'}
                     </button>
                 </div>

@@ -25,14 +25,12 @@ const Index = () => {
         handleFilterChange, 
         handleFilterSubmit, 
         handleFilterClear,
-        // Control del Modal de Confirmación
         isDeleteModalOpen,
         openDeleteModal,
         closeDeleteModal,
         handleConfirmDelete
     } = useIndex();
 
-    // Configuración de los filtros de la tabla
     const filterConfig = useMemo(() => [
         { 
             name: 'search', 
@@ -54,14 +52,14 @@ const Index = () => {
         }
     ], []);
 
-    // Definición de columnas
     const columns = useMemo(() => [
         {
             header: 'Producto',
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200">
-                        <CircleStackIcon className="w-5 h-5 text-slate-600" />
+                    {/* 🔥 Ícono corporativo */}
+                    <div className="p-2.5 rounded-xl bg-brand-red-light/50 border border-brand-red/20">
+                        <CircleStackIcon className="w-5 h-5 text-brand-red" />
                     </div>
                     <div className="flex flex-col">
                         <span className="font-black text-slate-800 uppercase text-xs tracking-tight">
@@ -78,7 +76,8 @@ const Index = () => {
             header: 'Tasa Referencial',
             render: (row) => (
                 <div className="flex items-center">
-                    <span className="inline-flex items-center px-3 py-1 rounded-lg bg-red-50 text-red-700 font-black text-xs border border-red-100 shadow-sm">
+                    {/* 🔥 Tasa en dorado corporativo */}
+                    <span className="inline-flex items-center px-3 py-1 rounded-lg bg-brand-gold-light text-brand-gold-dark font-black text-xs border border-brand-gold/30 shadow-sm">
                         {row.rango_tasa}%
                     </span>
                 </div>
@@ -91,8 +90,8 @@ const Index = () => {
                     onClick={() => handleToggleStatus(row.id)} 
                     className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase transition-all shadow-sm border
                         ${row.estado 
-                            ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200' 
-                            : 'bg-red-100 text-red-600 border-red-200 hover:bg-red-200'}`}
+                            ? 'bg-green-50 text-green-700 border-green-200 hover:scale-105' 
+                            : 'bg-brand-red-light text-brand-red border-brand-red/30 hover:scale-105'}`}
                 >
                     {row.estado ? 'Activo' : 'Inactivo'}
                 </button>
@@ -102,25 +101,21 @@ const Index = () => {
             header: 'Acciones',
             render: (row) => (
                 <div className="flex items-center gap-2 justify-end">
-
-                    {/* EDITAR */}
                     <Link 
                         to={`/producto/editar/${row.id}`} 
                         title="Editar parámetros"
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm"
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                     >
                         <PencilSquareIcon className="w-4 h-4" />
                     </Link>
 
-                    {/* DAR DE BAJA */}
                     <button 
                         onClick={() => openDeleteModal(row.id)} 
                         title="Dar de baja"
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 shadow-sm"
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                     >
                         <TrashIcon className="w-4 h-4" />
                     </button>
-
                 </div>
             )
         }
@@ -128,7 +123,6 @@ const Index = () => {
 
     return (
         <div className="container mx-auto p-4 sm:p-6 animate-in fade-in duration-500">
-            {/* Cabecera de Página */}
             <PageHeader 
                 title="Productos Financieros" 
                 subtitle="Configuración de tasas y catálogo de créditos disponibles."
@@ -137,24 +131,14 @@ const Index = () => {
                 buttonLink="/producto/agregar" 
             />
             
-            {/* Mensajes de Retroalimentación */}
-            <AlertMessage 
-                type={alert?.type} 
-                message={alert?.message} 
-                details={alert?.details} 
-                onClose={() => setAlert(null)} 
-            />
+            <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             
-            {/* Tabla de Datos */}
             <div className="mt-4">
                 <Table 
                     columns={columns} 
                     data={productos} 
                     loading={loading}
-                    pagination={{ 
-                        ...paginationInfo, 
-                        onPageChange: fetchProductos 
-                    }}
+                    pagination={{ ...paginationInfo, onPageChange: fetchProductos }}
                     filterConfig={filterConfig}
                     filters={filters}
                     onFilterChange={handleFilterChange} 
@@ -163,7 +147,6 @@ const Index = () => {
                 />
             </div>
 
-            {/* Modal de Confirmación para Eliminación */}
             {isDeleteModalOpen && (
                 <ConfirmModal 
                     title="¿Eliminar Producto?"

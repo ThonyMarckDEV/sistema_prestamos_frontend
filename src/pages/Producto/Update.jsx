@@ -31,8 +31,9 @@ const Update = () => {
                         className="px-8 py-3.5 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-sm w-full sm:w-auto">
                         Cancelar
                     </button>
+                    {/* 🔥 Botón Sólido Corporativo */}
                     <button type="submit" disabled={saving}
-                        className="w-full sm:w-auto bg-black text-white px-10 py-3.5 rounded-xl font-black uppercase shadow-xl hover:bg-zinc-800 transition-all disabled:opacity-50 tracking-wide">
+                        className="w-full sm:w-auto bg-brand-red text-white px-10 py-3.5 rounded-xl font-black uppercase shadow-lg shadow-brand-red/30 hover:bg-brand-red-dark transition-all disabled:opacity-50 tracking-wide">
                         {saving ? 'Guardando...' : 'Guardar Cambios'}
                     </button>
                 </div>
