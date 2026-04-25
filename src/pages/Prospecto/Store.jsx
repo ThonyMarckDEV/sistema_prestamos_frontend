@@ -26,13 +26,12 @@ const ProspectoStore = () => {
                 buttonText="← Volver al Listado"
                 buttonLink="/prospecto/listar"
             />
-
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
-            {/* ── FASE 1: Verificación de documento ── */}
+            {/* FASE 1: Verificación */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mt-4">
                 <h3 className="text-sm font-black text-slate-700 uppercase mb-1 flex items-center gap-2">
-                    <MagnifyingGlassIcon className="w-4 h-4 text-red-600" />
+                    <MagnifyingGlassIcon className="w-4 h-4 text-brand-red" />
                     Paso 1 — Verificar Documento
                 </h3>
                 <p className="text-[11px] text-slate-400 mb-4">Ingresa el DNI o RUC antes de registrar para evitar duplicados.</p>
@@ -45,7 +44,7 @@ const ProspectoStore = () => {
                             value={documento}
                             onChange={(e) => { setDocumento(onlyNumbers(e.target.value, 11)); if (busquedaHecha) resetBusqueda(); }}
                             onKeyDown={(e) => e.key === 'Enter' && handleBuscar()}
-                            className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none"
+                            className="w-full p-3 text-sm text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-red outline-none"
                             placeholder="Ingresa DNI (8 dígitos) o RUC (11 dígitos)"
                             maxLength={11}
                         />
@@ -54,7 +53,7 @@ const ProspectoStore = () => {
                         type="button"
                         onClick={handleBuscar}
                         disabled={buscando || !documento}
-                        className="px-5 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase hover:bg-slate-700 transition-all disabled:opacity-40 flex items-center gap-2"
+                        className="px-5 py-3 bg-brand-red text-white rounded-xl font-black text-xs uppercase hover:bg-brand-red-dark transition-all disabled:opacity-40 flex items-center gap-2"
                     >
                         {buscando
                             ? <ArrowPathIcon className="w-4 h-4 animate-spin" />
@@ -70,12 +69,9 @@ const ProspectoStore = () => {
                     )}
                 </div>
 
-                {/* Resultado de búsqueda */}
                 {busquedaHecha && busquedaResult && (
                     <div className={`mt-4 p-4 rounded-xl border flex items-start gap-3 ${
-                        busquedaResult.encontrado
-                            ? 'bg-amber-50 border-amber-200'
-                            : 'bg-green-50 border-green-200'
+                        busquedaResult.encontrado ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'
                     }`}>
                         {busquedaResult.encontrado
                             ? <ExclamationTriangleIcon className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -87,9 +83,7 @@ const ProspectoStore = () => {
                                     <p className="text-xs font-black text-amber-700 uppercase">
                                         {busquedaResult.tipo === 'cliente' ? '⚠ Ya es cliente activo' : '⚠ Ya existe como prospecto'}
                                     </p>
-                                    <p className="text-[11px] text-amber-600 mt-0.5">
-                                        {busquedaResult.data?.nombre_completo}
-                                    </p>
+                                    <p className="text-[11px] text-amber-600 mt-0.5">{busquedaResult.data?.nombre_completo}</p>
                                 </>
                             ) : (
                                 <p className="text-xs font-black text-green-700 uppercase">✓ Documento libre — puedes registrar el prospecto</p>
@@ -99,12 +93,12 @@ const ProspectoStore = () => {
                 )}
             </div>
 
-            {/* ── FASE 2: Formulario (solo si está libre) ── */}
+            {/* FASE 2: Formulario */}
             {puedeRegistrar && (
                 <form onSubmit={handleSubmit} className="mt-4">
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                         <h3 className="text-sm font-black text-slate-700 uppercase mb-4 flex items-center gap-2">
-                            <UserPlusIcon className="w-4 h-4 text-red-600" />
+                            <UserPlusIcon className="w-4 h-4 text-brand-red" />
                             Paso 2 — Datos del Prospecto
                         </h3>
                         <ProspectoForm data={formData} onChange={handleChange} isEditing={false} />
@@ -116,7 +110,7 @@ const ProspectoStore = () => {
                             Cancelar
                         </button>
                         <button type="submit" disabled={loading}
-                            className="px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-black text-sm uppercase hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 shadow-lg shadow-red-500/30">
+                            className="px-8 py-3 bg-brand-red text-white rounded-xl font-black text-sm uppercase hover:bg-brand-red-dark transition-all disabled:opacity-50 shadow-lg shadow-brand-red/30">
                             {loading ? 'Registrando...' : 'Registrar Prospecto'}
                         </button>
                     </div>

@@ -51,10 +51,10 @@ const Index = () => {
             header: 'Prospecto',
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-full border ${row.tipo === 2 ? 'bg-amber-50 border-amber-200' : 'bg-slate-100 border-slate-200'}`}>
+                    <div className={`p-2 rounded-full border ${row.tipo === 2 ? 'bg-amber-50 border-amber-200' : 'bg-brand-red-light border-brand-red/20'}`}>
                         {row.tipo === 2
                             ? <BuildingOfficeIcon className="w-5 h-5 text-amber-600" />
-                            : <UserIcon className="w-5 h-5 text-slate-600" />
+                            : <UserIcon className="w-5 h-5 text-brand-red" />
                         }
                     </div>
                     <div>
@@ -122,7 +122,7 @@ const Index = () => {
                 return (
                     <div className="flex items-center gap-2 justify-end">
                         <button onClick={() => handleView(row.id)} title="Ver Detalle"
-                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm">
+                            className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm">
                             <EyeIcon className="w-4 h-4" />
                         </button>
 

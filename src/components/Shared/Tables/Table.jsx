@@ -22,7 +22,7 @@ const Table = ({
     };
 
     const renderFilterInput = (config) => {
-        const baseClass = "block w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black disabled:bg-gray-50 transition-all";
+        const baseClass = "block w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black disabled:bg-gray-50 transition-all";
 
         if (config.type === 'custom' || config.render) {
             return config.render ? config.render() : null;

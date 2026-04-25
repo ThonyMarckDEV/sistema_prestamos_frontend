@@ -17,27 +17,19 @@ const Index = () => {
     } = useIndex();
     
     const { can } = useAuth();
-
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedVoucher, setSelectedVoucher] = useState(null);
 
-    const openVoucher = (url) => {
-        setSelectedVoucher(url);
-        setIsViewModalOpen(true);
-    };
+    const openVoucher = (url) => { setSelectedVoucher(url); setIsViewModalOpen(true); };
 
     const filterConfig = useMemo(() => [
         { 
-            name: 'search', 
-            type: 'text', 
-            label: 'Nombre / Dni / Ruc / Op.', 
+            name: 'search', type: 'text', label: 'Nombre / Dni / Ruc / Op.', 
             placeholder: 'Ej: 20332932...',
             colSpan: 'col-span-12 md:col-span-4' 
         },
         { 
-            name: 'estado', 
-            type: 'select', 
-            label: 'Estado', 
+            name: 'estado', type: 'select', label: 'Estado', 
             colSpan: 'col-span-12 md:col-span-3',
             options: [
                 { value: '', label: 'TODOS LOS PAGOS' },
@@ -62,7 +54,7 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col">
                     {row.numero_comprobante ? (
-                        <span className="font-mono text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 w-fit">
+                        <span className="font-mono text-[11px] font-black text-brand-red bg-brand-red-light px-2 py-0.5 rounded border border-brand-red/20 w-fit">
                             {row.numero_comprobante}
                         </span>
                     ) : (
@@ -84,7 +76,7 @@ const Index = () => {
                     <span className="text-[9px] text-slate-500 font-bold mt-0.5">
                         Depositó: <span className="text-slate-700">{row.depositado_por}</span>
                     </span>
-                    <span className="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 w-fit px-1.5 py-0.5 rounded mt-1 tracking-wider">
+                    <span className="text-[9px] font-black text-brand-red bg-brand-red-light border border-brand-red/20 w-fit px-1.5 py-0.5 rounded mt-1 tracking-wider">
                         CUOTA #{row.cuota_nro}
                     </span>
                 </div>
@@ -108,7 +100,7 @@ const Index = () => {
                     <span className={`px-2 py-0.5 rounded text-[9px] font-black border uppercase tracking-wider ${
                         row.estado === 1
                             ? 'bg-green-100 text-green-700 border-green-200'
-                            : 'bg-red-100 text-red-700 border-red-200'
+                            : 'bg-red-100 text-brand-red border-brand-red/30'
                     }`}>
                         {row.estado === 1 ? 'APROBADO' : 'ANULADO'}
                     </span>
@@ -116,8 +108,8 @@ const Index = () => {
                         Cajero: <span className="text-slate-600">{row.registrado_por}</span>
                     </span>
                     {row.estado === 0 && row.observaciones && (
-                        <div className="flex items-center gap-1 pl-2 border-l-2 border-red-500 max-w-[180px] mt-1">
-                            <span className="text-[9px] font-semibold text-red-600 truncate" title={row.observaciones}>
+                        <div className="flex items-center gap-1 pl-2 border-l-2 border-brand-red max-w-[180px] mt-1">
+                            <span className="text-[9px] font-semibold text-brand-red truncate" title={row.observaciones}>
                                 {row.observaciones}
                             </span>
                         </div>
@@ -146,7 +138,7 @@ const Index = () => {
                             className={`p-2 rounded-xl transition-all border border-transparent shadow-sm ${
                                 pdfLoading 
                                     ? 'bg-slate-50 text-slate-300' 
-                                    : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100'
+                                    : 'text-slate-400 hover:text-brand-red hover:bg-brand-red-light hover:border-brand-red/20'
                             }`}
                         >
                             <PrinterIcon className={`w-4 h-4 ${pdfLoading ? 'animate-spin' : ''}`} />
