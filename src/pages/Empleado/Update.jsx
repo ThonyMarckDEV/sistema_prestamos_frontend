@@ -24,7 +24,7 @@ const Update = () => {
     if (loading) return <LoadingScreen />;
 
     return (
-        <div className="container mx-auto p-6">
+        <div className="container mx-auto p-4 sm:p-6">
             <PageHeader
                 title="Editar Empleado"
                 subtitle={`Editando a: ${formData.datos_empleado.nombre} ${formData.datos_empleado.apellidoPaterno}`}
@@ -40,7 +40,7 @@ const Update = () => {
                 onClose={() => setAlert(null)} 
             />
 
-            <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+            <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-6 mt-6">
                 <DatosPersonalesForm 
                     data={formData} 
                     handleNestedChange={handleNestedChange} 
@@ -53,18 +53,18 @@ const Update = () => {
                     isEditing={true}
                 />
 
-                <div className="flex justify-end gap-4 mt-8">
+                <div className="flex flex-col sm:flex-row justify-end gap-4 mt-8">
                     <button
                         type="button"
                         onClick={() => navigate('/empleado/listar')}
-                        className="px-6 py-3 bg-slate-100 text-slate-600 rounded-lg font-bold hover:bg-slate-200 transition-colors uppercase text-sm"
+                        className="px-8 py-3.5 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-sm w-full sm:w-auto"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
                         disabled={saving}
-                        className="bg-black text-white px-10 py-3 rounded-lg font-black uppercase shadow-lg hover:bg-zinc-800 transition-all disabled:opacity-50"
+                        className="w-full sm:w-auto bg-brand-red text-white px-10 py-3.5 rounded-xl font-black uppercase shadow-lg shadow-brand-red/30 hover:bg-brand-red-dark transition-all disabled:opacity-50 tracking-wide"
                     >
                         {saving ? 'Guardando...' : 'Guardar Cambios'}
                     </button>

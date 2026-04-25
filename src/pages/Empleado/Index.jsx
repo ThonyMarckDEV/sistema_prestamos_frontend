@@ -92,12 +92,13 @@ const Index = () => {
             header: 'Empleado',
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className="bg-slate-100 p-2 rounded-full border border-slate-200">
-                        <UserIcon className="w-6 h-6 text-slate-600" />
+                    {/* 🔥 Ícono corporativo */}
+                    <div className="bg-brand-red-light/50 p-2.5 rounded-xl border border-brand-red/20">
+                        <UserIcon className="w-5 h-5 text-brand-red" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-bold text-slate-800 text-sm">{row.nombre_completo}</span>
-                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                        <span className="font-black text-slate-800 text-sm uppercase">{row.nombre_completo}</span>
+                        <span className="text-xs text-slate-500 font-bold flex items-center gap-1">
                             <UserIcon className="w-3 h-3"/> {row.usuario?.username || 'Sin usuario'}
                         </span>
                     </div>
@@ -109,10 +110,10 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col gap-1">
                     <span className="text-xs font-bold text-slate-600 flex items-center gap-1">
-                        <IdentificationIcon className="w-3 h-3"/> {row.dni}
+                        <IdentificationIcon className="w-3 h-3 text-slate-400"/> {row.dni}
                     </span>
                     <span className="text-xs text-slate-500 flex items-center gap-1">
-                        <PhoneIcon className="w-3 h-3"/> {row.telefono}
+                        <PhoneIcon className="w-3 h-3 text-slate-400"/> {row.telefono}
                     </span>
                 </div>
             )
@@ -120,10 +121,10 @@ const Index = () => {
         {
             header: 'Rol',
             render: (row) => (
-                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] uppercase font-black border shadow-sm ${
                     row.rol === 'Administrador' 
-                    ? 'bg-purple-50 text-purple-700 border-purple-200' 
-                    : 'bg-blue-50 text-blue-700 border-blue-200'
+                    ? 'bg-brand-gold-light text-brand-gold-dark border-brand-gold/30' // 🔥 Rol admin en dorado
+                    : 'bg-slate-50 text-slate-600 border-slate-200'
                 }`}>
                     <BriefcaseIcon className="w-3 h-3"/>
                     {row.rol || 'Sin Rol'}
@@ -135,8 +136,8 @@ const Index = () => {
             render: (row) => (
                 <button 
                     onClick={() => handleAskToggle(row.id)}
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
-                        ${row.estado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-600 border border-red-200'}`}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
+                        ${row.estado ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-brand-red-light text-brand-red border border-brand-red/30'}`}
                     title="Clic para cambiar acceso"
                 >
                     {row.estado ? 'Activo' : 'Inactivo'}
@@ -147,32 +148,30 @@ const Index = () => {
             header: 'Acciones',
             render: (row) => (
                 <div className="flex items-center gap-2 justify-end">
-
-                    {/* 👁️ VER */}
+                    {/* VER - Hover corporativo */}
                     <button 
                         onClick={() => handleView(row.id)}
                         title="Ver Detalle"
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm"
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                     >
                         <EyeIcon className="w-4 h-4" />
                     </button>
 
-                    {/* ✏️ EDITAR */}
+                    {/* EDITAR - Hover corporativo */}
                     <Link 
                         to={`/empleado/editar/${row.id}`} 
                         title="Editar Empleado"
-                        className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-200 shadow-sm"
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                     >
                         <PencilSquareIcon className="w-4 h-4" />
                     </Link>
-
                 </div>
             )
         }
-    ], [handleAskToggle, handleView]); // Dependencias para que no hayan renders innecesarios
+    ], [handleAskToggle, handleView]);
 
     return (
-        <div className="container mx-auto p-6">
+        <div className="container mx-auto p-4 sm:p-6 animate-in fade-in duration-500">
             <PageHeader 
                 title="Gestión de Empleados" 
                 icon={UserIcon} 
@@ -182,20 +181,22 @@ const Index = () => {
 
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
-            <Table
-                columns={columns}
-                data={empleados}
-                loading={loading}
-                filterConfig={filterConfig} 
-                filters={filters}
-                onFilterChange={handleFilterChange}
-                onFilterSubmit={handleFilterSubmit}
-                onFilterClear={handleFilterClear}
-                pagination={{
-                    ...paginationInfo,
-                    onPageChange: fetchEmpleados
-                }}
-            />
+            <div className="mt-4">
+                <Table
+                    columns={columns}
+                    data={empleados}
+                    loading={loading}
+                    filterConfig={filterConfig} 
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    onFilterSubmit={handleFilterSubmit}
+                    onFilterClear={handleFilterClear}
+                    pagination={{
+                        ...paginationInfo,
+                        onPageChange: fetchEmpleados
+                    }}
+                />
+            </div>
 
             {showConfirm && (
                 <ConfirmModal 
@@ -215,69 +216,69 @@ const Index = () => {
             >
                 {viewData && (
                     <div className="space-y-6">
-                        <div className="flex flex-col md:flex-row gap-6 border-b border-gray-100 pb-6">
-                            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center border border-slate-200 shrink-0">
-                                <UserIcon className="w-8 h-8 text-slate-400"/>
+                        <div className="flex flex-col md:flex-row gap-6 border-b border-slate-100 pb-6">
+                            <div className="w-16 h-16 bg-brand-red-light/50 rounded-2xl flex items-center justify-center border border-brand-red/20 shrink-0 shadow-sm">
+                                <UserIcon className="w-8 h-8 text-brand-red"/>
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-xs font-bold text-gray-400 uppercase mb-1">Nombre Completo</h4>
-                                <p className="text-gray-800 font-black text-xl leading-tight">
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Nombre Completo</h4>
+                                <p className="text-slate-800 font-black text-xl uppercase leading-tight">
                                     {viewData.nombre} {viewData.apellidoPaterno} {viewData.apellidoMaterno}
                                 </p>
                                 <div className="flex flex-wrap gap-3 mt-3">
-                                    <span className="flex items-center gap-1 text-sm text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-100">
-                                        <IdentificationIcon className="w-4 h-4 text-gray-400"/> {viewData.dni}
+                                    <span className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                        <IdentificationIcon className="w-4 h-4 text-brand-red"/> {viewData.dni}
                                     </span>
-                                    <span className="flex items-center gap-1 text-sm text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-100">
-                                        <PhoneIcon className="w-4 h-4 text-gray-400"/> {viewData.telefono}
+                                    <span className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                        <PhoneIcon className="w-4 h-4 text-brand-red"/> {viewData.telefono}
                                     </span>
                                 </div>
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-8">
                             <div>
-                                <h4 className="text-xs font-bold text-gray-400 uppercase mb-1">Fecha Nacimiento</h4>
-                                <div className="flex items-center gap-2 text-gray-800 font-medium">
-                                    <CalendarDaysIcon className="w-4 h-4 text-gray-400"/>
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fecha Nacimiento</h4>
+                                <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
+                                    <CalendarDaysIcon className="w-4 h-4 text-slate-400"/>
                                     {viewData.fechaNacimiento}
                                 </div>
                             </div>
                             <div>
-                                <h4 className="text-xs font-bold text-gray-400 uppercase mb-1">Estado Civil</h4>
-                                <p className="text-gray-800 font-medium">{viewData.estadoCivil}</p>
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estado Civil</h4>
+                                <p className="text-slate-800 font-bold text-sm uppercase">{viewData.estadoCivil}</p>
                             </div>
                             <div>
-                                <h4 className="text-xs font-bold text-gray-400 uppercase mb-1">Sexo</h4>
-                                <p className="text-gray-800 font-medium">{viewData.sexo}</p>
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sexo</h4>
+                                <p className="text-slate-800 font-bold text-sm uppercase">{viewData.sexo}</p>
                             </div>
                             <div>
-                                <h4 className="text-xs font-bold text-gray-400 uppercase mb-1">Dirección</h4>
-                                <div className="flex items-start gap-2 text-gray-800 font-medium">
-                                    <MapPinIcon className="w-4 h-4 text-gray-400 mt-0.5 shrink-0"/>
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Dirección</h4>
+                                <div className="flex items-start gap-2 text-slate-800 font-bold text-sm uppercase">
+                                    <MapPinIcon className="w-4 h-4 text-slate-400 mt-0.5 shrink-0"/>
                                     {viewData.direccion}
                                 </div>
                             </div>
                         </div>
 
                         {viewData.usuario && (
-                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 mt-2">
-                                <div className="flex justify-between items-start mb-3">
+                            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 mt-4">
+                                <div className="flex justify-between items-start mb-4">
                                     <h4 className="text-sm font-black text-slate-700 uppercase flex items-center gap-2">
-                                        <BriefcaseIcon className="w-4 h-4"/> Acceso al Sistema
+                                        <BriefcaseIcon className="w-4 h-4 text-brand-gold-dark"/> Acceso al Sistema
                                     </h4>
-                                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${viewData.usuario.estado ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wide border shadow-sm ${viewData.usuario.estado ? 'bg-green-50 text-green-700 border-green-200' : 'bg-brand-red-light text-brand-red border-brand-red/30'}`}>
                                         {viewData.usuario.estado ? 'Activo' : 'Inactivo'}
                                     </span>
                                 </div>
                                 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-xs text-slate-500 mb-0.5">Usuario</p>
-                                        <p className="font-bold text-slate-800">{viewData.usuario.username}</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Usuario</p>
+                                        <p className="font-bold text-slate-800 text-sm">{viewData.usuario.username}</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-slate-500 mb-0.5">Rol Asignado</p>
-                                        <p className="font-bold text-slate-800">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Rol Asignado</p>
+                                        <p className="font-bold text-brand-gold-dark text-sm uppercase">
                                             {viewData.usuario.rol ? viewData.usuario.rol.nombre : 'Sin Rol'}
                                         </p>
                                     </div>

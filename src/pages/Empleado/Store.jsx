@@ -19,7 +19,7 @@ const Store = () => {
     } = useStore();
 
     return (
-        <div className="container mx-auto p-6">
+        <div className="container mx-auto p-4 sm:p-6">
             <PageHeader 
                 title="Nuevo Empleado" 
                 icon={UserPlusIcon} 
@@ -34,7 +34,7 @@ const Store = () => {
                 onClose={() => setAlert(null)} 
             />
 
-            <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+            <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-6 mt-6">
                 <DatosPersonalesForm 
                     data={formData} 
                     handleNestedChange={handleNestedChange} 
@@ -51,7 +51,7 @@ const Store = () => {
                     <button 
                         type="submit" 
                         disabled={loading} 
-                        className="bg-black text-white px-8 py-3 rounded-lg font-black uppercase hover:bg-zinc-800 transition-colors disabled:opacity-50 shadow-lg"
+                        className="w-full sm:w-auto bg-brand-red text-white px-10 py-3.5 rounded-xl font-black uppercase shadow-lg shadow-brand-red/30 hover:bg-brand-red-dark transition-all disabled:opacity-50 tracking-wide"
                     >
                         {loading ? 'Guardando...' : 'Registrar Empleado'}
                     </button>

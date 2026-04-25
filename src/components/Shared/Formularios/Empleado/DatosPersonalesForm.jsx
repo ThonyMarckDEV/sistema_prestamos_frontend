@@ -7,50 +7,52 @@ const DatosPersonalesForm = ({ data, handleNestedChange }) => {
 
     const onChange = (field, value) => handleNestedChange('datos_empleado', field, value);
 
+    const inputClass = "w-full p-3.5 text-sm font-bold text-slate-800 border border-slate-200 bg-slate-50 rounded-xl focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none transition-all";
+
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h3 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-100 pb-2 uppercase">
-                <IdentificationIcon className="w-5 h-5" /> Información Personal
+        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
+            <h3 className="text-base font-black text-slate-800 flex items-center gap-2 mb-6 uppercase tracking-wide border-b border-slate-100 pb-3">
+                <IdentificationIcon className="w-6 h-6 text-brand-red" /> Información Personal
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
                 
                 {/* DNI: Solo 8 números */}
                 <div className="md:col-span-4">
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        DNI <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        DNI <span className="text-brand-red">*</span>
                     </label>
                     <input
                         type="text"
                         value={valores.dni || ''}
                         onChange={(e) => onChange('dni', onlyNumbers(e.target.value, 8))}
-                        className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
+                        className={inputClass}
                         placeholder="8 dígitos"
                     />
                 </div>
 
                 {/* Fecha Nacimiento */}
                 <div className="md:col-span-4">
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Fecha Nacimiento <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        Fecha Nacimiento <span className="text-brand-red">*</span>
                     </label>
                     <input
                         type="date"
                         value={valores.fechaNacimiento || ''}
                         onChange={(e) => onChange('fechaNacimiento', e.target.value)}
-                        className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
+                        className={`${inputClass} uppercase`}
                     />
                 </div>
 
                 {/* Sexo */}
                 <div className="md:col-span-4">
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Sexo <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        Sexo <span className="text-brand-red">*</span>
                     </label>
                     <select
                         value={valores.sexo || ''}
                         onChange={(e) => onChange('sexo', e.target.value)}
-                        className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none bg-white font-medium"
+                        className={`${inputClass} cursor-pointer uppercase`}
                     >
                         <option value="">-- Seleccionar --</option>
                         <option value="MASCULINO">MASCULINO</option>
@@ -60,56 +62,58 @@ const DatosPersonalesForm = ({ data, handleNestedChange }) => {
 
                 {/* Nombres: Solo letras */}
                 <div className="md:col-span-4">
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Nombres <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        Nombres <span className="text-brand-red">*</span>
                     </label>
                     <input
                         type="text"
                         value={valores.nombre || ''}
                         onChange={(e) => onChange('nombre', onlyLetters(e.target.value))}
-                        className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
+                        className={`${inputClass} uppercase`}
                         placeholder="Nombres completos"
                     />
                 </div>
 
                 {/* Apellido Paterno: Solo letras */}
                 <div className="md:col-span-4">
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Apellido Paterno <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        Apellido Paterno <span className="text-brand-red">*</span>
                     </label>
                     <input
                         type="text"
                         value={valores.apellidoPaterno || ''}
                         onChange={(e) => onChange('apellidoPaterno', onlyLetters(e.target.value))}
-                        className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
+                        className={`${inputClass} uppercase`}
+                        placeholder="Paterno"
                     />
                 </div>
 
                 {/* Apellido Materno: Solo letras */}
                 <div className="md:col-span-4">
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Apellido Materno <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        Apellido Materno <span className="text-brand-red">*</span>
                     </label>
                     <input
                         type="text"
                         value={valores.apellidoMaterno || ''}
                         onChange={(e) => onChange('apellidoMaterno', onlyLetters(e.target.value))}
-                        className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
+                        className={`${inputClass} uppercase`}
+                        placeholder="Materno"
                     />
                 </div>
 
                 {/* Teléfono: Solo 9 números */}
                 <div className="md:col-span-4">
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Teléfono <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        Teléfono <span className="text-brand-red">*</span>
                     </label>
                     <div className="relative">
-                        <PhoneIcon className="w-4 h-4 absolute left-3 top-3 text-gray-400"/>
+                        <PhoneIcon className="w-5 h-5 absolute left-3 top-3.5 text-slate-400"/>
                         <input
                             type="text"
                             value={valores.telefono || ''}
                             onChange={(e) => onChange('telefono', onlyNumbers(e.target.value, 9))}
-                            className="w-full pl-9 p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
+                            className={`${inputClass} pl-10`}
                             placeholder="999888777"
                         />
                     </div>
@@ -117,13 +121,13 @@ const DatosPersonalesForm = ({ data, handleNestedChange }) => {
 
                 {/* Estado Civil */}
                 <div className="md:col-span-4">
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Estado Civil <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        Estado Civil <span className="text-brand-red">*</span>
                     </label>
                     <select
                         value={valores.estadoCivil || ''}
                         onChange={(e) => onChange('estadoCivil', e.target.value)}
-                        className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none bg-white font-medium"
+                        className={`${inputClass} cursor-pointer uppercase`}
                     >
                         <option value="">-- Seleccionar --</option>
                         <option value="Soltero">Soltero(a)</option>
@@ -136,16 +140,16 @@ const DatosPersonalesForm = ({ data, handleNestedChange }) => {
 
                 {/* Dirección */}
                 <div className="md:col-span-12">
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Dirección <span className="text-red-500">*</span>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">
+                        Dirección <span className="text-brand-red">*</span>
                     </label>
                     <div className="relative">
-                        <MapPinIcon className="w-4 h-4 absolute left-3 top-3 text-gray-400"/>
+                        <MapPinIcon className="w-5 h-5 absolute left-3 top-3.5 text-slate-400"/>
                         <input
                             type="text"
                             value={valores.direccion || ''}
                             onChange={(e) => onChange('direccion', e.target.value)}
-                            className="w-full pl-9 p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
+                            className={`${inputClass} pl-10 uppercase`}
                             placeholder="Calle, Número, Distrito..."
                         />
                     </div>
