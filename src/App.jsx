@@ -3,8 +3,8 @@ import './index.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Componentes Globales
-import { ToastContainer } from 'react-toastify';
 import SidebarLayout from 'layouts/SidebarLayout';
+import { ToastContainer } from 'components/Shared/Notificaciones/ToastNotification';
 
 // UIS AUTH & ERRORS
 import ErrorPage404 from 'components/ErrorPage404';
@@ -86,7 +86,6 @@ import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
 import ProtectedRoute from 'utilities/ProtectedRoutes/ProtectedRoute';
 import { AuthProvider } from 'context/AuthContext';
 import { NotificacionProvider } from 'components/Shared/Notificaciones/NotificacionContext';
-
 
 function AppContent() {
   return (
@@ -183,7 +182,7 @@ function App() {
         <Router>
           <div className="min-h-screen bg-white text-primary">
             <AppContent />
-            <ToastContainer position="top-right" autoClose={3000} />
+            <ToastContainer />
           </div>
         </Router>
       </NotificacionProvider>
