@@ -30,11 +30,11 @@ const Index = () => {
             render: (row) => (
                 <div className="flex justify-end gap-2">
                     <Link to={`/feriados/editar/${row.id}`}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm">
                         <PencilSquareIcon className="w-4 h-4" />
                     </Link>
                     <button onClick={() => handleAskDelete(row.id)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm">
                         <TrashIcon className="w-4 h-4" />
                     </button>
                 </div>
@@ -94,13 +94,13 @@ const Index = () => {
                 onClick={() => setVistaCalendario(v => !v)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase transition-all border shadow-sm mt-4 mb-4 ${
                     vistaCalendario
-                        ? 'bg-slate-900 text-white border-slate-900 hover:bg-slate-700'
+                        ? 'bg-brand-red text-white border-brand-red hover:bg-brand-red-dark'
                         : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
                 }`}
             >
                 {vistaCalendario
                     ? <><TableCellsIcon className="w-4 h-4" /> Ver Tabla</>
-                    : <><CalendarDaysIcon className="w-4 h-4 text-red-500" /> Ver Calendario</>
+                    : <><CalendarDaysIcon className="w-4 h-4 text-brand-red" /> Ver Calendario</>
                 }
             </button>
 
@@ -126,13 +126,14 @@ const Index = () => {
             {vistaCalendario && (
                 <div className="flex flex-col items-center gap-6 mt-2">
                     <Calendario mode="view" feriados={feriadosCalendario} size="large" />
+                    
                     <div className="flex items-center gap-6 text-xs font-bold text-slate-400">
                         <span className="flex items-center gap-2">
-                            <span className="w-4 h-4 rounded-md bg-orange-100 border-2 border-orange-300 inline-block" />
+                            <span className="w-4 h-4 rounded-md bg-brand-red-light border-2 border-brand-red/30 inline-block" />
                             Feriado
                         </span>
                         <span className="flex items-center gap-2">
-                            <span className="w-4 h-4 rounded-md border-2 border-red-400 inline-block" />
+                            <span className="w-4 h-4 rounded-md border-2 border-brand-gold-dark inline-block" />
                             Hoy
                         </span>
                     </div>

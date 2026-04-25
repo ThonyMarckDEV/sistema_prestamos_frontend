@@ -32,8 +32,8 @@ const FeriadoForm = ({
                     feriados={feriadosCalendario}
                 />
                 {!isEdit && feriadosCalendario.length > 0 && (
-                    <p className="text-[9px] text-slate-600 uppercase tracking-widest mt-4">
-                        Días en naranja = feriados registrados (no seleccionables)
+                    <p className="text-[9px] text-slate-400 uppercase tracking-widest mt-4">
+                        Días <span className="font-bold text-brand-red">marcados</span> = feriados registrados
                     </p>
                 )}
             </div>
@@ -48,7 +48,7 @@ const FeriadoForm = ({
                         type="text"
                         readOnly
                         value={formData.fecha || 'NADA SELECCIONADO'}
-                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-black text-red-600 text-center outline-none"
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-black text-brand-red text-center outline-none"
                     />
                 </div>
 
@@ -58,10 +58,10 @@ const FeriadoForm = ({
                     </label>
                     <input
                         type="text"
-                        value={formData.descripcion}
+                        value={formData.descripcion || ''}
                         onChange={(e) => handleChange('descripcion', toUpper(e.target.value))}
                         placeholder="EJ: COMBATE DE ANGAMOS"
-                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-slate-800 outline-none focus:ring-2 focus:ring-brand-red focus:border-brand-red transition-all"
                         required
                     />
                 </div>
@@ -70,11 +70,7 @@ const FeriadoForm = ({
                     <button
                         type="submit"
                         disabled={loading || !formData.fecha}
-                        className={`w-full py-4 text-white font-black uppercase rounded-2xl transition-all disabled:opacity-50 tracking-widest ${
-                            isEdit
-                                ? 'bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200'
-                                : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-xl shadow-red-500/30'
-                        }`}
+                        className="w-full py-4 bg-brand-red text-white font-black uppercase rounded-2xl hover:bg-brand-red-dark transition-all shadow-xl shadow-brand-red/30 disabled:opacity-50 tracking-widest active:scale-95"
                     >
                         {loading
                             ? (isEdit ? 'Guardando...' : 'Procesando...')
