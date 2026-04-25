@@ -72,20 +72,24 @@ const CONFIG = {
 
 // ── Toast individual ──────────────────────────────────────────────────────────
 const Toast = ({ id, type, message, duration = 3500 }) => {
-    const [visible, setVisible] = useState(false);
-    const [leaving, setLeaving] = useState(false);
-    const cfg = CONFIG[type] ?? CONFIG.info;
+    const [visible, setVisible]   = useState(false);
+    const [leaving, setLeaving]   = useState(false);
+    const [paused,  setPaused]    = useState(false);
+    const cfg  = CONFIG[type] ?? CONFIG.info;
     const Icon = cfg.icon;
 
     useEffect(() => {
-        // Entrada
         requestAnimationFrame(() => setVisible(true));
-        // Salida anticipada para animar
-        if (duration !== 0) {
-            const t = setTimeout(() => setLeaving(true), duration - 400);
-            return () => clearTimeout(t);
-        }
-    }, [duration]);
+    }, []);
+
+    // Timer que respeta la pausa
+    useEffect(() => {
+        if (duration === 0 || paused) return;
+        const remaining = paused ? 0 : duration;
+        const t = setTimeout(() => setLeaving(true), remaining - 400 > 0 ? remaining - 400 : remaining);
+        const t2 = setTimeout(() => store.remove(id), remaining);
+        return () => { clearTimeout(t); clearTimeout(t2); };
+    }, [paused, duration, id]);
 
     const handleRemove = useCallback(() => {
         setLeaving(true);
@@ -103,7 +107,8 @@ const Toast = ({ id, type, message, duration = 3500 }) => {
                     ? 'opacity-100 translate-x-0 scale-100'
                     : 'opacity-0 translate-x-8 scale-95'}
             `}
-            onClick={handleRemove}
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
         >
             {/* Barra izquierda */}
             <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl ${cfg.bar}`} />
@@ -132,7 +137,9 @@ const Toast = ({ id, type, message, duration = 3500 }) => {
                     <div
                         className={`h-full ${cfg.bar} opacity-40`}
                         style={{
-                            animation: `shrink ${duration}ms linear forwards`,
+                            animation: paused
+                                ? 'none'
+                                : `shrink ${duration}ms linear forwards`,
                         }}
                     />
                 </div>
