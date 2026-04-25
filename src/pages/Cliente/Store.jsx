@@ -77,7 +77,7 @@ const Store = () => {
                         className={`w-full sm:w-auto text-white px-10 py-3.5 rounded-xl font-black uppercase transition-all disabled:opacity-50 shadow-lg ${
                             prospectoId
                                 ? 'bg-green-600 hover:bg-green-700 shadow-green-500/30'
-                                : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-red-500/30'
+                                : 'bg-brand-red hover:bg-brand-red-dark shadow-brand-red/30' // 🔥 Full corporativo
                         }`}>
                         {loading
                             ? 'Procesando...'

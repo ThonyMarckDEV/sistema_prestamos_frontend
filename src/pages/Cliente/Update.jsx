@@ -57,7 +57,7 @@ const Update = () => {
                 </div>
 
                 {/* Footer de Acción con botones de Cancelar y Guardar */}
-                <div className="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-end gap-4 sticky bottom-4 z-10">
+                <div className="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-end gap-4 sticky bottom-4 z-20">
                     <button 
                         type="button" 
                         onClick={() => navigate('/cliente/listar')}
@@ -68,7 +68,7 @@ const Update = () => {
                     <button 
                         type="submit" 
                         disabled={saving}
-                        className="bg-black text-white px-10 py-3.5 rounded-xl font-black uppercase shadow-lg hover:bg-zinc-800 transition-all disabled:opacity-50"
+                        className="bg-brand-red text-white px-10 py-3.5 rounded-xl font-black uppercase shadow-lg shadow-brand-red/30 hover:bg-brand-red-dark transition-all disabled:opacity-50"
                     >
                         {saving ? 'Actualizando...' : 'Guardar Cambios'}
                     </button>
