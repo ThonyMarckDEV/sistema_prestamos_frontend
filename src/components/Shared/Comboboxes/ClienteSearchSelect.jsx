@@ -62,19 +62,18 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '', clearOnSele
                     onClick={() => !showSuggestions && !disabled && fetchClientes(inputValue)}
                     disabled={disabled}
                     placeholder="Buscar cliente..."
-                    // Mantenemos py-2.5 como el original
-                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-10 pr-10 py-2.5 text-sm font-bold focus:ring-2 focus:ring-red-500 outline-none bg-white transition-all disabled:bg-slate-50 disabled:text-slate-400"
+                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-10 pr-10 py-2.5 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none bg-white transition-all disabled:bg-slate-50 disabled:text-slate-400"
                     autoComplete="off"
                 />
-                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-slate-400'}`}>
+                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-slate-400 group-focus-within:text-brand-red transition-colors'}`}>
                     <UserIcon className="w-5 h-5" />
                 </div>
                 
                 <div className="absolute right-3">
                     {loading ? (
-                        <div className="w-4 h-4 border-2 border-slate-200 border-t-red-600 rounded-full animate-spin"></div> 
+                        <div className="w-4 h-4 border-2 border-slate-200 border-t-brand-red rounded-full animate-spin"></div> 
                     ) : inputValue && !disabled && (
-                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-red-500">
+                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-brand-red transition-colors">
                             <XMarkIcon className="w-5 h-5" />
                         </button> 
                     )}
@@ -89,7 +88,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '', clearOnSele
                                 <li 
                                     key={cliente.id} 
                                     onClick={() => handleSelect(cliente)} 
-                                    className="px-3 py-2 cursor-pointer flex items-center justify-between hover:bg-slate-50 rounded-lg border-b border-slate-50 last:border-0"
+                                    className="px-3 py-2 cursor-pointer flex items-center justify-between hover:bg-brand-red-light rounded-lg border-b border-slate-50 last:border-0 transition-colors"
                                 >
                                     <div className="flex items-center gap-2 min-w-0">
                                         <div className="flex-shrink-0 bg-slate-100 p-1 rounded-md">
@@ -104,7 +103,7 @@ const ClienteSearchSelect = ({ onSelect, disabled, initialName = '', clearOnSele
                                             </span>
                                         </div>
                                     </div>
-                                    <span className={`flex-shrink-0 text-[8px] font-black px-1.5 py-0.5 rounded border ${isEmpresa ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                                    <span className={`flex-shrink-0 text-[8px] font-black px-1.5 py-0.5 rounded border ${isEmpresa ? 'bg-brand-gold-light text-brand-gold-dark border-brand-gold/30' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                                         {isEmpresa ? 'RUC' : 'DNI'}
                                     </span>
                                 </li>

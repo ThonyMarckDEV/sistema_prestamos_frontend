@@ -72,18 +72,18 @@ const GrupoSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                     }}
                     disabled={disabled}
                     placeholder="Buscar grupo.."
-                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-11 pr-10 py-3 text-sm font-bold focus:ring-2 focus:ring-red-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed"
+                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-11 pr-10 py-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed"
                     autoComplete="off"
                 />
-                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-slate-400'}`}>
+                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-slate-400 group-focus-within:text-brand-red transition-colors'}`}>
                     <UserGroupIcon className="w-5 h-5" />
                 </div>
                 
                 <div className="absolute right-3 flex items-center">
                     {loading ? (
-                        <div className="w-4 h-4 border-2 border-slate-300 rounded-full animate-spin border-t-red-600"></div> 
+                        <div className="w-4 h-4 border-2 border-slate-300 rounded-full animate-spin border-t-brand-red"></div> 
                     ) : inputValue && !disabled ? (
-                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-red-500 p-1 transition-colors">
+                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-brand-red p-1 transition-colors">
                             <XMarkIcon className="w-5 h-5" />
                         </button> 
                     ) : (
@@ -97,16 +97,16 @@ const GrupoSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                             <li 
                                 key={grupo.id} 
                                 onClick={() => handleSelect(grupo)} 
-                                className="px-4 py-3 cursor-pointer rounded-lg border border-transparent hover:bg-red-50 hover:border-slate-100 transition-all"
+                                className="px-4 py-3 cursor-pointer rounded-lg border border-transparent hover:bg-brand-red-light hover:border-brand-red/20 transition-all"
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex flex-col gap-1">
                                         <span className="uppercase font-black text-slate-800 text-xs flex items-center gap-1.5">
-                                            <UserGroupIcon className="w-4 h-4 text-slate-500" /> {grupo.nombre}
+                                            <UserGroupIcon className="w-4 h-4 text-brand-red" /> {grupo.nombre}
                                         </span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-[9px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-bold uppercase border border-blue-100">
+                                        <span className="text-[9px] bg-brand-red-light text-brand-red px-2 py-0.5 rounded-full font-bold uppercase border border-brand-red/20">
                                             Seleccionar
                                         </span>
                                     </div>
