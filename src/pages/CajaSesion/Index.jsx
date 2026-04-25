@@ -19,7 +19,8 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col">
                     <span className="font-black text-slate-800 text-[11px] uppercase tracking-tighter">
-                        {row.caja_nombre} <span className="text-blue-700 ml-1">Sesion #{row.id}</span>
+                        {/* 🔥 ID resaltado en color de marca */}
+                        {row.caja_nombre} <span className="text-brand-red ml-1">Sesion #{row.id}</span>
                     </span>
                     <span className="text-[10px] text-slate-400 font-bold truncate max-w-[180px]">
                         {row.caja_desc}
@@ -41,7 +42,7 @@ const Index = () => {
                 <div className="text-[11px] font-bold leading-tight">
                     {row.fecha_cierre
                         ? <span className="text-slate-500">{row.fecha_cierre}</span>
-                        : <span className="text-blue-400 italic">En curso</span>
+                        : <span className="text-green-600 italic">En curso</span>
                     }
                 </div>
             )
@@ -70,7 +71,7 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col gap-1 items-start">
                     <span className={`px-2 py-1 text-[9px] font-black rounded-full border uppercase ${
-                        row.estado === 1 ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-100 text-slate-500 border-slate-200'
+                        row.estado === 1 ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-500 border-slate-200'
                     }`}>
                         {row.estado === 1 ? 'Abierta' : 'Cerrada'}
                     </span>
@@ -88,9 +89,10 @@ const Index = () => {
             header: '',
             render: (row) => (
                 <div className="flex justify-end">
+                    {/* 🔥 Hover corporativo */}
                     <button
                         onClick={() => handleVerDetalle(row.id)}
-                        className="p-1.5 bg-white text-slate-400 hover:text-black hover:bg-slate-50 rounded-lg border border-slate-200 transition-all shadow-sm"
+                        className="p-1.5 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-lg border border-transparent hover:border-brand-red/20 transition-all shadow-sm"
                     >
                         <EyeIcon className="w-4 h-4" />
                     </button>

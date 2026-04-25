@@ -20,8 +20,8 @@ const Index = () => {
             header: 'Caja / Identificador',
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl border bg-slate-100 border-slate-200">
-                        <InboxStackIcon className="w-5 h-5 text-slate-600" />
+                    <div className="p-2.5 rounded-xl border bg-brand-red-light/50 border-brand-red/20">
+                        <InboxStackIcon className="w-5 h-5 text-brand-red" />
                     </div>
                     <div className="flex flex-col">
                         <span className="font-black text-slate-800 text-sm uppercase">{row.nombre}</span>
@@ -34,8 +34,8 @@ const Index = () => {
             header: 'Estado Turno',
             render: (row) => (
                 row.sesion_activa ? 
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-[9px] font-black rounded-full border border-blue-200 uppercase">Turno Abierto</span> :
-                    <span className="px-2 py-1 bg-slate-100 text-slate-400 text-[9px] font-black rounded-full border border-slate-200 uppercase">Disponible</span>
+                    <span className="px-2 py-1 bg-green-50 text-green-700 text-[9px] font-black rounded-full border border-green-200 uppercase">Turno Abierto</span> :
+                    <span className="px-2 py-1 bg-slate-50 text-slate-500 text-[9px] font-black rounded-full border border-slate-200 uppercase">Disponible</span>
             )
         },
         {
@@ -43,7 +43,7 @@ const Index = () => {
             render: (row) => (
                 <button onClick={() => handleAskStatus(row.id)}
                     className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase border transition-all hover:scale-105
-                        ${row.activo ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-600 border-red-200'}`}>
+                        ${row.activo ? 'bg-green-50 text-green-700 border-green-200' : 'bg-brand-red-light text-brand-red border-brand-red/30'}`}>
                     {row.activo ? 'Activo' : 'Inactivo'}
                 </button>
             )
@@ -52,20 +52,20 @@ const Index = () => {
             header: 'Acciones',
             render: (row) => (
                 <div className="flex items-center gap-2 justify-end">
-                    {/* EDITAR */}
+                    {/* EDITAR - Hover corporativo */}
                     <Link 
                         to={`/caja/editar/${row.id}`}
                         title="Editar"
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm"
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                     >
                         <PencilSquareIcon className="w-4 h-4" />
                     </Link>
 
-                    {/* ELIMINAR */}
+                    {/* ELIMINAR - Hover corporativo */}
                     <button 
                         onClick={() => handleAskDelete(row.id)}
                         title="Eliminar"
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 shadow-sm"
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                     >
                         <TrashIcon className="w-4 h-4" />
                     </button>

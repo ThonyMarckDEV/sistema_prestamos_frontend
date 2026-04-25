@@ -32,7 +32,7 @@ const DetalleTurnoModal = ({ isOpen, onClose, detalle, loading }) => {
                             <span className="text-[11px] font-black uppercase tracking-tight">
                                 {detalle.fecha_cierre
                                     ? <span className="text-slate-500">Cierre: {detalle.fecha_cierre}</span>
-                                    : <span className="text-blue-400 italic normal-case">Turno en curso</span>
+                                    : <span className="text-green-600 italic normal-case">Turno en curso</span>
                                 }
                             </span>
                         </div>
@@ -84,11 +84,12 @@ const DetalleTurnoModal = ({ isOpen, onClose, detalle, loading }) => {
                             </div>
                         )}
 
-                        <div className={`${detalle.cuadro === null ? 'col-span-2' : ''} md:col-span-1 bg-blue-50 p-4 rounded-2xl border border-blue-100 shadow-sm`}>
-                            <span className="block text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1 flex items-center gap-1">
+                        {/* 🔥 Observaciones ahora en dorado corporativo */}
+                        <div className={`${detalle.cuadro === null ? 'col-span-2' : ''} md:col-span-1 bg-brand-gold-light/40 p-4 rounded-2xl border border-brand-gold/30 shadow-sm`}>
+                            <span className="block text-[9px] font-black text-brand-gold-dark uppercase tracking-widest mb-1 flex items-center gap-1">
                                 <ChatBubbleLeftEllipsisIcon className="w-3 h-3" /> Observaciones
                             </span>
-                            <p className="text-[10px] font-bold text-blue-800 leading-tight">
+                            <p className="text-[10px] font-bold text-slate-700 leading-tight">
                                 {detalle.observaciones ?? 'Sin comentarios registrados.'}
                             </p>
                         </div>
