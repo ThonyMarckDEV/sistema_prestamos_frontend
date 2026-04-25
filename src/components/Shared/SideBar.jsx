@@ -209,8 +209,10 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
 
             {/* Botón hamburguesa móvil */}
             <button
-                className="md:hidden fixed top-4 left-4 z-50 p-2 bg-brand-red text-white rounded-md shadow-lg"
-                onClick={() => setIsOpen(!isOpen)}
+                className={`md:hidden fixed top-4 left-4 z-50 p-2 bg-brand-red text-white rounded-md shadow-lg transition-all duration-300 ${
+                    isOpen ? 'opacity-0 invisible pointer-events-none' : 'opacity-100 visible'
+                }`}
+                onClick={() => setIsOpen(true)}
             >
                 <Bars3Icon className="h-6 w-6" />
             </button>
