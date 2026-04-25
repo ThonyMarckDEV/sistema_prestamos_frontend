@@ -8,7 +8,6 @@ import {
     CurrencyDollarIcon, 
     BuildingLibraryIcon, 
     UserGroupIcon, 
-    Cog8ToothIcon,
     WalletIcon,
     DocumentChartBarIcon,
     Bars3Icon,
@@ -20,7 +19,7 @@ import { useAuth } from 'context/AuthContext';
 
 // Importamos el logo
 import logo from 'assets/img/logo.png'; 
-import { ChevronDownIcon, ChevronLeftIcon, CreditCardIcon, MapIcon, ScaleIcon, ShoppingBagIcon, UserPlusIcon } from 'lucide-react';
+import { Calendar1Icon, ChevronDownIcon, ChevronLeftIcon, CreditCardIcon, Lock, MapIcon, SettingsIcon, ShoppingBagIcon, UserPlusIcon } from 'lucide-react';
 
 // =======================================================================
 // CONFIGURACIÓN MAESTRA DEL MENÚ - SISTEMA DE PRÉSTAMOS
@@ -158,15 +157,16 @@ export const MENU_GROUPS = [
                 ],
             },
             {  
-                section: 'Configuración Mora', icon: ScaleIcon,
-                subs: [
-                    { name: 'Calendario Feriados', link: '/feriados/index', requiredPermission: 'feriado.index' },
-                    { name: 'Monto de Mora', link: '/configuracion/mora', requiredPermission: 'configuracion.mora' },
-                ],
+                section: 'Feriados', icon: Calendar1Icon,
+                link: '/feriados/listar', requiredPermission: 'feriado.index' 
             },
             { 
-                section: 'Roles y Permisos', icon: Cog8ToothIcon,
+                section: 'Roles y Permisos', icon: Lock,
                 link: '/rol/listar', requiredPermission: 'rol.index'
+            },
+            { 
+                section: 'Parametros', icon: SettingsIcon,
+                link: '/parametro/listar', requiredPermission: 'parametro.index'
             }
         ]
     }

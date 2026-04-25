@@ -78,8 +78,12 @@ import AgregarFeriado from 'pages/Feriado/Store';
 import EditarFeriado from 'pages/Feriado/Update';
 
 
-// SETTINGS ROL AND PERMISSIONS
+// ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
+
+// SETTINGS
+import ListarParametros from 'pages/Parametro/Index';
+import EditarParametro from 'pages/Parametro/Update';
 
 // Utilities
 import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
@@ -159,12 +163,16 @@ function AppContent() {
         <Route path="/prospecto/editar/:id"   element={<ProtectedRoute requiredPermission="prospecto.update" element={<EditarProspecto  />} />} />
 
         {/* FERIADOS */}
-        <Route path="/feriados/index" element={<ProtectedRoute requiredPermission="feriado.index" element={<ListarFeriados />} />} />
+        <Route path="/feriados/listar" element={<ProtectedRoute requiredPermission="feriado.index" element={<ListarFeriados />} />} />
         <Route path="/feriados/agregar" element={<ProtectedRoute requiredPermission="feriado.store" element={<AgregarFeriado />} />} />
         <Route path="/feriados/editar/:id" element={<ProtectedRoute requiredPermission="feriado.update" element={<EditarFeriado />} />} />
 
+        {/* ROLES Y PERMISOS */}
+        <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />        
         {/* SETTINGS */}
-        <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />
+        <Route path="/parametro/listar" element={<ProtectedRoute requiredPermission="parametro.index" element={<ListarParametros />} />} />
+        <Route path="/parametro/editar/:id" element={<ProtectedRoute requiredPermission="parametro.update" element={<EditarParametro />} />} />
+
 
       </Route>
 
