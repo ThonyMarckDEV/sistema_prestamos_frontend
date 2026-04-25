@@ -25,7 +25,7 @@ const Store = () => {
                     updateCargoIntegrante={updateCargoIntegrante} 
                 />
                 <div className="mt-8 flex justify-end">
-                    <button type="submit" disabled={loading || isBlocked} className={`px-10 py-4 rounded-xl font-black uppercase shadow-lg ${isBlocked ? 'bg-slate-300' : 'bg-red-600 text-white'}`}>
+                    <button type="submit" disabled={loading || isBlocked} className={`px-10 py-4 rounded-xl font-black uppercase transition-all shadow-lg ${isBlocked ? 'bg-slate-300 text-slate-500 shadow-none' : 'bg-brand-red hover:bg-brand-red-dark text-white shadow-brand-red/30'}`}>
                         {loading ? 'Enviando...' : 'Registrar Solicitud'}
                     </button>
                 </div>

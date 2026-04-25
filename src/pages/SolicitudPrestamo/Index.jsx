@@ -25,20 +25,23 @@ const Index = () => {
         { header: 'ID', render: (row) => <span className="font-black text-slate-600">#{row.id}</span> },
         { header: 'Sujeto / Grupo', render: (row) => (
             <div className="flex flex-col">
-                <span className={`font-bold text-xs uppercase ${row.es_grupal ? 'text-blue-600' : 'text-slate-800'}`}>{row.cliente_nombre}</span>
+                <span className={`font-bold text-xs uppercase ${row.es_grupal ? 'text-brand-red' : 'text-slate-800'}`}>{row.cliente_nombre}</span>
                 <span className="text-[9px] text-slate-400 font-medium">ASESOR: {row.asesor_nombre}</span>
             </div>
         )},
-        { header: 'Monto', render: (row) => <span className="font-black text-red-600 italic underline">S/ {row.monto_solicitado}</span> },
+        { header: 'Monto', render: (row) => <span className="font-black text-brand-red italic underline">S/ {row.monto_solicitado}</span> },
         { header: 'Estado', render: (row) => {
-            const colors = { 1: 'bg-yellow-100 text-yellow-700', 2: 'bg-green-100 text-green-700', 3: 'bg-red-100 text-red-700' };
+            const colors = { 
+                1: 'bg-brand-gold-light text-brand-gold-dark border border-brand-gold/30', // PENDIENTE (Dorado)
+                2: 'bg-green-100 text-green-700 border border-green-200', // APROBADO (Verde se queda)
+                3: 'bg-brand-red-light text-brand-red border border-brand-red/30' // RECHAZADO (Rojo corporativo)
+            };
             const labels = { 1: 'PENDIENTE', 2: 'APROBADO', 3: 'RECHAZADO' };
             return <span className={`px-2 py-1 rounded-full text-[9px] font-black ${colors[row.estado]}`}>{labels[row.estado]}</span>
         }},
         { header: 'Acciones', render: (row) => (
             <div className="flex gap-1 justify-end">
-                {/* El botón de Ver Cronograma (Ojo) lo dejamos público o según decidas */}
-                <button onClick={() => handleView(row.id)} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg">
+                <button onClick={() => handleView(row.id)} className="p-1.5 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-lg transition-colors">
                     <EyeIcon className="w-4 h-4" />
                 </button>
                 
@@ -46,7 +49,7 @@ const Index = () => {
                     <>
                         {/* PERMISO PARA EDITAR */}
                         {can('solicitudPrestamo.update') && (
-                            <Link to={`/solicitudPrestamo/editar/${row.id}`} className="p-1.5 text-slate-400 hover:text-blue-600">
+                            <Link to={`/solicitudPrestamo/editar/${row.id}`} className="p-1.5 text-slate-400 hover:text-brand-gold-dark hover:bg-brand-gold-light rounded-lg transition-colors">
                                 <PencilSquareIcon className="w-4 h-4"/>
                             </Link>
                         )}
@@ -54,10 +57,10 @@ const Index = () => {
                         {/* PERMISO PARA APROBAR O RECHAZAR */}
                         {can('solicitudPrestamo.status') && (
                             <>
-                                <button onClick={() => openApproveModal(row)} className="p-1.5 text-green-500 hover:bg-green-50">
+                                <button onClick={() => openApproveModal(row)} className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
                                     <CheckIcon className="w-4 h-4 font-bold"/>
                                 </button>
-                                <button onClick={() => handleUpdateStatus(row.id, 3)} className="p-1.5 text-red-400 hover:bg-red-50">
+                                <button onClick={() => handleUpdateStatus(row.id, 3)} className="p-1.5 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-lg transition-colors">
                                     <XMarkIcon className="w-4 h-4"/>
                                 </button>
                             </>

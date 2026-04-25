@@ -11,7 +11,7 @@ const SectionClienteGrupo = ({
 
     const isPresidenteTaken = (currentId) => data.integrantes.some(i => i.cargo === 'PRESIDENTE' && i.id !== currentId);
     const isSecretarioTaken = (currentId) => data.integrantes.some(i => i.cargo === 'SECRETARIO' && i.id !== currentId);
-
+    
     let alertClass = 'bg-slate-50 border-slate-200 text-slate-400';
     let alertMessage = 'ESPERANDO SELECCIÓN...';
     let AlertIcon = ShieldCheckIcon;
@@ -36,7 +36,8 @@ const SectionClienteGrupo = ({
     return (
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
             <h3 className="text-sm font-black text-slate-700 uppercase mb-4 flex items-center gap-2">
-                {data.es_grupal ? <UserGroupIcon className="w-5 h-5 text-blue-600" /> : <UserIcon className="w-5 h-5 text-red-600" />} 
+                {/* Ícono dinámico pero siempre con los colores de la marca */}
+                {data.es_grupal ? <UserGroupIcon className="w-5 h-5 text-brand-gold-dark" /> : <UserIcon className="w-5 h-5 text-brand-red" />} 
                 {data.es_grupal ? 'Configuración de Grupo' : 'Información del Cliente'}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -80,12 +81,12 @@ const SectionClienteGrupo = ({
                 <div className="mt-8 border-t border-slate-100 pt-6">
                     <div className="flex justify-between items-end mb-4">
                         <div className="w-72">
-                            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 italic text-blue-600">Añadir Socio al Grupo:</label>
+                            <label className="block text-[10px] font-bold text-brand-gold-dark uppercase mb-1 italic">Añadir Socio al Grupo:</label>
                             <ClienteSearchSelect onSelect={addIntegrante} disabled={isBlocked} clearOnSelect={true} />
                         </div>
                         <div className="text-right">
                             <p className="text-[10px] font-black text-slate-400 uppercase">Suma Total Grupo</p>
-                            <p className="text-lg font-black text-blue-600">S/ {data.integrantes.reduce((acc, i) => acc + parseFloat(i.monto || 0), 0).toFixed(2)}</p>
+                            <p className="text-lg font-black text-brand-red">S/ {data.integrantes.reduce((acc, i) => acc + parseFloat(i.monto || 0), 0).toFixed(2)}</p>
                         </div>
                     </div>
                     <div className="overflow-hidden border border-slate-100 rounded-xl">
@@ -104,7 +105,7 @@ const SectionClienteGrupo = ({
                                     const isYellow = int.dni_status?.estado === 'POR_VENCER' && !isRed;
 
                                     return (
-                                        <tr key={int.id} className={isRed ? 'bg-red-50/50' : (isYellow ? 'bg-yellow-50/50' : '')}>
+                                        <tr key={int.id} className={isRed ? 'bg-red-50/50' : (isYellow ? 'bg-yellow-50/50' : 'hover:bg-slate-50')}>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`font-bold uppercase text-[11px] ${isRed ? 'text-red-700' : 'text-slate-700'}`}>{int.nombre}</span>
@@ -126,7 +127,7 @@ const SectionClienteGrupo = ({
                                                     value={int.cargo || 'INTEGRANTE'}
                                                     onChange={(e) => updateCargoIntegrante(int.id, e.target.value)}
                                                     disabled={isBlocked && !isRed}
-                                                    className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 focus:ring-1 focus:ring-blue-500 outline-none disabled:cursor-not-allowed uppercase"
+                                                    className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 focus:ring-2 focus:ring-brand-red outline-none disabled:cursor-not-allowed uppercase"
                                                 >
                                                     <option value="PRESIDENTE" disabled={isPresidenteTaken(int.id)}>Presidente</option>
                                                     <option value="SECRETARIO" disabled={isSecretarioTaken(int.id)}>Secretario</option>
@@ -143,11 +144,11 @@ const SectionClienteGrupo = ({
                                                         updateMontoIntegrante(int.id, val === '' ? 0 : val);
                                                     }} 
                                                     placeholder="0.00"
-                                                    className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-blue-600 focus:ring-1 focus:ring-blue-500 outline-none disabled:cursor-not-allowed" 
+                                                    className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-brand-red focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none disabled:cursor-not-allowed" 
                                                 />
                                             </td>
                                             <td className="px-4 py-3">
-                                                <button type="button" onClick={() => removeIntegrante(int.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                                                <button type="button" onClick={() => removeIntegrante(int.id)} className="text-slate-400 hover:text-red-600 transition-colors">
                                                     <TrashIcon className="w-4 h-4" />
                                                 </button>
                                             </td>

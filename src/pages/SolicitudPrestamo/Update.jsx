@@ -29,8 +29,8 @@ const Update = () => {
                     isUpdate={true} 
                 />
                 <div className="mt-8 flex justify-end gap-4">
-                    <button type="button" onClick={() => navigate('/solicitudPrestamo/listar')} className="px-8 py-4 bg-slate-100 rounded-xl font-bold uppercase">Cancelar</button>
-                    <button type="submit" disabled={saving || isBlocked} className={`px-10 py-4 rounded-xl font-black uppercase shadow-xl ${isBlocked ? 'bg-slate-300 text-slate-500' : 'bg-black text-white'}`}>
+                    <button type="button" onClick={() => navigate('/solicitudPrestamo/listar')} className="px-8 py-4 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl font-bold uppercase transition-colors">Cancelar</button>
+                    <button type="submit" disabled={saving || isBlocked} className={`px-10 py-4 rounded-xl font-black uppercase transition-all shadow-xl ${isBlocked ? 'bg-slate-300 text-slate-500 shadow-none' : 'bg-brand-red hover:bg-brand-red-dark text-white shadow-brand-red/30'}`}>
                         {saving ? 'Guardando...' : 'Actualizar'}
                     </button>
                 </div>

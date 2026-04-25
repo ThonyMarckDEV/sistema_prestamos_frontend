@@ -29,7 +29,7 @@ const SolicitudForm = ({
             
             {/* ALERTA DE BLOQUEO GLOBAL */}
             {isBlocked && (
-                <div className="bg-red-600 text-white p-5 rounded-2xl flex items-center gap-4 animate-bounce shadow-xl border-2 border-red-400">
+                <div className="bg-brand-red text-white p-5 rounded-2xl flex items-center gap-4 animate-bounce shadow-xl border-2 border-brand-red-dark">
                     <ExclamationTriangleIcon className="w-10 h-10 flex-shrink-0" />
                     <div>
                         <p className="font-black uppercase text-sm">Operación Bloqueada por Riesgo Crediticio</p>
@@ -42,13 +42,13 @@ const SolicitudForm = ({
                 </div>
             )}
 
-            {/* SWITCH INDIVIDUAL / GRUPAL */}
-            <div className="flex bg-slate-100 p-1 rounded-xl w-fit mx-auto border border-slate-200">
+            {/* SWITCH INDIVIDUAL / GRUPAL CON BRANDING */}
+            <div className="flex bg-slate-100 p-1 rounded-xl w-fit mx-auto border border-slate-200 shadow-inner">
                 <button 
                     type="button" 
                     onClick={() => !isUpdate && !isBlocked && handleChange('es_grupal', false)} 
                     disabled={isUpdate || isBlocked} 
-                    className={`px-8 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${!data.es_grupal ? 'bg-white text-red-600 shadow-sm' : 'text-slate-400'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`px-8 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${!data.es_grupal ? 'bg-white text-brand-red shadow-sm ring-1 ring-brand-red/20' : 'text-slate-400 hover:text-slate-600'} disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                     Individual
                 </button>
@@ -56,7 +56,7 @@ const SolicitudForm = ({
                     type="button" 
                     onClick={() => !isUpdate && !isBlocked && handleChange('es_grupal', true)} 
                     disabled={isUpdate || isBlocked} 
-                    className={`px-8 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${data.es_grupal ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`px-8 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${data.es_grupal ? 'bg-white text-brand-red shadow-sm ring-1 ring-brand-red/20' : 'text-slate-400 hover:text-slate-600'} disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                     Grupal
                 </button>
