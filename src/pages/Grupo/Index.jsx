@@ -56,6 +56,7 @@ const Index = () => {
         {
             header: 'Zona Operativa',
             render: (row) => (
+                // Dejamos el azul aquí porque es un badge informativo de zona (no es una acción)
                 <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 uppercase">
                     {row.zona}
                 </span>
@@ -78,13 +79,13 @@ const Index = () => {
                 <div className="flex items-center gap-2 justify-end">
                     <Link 
                         to={`/grupo/editar/${row.id}`}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm"
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                     >
                         <PencilSquareIcon className="w-4 h-4" />
                     </Link>
                     <button 
                         onClick={() => handleAskDelete(row.id)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 shadow-sm"
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                     >
                         <TrashIcon className="w-4 h-4" />
                     </button>
