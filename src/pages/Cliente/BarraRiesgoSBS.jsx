@@ -95,7 +95,7 @@ const BarraRiesgoSBS = ({ titulo, sbs }) => {
                     <p>
                         Préstamo #{String(prestamo_id).padStart(5, '0')}
                         {es_grupal && grupo_nombre && (
-                            <span className="ml-1 text-slate-700">— {grupo_nombre}</span>
+                            <span className="ml-1 text-slate-700"> — GRUPO: {grupo_nombre}</span>
                         )}
                     </p>
                     <p>Cuota N° {numero_cuota}</p>
