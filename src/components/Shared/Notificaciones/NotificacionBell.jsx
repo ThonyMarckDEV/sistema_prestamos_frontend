@@ -25,16 +25,15 @@ const NotificacionItem = ({ n, handleMarcarLeida, formatTiempo }) => {
 
     return (
         <div onClick={() => !n.leido && handleMarcarLeida(n.id)}
-            className={`px-4 py-4 border-b border-slate-50 flex gap-3 items-start transition-all cursor-pointer group ${n.leido ? 'bg-white opacity-70' : 'bg-blue-50/30 hover:bg-blue-50/60'}`}
+            className={`px-4 py-4 border-b border-slate-50 flex gap-3 items-start transition-all cursor-pointer group ${n.leido ? 'bg-white opacity-70' : 'bg-brand-red-light/30 hover:bg-brand-red-light/60'}`}
         >
-            {!n.leido && <span className="mt-1.5 w-2 h-2 bg-blue-600 rounded-full shrink-0 shadow-[0_0_8px_rgba(37,99,235,0.8)]" />}
+            {!n.leido && <span className="mt-1.5 w-2 h-2 bg-brand-red rounded-full shrink-0 shadow-[0_0_8px_rgba(139,26,26,0.8)]" />}
             <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start gap-2 mb-1">
                     <p className={`text-xs leading-snug ${n.leido ? 'font-medium text-slate-600' : 'font-black text-slate-900'}`}>{n.titulo}</p>
                     <span className="text-[9px] text-slate-400 font-bold uppercase">{formatTiempo(n.created_at)}</span>
                 </div>
                 
-                {/* Referencia atada al texto para medirlo */}
                 <p 
                     ref={textRef}
                     className={`text-[11px] text-slate-500 leading-relaxed transition-all ${esExpandida ? '' : 'line-clamp-2'}`}
@@ -42,11 +41,10 @@ const NotificacionItem = ({ n, handleMarcarLeida, formatTiempo }) => {
                     {n.mensaje}
                 </p>
                 
-                {/* Botón Ver más / Ver menos (Solo si la altura se desbordó) */}
                 {esLarga && (
                     <button 
                         onClick={toggleExpandir}
-                        className="mt-1 text-[10px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-0.5"
+                        className="mt-1 text-[10px] font-bold text-brand-red hover:text-brand-red-dark flex items-center gap-0.5"
                     >
                         {esExpandida ? (
                             <><ChevronUpIcon className="w-3 h-3" /> Ver menos</>
@@ -107,15 +105,15 @@ export default function NotificacionBell() {
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-slate-800">Notificaciones</span>
                     {noLeidas > 0 && (
-                        <span className="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{noLeidas}</span>
+                        <span className="bg-brand-red text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{noLeidas}</span>
                     )}
                 </div>
                 <div className="flex items-center gap-2">
-                    <button onClick={refresh} disabled={cargando} className="p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-50">
+                    <button onClick={refresh} disabled={cargando} className="p-1.5 text-slate-400 hover:text-brand-red disabled:opacity-50">
                         <ArrowPathIcon className={`w-4 h-4 ${cargando ? 'animate-spin' : ''}`} />
                     </button>
                     {noLeidas > 0 && (
-                        <button onClick={handleMarcarTodas} className="text-[11px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2.5 py-1.5 rounded-lg">
+                        <button onClick={handleMarcarTodas} className="text-[11px] font-bold text-brand-red hover:text-brand-red-dark bg-brand-red-light px-2.5 py-1.5 rounded-lg">
                             Marcar todo leído
                         </button>
                     )}
@@ -125,7 +123,7 @@ export default function NotificacionBell() {
             <div className="flex-1 overflow-y-auto bg-white">
                 {cargando && notificaciones.length === 0 ? (
                     <div className="py-14 flex flex-col items-center gap-2 opacity-50">
-                        <div className="w-6 h-6 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-slate-300 border-t-brand-red rounded-full animate-spin" />
                     </div>
                 ) : notificaciones.length === 0 ? (
                     <div className="py-16 flex flex-col items-center justify-center text-slate-400 gap-3">
@@ -150,11 +148,11 @@ export default function NotificacionBell() {
     return (
         <>
             <button ref={buttonRef} onClick={togglePanel}
-                className={`relative p-2 rounded-xl transition-all ${abierto ? 'bg-blue-100 text-blue-600' : 'text-slate-500 hover:bg-slate-100'}`}
+                className={`relative p-2 rounded-xl transition-all ${abierto ? 'bg-brand-red-light text-brand-red' : 'text-slate-500 hover:bg-slate-100'}`}
             >
                 <BellIcon className="w-6 h-6" />
                 {noLeidas > 0 && (
-                    <span className="absolute top-1.5 right-1.5 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white ring-2 ring-white">
+                    <span className="absolute top-1.5 right-1.5 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-brand-red text-[10px] font-black text-white ring-2 ring-white">
                         {noLeidas > 99 ? '99+' : noLeidas}
                     </span>
                 )}

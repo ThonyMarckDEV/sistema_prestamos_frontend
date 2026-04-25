@@ -27,12 +27,12 @@ const SidebarLayout = () => {
         `}
       >
         {/* LA CAMPANITA FLOTANTE  */}
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-8 z-[50]">
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-8 z-[30]">
             <NotificacionBell />
         </div>
 
         {/* 3. Área de Contenido (Outlet) */}
-        <div className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 pt-16 md:pt-20">
+        <div className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 pt-16 md:pt-8">
             <Outlet />
         </div>
       </main>
