@@ -33,10 +33,13 @@ const DireccionForm = ({ data, handleNestedChange }) => {
         return [...peruData[d.departamento][d.provincia]].sort();
     }, [d.departamento, d.provincia]);
 
+    // 🔥 InputClass unificado, con text-slate-800 y focus:ring-brand-red
+    const inputClass = "w-full p-3 text-sm text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-red outline-none";
+
     return (
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
             <h3 className="text-base font-black text-slate-800 flex items-center gap-2 mb-5 uppercase tracking-wide border-b border-slate-100 pb-3">
-                <MapPinIcon className="w-5 h-5 text-red-600" /> Dirección y Zona
+                <MapPinIcon className="w-5 h-5 text-brand-red" /> Dirección y Zona
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -46,7 +49,7 @@ const DireccionForm = ({ data, handleNestedChange }) => {
                         type="text"
                         value={d.direccionFiscal || ''}
                         onChange={(e) => onD('direccionFiscal', toUpper(e.target.value))}
-                        className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none"
+                        className={inputClass}
                         placeholder="EJ: AV. LOS INCAS 123"
                         required
                     />
@@ -57,7 +60,7 @@ const DireccionForm = ({ data, handleNestedChange }) => {
                     <select
                         value={d.departamento || ''}
                         onChange={handleDepartamentoChange}
-                        className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none cursor-pointer"
+                        className={`${inputClass} cursor-pointer`}
                         required
                     >
                         <option value="">-- Seleccione --</option>
@@ -73,7 +76,7 @@ const DireccionForm = ({ data, handleNestedChange }) => {
                         value={d.provincia || ''}
                         onChange={handleProvinciaChange}
                         disabled={!d.departamento}
-                        className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer"
+                        className={`${inputClass} disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer`}
                         required
                     >
                         <option value="">-- Seleccione --</option>
@@ -89,7 +92,7 @@ const DireccionForm = ({ data, handleNestedChange }) => {
                         value={d.distrito || ''}
                         onChange={(e) => onD('distrito', e.target.value)}
                         disabled={!d.provincia}
-                        className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer"
+                        className={`${inputClass} disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer`}
                         required
                     >
                         <option value="">-- Seleccione --</option>
@@ -105,7 +108,7 @@ const DireccionForm = ({ data, handleNestedChange }) => {
                         type="text"
                         value={d.tiempoResidencia || ''}
                         onChange={(e) => onD('tiempoResidencia', toUpper(e.target.value))}
-                        className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none"
+                        className={inputClass}
                         placeholder="EJ: 2 AÑOS"
                         required
                     />
@@ -116,7 +119,7 @@ const DireccionForm = ({ data, handleNestedChange }) => {
                     <select
                         value={d.tipoVivienda || ''}
                         onChange={(e) => onD('tipoVivienda', e.target.value)}
-                        className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none cursor-pointer"
+                        className={`${inputClass} cursor-pointer`}
                         required
                     >
                         <option value="">-- Seleccione --</option>

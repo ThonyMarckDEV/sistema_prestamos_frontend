@@ -12,13 +12,13 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mt-6">
             <h3 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-100 pb-2 uppercase">
-                <UserIcon className="w-5 h-5" /> Credenciales y Acceso
+                <UserIcon className="w-5 h-5 text-brand-red" /> Credenciales y Acceso
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
                 <div className="md:col-span-2">
                     <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                        Nombre de Usuario <span className="text-red-500">*</span>
+                        Nombre de Usuario *
                         {!isEditing && (
                             <span className="ml-2 text-[10px] font-normal text-slate-400 normal-case">
                                 (generado automáticamente)
@@ -26,15 +26,15 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
                         )}
                     </label>
                     <div className="relative">
-                        <UserIcon className="w-4 h-4 absolute left-3 top-3 text-gray-400"/>
+                        <UserIcon className="w-4 h-4 absolute left-3 top-3 text-slate-400"/>
                         <input
                             type="text"
                             value={form.usuario.username || ''}
                             onChange={(e) => isEditing && handleNestedChange('usuario', 'username', e.target.value.toUpperCase())}
                             readOnly={!isEditing}
-                            className={`w-full pl-9 p-2.5 text-sm border rounded-lg outline-none transition-all ${
+                            className={`w-full pl-9 p-2.5 text-sm border rounded-xl outline-none transition-all ${
                                 isEditing
-                                    ? 'border-slate-300 focus:ring-1 focus:ring-black'
+                                    ? 'text-slate-800 border-slate-300 focus:ring-2 focus:ring-brand-red'
                                     : 'border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed'
                             }`}
                             placeholder="Se genera con nombre y apellidos"
@@ -49,20 +49,20 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
                         <div>
                             <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
                                 Nueva Contraseña
-                                <span className="text-xs text-gray-400 font-normal normal-case ml-1">(Opcional)</span>
+                                <span className="text-xs text-slate-400 font-normal normal-case ml-1">(Opcional)</span>
                             </label>
                             <div className="relative">
-                                <KeyIcon className="w-4 h-4 absolute left-3 top-3 text-gray-400"/>
+                                <KeyIcon className="w-4 h-4 absolute left-3 top-3 text-slate-400"/>
                                 <input
                                     type={showPass ? 'text' : 'password'}
                                     value={pass}
                                     onChange={(e) => handleNestedChange('usuario', 'password', e.target.value)}
-                                    className="w-full pl-9 pr-10 p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
+                                    className="w-full pl-9 pr-10 p-2.5 text-sm text-slate-800 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-red outline-none"
                                     placeholder="Dejar vacío para mantener"
                                     minLength={8}
                                 />
                                 <button type="button" onClick={() => setShowPass(v => !v)}
-                                    className="absolute right-3 top-2.5 text-gray-400 hover:text-slate-700 transition-colors">
+                                    className="absolute right-3 top-2.5 text-slate-400 hover:text-brand-red transition-colors">
                                     {showPass ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                                 </button>
                             </div>
@@ -71,30 +71,30 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
                         <div>
                             <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
                                 Confirmar Contraseña
-                                <span className="text-xs text-gray-400 font-normal normal-case ml-1">(Opcional)</span>
+                                <span className="text-xs text-slate-400 font-normal normal-case ml-1">(Opcional)</span>
                             </label>
                             <div className="relative">
-                                <LockClosedIcon className="w-4 h-4 absolute left-3 top-3 text-gray-400"/>
+                                <LockClosedIcon className="w-4 h-4 absolute left-3 top-3 text-slate-400"/>
                                 <input
                                     type={showConfirm ? 'text' : 'password'}
                                     value={confirm}
                                     onChange={(e) => handleNestedChange('usuario', 'password_confirmation', e.target.value)}
-                                    className={`w-full pl-9 pr-10 p-2.5 text-sm border rounded-lg focus:ring-1 outline-none ${
+                                    className={`w-full pl-9 pr-10 p-2.5 text-sm text-slate-800 border rounded-xl outline-none focus:ring-2 ${
                                         noCoinciden
-                                            ? 'border-red-500 focus:ring-red-500 bg-red-50'
+                                            ? 'border-brand-red focus:ring-brand-red bg-brand-red-light'
                                             : confirm && !noCoinciden
                                                 ? 'border-green-400 focus:ring-green-400 bg-green-50'
-                                                : 'border-slate-300 focus:ring-black'
+                                                : 'border-slate-300 focus:ring-brand-red'
                                     }`}
                                     placeholder="Repita la contraseña"
                                 />
                                 <button type="button" onClick={() => setShowConfirm(v => !v)}
-                                    className="absolute right-3 top-2.5 text-gray-400 hover:text-slate-700 transition-colors">
+                                    className="absolute right-3 top-2.5 text-slate-400 hover:text-brand-red transition-colors">
                                     {showConfirm ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                                 </button>
                             </div>
                             {noCoinciden && (
-                                <p className="text-[10px] text-red-500 mt-1 font-bold animate-pulse">⚠ Las contraseñas no coinciden.</p>
+                                <p className="text-[10px] text-brand-red mt-1 font-bold animate-pulse">⚠ Las contraseñas no coinciden.</p>
                             )}
                             {confirm && !noCoinciden && pass && (
                                 <p className="text-[10px] text-green-600 mt-1 font-bold">✓ Las contraseñas coinciden.</p>
@@ -105,8 +105,8 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
 
                 {/* Info en store */}
                 {!isEditing && (
-                    <div className="md:col-span-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-                        <p className="text-[11px] font-bold text-amber-700">
+                    <div className="md:col-span-2 p-3 bg-brand-gold-light border border-brand-gold/30 rounded-xl">
+                        <p className="text-[11px] font-bold text-brand-gold-dark">
                             🔒 La contraseña inicial será el <span className="font-black">DNI</span> del cliente (o RUC si es empresa).
                             Se le enviará un correo de bienvenida con sus datos de acceso.
                         </p>
