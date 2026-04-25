@@ -82,20 +82,18 @@ const PrestamoSearchSelect = ({ onSelect, disabled, tipoOperacion = 'cobro', ini
                     }}
                     disabled={disabled}
                     placeholder={isDesembolso ? "Buscar préstamo aprobado para desembolsar..." : "Buscar préstamo para cobrar cuota..."}
-                    className={`w-full border border-slate-300 rounded-xl shadow-sm pl-11 pr-8 py-3 text-sm font-bold focus:ring-2 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed
-                        ${isDesembolso ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-green-500 focus:border-green-500'}
-                    `}
+                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-11 pr-8 py-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed"
                     autoComplete="off"
                 />
-                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : (isDesembolso ? 'text-blue-500' : 'text-green-500')}`}>
+                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-slate-400 group-focus-within:text-brand-red transition-colors'}`}>
                     <BanknotesIcon className="w-5 h-5" />
                 </div>
                 
                 <div className="absolute right-3 flex items-center">
                     {loading ? (
-                        <div className={`w-4 h-4 border-2 border-slate-300 rounded-full animate-spin ${isDesembolso ? 'border-t-blue-600' : 'border-t-green-600'}`}></div> 
+                        <div className="w-4 h-4 border-2 border-slate-300 rounded-full animate-spin border-t-brand-red"></div> 
                     ) : inputValue && !disabled ? (
-                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-red-500 p-1 transition-colors">
+                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-brand-red p-1 transition-colors">
                             <XMarkIcon className="w-5 h-5" />
                         </button> 
                     ) : (
@@ -109,28 +107,29 @@ const PrestamoSearchSelect = ({ onSelect, disabled, tipoOperacion = 'cobro', ini
                             <li 
                                 key={prestamo.id} 
                                 onClick={() => handleSelect(prestamo)} 
-                                className={`px-4 py-3 cursor-pointer rounded-lg border border-transparent hover:border-slate-100 transition-all ${isDesembolso ? 'hover:bg-blue-50' : 'hover:bg-green-50'}`}
+                                // 🔥 Hover corporativo
+                                className="px-4 py-3 cursor-pointer rounded-lg border border-transparent hover:border-brand-red/20 hover:bg-brand-red-light transition-all"
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex flex-col gap-1">
                                         <span className="uppercase font-black text-slate-800 text-xs flex items-center gap-1.5">
-                                            <UserIcon className="w-3.5 h-3.5 text-slate-400" /> {prestamo.cliente}
+                                            <UserIcon className="w-3.5 h-3.5 text-brand-red" /> {prestamo.cliente}
                                         </span>
                                         <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1.5">
                                             <IdentificationIcon className="w-3.5 h-3.5 text-slate-400" /> Doc: {prestamo.documento}
                                         </span>
                                     </div>
                                     <div className="text-right flex flex-col items-end gap-1">
-                                        <span className={`text-sm font-black italic ${isDesembolso ? 'text-blue-600' : 'text-green-600'}`}>
+                                        <span className="text-sm font-black italic text-brand-red">
                                             S/ {prestamo.monto}
                                         </span>
                                         {!isDesembolso && (
-                                            <span className="text-[9px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold uppercase">
+                                            <span className="text-[9px] bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full font-bold uppercase">
                                                 {prestamo.cuotas_pendientes} cuotas pend.
                                             </span>
                                         )}
                                         {isDesembolso && (
-                                            <span className="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold uppercase">
+                                            <span className="text-[9px] bg-brand-gold-light text-brand-gold-dark border border-brand-gold/30 px-2 py-0.5 rounded-full font-bold uppercase">
                                                 Listo para entregar
                                             </span>
                                         )}

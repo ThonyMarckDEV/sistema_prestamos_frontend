@@ -11,11 +11,11 @@ const IntegranteRow = ({ integrante }) => (
     <div className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
         <span className="text-sm text-slate-800 font-semibold">
             {integrante.nombre}
-            <span className="ml-2 text-[10px] font-bold text-slate-400 uppercase">
+            <span className="ml-2 text-[10px] font-bold text-brand-gold-dark uppercase">
                 ({integrante.cargo})
             </span>
         </span>
-        <span className="text-sm font-black text-slate-700 shrink-0">
+        <span className="text-sm font-black text-brand-red shrink-0">
             S/ {parseFloat(integrante.monto).toFixed(2)}
         </span>
     </div>
@@ -36,7 +36,7 @@ const ResumenFinanciero = ({ datos }) => {
             {items.map(({ label, value, bold }) => (
                 <div key={label} className="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-center">
                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
-                    <p className={`text-sm font-black ${bold ? 'text-slate-900' : 'text-slate-600'}`}>{value}</p>
+                    <p className={`text-sm font-black ${bold ? 'text-brand-red' : 'text-slate-600'}`}>{value}</p>
                 </div>
             ))}
         </div>
@@ -96,7 +96,7 @@ const OperacionForm = ({ prestamoDetalle, loading, openPagoModal, onHistorialMod
                             {row.historial_mora?.length > 0 && (
                                 <button
                                     onClick={() => onHistorialModal({ nro: row.nro, historial: row.historial_mora, total: moraTotal })}
-                                    className="text-slate-400 hover:text-blue-500 transition-all p-0.5 rounded-full hover:bg-blue-50 active:scale-95"
+                                    className="text-slate-400 hover:text-brand-red transition-all p-0.5 rounded-full hover:bg-brand-red-light active:scale-95"
                                     title="Ver historial de mora"
                                 >
                                     <ClockIcon className="w-3.5 h-3.5" />
@@ -115,7 +115,7 @@ const OperacionForm = ({ prestamoDetalle, loading, openPagoModal, onHistorialMod
                         S/ {parseFloat(row.saldo_pendiente).toFixed(2)}
                     </span>
                     {parseFloat(row.pago_realizado || 0) > 0 && (
-                        <span className="text-[9px] font-bold text-blue-500 uppercase">
+                        <span className="text-[9px] font-bold text-brand-gold-dark uppercase">
                             Recibido: S/ {parseFloat(row.pago_realizado).toFixed(2)}
                         </span>
                     )}
@@ -153,9 +153,9 @@ const OperacionForm = ({ prestamoDetalle, loading, openPagoModal, onHistorialMod
                 const estadoMap = {
                     1: { text: 'PENDIENTE',    style: 'bg-slate-100 text-slate-600 border-slate-200' },
                     2: { text: 'PAGADO',       style: 'bg-green-100 text-green-700 border-green-200' },
-                    3: { text: 'VENCE HOY',    style: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-                    4: { text: 'VENCIDO',      style: 'bg-red-100 text-red-700 border-red-200' },
-                    5: { text: 'PAGO PARCIAL', style: 'bg-blue-100 text-blue-700 border-blue-200' },
+                    3: { text: 'VENCE HOY',    style: 'bg-brand-gold-light text-brand-gold-dark border-brand-gold/30' },
+                    4: { text: 'VENCIDO',      style: 'bg-brand-red-light text-brand-red border-brand-red/30' },
+                    5: { text: 'PAGO PARCIAL', style: 'bg-blue-100 text-blue-700 border-blue-200' }, // Parcial lo dejamos azul (informativo)
                 };
                 const cur = estadoMap[row.estado] ?? estadoMap[1];
                 return (
@@ -186,7 +186,7 @@ const OperacionForm = ({ prestamoDetalle, loading, openPagoModal, onHistorialMod
                             className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${
                                 bloqueada
                                     ? 'bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100'
-                                    : 'bg-slate-900 text-white hover:bg-black shadow-lg active:scale-95'
+                                    : 'bg-brand-red text-white hover:bg-brand-red-dark shadow-lg shadow-brand-red/30 active:scale-95'
                             }`}
                         >
                             {hayAnteriorPendiente

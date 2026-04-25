@@ -47,8 +47,8 @@ const Store = () => {
             {/* ── Sesión cerrada ── */}
             {!sesionActiva && !loading ? (
                 <div className="mt-10 bg-white p-12 rounded-[40px] border border-slate-100 shadow-2xl text-center max-w-xl mx-auto">
-                    <div className="bg-red-50 w-24 h-24 rounded-[32px] flex items-center justify-center mx-auto mb-8 transform -rotate-6 shadow-inner">
-                        <LockClosedIcon className="w-12 h-12 text-red-600" />
+                    <div className="bg-brand-red-light w-24 h-24 rounded-[32px] flex items-center justify-center mx-auto mb-8 transform -rotate-6 shadow-inner">
+                        <LockClosedIcon className="w-12 h-12 text-brand-red" />
                     </div>
                     <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tight mb-3">Turno Cerrado</h2>
                     <p className="text-slate-500 text-sm font-medium mb-10 px-6 leading-relaxed">
@@ -56,7 +56,7 @@ const Store = () => {
                     </p>
                     <button
                         onClick={() => setIsAbrirModalOpen(true)}
-                        className="bg-red-600 text-white px-12 py-4 rounded-2xl font-black uppercase text-xs shadow-xl shadow-red-200 hover:bg-red-700 transition-all active:scale-95 flex items-center gap-2 mx-auto"
+                        className="bg-brand-red text-white px-12 py-4 rounded-2xl font-black uppercase text-xs shadow-xl shadow-brand-red/30 hover:bg-brand-red-dark transition-all active:scale-95 flex items-center gap-2 mx-auto"
                     >
                         <LockOpenIcon className="w-4 h-4" /> Aperturar Turno de Caja
                     </button>
@@ -86,7 +86,7 @@ const Store = () => {
                             </div>
                             <button
                                 onClick={() => setIsCerrarModalOpen(true)}
-                                className="bg-white/5 hover:bg-red-600 px-6 py-3 rounded-xl font-black uppercase text-[10px] transition-all border border-white/10 hover:border-red-500 active:scale-95"
+                                className="bg-white/5 hover:bg-brand-red px-6 py-3 rounded-xl font-black uppercase text-[10px] transition-all border border-white/10 hover:border-brand-red active:scale-95"
                             >
                                 Cerrar Turno
                             </button>
@@ -102,7 +102,7 @@ const Store = () => {
                                 onClick={() => { setTipoOperacion('cobro'); handleSelectPrestamo(null); }}
                                 className={`flex-1 sm:px-10 py-3 rounded-xl font-black text-[10px] uppercase transition-all flex items-center justify-center gap-2 ${
                                     tipoOperacion === 'cobro'
-                                        ? 'bg-white text-slate-900 shadow-md'
+                                        ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-200'
                                         : 'text-slate-400 hover:text-slate-600'
                                 }`}
                             >
@@ -112,8 +112,8 @@ const Store = () => {
                                 onClick={() => { setTipoOperacion('desembolso'); handleSelectPrestamo(null); }}
                                 className={`flex-1 sm:px-10 py-3 rounded-xl font-black text-[10px] uppercase transition-all flex items-center justify-center gap-2 ${
                                     tipoOperacion === 'desembolso'
-                                        ? 'bg-white text-blue-600 shadow-md'
-                                        : 'text-slate-400 hover:text-slate-600'
+                                        ? 'bg-white text-brand-red shadow-md ring-1 ring-brand-red/20'
+                                        : 'text-slate-400 hover:text-brand-red'
                                 }`}
                             >
                                 <ArrowDownCircleIcon className="w-4 h-4" /> Desembolsar
@@ -129,17 +129,17 @@ const Store = () => {
 
                         {/* Desembolso */}
                         {prestamoSeleccionado && tipoOperacion === 'desembolso' && (
-                            <div className="mt-8 p-10 bg-blue-50/50 rounded-[32px] border-2 border-dashed border-blue-200 text-center animate-in zoom-in-95 duration-300">
-                                <h4 className="font-black text-blue-900 uppercase text-lg mb-1 tracking-tight">Autorizar Desembolso</h4>
-                                <p className="text-xs font-bold text-blue-700 uppercase tracking-widest">{prestamoSeleccionado.cliente}</p>
+                            <div className="mt-8 p-10 bg-brand-gold-light/30 rounded-[32px] border-2 border-dashed border-brand-gold/50 text-center animate-in zoom-in-95 duration-300">
+                                <h4 className="font-black text-brand-gold-dark uppercase text-lg mb-1 tracking-tight">Autorizar Desembolso</h4>
+                                <p className="text-xs font-bold text-brand-red uppercase tracking-widest">{prestamoSeleccionado.cliente}</p>
                                 <div className="my-10">
-                                    <span className="text-[10px] font-black text-blue-400 uppercase block mb-2 tracking-[0.3em]">Importe Neto a Entregar</span>
-                                    <h2 className="text-7xl font-black text-blue-600 italic tracking-tighter">S/ {prestamoSeleccionado.monto}</h2>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase block mb-2 tracking-[0.3em]">Importe Neto a Entregar</span>
+                                    <h2 className="text-7xl font-black text-brand-red italic tracking-tighter">S/ {prestamoSeleccionado.monto}</h2>
                                 </div>
                                 <button
                                     onClick={() => setIsDesembolsoModalOpen(true)}
                                     disabled={loading}
-                                    className="px-16 py-5 bg-blue-600 text-white rounded-2xl font-black uppercase text-sm shadow-2xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 flex items-center gap-3 mx-auto"
+                                    className="px-16 py-5 bg-brand-red text-white rounded-2xl font-black uppercase text-sm shadow-xl shadow-brand-red/30 hover:bg-brand-red-dark transition-all active:scale-95 flex items-center gap-3 mx-auto"
                                 >
                                     {loading ? 'Procesando...' : 'Siguiente: Adjuntar Voucher'}
                                 </button>
@@ -159,7 +159,7 @@ const Store = () => {
                 </div>
             )}
 
-            {/* ── Modales ── */}
+            {/* ── Modales (Mantenemos los mismos, cambian en sus archivos) ── */}
             <PagoCuotaModal
                 isOpen={isPagoModalOpen}
                 onClose={() => setIsPagoModalOpen(false)}

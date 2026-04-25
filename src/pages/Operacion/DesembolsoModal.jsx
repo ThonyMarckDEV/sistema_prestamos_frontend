@@ -49,12 +49,12 @@ const DesembolsoModal = ({ isOpen, onClose, prestamo, onConfirm, loading }) => {
 
                 <div className="w-full md:w-[45%] p-8 flex flex-col bg-white border-r border-slate-100">
                     <div className="space-y-6 flex-1">
-                        <div className="bg-slate-900 p-6 rounded-[28px] text-white shadow-xl">
+                        <div className="bg-slate-900 p-6 rounded-[28px] text-white shadow-xl border border-slate-800">
                             <div className="flex items-center gap-2 mb-2">
-                                <ArrowsRightLeftIcon className="w-4 h-4 text-blue-400" />
+                                <ArrowsRightLeftIcon className="w-4 h-4 text-brand-gold" />
                                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Importe Desembolso</span>
                             </div>
-                            <h2 className="text-4xl font-black italic tracking-tighter text-blue-400">S/ {prestamo.monto}</h2>
+                            <h2 className="text-4xl font-black italic tracking-tighter text-brand-gold">S/ {prestamo.monto}</h2>
                             <div className="mt-5 pt-5 border-t border-white/10">
                                 <p className="text-[10px] font-bold uppercase text-slate-400 mb-1.5">Beneficiario / Titular:</p>
                                 <p className="text-sm font-black uppercase leading-snug text-white break-words">
@@ -70,7 +70,7 @@ const DesembolsoModal = ({ isOpen, onClose, prestamo, onConfirm, loading }) => {
                                     type="text"
                                     value={nroOperacion}
                                     onChange={(e) => setNroOperacion(e.target.value)}
-                                    className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold focus:border-blue-500 focus:bg-white outline-none transition-all"
+                                    className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold focus:border-brand-red focus:ring-brand-red focus:bg-white outline-none transition-all"
                                     placeholder="Ej: BCP-009283"
                                 />
                             </div>
@@ -81,7 +81,7 @@ const DesembolsoModal = ({ isOpen, onClose, prestamo, onConfirm, loading }) => {
                                 <label
                                     htmlFor="modal-desembolso-upload"
                                     className={`flex items-center justify-center w-full p-5 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 ${
-                                        file ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-500'
+                                        file ? 'border-brand-red bg-brand-red-light/50 text-brand-red' : 'border-slate-200 hover:border-brand-red/50 hover:bg-slate-50 text-slate-500'
                                     }`}
                                 >
                                     <div className="flex flex-col items-center gap-1 font-black text-[10px] uppercase">
@@ -109,7 +109,7 @@ const DesembolsoModal = ({ isOpen, onClose, prestamo, onConfirm, loading }) => {
                         <button
                             onClick={handleSubmit}
                             disabled={loading || !file}
-                            className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase text-xs shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-95"
+                            className="w-full bg-brand-red text-white py-5 rounded-2xl font-black uppercase text-xs shadow-lg shadow-brand-red/30 hover:bg-brand-red-dark transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-95"
                         >
                             {loading ? (
                                 <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -132,7 +132,7 @@ const DesembolsoModal = ({ isOpen, onClose, prestamo, onConfirm, loading }) => {
                             />
                             <button
                                 onClick={() => { setFile(null); setPreview(null); }}
-                                className="absolute top-4 right-4 bg-white text-red-600 p-2 rounded-full shadow-xl hover:bg-red-600 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                className="absolute top-4 right-4 bg-white text-brand-red p-2 rounded-full shadow-xl hover:bg-brand-red hover:text-white transition-all opacity-0 group-hover:opacity-100"
                             >
                                 <XMarkIcon className="h-5 w-5" />
                             </button>

@@ -29,15 +29,17 @@ const Index = () => {
                     <div className={`flex flex-col gap-1 ${row.estado === 0 ? 'opacity-50' : ''}`}>
                         <div className="flex items-center gap-1.5">
                             {row.categoria === 'desembolso' ? (
-                                <div className={`p-1 rounded-md border ${row.estado === 0 ? 'bg-slate-100 border-slate-300' : 'bg-blue-100 border-blue-200'}`}>
-                                    <ArrowUpRightIcon className={`w-3.5 h-3.5 ${row.estado === 0 ? 'text-slate-500' : 'text-blue-600'}`} />
+                                // Desembolso: Rojo porque sale plata
+                                <div className={`p-1 rounded-md border ${row.estado === 0 ? 'bg-slate-100 border-slate-300' : 'bg-red-50 border-red-200'}`}>
+                                    <ArrowUpRightIcon className={`w-3.5 h-3.5 ${row.estado === 0 ? 'text-slate-500' : 'text-red-600'}`} />
                                 </div>
                             ) : (
-                                <div className={`p-1 rounded-md border ${row.estado === 0 ? 'bg-slate-100 border-slate-300' : 'bg-green-100 border-green-200'}`}>
+                                // Cobro: Verde porque entra plata
+                                <div className={`p-1 rounded-md border ${row.estado === 0 ? 'bg-slate-100 border-slate-300' : 'bg-green-50 border-green-200'}`}>
                                     <ArrowDownRightIcon className={`w-3.5 h-3.5 ${row.estado === 0 ? 'text-slate-500' : 'text-green-600'}`} />
                                 </div>
                             )}
-                            <span className={`font-black text-[10px] uppercase tracking-wide ${row.estado === 0 ? 'text-slate-400 line-through' : (row.categoria === 'desembolso' ? 'text-blue-700' : 'text-green-700')}`}>
+                            <span className={`font-black text-[10px] uppercase tracking-wide ${row.estado === 0 ? 'text-slate-400 line-through' : (row.categoria === 'desembolso' ? 'text-red-700' : 'text-green-700')}`}>
                                 {row.categoria === 'desembolso' ? 'Desemb.' : 'Cobro'}
                             </span>
                         </div>
@@ -51,7 +53,6 @@ const Index = () => {
                 header: 'Detalle',
                 render: (row) => (
                     <div className="flex flex-col min-w-0">
-                        {/* 🔥 TRUCO 1: max-w y truncate para que el detalle no estire la tabla */}
                         <span 
                             className={`text-[11px] font-bold truncate max-w-[160px] lg:max-w-[280px] xl:max-w-[350px] ${row.estado === 0 ? 'text-red-400 line-through' : 'text-slate-800'}`} 
                             title={row.motivo}
@@ -59,7 +60,7 @@ const Index = () => {
                             {row.motivo}
                         </span>
                         {row.estado === 0 && (
-                            <span className="text-[9px] text-red-500 font-bold uppercase mt-0.5 block tracking-widest">
+                            <span className="text-[9px] text-brand-red font-bold uppercase mt-0.5 block tracking-widest">
                                 Anulado
                             </span>
                         )}
@@ -69,7 +70,6 @@ const Index = () => {
             {
                 header: 'Cajero',
                 render: (row) => (
-                    /* 🔥 TRUCO 2: Acortar el nombre del cajero si es muy largo */
                     <div 
                         className={`text-[10px] font-bold uppercase truncate max-w-[100px] lg:max-w-[140px] ${row.estado === 0 ? 'text-slate-400' : 'text-slate-600'}`}
                         title={row.cajero}
@@ -117,7 +117,7 @@ const Index = () => {
                                 className={`p-1.5 rounded-lg transition-all border border-transparent shadow-sm
                                 ${row.estado === 0
                                     ? 'bg-slate-50 text-slate-300 cursor-not-allowed'
-                                    : 'text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100'
+                                    : 'text-slate-500 hover:text-brand-red hover:bg-brand-red-light hover:border-brand-red/20'
                                 }`}
                             >
                                 <PrinterIcon className={`w-4 h-4 ${pdfLoading ? 'animate-spin' : ''}`} />
@@ -128,7 +128,7 @@ const Index = () => {
                             <button
                                 onClick={() => openAnularModal(row.id)}
                                 title="Anular Operación"
-                                className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100 shadow-sm"
+                                className="p-1.5 text-slate-500 hover:text-brand-red hover:bg-brand-red-light rounded-lg transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                             >
                                 <TrashIcon className="w-4 h-4" />
                             </button>
@@ -169,10 +169,8 @@ const Index = () => {
                 pagination={{ ...paginationInfo, onPageChange: fetchOperaciones }}
             />
 
-            {/* Modal para Ver PDF */}
             <PdfModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} title={pdfTitle} base64={pdfBase64} />
 
-            {/* Modal para Anular */}
             {isAnularModalOpen && (
                 <ConfirmModal
                     title="¿Anular Operación?"
