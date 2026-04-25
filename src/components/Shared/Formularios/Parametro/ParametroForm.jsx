@@ -35,7 +35,7 @@ const ParametroForm = ({ formData, clave, handleChange, handleSubmit, saving }) 
                     value={formData.valor}
                     onChange={handleValor}
                     placeholder="Ej: 3.00"
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-black text-red-600 text-center outline-none focus:ring-2 focus:ring-red-500 transition-all text-lg"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-black text-brand-red text-center outline-none focus:ring-2 focus:border-brand-red focus:ring-brand-red transition-all text-lg"
                     required
                 />
                 <p className="text-[9px] text-slate-400 font-bold mt-1 ml-1 uppercase tracking-wide">
@@ -53,7 +53,7 @@ const ParametroForm = ({ formData, clave, handleChange, handleSubmit, saving }) 
                     value={formData.descripcion}
                     onChange={(e) => handleChange('descripcion', e.target.value)}
                     placeholder="Descripción del parámetro"
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-red-500 transition-all"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-slate-800 outline-none focus:ring-2 focus:border-brand-red focus:ring-brand-red transition-all"
                 />
             </div>
 
@@ -61,7 +61,7 @@ const ParametroForm = ({ formData, clave, handleChange, handleSubmit, saving }) 
                 <button
                     type="submit"
                     disabled={saving || !formData.valor}
-                    className="w-full py-4 bg-slate-900 text-white font-black uppercase rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 disabled:opacity-50 tracking-widest"
+                    className="w-full py-4 bg-brand-red text-white font-black uppercase rounded-2xl hover:bg-brand-red-dark transition-all shadow-lg shadow-brand-red/30 disabled:opacity-50 tracking-widest"
                 >
                     {saving ? 'Guardando...' : 'Actualizar Parámetro'}
                 </button>

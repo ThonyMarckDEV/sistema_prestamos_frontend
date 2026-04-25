@@ -47,7 +47,7 @@ const Index = () => {
                                     </span>
                                 </div>
                                 <div className="col-span-3">
-                                    <span className="text-lg font-black text-red-600">
+                                    <span className="text-lg font-black text-brand-red">
                                         {p.valor}
                                     </span>
                                 </div>
@@ -59,7 +59,7 @@ const Index = () => {
                                 <div className="col-span-1 flex justify-end">
                                     <Link
                                         to={`/parametro/editar/${p.id}`}
-                                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                                         title="Editar parámetro"
                                     >
                                         <PencilSquareIcon className="w-4 h-4" />

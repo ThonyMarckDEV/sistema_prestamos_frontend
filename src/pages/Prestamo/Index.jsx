@@ -61,8 +61,9 @@ const Index = () => {
             { header: 'Cliente / Producto', render: (row) => (
                 <div className="flex flex-col uppercase">
                     <div className="flex items-center gap-1.5">
-                        {row.es_grupal ? <UserGroupIcon className="w-3.5 h-3.5 text-blue-600" /> : <UserIcon className="w-3.5 h-3.5 text-slate-400" />}
-                        <span className={`font-black text-[11px] ${row.es_grupal ? 'text-blue-700' : 'text-slate-800'}`}>
+                        {/* 🔥 Icono y texto de cliente con branding corporativo */}
+                        {row.es_grupal ? <UserGroupIcon className="w-3.5 h-3.5 text-brand-red" /> : <UserIcon className="w-3.5 h-3.5 text-slate-400" />}
+                        <span className={`font-black text-[11px] ${row.es_grupal ? 'text-brand-red' : 'text-slate-800'}`}>
                             {row.cliente}
                         </span>
                     </div>
@@ -77,7 +78,8 @@ const Index = () => {
             )},
             { header: 'Financiero', render: (row) => (
                 <div className="flex flex-col">
-                    <span className="font-black text-red-600 italic text-sm">S/ {row.monto}</span>
+                    {/* 🔥 Monto en brand-red */}
+                    <span className="font-black text-brand-red italic text-sm">S/ {row.monto}</span>
                     <span className="text-[9px] text-slate-400 font-black uppercase tracking-tighter">{row.abonado_por}</span>
                 </div>
             )},
@@ -88,13 +90,17 @@ const Index = () => {
                 </div>
             )},
             { header: 'Estado', render: (row) => {
-                const colors = { 1: 'bg-green-50 text-green-700 border-green-100', 2: 'bg-slate-50 text-slate-600 border-slate-100', 3: 'bg-blue-50 text-blue-700 border-blue-100' };
+                const colors = { 
+                    1: 'bg-green-50 text-green-700 border-green-100', 
+                    2: 'bg-slate-50 text-slate-600 border-slate-100', 
+                    3: 'bg-brand-gold-light text-brand-gold-dark border-brand-gold/30' 
+                };
                 const labels = { 1: 'VIGENTE', 2: 'CANCELADO', 3: 'LIQUIDADO' };
                 return <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border ${colors[row.estado]}`}>{labels[row.estado]}</span>
             }},
             { header: 'Acciones', render: (row) => (
                 <div className="flex gap-2 items-center justify-end">
-                    <button onClick={() => handleView(row.id)} title="Ver Cronograma" className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm">
+                    <button onClick={() => handleView(row.id)} title="Ver Cronograma" className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm">
                         <EyeIcon className="w-4 h-4" />
                     </button>
 
@@ -141,7 +147,7 @@ const Index = () => {
                         />
                     ) : (
                         <div className="py-20 text-center">
-                            <ArrowPathIcon className="w-10 h-10 animate-spin text-slate-300 mx-auto" />
+                            <ArrowPathIcon className="w-10 h-10 animate-spin text-brand-red mx-auto" />
                             <p className="mt-4 text-slate-400 font-black uppercase text-[10px] tracking-widest">Cargando imagen...</p>
                         </div>
                     )}
