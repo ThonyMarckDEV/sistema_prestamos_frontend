@@ -83,18 +83,18 @@ const EntidadBancariaSelect = ({ onSelect, disabled, initialName = '' }) => {
                     onClick={() => !showSuggestions && !disabled && fetchBancos()}
                     disabled={disabled}
                     placeholder="Buscar banco (ej. BCP, Interbank)..."
-                    className="w-full border border-slate-300 rounded-lg shadow-sm pl-9 pr-8 py-2.5 text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none bg-white transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed font-medium"
+                    className="w-full border border-slate-300 rounded-lg shadow-sm pl-9 pr-8 py-2.5 text-sm text-slate-800 focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none bg-white transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed font-medium"
                     autoComplete="off"
                 />
-                <div className={`absolute left-3 ${disabled ? 'text-slate-300' : 'text-slate-400'}`}>
+                <div className={`absolute left-3 ${disabled ? 'text-slate-300' : 'text-slate-400 group-focus-within:text-brand-red'}`}>
                     <BuildingLibraryIcon className="w-4 h-4" />
                 </div>
                 
                 <div className="absolute right-2 flex items-center">
                     {loading ? (
-                        <div className="w-4 h-4 border-2 border-slate-300 border-t-red-600 rounded-full animate-spin"></div> 
+                        <div className="w-4 h-4 border-2 border-slate-300 border-t-brand-red rounded-full animate-spin"></div> 
                     ) : inputValue && !disabled ? (
-                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-red-500 p-1">
+                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-brand-red p-1">
                             <XMarkIcon className="w-4 h-4" />
                         </button> 
                     ) : (
@@ -108,7 +108,7 @@ const EntidadBancariaSelect = ({ onSelect, disabled, initialName = '' }) => {
                             <li 
                                 key={banco.id} 
                                 onClick={() => handleSelect(banco)} 
-                                className="px-4 py-2.5 cursor-pointer text-sm flex items-center justify-between hover:bg-slate-50 border-b border-slate-100 last:border-0 transition-colors"
+                                className="px-4 py-2.5 cursor-pointer text-sm flex items-center justify-between hover:bg-brand-red-light border-b border-slate-100 last:border-0 transition-colors"
                             >
                                 <div className="flex items-center gap-3">
                                     <div className="bg-slate-100 p-1.5 rounded-md border border-slate-200">

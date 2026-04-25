@@ -3,7 +3,6 @@ import { combobox } from 'services/ciiuService';
 import { MagnifyingGlassIcon, XMarkIcon, BriefcaseIcon, TagIcon } from '@heroicons/react/24/outline';
 
 const CiiuSelect = ({ onSelect, disabled, initialCiiu = null }) => {
-    // Si viene un objeto inicial, mostramos el código y descripción
     const [inputValue, setInputValue] = useState(initialCiiu ? `${initialCiiu.codigo} - ${initialCiiu.descripcion}` : '');
     const [suggestions, setSuggestions] = useState([]); 
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -11,7 +10,6 @@ const CiiuSelect = ({ onSelect, disabled, initialCiiu = null }) => {
     
     const wrapperRef = useRef(null);
 
-    // Si cambian los props iniciales (ej. editar un cliente)
     useEffect(() => {
         if (initialCiiu && initialCiiu.codigo) {
             setInputValue(`${initialCiiu.codigo} - ${initialCiiu.descripcion}`);
@@ -20,7 +18,6 @@ const CiiuSelect = ({ onSelect, disabled, initialCiiu = null }) => {
         }
     }, [initialCiiu]);
 
-    // Cerrar al clickear afuera
     useEffect(() => {
         function handleClickOutside(event) {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target)) setShowSuggestions(false);
@@ -29,7 +26,6 @@ const CiiuSelect = ({ onSelect, disabled, initialCiiu = null }) => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [wrapperRef]);
 
-    // Lógica de búsqueda con Debounce (para no saturar la base de datos)
     useEffect(() => {
         if (!inputValue || inputValue.length < 2 || !showSuggestions) {
             setSuggestions([]);
@@ -46,7 +42,7 @@ const CiiuSelect = ({ onSelect, disabled, initialCiiu = null }) => {
             } finally { 
                 setLoading(false); 
             }
-        }, 400); // Espera 400ms después de que el usuario deja de escribir
+        }, 400);
 
         return () => clearTimeout(timer);
     }, [inputValue, showSuggestions]);
@@ -84,18 +80,18 @@ const CiiuSelect = ({ onSelect, disabled, initialCiiu = null }) => {
                     onClick={() => { if (!disabled && !inputValue) setShowSuggestions(true); }}
                     disabled={disabled}
                     placeholder="Escribe el código (ej: 4771) o palabra (ej: ropa)..."
-                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-10 pr-10 py-3 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed font-medium"
+                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-10 pr-10 py-3 text-sm text-slate-800 focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none bg-white transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed font-medium"
                     autoComplete="off"
                 />
-                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-red-600'}`}>
+                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-brand-red'}`}>
                     <BriefcaseIcon className="w-5 h-5" />
                 </div>
                 
                 <div className="absolute right-3 flex items-center">
                     {loading ? (
-                        <div className="w-4 h-4 border-2 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div> 
+                        <div className="w-4 h-4 border-2 border-slate-200 border-t-brand-red rounded-full animate-spin"></div> 
                     ) : inputValue && !disabled ? (
-                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-red-500 p-1 transition-colors">
+                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-brand-red p-1 transition-colors">
                             <XMarkIcon className="w-5 h-5" />
                         </button> 
                     ) : (
@@ -112,10 +108,10 @@ const CiiuSelect = ({ onSelect, disabled, initialCiiu = null }) => {
                                 <li 
                                     key={ciiu.id} 
                                     onClick={() => handleSelect(ciiu)} 
-                                    className="px-4 py-3 cursor-pointer flex flex-col gap-1 hover:bg-red-50 border-b border-slate-100 last:border-0 transition-colors"
+                                    className="px-4 py-3 cursor-pointer flex flex-col gap-1 hover:bg-brand-red-light border-b border-slate-100 last:border-0 transition-colors"
                                 >
                                     <div className="flex items-start gap-2">
-                                        <span className="bg-red-100 text-red-700 font-mono font-black px-2 py-0.5 rounded text-xs shrink-0 mt-0.5">
+                                        <span className="bg-white border border-brand-red/20 text-brand-red font-mono font-black px-2 py-0.5 rounded text-xs shrink-0 mt-0.5 shadow-sm">
                                             {ciiu.codigo}
                                         </span>
                                         <span className="font-bold text-slate-700 text-sm leading-tight">

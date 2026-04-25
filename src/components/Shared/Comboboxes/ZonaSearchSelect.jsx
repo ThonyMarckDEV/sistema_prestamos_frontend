@@ -21,7 +21,6 @@ const ZonaSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
     const fetchZonas = async (term = '') => {
         setLoading(true);
         try {
-            // Mandamos el término de búsqueda al servicio
             const response = await combobox({ search: term });
             const dataZonas = response.data?.data || response.data || [];
             setSuggestions(dataZonas);
@@ -71,18 +70,18 @@ const ZonaSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                     }}
                     disabled={disabled}
                     placeholder="Buscar zona operativa..."
-                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-11 pr-10 py-3 text-sm font-bold focus:ring-2 focus:ring-red-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed"
+                    className="w-full border border-slate-300 rounded-xl shadow-sm pl-11 pr-10 py-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed"
                     autoComplete="off"
                 />
-                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-red-500'}`}>
+                <div className={`absolute left-3.5 ${disabled ? 'text-slate-300' : 'text-brand-red'}`}>
                     <MapPinIcon className="w-5 h-5" />
                 </div>
                 
                 <div className="absolute right-3 flex items-center">
                     {loading ? (
-                        <div className="w-4 h-4 border-2 border-slate-300 rounded-full animate-spin border-t-red-600"></div> 
+                        <div className="w-4 h-4 border-2 border-slate-300 rounded-full animate-spin border-t-brand-red"></div> 
                     ) : inputValue && !disabled ? (
-                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-red-500 p-1 transition-colors">
+                        <button onClick={handleClear} type="button" className="text-slate-400 hover:text-brand-red p-1 transition-colors">
                             <XMarkIcon className="w-5 h-5" />
                         </button> 
                     ) : (
@@ -96,7 +95,7 @@ const ZonaSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                             <li 
                                 key={zona.id} 
                                 onClick={() => handleSelect(zona)} 
-                                className="px-4 py-3 cursor-pointer rounded-lg border border-transparent hover:bg-blue-50 hover:border-blue-100 transition-all"
+                                className="px-4 py-3 cursor-pointer rounded-lg border border-transparent hover:bg-brand-red-light hover:border-brand-red/20 transition-all"
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex flex-col gap-1">
@@ -105,6 +104,7 @@ const ZonaSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
                                         </span>
                                     </div>
                                     <div className="text-right">
+                                        {/* Este lo dejamos verde porque indica estado 'Activo', no branding */}
                                         <span className="text-[9px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold uppercase border border-green-200">
                                             Activa
                                         </span>
