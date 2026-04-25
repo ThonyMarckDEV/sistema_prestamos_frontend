@@ -9,7 +9,7 @@ const Store = () => {
 
     return (
         <div className="container mx-auto p-6 max-w-6xl">
-            <PageHeader title="Agregar Feriado" buttonText="Volver" buttonLink="/feriados/index" />
+            <PageHeader title="Agregar Feriado" buttonText="Volver" buttonLink="/feriados/listar" />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <FeriadoForm
                 formData={formData}

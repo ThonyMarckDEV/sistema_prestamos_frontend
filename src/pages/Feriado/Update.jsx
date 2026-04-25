@@ -16,7 +16,7 @@ const Update = () => {
                 title="Editar Feriado"
                 subtitle={`Fecha original: ${formData.fecha}`}
                 buttonText="Volver"
-                buttonLink="/feriados/index"
+                buttonLink="/feriados/listar"
             />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <FeriadoForm
