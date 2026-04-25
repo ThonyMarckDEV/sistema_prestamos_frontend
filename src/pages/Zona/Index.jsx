@@ -20,8 +20,8 @@ const Index = () => {
             header: 'Zona Comercial',
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl border bg-blue-50 border-blue-100">
-                        <MapIcon className="w-5 h-5 text-blue-600" />
+                    <div className="p-2.5 rounded-xl border bg-brand-red-light/50 border-brand-red/20">
+                        <MapIcon className="w-5 h-5 text-brand-red" />
                     </div>
                     <div className="flex flex-col">
                         <span className="font-black text-slate-800 text-sm uppercase">{row.nombre}</span>
@@ -34,7 +34,7 @@ const Index = () => {
             render: (row) => (
                 <button onClick={() => handleAskStatus(row.id)}
                     className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase border transition-all hover:scale-105
-                        ${row.activo ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-600 border-red-200'}`}>
+                        ${row.activo ? 'bg-green-50 text-green-700 border-green-200' : 'bg-brand-red-light text-brand-red border-brand-red/30'}`}>
                     {row.activo ? 'Activa' : 'Inactiva'}
                 </button>
             )
@@ -43,10 +43,11 @@ const Index = () => {
             header: 'Acciones',
             render: (row) => (
                 <div className="flex items-center gap-2 justify-end">
+                    {/* 🔥 Hover corporativo */}
                     <Link 
                         to={`/zona/editar/${row.id}`}
                         title="Editar"
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-transparent hover:border-blue-100 shadow-sm"
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                     >
                         <PencilSquareIcon className="w-4 h-4" />
                     </Link>
@@ -54,7 +55,7 @@ const Index = () => {
                     <button 
                         onClick={() => handleAskDelete(row.id)}
                         title="Eliminar"
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100 shadow-sm"
+                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
                     >
                         <TrashIcon className="w-4 h-4" />
                     </button>

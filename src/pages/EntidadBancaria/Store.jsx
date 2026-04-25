@@ -18,7 +18,7 @@ const Store = () => {
 
                 <div className="mt-8 flex justify-end">
                     <button type="submit" disabled={loading}
-                        className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-red-700 text-white px-10 py-3.5 rounded-xl font-black uppercase hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 shadow-lg shadow-red-500/30 tracking-wide">
+                        className="w-full sm:w-auto bg-brand-red text-white px-10 py-3.5 rounded-xl font-black uppercase hover:bg-brand-red-dark transition-all disabled:opacity-50 shadow-lg shadow-brand-red/30 tracking-wide">
                         {loading ? 'Procesando...' : 'Guardar Entidad'}
                     </button>
                 </div>
