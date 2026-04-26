@@ -93,9 +93,7 @@ export const useStore = () => {
                         departamento:     p.departamento     || '',
                         provincia:        p.provincia        || '',
                         distrito:         p.distrito         || '',
-                        tipoVivienda:     p.tipoVivienda
-                            ? p.tipoVivienda.charAt(0).toUpperCase() + p.tipoVivienda.slice(1).toLowerCase()
-                            : '',
+                        tipoVivienda:     p.tipoVivienda     ||  '',
                         tiempoResidencia: p.tiempoResidencia || '',
                     },
                 }));
