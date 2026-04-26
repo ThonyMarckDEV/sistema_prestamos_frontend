@@ -30,9 +30,9 @@ const EmpleoForm = ({ data, handleNestedChange }) => {
                     <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Situación Laboral</label>
                     <select value={emp.situacionLaboral || ''} onChange={(e) => onEmp('situacionLaboral', e.target.value)} className={inputClass}>
                         <option value="">-- Seleccionar --</option>
-                        <option value="Dependiente">Dependiente</option>
-                        <option value="Independiente">Independiente</option>
-                        <option value="Jubilado">Jubilado</option>
+                        <option value="DEPENDIENTE">DEPENDIENTE</option>
+                        <option value="INDEPENDIENTE">INDEPENDIENTE</option>
+                        <option value="JUBILADO">JUBILADO</option>
                     </select>
                 </div>
             </div>
