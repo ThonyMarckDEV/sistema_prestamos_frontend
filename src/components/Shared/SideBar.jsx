@@ -32,7 +32,7 @@ export const MENU_GROUPS = [
     {
         groupName: 'Métricas y Análisis',
         items: [
-            { section: 'Dashboard', link: '/dashboard', icon: ChartPieIcon, requiredPermission: 'dashboard.index' }
+            { section: 'Dashboard', link: '/dashboard', icon: ChartPieIcon }
         ]
     },
     {

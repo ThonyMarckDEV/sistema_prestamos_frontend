@@ -14,6 +14,9 @@ import Login from 'pages/auth/Login/Login';
 // UI HOME
 import Home from 'pages/home/Home';
 
+//UI DASHBOARD
+import Dashboard from 'pages/Dashboard/Dashboard';
+
 //UI EMPLEADOS
 import AgregarEmpleado from 'pages/Empleado/Store';
 import EditarEmpleado from 'pages/Empleado/Update';
@@ -91,6 +94,7 @@ import ProtectedRoute from 'utilities/ProtectedRoutes/ProtectedRoute';
 import { AuthProvider } from 'context/AuthContext';
 import { NotificacionProvider } from 'components/Shared/Notificaciones/NotificacionContext';
 
+
 function AppContent() {
   return (
     <Routes>
@@ -102,6 +106,9 @@ function AppContent() {
 
         {/* HOME */}
         <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
+
+        {/* DASHBOARD */}
+        <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
         
         {/* CLIENTES */}
         <Route path="/cliente/agregar" element={<ProtectedRoute requiredPermission="cliente.store" element={<AgregarCliente />} />} />
