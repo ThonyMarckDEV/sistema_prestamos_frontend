@@ -19,6 +19,12 @@ export const MENU_GROUPS = [
         ]
     },
     {
+        groupName: 'Métricas y Análisis',
+        items: [
+            { section: 'Dashboard', link: '/dashboard', icon: ChartPieIcon }
+        ]
+    },
+    {
         groupName: 'Portal del Cliente',
         items: [
             {
@@ -27,12 +33,6 @@ export const MENU_GROUPS = [
                     { name: 'Ver Pagos', link: '/pago/listar', requiredPermission: 'pago.index' },
                 ],
             }
-        ]
-    },
-    {
-        groupName: 'Métricas y Análisis',
-        items: [
-            { section: 'Dashboard', link: '/dashboard', icon: ChartPieIcon }
         ]
     },
     {

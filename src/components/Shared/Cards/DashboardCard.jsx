@@ -133,20 +133,21 @@ const DashboardCard = ({
     onFiltrar, onLimpiar,
 }) => {
     const Icon = ICONS[icon] || BanknotesIcon;
-    const [tab, setTab] = useState(tabActivo);
+    const [tab,       setTab]       = useState(tabActivo);
+    const [collapsed, setCollapsed] = useState(false);
     const tieneRango = fechaInicio || fechaFin;
 
-    // Tabs por defecto si no se pasan
-    const tabsFinales = tabs ?? [{ id: 'cards', label: 'Resumen' }];
-
-    // Separar gráficas por tab
+    const tabsFinales    = tabs ?? [{ id: 'cards', label: 'Resumen' }];
     const graficasDelTab = graficas.filter(g => !g.tab || g.tab === tab);
 
     return (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-wrap gap-3">
+            {/* Header — click para colapsar */}
+            <div
+                className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-wrap gap-3 cursor-pointer select-none hover:bg-slate-50/60 transition-colors"
+                onClick={() => setCollapsed(v => !v)}
+            >
                 <div className="flex items-center gap-2.5">
                     <div className="p-2 bg-brand-red-light rounded-xl">
                         <Icon className="w-5 h-5 text-brand-red" />
@@ -157,23 +158,32 @@ const DashboardCard = ({
                     </div>
                 </div>
 
-                {/* Tabs */}
-                {tabsFinales.length > 1 && (
-                    <div className="flex gap-0.5 bg-slate-100 p-0.5 rounded-lg">
-                        {tabsFinales.map(t => (
-                            <button key={t.id} onClick={() => setTab(t.id)}
-                                className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${
-                                    tab === t.id ? 'bg-brand-red text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'
-                                }`}>
-                                {t.label}
-                            </button>
-                        ))}
+                <div className="flex items-center gap-2">
+                    {/* Tabs — detener propagación para no colapsar al cambiar tab */}
+                    {!collapsed && tabsFinales.length > 1 && (
+                        <div className="flex gap-0.5 bg-slate-100 p-0.5 rounded-lg" onClick={e => e.stopPropagation()}>
+                            {tabsFinales.map(t => (
+                                <button key={t.id} onClick={() => setTab(t.id)}
+                                    className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${
+                                        tab === t.id ? 'bg-brand-red text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                                    }`}>
+                                    {t.label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Ícono colapsar */}
+                    <div className={`w-6 h-6 flex items-center justify-center text-slate-400 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
                     </div>
-                )}
+                </div>
             </div>
 
             {/* Filtros de fecha */}
-            {conFiltros && (
+            {!collapsed && conFiltros && (
                 <div className="px-6 py-3 border-b border-slate-50 bg-slate-50/50 flex flex-wrap items-end gap-3">
                     <div>
                         <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Desde</label>
@@ -206,6 +216,7 @@ const DashboardCard = ({
             )}
 
             {/* Contenido */}
+            {!collapsed && (
             <div className="p-6">
                 {loading ? (
                     <div className="flex items-center justify-center h-40">
@@ -234,6 +245,7 @@ const DashboardCard = ({
                     </div>
                 )}
             </div>
+            )}
         </div>
     );
 };
