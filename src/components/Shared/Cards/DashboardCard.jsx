@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import {
     BanknotesIcon, CheckCircleIcon, CalendarDaysIcon,
     DocumentTextIcon, ChartBarIcon, ClockIcon,
-    ExclamationTriangleIcon, MagnifyingGlassIcon, XMarkIcon
+    ExclamationTriangleIcon, MagnifyingGlassIcon, XMarkIcon,
+    BriefcaseIcon
 } from '@heroicons/react/24/outline';
 import {
     AreaChart, Area, BarChart, Bar,
@@ -20,6 +21,7 @@ const ICONS = {
     'clock':        ClockIcon,
     'warning':      ExclamationTriangleIcon,
     'exclamation':  ExclamationTriangleIcon,
+    'briefcase':    BriefcaseIcon,
 };
 
 // ── Tooltip compartido ────────────────────────────────────────────────────────
@@ -131,6 +133,7 @@ const DashboardCard = ({
     fechaInicio = '', setFechaInicio,
     fechaFin    = '', setFechaFin,
     onFiltrar, onLimpiar,
+    extraContent = {}, // { tabId: <JSX> }
 }) => {
     const Icon = ICONS[icon] || BanknotesIcon;
     const [tab,       setTab]       = useState(tabActivo);
@@ -229,6 +232,11 @@ const DashboardCard = ({
                             <div className="grid grid-cols-1 gap-3">
                                 {cards.map((card, i) => <StatRow key={i} {...card} />)}
                             </div>
+                        )}
+
+                        {/* Extra content por tab (tablas, listas, etc.) */}
+                        {extraContent[tab] && (
+                            <div>{extraContent[tab]}</div>
                         )}
 
                         {/* Gráficas del tab activo */}
