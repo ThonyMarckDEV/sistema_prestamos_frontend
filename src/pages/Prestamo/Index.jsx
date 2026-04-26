@@ -31,7 +31,7 @@ const Index = () => {
         const config = [];
         if (role !== 'cliente') {
             config.push({ 
-                name: 'search', type: 'text', label: 'Buscar Cliente / DNI / Grupo', 
+                name: 'search', type: 'text', label: 'Buscar: ID Prestamo / Cliente / DNI  / RUC / Grupo', 
                 placeholder: 'Ej: Mendoza o Los Halcones...', colSpan: 'col-span-12 md:col-span-8' 
             });
         }
