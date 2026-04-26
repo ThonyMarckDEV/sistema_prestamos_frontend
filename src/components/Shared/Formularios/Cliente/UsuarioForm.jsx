@@ -107,8 +107,8 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
                 {!isEditing && (
                     <div className="md:col-span-2 p-3 bg-brand-gold-light border border-brand-gold/30 rounded-xl">
                         <p className="text-[11px] font-bold text-brand-gold-dark">
-                            🔒 La contraseña inicial será el <span className="font-black">DNI</span> del cliente (o RUC si es empresa).
-                            Se le enviará un correo de bienvenida con sus datos de acceso.
+                            La contraseña inicial será el <span className="font-black">DNI</span> del cliente (o RUC si es empresa).
+                            Se le enviará un correo de bienvenida con sus datos de acceso para que pueda cambiar la contraseña.
                         </p>
                     </div>
                 )}
