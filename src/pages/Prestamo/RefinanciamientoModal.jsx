@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from 'components/Shared/Modals/ViewModal';
 import ProductoSearchSelect from 'components/Shared/Comboboxes/ProductoSearchSelect';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -14,10 +14,24 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
         producto_id: '',
         tasa_interes: '',
         cuotas_solicitadas: '',
-        frecuencia: 'MENSUAL',
+        frecuencia: 'SEMANAL',
         incluir_mora: true,
         observaciones: ''
     });
+
+    useEffect(() => {
+        if (isOpen && data) {
+            setFormData({
+                producto_id: '',
+                tasa_interes: '',
+                cuotas_solicitadas: '',
+                frecuencia: 'SEMANAL',
+                incluir_mora: true,
+                observaciones: ''
+            });
+            setAlert(null);
+        }
+    }, [isOpen, data?.prestamo_id, data?.cliente_id]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;

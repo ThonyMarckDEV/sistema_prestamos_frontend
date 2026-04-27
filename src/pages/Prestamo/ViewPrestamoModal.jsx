@@ -72,9 +72,8 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
             3: 'bg-brand-gold-light text-brand-gold-dark border-brand-gold/30', 
             4: 'bg-brand-red-light text-brand-red border-brand-red/30', 
             5: 'bg-orange-50 text-orange-700 border-orange-100',
-            6: 'bg-blue-50 text-blue-700 border-blue-100' // Agregué el estado refinanciado porsiaca
         };
-        const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'PAGO PARCIAL', 6: 'REFINANCIADA' };
+        const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'PAGO PARCIAL'};
         return (
             <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border ${styles[estado] || styles[1]}`}>
                 {labels[estado] || 'PENDIENTE'}
@@ -215,7 +214,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                             </h4>
                             
                             <div className="flex items-center gap-2">
-                                {/* 🔥 REFINANCIAR: Permiso + Activo + (Individual o Integrante seleccionado) */}
                                 {canRefinanciar && data.estado === 1 && (!data.es_grupal || esVistaIntegrante) && (
                                     <button
                                         onClick={handleAbrirRefinanciamiento}
