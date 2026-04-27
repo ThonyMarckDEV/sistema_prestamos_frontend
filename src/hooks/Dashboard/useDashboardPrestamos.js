@@ -3,25 +3,26 @@ import { getPrestamosDashboard } from 'services/dashboardService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useDashboardPrestamos = () => {
-    const [loading,         setLoading]        = useState(true);
-    const [data,            setData]           = useState(null);
-    const [alert,           setAlert]          = useState(null);
-    const [fechaInicio,     setFechaInicio]    = useState('');
-    const [fechaFin,        setFechaFin]       = useState('');
-    
-    // Estados para paginación
-    const [activosPage,     setActivosPage]    = useState(1);
-    const [anterioresPage,  setAnterioresPage] = useState(1);
+    const [loading,        setLoading]        = useState(true);
+    const [data,           setData]           = useState(null);
+    const [alert,          setAlert]          = useState(null);
+    const [fechaInicio,    setFechaInicio]    = useState('');
+    const [fechaFin,       setFechaFin]       = useState('');
+    const [activosPage,    setActivosPageSt]    = useState(1);
+    const [anterioresPage, setAnterioresPageSt] = useState(1);
+    const [proximasPage,   setProximasPageSt]   = useState(1);
+    const [vencidasPage,   setVencidasPageSt]   = useState(1);
 
-    const fetch = useCallback(async (filters = {}) => {
+    const fetchData = useCallback(async (filters = {}, aPag = 1, antPag = 1, proxPag = 1, vencPag = 1) => {
         setLoading(true);
         setAlert(null);
         try {
-            // Mandamos los filtros de fechas + las páginas actuales
-            const res = await getPrestamosDashboard({ 
-                ...filters, 
-                activos_page: activosPage, 
-                anteriores_page: anterioresPage 
+            const res = await getPrestamosDashboard({
+                ...filters,
+                activos_page:    aPag,
+                anteriores_page: antPag,
+                proximas_page:   proxPag,
+                vencidas_page:   vencPag,
             });
             setData(res.data || res);
         } catch (err) {
@@ -29,33 +30,34 @@ export const useDashboardPrestamos = () => {
         } finally {
             setLoading(false);
         }
-    }, [activosPage, anterioresPage]); // Importante: dependencia para refrescar
+    }, []);
 
-    // Si cambia una fecha o una página, traemos los datos de nuevo
-    useEffect(() => { 
-        fetch({ fecha_inicio: fechaInicio, fecha_fin: fechaFin }); 
-    }, [fetch, fechaInicio, fechaFin]);
+    useEffect(() => { fetchData(); }, [fetchData]);
+
+    const currentFilters = () => ({ fecha_inicio: fechaInicio, fecha_fin: fechaFin });
 
     const handleFiltrar = () => {
-        setActivosPage(1); // Reset a pagina 1 al filtrar
-        setAnterioresPage(1);
-        fetch({ fecha_inicio: fechaInicio, fecha_fin: fechaFin });
+        setActivosPageSt(1); setAnterioresPageSt(1); setProximasPageSt(1); setVencidasPageSt(1);
+        fetchData(currentFilters(), 1, 1, 1, 1);
     };
 
-    const handleLimpiar = () => { 
-        setFechaInicio(''); 
-        setFechaFin(''); 
-        setActivosPage(1);
-        setAnterioresPage(1);
-        // El useEffect de arriba hará el fetch automático
+    const handleLimpiar = () => {
+        setFechaInicio(''); setFechaFin('');
+        setActivosPageSt(1); setAnterioresPageSt(1); setProximasPageSt(1); setVencidasPageSt(1);
+        fetchData({}, 1, 1, 1, 1);
     };
+
+    const setActivosPage    = p => { setActivosPageSt(p);    fetchData(currentFilters(), p,          anterioresPage, proximasPage,   vencidasPage); };
+    const setAnterioresPage = p => { setAnterioresPageSt(p); fetchData(currentFilters(), activosPage, p,             proximasPage,   vencidasPage); };
+    const setProximasPage   = p => { setProximasPageSt(p);   fetchData(currentFilters(), activosPage, anterioresPage, p,             vencidasPage); };
+    const setVencidasPage   = p => { setVencidasPageSt(p);   fetchData(currentFilters(), activosPage, anterioresPage, proximasPage,   p); };
 
     return {
         loading, data, alert, setAlert,
         fechaInicio, setFechaInicio,
         fechaFin,    setFechaFin,
+        setActivosPage, setAnterioresPage,
+        setProximasPage, setVencidasPage,
         handleFiltrar, handleLimpiar,
-        activosPage, setActivosPage,
-        anterioresPage, setAnterioresPage
     };
 };
