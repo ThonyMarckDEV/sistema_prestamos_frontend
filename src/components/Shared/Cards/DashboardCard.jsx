@@ -10,8 +10,9 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip,
     ResponsiveContainer
 } from 'recharts';
+import Pagination from 'components/Shared/Pagination';
 
-// ── Íconos disponibles ────────────────────────────────────────────────────────
+// ── Íconos ────────────────────────────────────────────────────────────────────
 const ICONS = {
     'banknotes':    BanknotesIcon,
     'check-circle': CheckCircleIcon,
@@ -24,7 +25,7 @@ const ICONS = {
     'briefcase':    BriefcaseIcon,
 };
 
-// ── Tooltip compartido ────────────────────────────────────────────────────────
+// ── Tooltip ───────────────────────────────────────────────────────────────────
 const CustomTooltip = ({ active, payload, label, moneyKey = 'total' }) => {
     if (!active || !payload?.length) return null;
     return (
@@ -34,21 +35,19 @@ const CustomTooltip = ({ active, payload, label, moneyKey = 'total' }) => {
                 <p key={i} className="font-bold">
                     {p.name === moneyKey
                         ? `S/ ${parseFloat(p.value).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`
-                        : `${p.value}`
-                    }
+                        : `${p.value}`}
                 </p>
             ))}
         </div>
     );
 };
 
-// ── StatRow — fila horizontal ─────────────────────────────────────────────────
+// ── StatRow ───────────────────────────────────────────────────────────────────
 const StatRow = ({ label, valor, tipo, icon, alerta = false }) => {
     const Icon = ICONS[icon] || BanknotesIcon;
     const formatted = tipo === 'monto'
         ? `S/ ${parseFloat(valor || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`
         : tipo === 'fecha' ? (valor ?? 'N/A') : (valor?.toLocaleString() ?? '0');
-
     return (
         <div className={`relative flex items-center gap-4 bg-white rounded-2xl border px-5 py-4 shadow-sm transition-all hover:shadow-md
             ${alerta ? 'border-brand-red/30 bg-brand-red-light/20' : 'border-slate-100'}`}>
@@ -57,9 +56,7 @@ const StatRow = ({ label, valor, tipo, icon, alerta = false }) => {
                 <Icon className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-                <p className={`text-2xl font-black tracking-tight leading-none ${alerta ? 'text-brand-red' : 'text-slate-900'}`}>
-                    {formatted}
-                </p>
+                <p className={`text-2xl font-black tracking-tight leading-none ${alerta ? 'text-brand-red' : 'text-slate-900'}`}>{formatted}</p>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{label}</p>
             </div>
             {alerta && <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-brand-red animate-pulse" />}
@@ -67,7 +64,29 @@ const StatRow = ({ label, valor, tipo, icon, alerta = false }) => {
     );
 };
 
-// ── Gráfica reutilizable ──────────────────────────────────────────────────────
+// ── TablaLista — lista paginada genérica ──────────────────────────────────────
+const TablaLista = ({ paginationData, renderFila, onPageChange, emptyText = 'Sin datos' }) => {
+    const data = paginationData?.data ?? [];
+    if (!data.length) return (
+        <div className="flex items-center justify-center h-32 text-slate-300 text-xs font-bold uppercase tracking-widest">
+            {emptyText}
+        </div>
+    );
+    return (
+        <div className="flex flex-col gap-2">
+            {data.map((item, i) => (
+                <React.Fragment key={item.id ?? i}>{renderFila(item)}</React.Fragment>
+            ))}
+            <Pagination
+                currentPage={paginationData?.current_page}
+                totalPages={paginationData?.last_page}
+                onPageChange={onPageChange}
+            />
+        </div>
+    );
+};
+
+// ── Gráficas ──────────────────────────────────────────────────────────────────
 const GraficaArea = ({ data, xKey, dataKey = 'total', label, color = '#8B1A1A', height = 200 }) => (
     <div>
         {label && <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">{label}</p>}
@@ -105,20 +124,15 @@ const GraficaBarra = ({ data, xKey, dataKey = 'total', label, color = '#8B1A1A',
     </div>
 );
 
-// ── DashboardCard — componente principal ──────────────────────────────────────
+// ── DashboardCard ─────────────────────────────────────────────────────────────
 /**
- * Props:
- * - title: string — título del módulo
- * - subtitle: string — subtítulo
- * - icon: string — clave de ICONS
- * - loading: bool
- * - cards: array — [{ label, valor, tipo, icon, alerta }]
- * - graficas: array — [{ tipo: 'area'|'barra', data, xKey, dataKey, label, color, isMoney, height }]
- * - tabs: array — [{ id, label }] — si no se pasa, se muestran solo cards
- * - tabActivo: string — tab seleccionado por defecto
- * - conFiltros: bool — mostrar filtros de fecha
- * - fechaInicio, setFechaInicio, fechaFin, setFechaFin
- * - onFiltrar, onLimpiar
+ * Props nuevas:
+ * - tablas: { [tabId]: { data: paginationObj, renderFila: (row) => JSX, onPageChange: fn, emptyText: str } }
+ *   Ejemplo:
+ *   tablas={{
+ *     activos: { data: activosPag, onPageChange: setActivosPage, emptyText: 'Sin vigentes',
+ *       renderFila: (p) => <div>{p.nombre}</div> }
+ *   }}
  */
 const DashboardCard = ({
     title,
@@ -133,7 +147,8 @@ const DashboardCard = ({
     fechaInicio = '', setFechaInicio,
     fechaFin    = '', setFechaFin,
     onFiltrar, onLimpiar,
-    extraContent = {}, // { tabId: <JSX> }
+    tablas = {},       // NUEVO: { tabId: { data, renderFila, onPageChange, emptyText } }
+    extraContent = {}, // Mantener compatibilidad con JSX directo
 }) => {
     const Icon = ICONS[icon] || BanknotesIcon;
     const [tab,       setTab]       = useState(tabActivo);
@@ -142,50 +157,47 @@ const DashboardCard = ({
 
     const tabsFinales    = tabs ?? [{ id: 'cards', label: 'Resumen' }];
     const graficasDelTab = graficas.filter(g => !g.tab || g.tab === tab);
+    const tablaActual    = tablas[tab];
 
     return (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
-            {/* Header — click para colapsar */}
-            <div
-                className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-wrap gap-3 cursor-pointer select-none hover:bg-slate-50/60 transition-colors"
-                onClick={() => setCollapsed(v => !v)}
-            >
-                <div className="flex items-center gap-2.5">
-                    <div className="p-2 bg-brand-red-light rounded-xl">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none hover:bg-slate-50/60 transition-colors"
+                onClick={() => setCollapsed(v => !v)}>
+                <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="p-2 bg-brand-red-light rounded-xl flex-shrink-0">
                         <Icon className="w-5 h-5 text-brand-red" />
                     </div>
-                    <div>
-                        <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight">{title}</h2>
-                        {subtitle && <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{subtitle}</p>}
+                    <div className="min-w-0">
+                        <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight truncate">{title}</h2>
+                        {subtitle && <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate">{subtitle}</p>}
                     </div>
                 </div>
-
-                <div className="flex items-center gap-2">
-                    {/* Tabs — detener propagación para no colapsar al cambiar tab */}
-                    {!collapsed && tabsFinales.length > 1 && (
-                        <div className="flex gap-0.5 bg-slate-100 p-0.5 rounded-lg" onClick={e => e.stopPropagation()}>
-                            {tabsFinales.map(t => (
-                                <button key={t.id} onClick={() => setTab(t.id)}
-                                    className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${
-                                        tab === t.id ? 'bg-brand-red text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'
-                                    }`}>
-                                    {t.label}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Ícono colapsar */}
-                    <div className={`w-6 h-6 flex items-center justify-center text-slate-400 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </div>
+                <div className={`w-6 h-6 flex items-center justify-center text-slate-400 flex-shrink-0 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
                 </div>
             </div>
 
-            {/* Filtros de fecha */}
+            {/* Tabs */}
+            {!collapsed && tabsFinales.length > 1 && (
+                <div className="px-4 py-2 border-b border-slate-100 overflow-x-auto scrollbar-none" onClick={e => e.stopPropagation()}>
+                    <div className="flex gap-0.5 bg-slate-100 p-0.5 rounded-lg w-fit">
+                        {tabsFinales.map(t => (
+                            <button key={t.id} onClick={() => setTab(t.id)}
+                                className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                                    tab === t.id ? 'bg-brand-red text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                                }`}>
+                                {t.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Filtros */}
             {!collapsed && conFiltros && (
                 <div className="px-6 py-3 border-b border-slate-50 bg-slate-50/50 flex flex-wrap items-end gap-3">
                     <div>
@@ -200,14 +212,12 @@ const DashboardCard = ({
                     </div>
                     <button onClick={onFiltrar} disabled={loading}
                         className="flex items-center gap-1.5 px-4 py-2 bg-brand-red text-white text-[10px] font-black uppercase rounded-lg hover:bg-brand-red-dark transition-all disabled:opacity-50">
-                        <MagnifyingGlassIcon className="w-3.5 h-3.5" />
-                        Filtrar
+                        <MagnifyingGlassIcon className="w-3.5 h-3.5" /> Filtrar
                     </button>
                     {tieneRango && (
                         <button onClick={onLimpiar}
                             className="flex items-center gap-1 px-3 py-2 text-slate-400 hover:text-brand-red text-[10px] font-black uppercase rounded-lg border border-slate-200 hover:border-brand-red/30 transition-all">
-                            <XMarkIcon className="w-3.5 h-3.5" />
-                            Limpiar
+                            <XMarkIcon className="w-3.5 h-3.5" /> Limpiar
                         </button>
                     )}
                     {tieneRango && (
@@ -220,43 +230,53 @@ const DashboardCard = ({
 
             {/* Contenido */}
             {!collapsed && (
-            <div className="p-6">
-                {loading ? (
-                    <div className="flex items-center justify-center h-40">
-                        <div className="w-8 h-8 border-4 border-brand-red-light border-t-brand-red rounded-full animate-spin" />
-                    </div>
-                ) : (
-                    <div className="space-y-6">
-                        {/* Cards — siempre visibles en tab 'cards' o si no hay tabs */}
-                        {(tab === 'cards' || tabsFinales.length === 1) && cards.length > 0 && (
-                            <div className="grid grid-cols-1 gap-3">
-                                {cards.map((card, i) => <StatRow key={i} {...card} />)}
-                            </div>
-                        )}
+                <div className="p-6">
+                    {loading ? (
+                        <div className="flex items-center justify-center h-40">
+                            <div className="w-8 h-8 border-4 border-brand-red-light border-t-brand-red rounded-full animate-spin" />
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {/* Cards resumen */}
+                            {(tab === 'cards' || tabsFinales.length === 1) && cards.length > 0 && (
+                                <div className="grid grid-cols-1 gap-3">
+                                    {cards.map((card, i) => <StatRow key={i} {...card} />)}
+                                </div>
+                            )}
 
-                        {/* Extra content por tab (tablas, listas, etc.) */}
-                        {extraContent[tab] && (
-                            <div>{extraContent[tab]}</div>
-                        )}
+                            {/* Tabla paginada via prop tablas */}
+                            {tablaActual && (
+                                <TablaLista
+                                    paginationData={tablaActual.data}
+                                    renderFila={tablaActual.renderFila}
+                                    onPageChange={tablaActual.onPageChange}
+                                    emptyText={tablaActual.emptyText}
+                                />
+                            )}
 
-                        {/* Gráficas del tab activo */}
-                        {graficasDelTab.length === 0 && tab !== 'cards' && (
-                            <div className="flex items-center justify-center h-40 text-slate-300 text-xs font-bold uppercase tracking-widest">
-                                Sin datos en este período
-                            </div>
-                        )}
-                        {graficasDelTab.map((g, i) => (
-                            g.tipo === 'area'
-                                ? <GraficaArea key={i} data={g.data} xKey={g.xKey} dataKey={g.dataKey} label={g.label} color={g.color} height={g.height} />
-                                : <GraficaBarra key={i} data={g.data} xKey={g.xKey} dataKey={g.dataKey} label={g.label} color={g.color} isMoney={g.isMoney} height={g.height} />
-                        ))}
-                    </div>
-                )}
-            </div>
+                            {/* JSX libre via extraContent (compatibilidad) */}
+                            {!tablaActual && extraContent[tab] && (
+                                <div>{extraContent[tab]}</div>
+                            )}
+
+                            {/* Gráficas */}
+                            {graficasDelTab.length === 0 && tab !== 'cards' && !tablaActual && !extraContent[tab] && (
+                                <div className="flex items-center justify-center h-40 text-slate-300 text-xs font-bold uppercase tracking-widest">
+                                    Sin datos en este período
+                                </div>
+                            )}
+                            {graficasDelTab.map((g, i) => (
+                                g.tipo === 'area'
+                                    ? <GraficaArea key={i} data={g.data} xKey={g.xKey} dataKey={g.dataKey} label={g.label} color={g.color} height={g.height} />
+                                    : <GraficaBarra key={i} data={g.data} xKey={g.xKey} dataKey={g.dataKey} label={g.label} color={g.color} isMoney={g.isMoney} height={g.height} />
+                            ))}
+                        </div>
+                    )}
+                </div>
             )}
         </div>
     );
 };
 
-export { StatRow, GraficaArea, GraficaBarra, CustomTooltip };
+export { StatRow, GraficaArea, GraficaBarra, CustomTooltip, TablaLista };
 export default DashboardCard;
