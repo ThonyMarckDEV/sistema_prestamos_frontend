@@ -119,10 +119,9 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                                         Calificación de Riesgo Crediticio (SBS)
                                     </h4>
                                 </div>
-                                <div className="flex justify-center">
-                                    <div className="w-full max-w-sm">
-                                        <BarraRiesgoSBS titulo="Riesgo SBS Actual" sbs={data.sbs} />
-                                    </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <BarraRiesgoSBS titulo="Riesgo SBS Actual" sbs={data.sbs.actual} />
+                                    <BarraRiesgoSBS titulo="Peor Atraso Histórico" sbs={data.sbs.historico} />
                                 </div>
                             </div>
                         )}
