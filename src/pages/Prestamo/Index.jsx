@@ -42,6 +42,7 @@ const Index = () => {
                 { value: '1', label: 'VIGENTES' },
                 { value: '2', label: 'CANCELADOS' },
                 { value: '3', label: 'LIQUIDADOS' },
+                { value: '4', label: 'REFINANCIADOS' },
                 { value: 'all', label: 'TODOS' }
             ]
         });
@@ -91,9 +92,10 @@ const Index = () => {
                 const colors = { 
                     1: 'bg-green-50 text-green-700 border-green-100', 
                     2: 'bg-slate-50 text-slate-600 border-slate-100', 
-                    3: 'bg-brand-gold-light text-brand-gold-dark border-brand-gold/30' 
+                    3: 'bg-brand-gold-light text-brand-gold-dark border-brand-gold/30' ,
+                    4: 'bg-blue-50 text-blue-700 border-blue-100', 
                 };
-                const labels = { 1: 'VIGENTE', 2: 'CANCELADO', 3: 'LIQUIDADO' };
+                const labels = { 1: 'VIGENTE', 2: 'CANCELADO', 3: 'LIQUIDADO' , 4: 'REFINANCIADO' };
                 return <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border ${colors[row.estado]}`}>{labels[row.estado]}</span>
             }},
             { header: 'Acciones', render: (row) => (
