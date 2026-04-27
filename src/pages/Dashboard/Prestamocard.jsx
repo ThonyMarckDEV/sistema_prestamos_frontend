@@ -198,7 +198,7 @@ const PrestamoCard = () => {
 
     return (
         <DashboardCard
-            title="Préstamos"
+            title="Préstamos y Cuotas"
             subtitle="Módulo de cartera"
             icon="briefcase"
             loading={loading}
