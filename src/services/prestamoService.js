@@ -39,3 +39,11 @@ export const combobox = async (tipoOperacion, search = '') => {
     const response = await fetchWithAuth(`${BASE_URL}/combobox?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);
 };
+
+export const refinanciar = async (data) => {
+    const response = await fetchWithAuth(`${BASE_URL}/refinanciar`, { 
+        method: 'POST', 
+        body: JSON.stringify(data) 
+    });
+    return handleResponse(response);
+};

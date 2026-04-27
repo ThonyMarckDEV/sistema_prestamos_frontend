@@ -61,7 +61,6 @@ const Index = () => {
             { header: 'Cliente / Producto', render: (row) => (
                 <div className="flex flex-col uppercase">
                     <div className="flex items-center gap-1.5">
-                        {/* 🔥 Icono y texto de cliente con branding corporativo */}
                         {row.es_grupal ? <UserGroupIcon className="w-3.5 h-3.5 text-brand-red" /> : <UserIcon className="w-3.5 h-3.5 text-slate-400" />}
                         <span className={`font-black text-[11px] ${row.es_grupal ? 'text-brand-red' : 'text-slate-800'}`}>
                             {row.cliente}
@@ -78,7 +77,6 @@ const Index = () => {
             )},
             { header: 'Financiero', render: (row) => (
                 <div className="flex flex-col">
-                    {/* 🔥 Monto en brand-red */}
                     <span className="font-black text-brand-red italic text-sm">S/ {row.monto}</span>
                     <span className="text-[9px] text-slate-400 font-black uppercase tracking-tighter">{row.abonado_por}</span>
                 </div>
@@ -134,7 +132,13 @@ const Index = () => {
                 filters={filters} filterConfig={filterConfig}
             />
 
-            <ViewPrestamoModal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} data={viewData} isLoading={viewLoading} />
+            <ViewPrestamoModal 
+                isOpen={isViewOpen} 
+                onClose={() => setIsViewOpen(false)} 
+                data={viewData} 
+                isLoading={viewLoading} 
+                onRefresh={() => fetchPrestamos(paginationInfo.currentPage)} 
+            />
 
             <ViewModal isOpen={isAbonoModalOpen} onClose={() => setIsAbonoModalOpen(false)} title="Voucher de Abono Bancario">
                 <div className="flex justify-center bg-slate-50 rounded-3xl overflow-hidden border-4 border-white shadow-xl">

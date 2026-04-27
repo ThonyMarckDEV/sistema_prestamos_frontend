@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import PdfModal from 'components/Shared/Modals/PdfModal';
 import HistorialMoraModal from 'components/Shared/Modals/HistorialMoraModal'; 
+import RefinanciamientoModal from './RefinanciamientoModal';
 import { 
     CalendarIcon, UserIcon, UserGroupIcon,
     InformationCircleIcon, UsersIcon,
@@ -9,8 +10,13 @@ import {
     ClockIcon 
 } from '@heroicons/react/24/outline';
 import { showIntegrante, descargarCronograma } from 'services/prestamoService';
+import { ArrowPathRoundedSquareIcon } from '@heroicons/react/24/outline';   
+import { useAuth } from 'context/AuthContext';
 
-const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
+const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
+
+    const { can } = useAuth();
+    const canRefinanciar = can('prestamo.refinanciar');
 
     const [integranteSeleccionado, setIntegranteSeleccionado] = useState(null);
     const [integranteData, setIntegranteData]                   = useState(null);
@@ -20,6 +26,9 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
     const [pdfTitle, setPdfTitle]                               = useState('');
     const [loadingPdf, setLoadingPdf]                           = useState(false);
     const [historialModal, setHistorialModal]                   = useState(null);
+    
+    const [refModalOpen, setRefModalOpen]                       = useState(false);
+    const [refData, setRefData]                                 = useState(null);
 
     const handleSelectIntegrante = async (clienteId) => {
         if (integranteSeleccionado === clienteId) {
@@ -62,9 +71,10 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
             2: 'bg-green-50 text-green-700 border-green-100',
             3: 'bg-brand-gold-light text-brand-gold-dark border-brand-gold/30', 
             4: 'bg-brand-red-light text-brand-red border-brand-red/30', 
-            5: 'bg-orange-50 text-orange-700 border-orange-100'
+            5: 'bg-orange-50 text-orange-700 border-orange-100',
+            6: 'bg-blue-50 text-blue-700 border-blue-100' // Agregué el estado refinanciado porsiaca
         };
-        const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'PAGO PARCIAL' };
+        const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'PAGO PARCIAL', 6: 'REFINANCIADA' };
         return (
             <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border ${styles[estado] || styles[1]}`}>
                 {labels[estado] || 'PENDIENTE'}
@@ -76,6 +86,34 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
     const esVistaIntegrante = !!integranteData;
     const integranteActivo   = data?.integrantes?.find(i => i.id === integranteSeleccionado);
 
+    const handleAbrirRefinanciamiento = () => {
+        let deudaPendiente = 0;
+        let moraPendiente = 0;
+
+        if (cronogramaActivo) {
+            cronogramaActivo.forEach(cuota => {
+                if (cuota.estado === 2 || cuota.estado === 6) return;
+                
+                const deudaBase = parseFloat(cuota.total_cuota ?? cuota.monto ?? 0);
+                const abonado = parseFloat(esVistaIntegrante ? (cuota.pago_acumulado ?? 0) : (cuota.pago_acumulado ?? 0));
+                deudaPendiente += Math.max(0, deudaBase - abonado);
+
+                const moraTotal = parseFloat(cuota.mora_total ?? cuota.mora ?? 0);
+                const moraPagada = parseFloat(cuota.mora_pagada ?? 0);
+                moraPendiente += Math.max(0, moraTotal - moraPagada);
+            });
+        }
+
+        setRefData({
+            prestamo_id: data.id,
+            cliente_id: esVistaIntegrante ? integranteSeleccionado : null,
+            cliente_nombre: esVistaIntegrante ? integranteActivo?.nombre : data.cliente?.nombre,
+            deuda: deudaPendiente,
+            mora: moraPendiente
+        });
+        setRefModalOpen(true);
+    };
+    
     return (
         <>
             <ViewModal
@@ -169,30 +207,44 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
                             </div>
                         </div>
 
-                        {/* 4. Header cronograma */}
+                        {/* 4. Header cronograma (BOTONES) */}
                         <div className="flex items-center justify-between">
                             <h4 className="flex items-center gap-2 text-[11px] font-black text-slate-700 uppercase tracking-widest px-1">
                                 <CalendarIcon className="w-4 h-4 text-brand-red" />
                                 {esVistaIntegrante ? `Cronograma — ${integranteActivo?.nombre}` : 'Cronograma de Pagos y Saldos'}
                             </h4>
-                            <button
-                                onClick={handleDescargarCronograma}
-                                disabled={loadingPdf}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-red hover:bg-brand-red-dark text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-md shadow-brand-red/20"
-                            >
-                                {loadingPdf ? (
-                                    <ArrowPathIcon className="w-3.5 h-3.5 animate-spin" />
-                                ) : (
-                                    <ArrowDownTrayIcon className="w-3.5 h-3.5" />
+                            
+                            <div className="flex items-center gap-2">
+                                {/* 🔥 REFINANCIAR: Permiso + Activo + (Individual o Integrante seleccionado) */}
+                                {canRefinanciar && data.estado === 1 && (!data.es_grupal || esVistaIntegrante) && (
+                                    <button
+                                        onClick={handleAbrirRefinanciamiento}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-gold hover:bg-brand-gold-dark text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-md shadow-brand-gold/20"
+                                    >
+                                        <ArrowPathRoundedSquareIcon className="w-3.5 h-3.5" />
+                                        {esVistaIntegrante ? 'Refinanciar Integrante' : 'Refinanciar'}
+                                    </button>
                                 )}
-                                {esVistaIntegrante 
-                                    ? 'PDF Individual' 
-                                    : (data.es_grupal ? 'PDF Grupal' : 'Descargar PDF')
-                                }
-                            </button>
+                                
+                                <button
+                                    onClick={handleDescargarCronograma}
+                                    disabled={loadingPdf}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-red hover:bg-brand-red-dark text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-md shadow-brand-red/20"
+                                >
+                                    {loadingPdf ? (
+                                        <ArrowPathIcon className="w-3.5 h-3.5 animate-spin" />
+                                    ) : (
+                                        <ArrowDownTrayIcon className="w-3.5 h-3.5" />
+                                    )}
+                                    {esVistaIntegrante 
+                                        ? 'PDF Individual' 
+                                        : (data.es_grupal ? 'PDF Grupal' : 'Descargar PDF')
+                                    }
+                                </button>
+                            </div>
                         </div>
 
-                        {/* 5. Tabla Corregida */}
+                        {/* 5. Tabla */}
                         {loadingIntegrante ? (
                             <div className="flex items-center justify-center py-12">
                                 <ArrowPathIcon className="w-6 h-6 animate-spin text-brand-red" />
@@ -306,6 +358,18 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading }) => {
 
             <HistorialMoraModal isOpen={!!historialModal} onClose={() => setHistorialModal(null)} data={historialModal} />
             <PdfModal isOpen={pdfOpen} onClose={() => { setPdfOpen(false); setPdfBase64(null); }} title={pdfTitle} base64={pdfBase64} />
+            
+            {/* NUESTRO NUEVO MODAL DE REFINANCIAMIENTO */}
+            <RefinanciamientoModal 
+                isOpen={refModalOpen} 
+                onClose={() => setRefModalOpen(false)} 
+                data={refData} 
+                onSuccess={() => {
+                    setRefModalOpen(false);
+                    handleClose(); 
+                    if (onRefresh) onRefresh();
+                }} 
+            />
         </>
     );
 };
