@@ -69,25 +69,42 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
     const integranteActivo  = data?.integrantes?.find(i => i.id === integranteSeleccionado);
 
     const handleAbrirRefinanciamiento = () => {
-        let deudaPendiente = 0;
-        let moraPendiente  = 0;
+        let deudaPendiente     = 0;
+        let moraPendiente      = 0;
+        let excedentePendiente = 0;
+        let excDeducido        = false;
+
         if (cronogramaActivo) {
             cronogramaActivo.forEach(cuota => {
                 if (cuota.estado === 2 || cuota.estado === 6) return;
+
                 const deudaBase  = parseFloat(cuota.total_cuota ?? cuota.monto ?? 0);
                 const abonado    = parseFloat(cuota.pago_acumulado ?? 0);
-                deudaPendiente  += Math.max(0, deudaBase - abonado);
                 const moraTotal  = parseFloat(cuota.mora_total ?? cuota.mora ?? 0);
                 const moraPagada = parseFloat(cuota.mora_pagada ?? 0);
-                moraPendiente   += Math.max(0, moraTotal - moraPagada);
+
+                // Excedente solo aplica en la primera cuota pendiente
+                const excedente = !excDeducido
+                    ? parseFloat(cuota.excedente_aplicado ?? cuota.excedente_anterior ?? 0)
+                    : 0;
+
+                if (!excDeducido) {
+                    excedentePendiente = excedente; // guardar para mostrar en modal
+                    excDeducido        = true;
+                }
+
+                deudaPendiente += Math.max(0, deudaBase - abonado - excedente);
+                moraPendiente  += Math.max(0, moraTotal - moraPagada);
             });
         }
+
         setRefData({
             prestamo_id:    data.id,
             cliente_id:     esVistaIntegrante ? integranteSeleccionado : null,
             cliente_nombre: esVistaIntegrante ? integranteActivo?.nombre : data.cliente?.nombre,
             deuda:          deudaPendiente,
             mora:           moraPendiente,
+            excedente:      excedentePendiente,
         });
         setRefModalOpen(true);
     };
