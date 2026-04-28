@@ -17,7 +17,7 @@ const CalculadoraCuota = ({ monto = 0, tasa = 0, cuotas = 0, className = '' }) =
 
     if (montoBase <= 0 || tasaNum <= 0 || cuotasNum <= 0) return null;
 
-    const interesGenerado = round(montoBase * (tasaNum / 100) * cuotasNum);
+    const interesGenerado = round(montoBase * (tasaNum / 100));
     const totalAPagar     = round(montoBase + interesGenerado);
     const valorCuota      = round(totalAPagar / cuotasNum);
 
