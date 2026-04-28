@@ -6,6 +6,7 @@ import CalculadoraCuota from 'components/Shared/CalculadoraCuota';
 import { refinanciar } from 'services/prestamoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import { ArrowPathRoundedSquareIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { toUpper } from 'utilities/Validations/validations';
 
 const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
     const [loading, setLoading] = useState(false);
@@ -38,7 +39,15 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+        
+        let finalValue = value;
+        if (type === 'checkbox') {
+            finalValue = checked;
+        } else if (name === 'observaciones') {
+            finalValue = toUpper(value);
+        }
+
+        setFormData(prev => ({ ...prev, [name]: finalValue }));
     };
 
     const handleSubmit = async (e) => {
@@ -93,13 +102,13 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                             <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">N° Cuotas *</label>
                             <input type="number" name="cuotas_solicitadas" required min="1"
                                 value={formData.cuotas_solicitadas} onChange={handleChange}
-                                className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-brand-red outline-none" />
+                                className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-brand-red outline-none" />
                         </div>
                         <div>
                             <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tasa Interés (%) *</label>
                             <input type="number" name="tasa_interes" required min="0" step="0.01"
                                 value={formData.tasa_interes} onChange={handleChange}
-                                className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-brand-red outline-none" />
+                                className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-brand-red outline-none" />
                         </div>
                     </div>
 
@@ -107,7 +116,7 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                         <div>
                             <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Frecuencia *</label>
                             <select name="frecuencia" value={formData.frecuencia} onChange={handleChange}
-                                className="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-bold focus:ring-2 focus:ring-brand-red outline-none bg-white">
+                                className="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-brand-red outline-none bg-white">
                                 <option value="SEMANAL">SEMANAL</option>
                                 <option value="CATORCENAL">CATORCENAL</option>
                                 <option value="MENSUAL">MENSUAL</option>
@@ -125,7 +134,7 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                     <div>
                         <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Observaciones</label>
                         <textarea name="observaciones" value={formData.observaciones} onChange={handleChange} rows="2"
-                            className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-brand-red outline-none" />
+                            className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-brand-red outline-none" />
                     </div>
 
                     {/* Calculadora reutilizable */}
