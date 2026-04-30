@@ -48,6 +48,7 @@ const SectionCondiciones = ({ data, handleChange, isBlocked, calc }) => (
             monto={data.monto_solicitado}
             tasa={data.tasa_interes}
             cuotas={data.cuotas_solicitadas}
+            frecuencia={data.frecuencia}
             className="mt-6"
         />
     </div>

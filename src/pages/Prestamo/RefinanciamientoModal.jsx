@@ -138,6 +138,7 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                         monto={montoBase}
                         tasa={formData.tasa_interes}
                         cuotas={formData.cuotas_solicitadas}
+                        frecuencia={formData.frecuencia}
                     />
 
                     <div className="pt-4 flex justify-end gap-3">
