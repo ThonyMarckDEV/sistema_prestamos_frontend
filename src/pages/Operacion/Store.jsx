@@ -19,6 +19,7 @@ import {
     ArrowUpCircleIcon,
     ArrowDownCircleIcon,
 } from '@heroicons/react/24/outline';
+import jwtUtils from 'utilities/Token/jwtUtils';
 
 const Store = () => {
     const {
@@ -64,29 +65,33 @@ const Store = () => {
             ) : (
                 <div className="mt-6 space-y-6 animate-in fade-in duration-500">
 
-                    {/* ── Header cajero ── */}
-                    <div className="flex flex-col md:flex-row items-center justify-between bg-slate-900 p-6 md:p-8 rounded-[32px] shadow-2xl text-white gap-6">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-white/10 rounded-2xl">
-                                <BanknotesIcon className="w-8 h-8 text-green-400" />
+                    {/* ── Header cajero (¡Ahora con colores corporativos!) ── */}
+                    <div className="flex flex-col md:flex-row items-center justify-between bg-brand-red p-6 md:p-8 rounded-[32px] shadow-xl text-white gap-6 border border-brand-red-dark relative overflow-hidden">
+                        
+                        {/* Brillo decorativo de fondo */}
+                        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-brand-red-light opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+
+                        <div className="flex items-center gap-4 z-10">
+                            <div className="p-3 bg-brand-red-dark rounded-2xl shadow-inner border border-brand-red-dark/50">
+                                <BanknotesIcon className="w-8 h-8 text-brand-gold" />
                             </div>
                             <div>
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">Cajero de Turno</span>
+                                <span className="text-[9px] font-black text-brand-red-light/80 uppercase tracking-[0.2em] block mb-1">Cajero de Turno</span>
                                 <span className="text-lg font-black">
-                                    {sesionActiva?.usuario?.datos_empleado?.nombre_completo || 'Usuario del Sistema'}
+                                    {jwtUtils.getName(jwtUtils.getAccessTokenFromCookie()) || 'Usuario del Sistema'}
                                 </span>
                             </div>
                         </div>
-                        <div className="flex items-center gap-8 border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-8 w-full md:w-auto justify-between md:justify-start">
+                        <div className="flex items-center gap-8 border-t md:border-t-0 md:border-l border-brand-red-dark pt-6 md:pt-0 md:pl-8 w-full md:w-auto justify-between md:justify-start z-10">
                             <div className="text-right">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1">Saldo en Efectivo</span>
-                                <span className="text-3xl font-black text-green-400 tracking-tighter">
+                                <span className="text-[9px] font-black text-brand-red-light/80 uppercase tracking-[0.2em] block mb-1">Saldo en Efectivo</span>
+                                <span className="text-3xl font-black text-brand-gold tracking-tighter drop-shadow-sm">
                                     S/ {parseFloat(sesionActiva?.saldo_esperado || 0).toFixed(2)}
                                 </span>
                             </div>
                             <button
                                 onClick={() => setIsCerrarModalOpen(true)}
-                                className="bg-white/5 hover:bg-brand-red px-6 py-3 rounded-xl font-black uppercase text-[10px] transition-all border border-white/10 hover:border-brand-red active:scale-95"
+                                className="bg-brand-red-dark hover:bg-brand-gold hover:text-brand-red-dark px-6 py-3 rounded-xl font-black uppercase text-[10px] transition-all border border-brand-red-dark hover:border-brand-gold hover:shadow-lg active:scale-95"
                             >
                                 Cerrar Turno
                             </button>
@@ -102,8 +107,8 @@ const Store = () => {
                                 onClick={() => { setTipoOperacion('cobro'); handleSelectPrestamo(null); }}
                                 className={`flex-1 sm:px-10 py-3 rounded-xl font-black text-[10px] uppercase transition-all flex items-center justify-center gap-2 ${
                                     tipoOperacion === 'cobro'
-                                        ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-200'
-                                        : 'text-slate-400 hover:text-slate-600'
+                                        ? 'bg-white text-brand-red shadow-md ring-1 ring-brand-red/20'
+                                        : 'text-slate-400 hover:text-brand-red'
                                 }`}
                             >
                                 <ArrowUpCircleIcon className="w-4 h-4" /> Cobrar Cuota
@@ -159,7 +164,7 @@ const Store = () => {
                 </div>
             )}
 
-            {/* ── Modales (Mantenemos los mismos, cambian en sus archivos) ── */}
+            {/* ── Modales ── */}
             <PagoCuotaModal
                 isOpen={isPagoModalOpen}
                 onClose={() => setIsPagoModalOpen(false)}

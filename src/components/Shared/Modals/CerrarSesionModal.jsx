@@ -29,9 +29,10 @@ const CerrarSesionModal = ({ isOpen, onClose, onConfirm, loading, sesionActiva }
         <ViewModal isOpen={isOpen} onClose={onClose} title="Arqueo y Cierre de Caja">
             <form onSubmit={handleSubmit} className="space-y-6">
                 
-                <div className="bg-black p-6 rounded-2xl text-center text-white shadow-xl shadow-slate-200">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sistema: Saldo Esperado</p>
-                    <h2 className="text-4xl font-black text-green-400 italic">S/ {saldoEsperado.toFixed(2)}</h2>
+                <div className="bg-brand-red p-6 rounded-2xl text-center text-white shadow-xl shadow-brand-red/20 border border-brand-red-dark relative overflow-hidden">
+                    <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-brand-red-light opacity-10 rounded-full blur-2xl pointer-events-none"></div>
+                    <p className="text-[10px] font-black text-brand-red-light/80 uppercase tracking-widest mb-1 relative z-10">Sistema: Saldo Esperado</p>
+                    <h2 className="text-4xl font-black text-brand-gold italic relative z-10 drop-shadow-sm">S/ {saldoEsperado.toFixed(2)}</h2>
                 </div>
 
                 <div>
@@ -46,14 +47,14 @@ const CerrarSesionModal = ({ isOpen, onClose, onConfirm, loading, sesionActiva }
                             value={montoReal} 
                             onChange={(e) => setMontoReal(e.target.value)}
                             placeholder="¿Cuánto dinero físico hay en la caja?"
-                            className="w-full pl-10 p-3 bg-white border-2 border-slate-200 rounded-xl font-black text-xl text-slate-800 focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                            className="w-full pl-10 p-3 bg-white border-2 border-slate-200 rounded-xl font-black text-xl text-slate-800 focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none transition-all"
                             disabled={loading}
                         />
                     </div>
                 </div>
 
                 {montoReal !== '' && (
-                    <div className={`p-4 rounded-xl border text-center ${diferencia === 0 ? 'bg-green-50 border-green-200 text-green-700' : diferencia > 0 ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                    <div className={`p-4 rounded-xl border text-center ${diferencia === 0 ? 'bg-green-50 border-green-200 text-green-700' : diferencia > 0 ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-red-50 border-brand-red/30 text-brand-red'}`}>
                         <p className="text-[10px] font-black uppercase mb-1">Diferencia de Arqueo</p>
                         <h3 className="text-lg font-black">
                             {diferencia === 0 ? 'CUADRE EXACTO' : diferencia > 0 ? `SOBRAN S/ ${Math.abs(diferencia)}` : `FALTAN S/ ${Math.abs(diferencia)}`}
@@ -69,17 +70,17 @@ const CerrarSesionModal = ({ isOpen, onClose, onConfirm, loading, sesionActiva }
                             value={observaciones} 
                             onChange={(e) => setObservaciones(e.target.value)}
                             placeholder="Justifica si hubo algún faltante o sobrante..."
-                            className="w-full pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl font-medium text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all min-h-[80px]"
+                            className="w-full pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl font-medium text-sm focus:ring-2 focus:ring-brand-red outline-none transition-all min-h-[80px]"
                             disabled={loading}
-                            required={diferencia !== 0} // 🔥 WARNING CORREGIDO
+                            required={diferencia !== 0}
                         />
                     </div>
                 </div>
 
                 <button 
                     type="submit" 
-                    disabled={loading || montoReal === '' || (diferencia !== 0 && observaciones.trim() === '')} // 🔥 WARNING CORREGIDO
-                    className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-sm shadow-xl hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={loading || montoReal === '' || (diferencia !== 0 && observaciones.trim() === '')}
+                    className="w-full bg-brand-red-dark text-white py-4 rounded-xl font-black uppercase text-sm shadow-xl hover:bg-brand-red hover:text-brand-gold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                 >
                     {loading ? 'Procesando Cierre...' : 'Finalizar y Cerrar Turno'}
                 </button>

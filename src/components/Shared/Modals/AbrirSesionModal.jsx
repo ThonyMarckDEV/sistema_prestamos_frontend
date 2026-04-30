@@ -48,7 +48,7 @@ const AbrirSesionModal = ({ isOpen, onClose, onConfirm, loading }) => {
                             value={montoApertura} 
                             onChange={(e) => setMontoApertura(e.target.value)}
                             placeholder="Ej: 50.00"
-                            className="w-full pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                            className="w-full pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-brand-red outline-none transition-all"
                             disabled={loading}
                         />
                     </div>
@@ -62,7 +62,7 @@ const AbrirSesionModal = ({ isOpen, onClose, onConfirm, loading }) => {
                             value={observaciones} 
                             onChange={(e) => setObservaciones(e.target.value)}
                             placeholder="Ej: Se recibe con monedas de 1 y 5 soles..."
-                            className="w-full pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl font-medium text-sm focus:ring-2 focus:ring-red-500 outline-none transition-all min-h-[80px]"
+                            className="w-full pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl font-medium text-sm focus:ring-2 focus:ring-brand-red outline-none transition-all min-h-[80px]"
                             disabled={loading}
                         />
                     </div>
@@ -71,7 +71,7 @@ const AbrirSesionModal = ({ isOpen, onClose, onConfirm, loading }) => {
                 <button 
                     type="submit" 
                     disabled={loading || !cajaId || montoApertura === ''}
-                    className="w-full bg-red-600 text-white py-4 rounded-xl font-black uppercase text-sm shadow-lg shadow-red-500/30 hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-brand-red text-white py-4 rounded-xl font-black uppercase text-sm shadow-lg shadow-brand-red/30 hover:bg-brand-red-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                 >
                     {loading ? 'Procesando...' : 'Abrir Turno Ahora'}
                 </button>
