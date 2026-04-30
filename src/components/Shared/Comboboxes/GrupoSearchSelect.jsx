@@ -23,7 +23,7 @@ const GrupoSearchSelect = ({ onSelect, disabled, initialName = '' }) => {
         setLoading(true);
         try {
             // Llamamos al combobox de grupos
-            const response = await combobox(term);
+            const response = await combobox({ search: term });
             const dataGrupos = response.data?.data || response.data || [];
             setSuggestions(dataGrupos);
             setShowSuggestions(true);

@@ -15,8 +15,9 @@ export const index = async (page = 1, filters = {}) => {
     return handleResponse(response);
 };
 
-export const combobox = async () => {
-    const response = await fetchWithAuth(`${BASE_URL}/combobox`, { method: 'GET' });
+export const combobox = async (filters = {}) => {
+    const params = new URLSearchParams(filters);
+    const response = await fetchWithAuth(`${BASE_URL}/combobox?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);
 };
 
