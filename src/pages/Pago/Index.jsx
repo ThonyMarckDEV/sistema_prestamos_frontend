@@ -24,15 +24,23 @@ const Index = () => {
 
     const filterConfig = useMemo(() => [
         { 
-            name: 'search', type: 'text', label: 'Nombre / Dni / Ruc / Op.', 
-            placeholder: 'Ej: 20332932...',
+            name: 'search', type: 'text', label: 'Buscador', 
+            placeholder: 'Nombre / DNI / Op...',
             colSpan: 'col-span-12 md:col-span-4' 
         },
         { 
+            name: 'fecha_inicio', type: 'date', label: 'Fecha Inicio', 
+            colSpan: 'col-span-12 md:col-span-3' 
+        },
+        { 
+            name: 'fecha_fin', type: 'date', label: 'Fecha Fin', 
+            colSpan: 'col-span-12 md:col-span-3' 
+        },
+        { 
             name: 'estado', type: 'select', label: 'Estado', 
-            colSpan: 'col-span-12 md:col-span-3',
+            colSpan: 'col-span-12 md:col-span-2',
             options: [
-                { value: '', label: 'TODOS LOS PAGOS' },
+                { value: '', label: 'TODOS' },
                 { value: '0', label: 'ANULADOS' },
                 { value: '1', label: 'APROBADOS' },
             ]

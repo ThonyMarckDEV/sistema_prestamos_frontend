@@ -8,7 +8,9 @@ export const index = async (page = 1, filters = {}) => {
     const params = new URLSearchParams({
         page,
         search: filters.search || '',
-        estado: filters.estado ?? ''
+        estado: filters.estado ?? '',
+        fecha_inicio: filters.fecha_inicio || '', 
+        fecha_fin: filters.fecha_fin || ''
     });
     const response = await fetchWithAuth(`${BASE_URL}/index?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);
