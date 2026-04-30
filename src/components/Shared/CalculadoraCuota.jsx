@@ -6,18 +6,29 @@ import { CalculatorIcon } from '@heroicons/react/24/outline';
  *
  * Props:
  * - monto:      number  — capital base
- * - tasa:       number  — % de interés
+ * - tasa:       number  — % de interés (TEM)
  * - cuotas:     number  — número de cuotas
+ * - frecuencia: string  — SEMANAL, CATORCENAL, MENSUAL
  * - className:  string  — clases extra opcionales
  */
-const CalculadoraCuota = ({ monto = 0, tasa = 0, cuotas = 0, className = '' }) => {
-    const montoBase       = parseFloat(monto)  || 0;
-    const tasaNum         = parseFloat(tasa)   || 0;
-    const cuotasNum       = parseInt(cuotas)   || 0;
+const CalculadoraCuota = ({ monto = 0, tasa = 0, cuotas = 0, frecuencia = 'MENSUAL', className = '' }) => {
+    const montoBase   = parseFloat(monto)  || 0;
+    const tasaNum     = parseFloat(tasa)   || 0;
+    const cuotasNum   = parseInt(cuotas)   || 0;
 
     if (montoBase <= 0 || tasaNum <= 0 || cuotasNum <= 0) return null;
 
-    const interesGenerado = round(montoBase * (tasaNum / 100));
+    let meses = 0;
+    if (frecuencia === 'SEMANAL') {
+        meses = cuotasNum / 4;
+    } else if (frecuencia === 'CATORCENAL') {
+        meses = cuotasNum / 2;
+    } else if (frecuencia === 'MENSUAL') {
+        meses = cuotasNum;
+    }
+
+    // Nueva fórmula: Monto * Tasa * Meses
+    const interesGenerado = round(montoBase * (tasaNum / 100) * meses);
     const totalAPagar     = round(montoBase + interesGenerado);
     const valorCuota      = round(totalAPagar / cuotasNum);
 
@@ -34,7 +45,7 @@ const CalculadoraCuota = ({ monto = 0, tasa = 0, cuotas = 0, className = '' }) =
                 </div>
                 <div className="text-slate-500 font-black">+</div>
                 <div>
-                    <p className="text-[10px] text-slate-400 uppercase font-bold">Interés ({tasaNum}%)</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-bold">Interés ({tasaNum}% x {meses} meses)</p>
                     <p className="text-sm font-black text-brand-red-light">S/ {fmt(interesGenerado)}</p>
                 </div>
             </div>
