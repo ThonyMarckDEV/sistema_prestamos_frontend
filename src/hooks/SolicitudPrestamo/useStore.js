@@ -25,8 +25,20 @@ export const useStore = () => {
         aval: null
     });
 
-    const isMainBlocked = formData.modalidad === 'RCS' || (formData.modalidad && formData.modalidad.includes('VIGENTE')) || formData.dni_status?.estado === 'VENCIDO';
-    const hasBlockedIntegrante = formData.integrantes.some(i => i.modalidad === 'RCS' || (i.modalidad && i.modalidad.includes('VIGENTE')) || i.dni_status?.estado === 'VENCIDO');
+    // 1. LÓGICA DE BLOQUEO
+    const dniPrincipalVencido = formData.dni_status?.estado === 'VENCIDO';
+    const dniIntegranteVencido = formData.es_grupal && formData.integrantes.some(i => i.dni_status?.estado === 'VENCIDO');
+
+    // Riesgo Crediticio: Bloquea SOLO si piden GRUPAL y ya tienen un GRUPAL (VIGENTE GRUPAL o RCS GRUPAL)
+    const principalBloqueadoPorRiesgo = formData.es_grupal && 
+        (formData.modalidad?.includes('GRUPAL') && (formData.modalidad?.includes('VIGENTE') || formData.modalidad?.includes('RCS')));
+
+    const integranteBloqueadoPorRiesgo = formData.es_grupal && formData.integrantes.some(i => 
+        i.modalidad?.includes('GRUPAL') && (i.modalidad?.includes('VIGENTE') || i.modalidad?.includes('RCS'))
+    );
+
+    const isMainBlocked = dniPrincipalVencido || principalBloqueadoPorRiesgo;
+    const hasBlockedIntegrante = dniIntegranteVencido || integranteBloqueadoPorRiesgo;
     const isBlocked = isMainBlocked || hasBlockedIntegrante;
 
     const handleChange = (field, value) => {
@@ -100,16 +112,35 @@ export const useStore = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isBlocked) {
-            setAlert({ type: 'error', message: 'No se puede enviar la solicitud. Hay integrantes con DNI vencido o en Riesgo Crediticio.' });
+            setAlert({ type: 'error', message: 'No se puede enviar la solicitud por restricciones de crédito o DNI.' });
             return;
         }
         setLoading(true);
         try {
-            await store(formData);
+            // 2. LIMPIEZA DEL PAYLOAD
+            const payload = { ...formData };
+
+            if (payload.es_grupal) {
+                payload.modalidad = 'GRUPAL';
+            } else {
+                // Si tiene deuda activa (sea individual o grupal), su nuevo préstamo individual es RCS.
+                if (payload.modalidad?.includes('VIGENTE') || payload.modalidad?.includes('RCS')) {
+                    payload.modalidad = 'RCS'; 
+                } else if (payload.modalidad?.includes('RSS')) {
+                    payload.modalidad = 'RSS';
+                } else {
+                    payload.modalidad = 'NUEVO';
+                }
+            }
+
+            await store(payload);
             setAlert({ type: 'success', message: 'Solicitud enviada con éxito.' });
             setTimeout(() => navigate('/solicitudPrestamo/listar'), 1500);
-        } catch (err) { setAlert(handleApiError(err)); }
-        finally { setLoading(false); }
+        } catch (err) { 
+            setAlert(handleApiError(err)); 
+        } finally { 
+            setLoading(false); 
+        }
     };
 
     return { formData, loading, alert, setAlert, handleChange, handleSubmit, isBlocked, addIntegrante, removeIntegrante, updateMontoIntegrante, updateCargoIntegrante };

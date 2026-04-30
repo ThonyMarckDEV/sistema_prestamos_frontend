@@ -36,7 +36,10 @@ const SolicitudForm = ({
                         <p className="text-[10px] font-bold opacity-90 text-white">
                             {hasBlockedIntegrante 
                                 ? 'Uno o más integrantes del grupo tienen una restricción activa o deuda vigente (RCS / VIGENTE).' 
-                                : `El cliente principal tiene la modalidad: ${data.modalidad}`}
+                                : (data.dni_status?.estado === 'VENCIDO' 
+                                    ? 'El DNI del cliente principal está VENCIDO.'
+                                    : `El cliente principal tiene modalidad: ${data.modalidad}. No puede tener más de un préstamo GRUPAL simultáneo.`)
+                            }
                         </p>
                     </div>
                 </div>
@@ -47,7 +50,7 @@ const SolicitudForm = ({
                 <button 
                     type="button" 
                     onClick={() => !isUpdate && !isBlocked && handleChange('es_grupal', false)} 
-                    disabled={isUpdate || isBlocked} 
+                    disabled={isUpdate || (isBlocked && data.dni_status?.estado === 'VENCIDO')} 
                     className={`px-8 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${!data.es_grupal ? 'bg-white text-brand-red shadow-sm ring-1 ring-brand-red/20' : 'text-slate-400 hover:text-slate-600'} disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                     Individual

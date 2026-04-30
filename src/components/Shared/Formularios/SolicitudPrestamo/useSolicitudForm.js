@@ -4,12 +4,19 @@ import { onlyLetters, onlyNumbers } from 'utilities/Validations/validations';
 
 export const useSolicitudForm = (data, handleChange) => {
     // 1. LÓGICA DE BLOQUEO (Riesgo Crediticio + DNI DEL BACKEND)
-    const isMainBlocked = data.modalidad === 'RCS' || (data.modalidad && data.modalidad.includes('VIGENTE')) || data.dni_status?.estado === 'VENCIDO';
-    
-    const hasBlockedIntegrante = data.integrantes?.some(int => 
-        int.modalidad === 'RCS' || (int.modalidad && int.modalidad.includes('VIGENTE')) || int.dni_status?.estado === 'VENCIDO'
+    const dniPrincipalVencido = data.dni_status?.estado === 'VENCIDO';
+    const dniIntegranteVencido = data.es_grupal && data.integrantes?.some(int => int.dni_status?.estado === 'VENCIDO');
+
+    // Riesgo Crediticio: Bloquea SOLO si piden GRUPAL y ya tienen un GRUPAL
+    const principalBloqueadoPorRiesgo = data.es_grupal && 
+        (data.modalidad?.includes('GRUPAL') && (data.modalidad?.includes('VIGENTE') || data.modalidad?.includes('RCS')));
+
+    const integranteBloqueadoPorRiesgo = data.es_grupal && data.integrantes?.some(int => 
+        int.modalidad?.includes('GRUPAL') && (int.modalidad?.includes('VIGENTE') || int.modalidad?.includes('RCS'))
     );
-    
+
+    const isMainBlocked = dniPrincipalVencido || principalBloqueadoPorRiesgo;
+    const hasBlockedIntegrante = dniIntegranteVencido || integranteBloqueadoPorRiesgo;
     const isBlocked = isMainBlocked || hasBlockedIntegrante;
 
     // 2. ESTADOS Y LÓGICA DEL AVAL
