@@ -25,12 +25,13 @@ const ResumenFinanciero = ({ datos }) => {
     if (!datos) return null;
     const items = [
         { label: 'Capital',   value: `S/ ${parseFloat(datos.monto).toFixed(2)}` },
-        { label: `Interés (${datos.interes_porc}%)`, value: `S/ ${(parseFloat(datos.total_prestamo) - parseFloat(datos.monto)).toFixed(2)}` },
+        { label: `Interés (${datos.interes_porc}%)`, value: `S/ ${(parseFloat(datos.total_prestamo) - parseFloat(datos.monto) - parseFloat(datos.seguro || 0)).toFixed(2)}` },
+        { label: 'Seguro',    value: `S/ ${parseFloat(datos.seguro || 0).toFixed(2)}` },
         { label: 'Total Cobrar', value: `S/ ${parseFloat(datos.total_prestamo).toFixed(2)}`, bold: true },
         { label: 'Cuota',        value: `S/ ${parseFloat(datos.valor_cuota).toFixed(2)}`,    bold: true },
     ];
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4">
             {items.map(({ label, value, bold }) => (
                 <div key={label} className="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-center">
                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>

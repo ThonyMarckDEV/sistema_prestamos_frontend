@@ -178,7 +178,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                         )}
 
                         {/* 3. Resumen Económico */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
                                 <p className="text-[9px] font-black text-slate-400 uppercase">Capital Total</p>
                                 <p className="text-md font-black text-slate-800">S/ {data.datos_economicos?.monto}</p>
@@ -186,8 +186,12 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
                                 <p className="text-[9px] font-black text-slate-400 uppercase">Interés ({data.datos_economicos?.interes_porc}%)</p>
                                 <p className="text-md font-black text-brand-gold-dark">
-                                    S/ {(parseFloat(data.datos_economicos?.total_prestamo) - parseFloat(data.datos_economicos?.monto)).toFixed(2)}
+                                    S/ {(parseFloat(data.datos_economicos?.total_prestamo) - parseFloat(data.datos_economicos?.monto) - parseFloat(data.datos_economicos?.seguro || 0)).toFixed(2)}
                                 </p>
+                            </div>
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                                <p className="text-[9px] font-black text-slate-400 uppercase">Seguro</p>
+                                <p className="text-md font-black text-brand-gold-dark">S/ {parseFloat(data.datos_economicos?.seguro || 0).toFixed(2)}</p>
                             </div>
                             <div className="p-3 bg-slate-900 rounded-xl text-center shadow-lg">
                                 <p className="text-[9px] font-black text-slate-300 uppercase">Total Cobrar</p>
