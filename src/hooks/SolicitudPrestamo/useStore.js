@@ -20,6 +20,10 @@ export const useStore = () => {
         tasa_interes: '',
         cuotas_solicitadas: '',
         frecuencia: 'SEMANAL',
+
+        seguro: '', 
+        seguro_financiado: false, 
+        
         modalidad: '',
         observaciones: '',
         aval: null
@@ -29,7 +33,6 @@ export const useStore = () => {
     const dniPrincipalVencido = formData.dni_status?.estado === 'VENCIDO';
     const dniIntegranteVencido = formData.es_grupal && formData.integrantes.some(i => i.dni_status?.estado === 'VENCIDO');
 
-    // Riesgo Crediticio: Bloquea SOLO si piden GRUPAL y ya tienen un GRUPAL (VIGENTE GRUPAL o RCS GRUPAL)
     const principalBloqueadoPorRiesgo = formData.es_grupal && 
         (formData.modalidad?.includes('GRUPAL') && (formData.modalidad?.includes('VIGENTE') || formData.modalidad?.includes('RCS')));
 
@@ -119,11 +122,12 @@ export const useStore = () => {
         try {
             // 2. LIMPIEZA DEL PAYLOAD
             const payload = { ...formData };
+            // Asegurar que seguro sea numérico y no string vacío
+            payload.seguro = payload.seguro || 0; 
 
             if (payload.es_grupal) {
                 payload.modalidad = 'GRUPAL';
             } else {
-                // Si tiene deuda activa (sea individual o grupal), su nuevo préstamo individual es RCS.
                 if (payload.modalidad?.includes('VIGENTE') || payload.modalidad?.includes('RCS')) {
                     payload.modalidad = 'RCS'; 
                 } else if (payload.modalidad?.includes('RSS')) {

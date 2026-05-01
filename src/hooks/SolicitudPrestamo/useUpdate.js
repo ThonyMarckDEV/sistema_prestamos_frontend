@@ -18,6 +18,8 @@ export const useUpdate = () => {
                 const data = res.data || res;
                 setFormData({
                     ...data,
+                    seguro: data.seguro || '',
+                    seguro_financiado: !!data.seguro_financiado,
                     integrantes: data.integrantes.map(i => ({ 
                         id: i.id, 
                         nombre: i.nombre_completo, 
@@ -32,11 +34,15 @@ export const useUpdate = () => {
         load();
     }, [id]);
 
-    const isBlocked = formData ? (
-        formData.modalidad === 'RCS' || 
-        (formData.modalidad && formData.modalidad.includes('VIGENTE')) ||
-        (formData.integrantes || []).some(i => i.modalidad === 'RCS' || (i.modalidad && i.modalidad.includes('VIGENTE')))
-    ) : false;
+    const isMainBlocked = formData?.dni_status?.estado === 'VENCIDO' || 
+        (formData?.es_grupal && (formData?.modalidad?.includes('GRUPAL') && (formData?.modalidad?.includes('VIGENTE') || formData?.modalidad?.includes('RCS'))));
+
+    const hasBlockedIntegrante = formData?.es_grupal && (formData?.integrantes || []).some(i => 
+        i.dni_status?.estado === 'VENCIDO' || 
+        (i.modalidad?.includes('GRUPAL') && (i.modalidad?.includes('VIGENTE') || i.modalidad?.includes('RCS')))
+    );
+
+    const isBlocked = isMainBlocked || hasBlockedIntegrante;
 
     const handleChange = (field, value) => {
         if (field.includes('.')) {
@@ -55,7 +61,7 @@ export const useUpdate = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData?.integrantes, formData?.es_grupal]);
 
-    const addIntegrante = (cliente) => {
+     const addIntegrante = (cliente) => {
         if (!cliente || formData.integrantes.find(i => i.id === cliente.usuario_id)) return;
         setFormData(prev => {
             const hasPresidente = prev.integrantes.some(i => i.cargo === 'PRESIDENTE');
@@ -96,7 +102,22 @@ export const useUpdate = () => {
         if (isBlocked) return;
         setSaving(true);
         try {
-            await update(id, formData);
+            const payload = { ...formData };
+            payload.seguro = payload.seguro || 0;
+
+            if (payload.es_grupal) {
+                payload.modalidad = 'GRUPAL';
+            } else {
+                if (payload.modalidad?.includes('VIGENTE') || payload.modalidad?.includes('RCS')) {
+                    payload.modalidad = 'RCS'; 
+                } else if (payload.modalidad?.includes('RSS')) {
+                    payload.modalidad = 'RSS';
+                } else {
+                    payload.modalidad = 'NUEVO';
+                }
+            }
+
+            await update(id, payload);
             setAlert({ type: 'success', message: 'Solicitud actualizada.' });
             setTimeout(() => navigate('/solicitudPrestamo/listar'), 1500);
         } catch (err) { setAlert(handleApiError(err)); }

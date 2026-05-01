@@ -9,8 +9,8 @@ const SectionCondiciones = ({ data, handleChange, isBlocked }) => (
             <BanknotesIcon className="w-5 h-5 text-brand-red" /> Condiciones del Préstamo
         </h3>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
-            <div>
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 relative z-10">
+            <div className="col-span-2 md:col-span-1">
                 <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Monto Total (S/)</label>
                 <input
                     disabled={isBlocked} readOnly={data.es_grupal} type="text" value={data.monto_solicitado}
@@ -34,12 +34,34 @@ const SectionCondiciones = ({ data, handleChange, isBlocked }) => (
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-black text-slate-800 outline-none focus:ring-2 focus:ring-brand-red focus:border-brand-red disabled:cursor-not-allowed"
                 />
             </div>
-            <div>
+            <div className="col-span-2 md:col-span-1">
                 <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Frecuencia</label>
                 <select disabled={isBlocked} value={data.frecuencia} onChange={e => handleChange('frecuencia', e.target.value)} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-black text-slate-800 outline-none focus:ring-2 focus:ring-brand-red focus:border-brand-red disabled:cursor-not-allowed">
                     <option value="SEMANAL">SEMANAL</option>
                     <option value="CATORCENAL">CATORCENAL</option>
                     <option value="MENSUAL">MENSUAL</option>
+                </select>
+            </div>
+
+            <div>
+                <label className="block text-[10px] font-bold text-brand-gold-dark uppercase mb-1">Seguro (S/)</label>
+                <input
+                    disabled={isBlocked} type="text" value={data.seguro}
+                    onChange={e => handleChange('seguro', e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'))}
+                    placeholder="0.00"
+                    className="w-full p-2.5 bg-brand-gold-light/20 border border-brand-gold/30 rounded-lg text-sm font-black text-slate-800 outline-none focus:ring-2 focus:ring-brand-gold focus:border-brand-gold disabled:cursor-not-allowed"
+                />
+            </div>
+            <div className="col-span-2 md:col-span-1">
+                <label className="block text-[10px] font-bold text-brand-gold-dark uppercase mb-1">Cobro Seguro</label>
+                <select 
+                    disabled={isBlocked} 
+                    value={String(data.seguro_financiado) === 'true' || String(data.seguro_financiado) === '1' ? 'true' : 'false'} 
+                    onChange={e => handleChange('seguro_financiado', e.target.value === 'true')} 
+                    className="w-full p-2.5 bg-brand-gold-light/20 border border-brand-gold/30 rounded-lg text-sm font-black text-slate-800 outline-none focus:ring-2 focus:ring-brand-gold focus:border-brand-gold disabled:cursor-not-allowed"
+                >
+                    <option value="false">Efectivo (Previo)</option>
+                    <option value="true">Financiado (Cuotas)</option>
                 </select>
             </div>
         </div>
@@ -49,6 +71,8 @@ const SectionCondiciones = ({ data, handleChange, isBlocked }) => (
             tasa={data.tasa_interes}
             cuotas={data.cuotas_solicitadas}
             frecuencia={data.frecuencia}
+            seguro={data.seguro}
+            seguro_financiado={data.seguro_financiado}
             className="mt-6"
         />
     </div>
