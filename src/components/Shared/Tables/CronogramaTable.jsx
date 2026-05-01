@@ -1,5 +1,4 @@
 import React from 'react';
-import { ClockIcon } from '@heroicons/react/24/outline';
 
 // Función para evitar el error de precisión de punto flotante (0.0000000001)
 const safeRound = (n) => Math.round(n * 100) / 100;
