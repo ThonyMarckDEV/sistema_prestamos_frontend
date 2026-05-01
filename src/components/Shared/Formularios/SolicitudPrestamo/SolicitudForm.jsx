@@ -21,7 +21,7 @@ const SolicitudForm = ({
     // Conecta el Hook
     const { 
         isBlocked, isMainBlocked, hasBlockedIntegrante, 
-        avalConfig, calculadora 
+        avalConfig 
     } = useSolicitudForm(data, handleChange);
 
     return (
@@ -82,7 +82,6 @@ const SolicitudForm = ({
                 data={data} 
                 handleChange={handleChange} 
                 isBlocked={isBlocked} 
-                calc={calculadora} 
             />
 
             <SectionAval 

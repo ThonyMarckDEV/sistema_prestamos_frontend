@@ -3,7 +3,7 @@ import { BanknotesIcon } from '@heroicons/react/24/outline';
 import { onlyNumbers } from 'utilities/Validations/validations';
 import CalculadoraCuota from 'components/Shared/CalculadoraCuota';
 
-const SectionCondiciones = ({ data, handleChange, isBlocked, calc }) => (
+const SectionCondiciones = ({ data, handleChange, isBlocked }) => (
     <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
         <h3 className="text-sm font-black text-slate-700 uppercase mb-4 flex items-center gap-2">
             <BanknotesIcon className="w-5 h-5 text-brand-red" /> Condiciones del Préstamo

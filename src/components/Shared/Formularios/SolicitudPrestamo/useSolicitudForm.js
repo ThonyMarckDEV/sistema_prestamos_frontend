@@ -52,20 +52,10 @@ export const useSolicitudForm = (data, handleChange) => {
         setDistritos(dep && prov && peruData[dep][prov] ? peruData[dep][prov] : []);
     }, [data.aval?.provincia_aval, data.aval?.departamento_aval]);
 
-    // 3. CÁLCULOS FINANCIEROS EN TIEMPO REAL
-    const montoBase = parseFloat(data.monto_solicitado) || 0;
-    const porcentajeInteres = parseFloat(data.tasa_interes) || 0;
-    const nCuotas = parseInt(data.cuotas_solicitadas) || 1;
-    
-    const interesGenerado = montoBase * (porcentajeInteres / 100) * nCuotas;
-    const totalAPagar = montoBase + interesGenerado;
-    const valorCuotaAprox = totalAPagar / nCuotas;
-
     return {
         isBlocked,
         isMainBlocked,
         hasBlockedIntegrante,
-        avalConfig: { tieneAval, handleToggleAval, handleAvalInputChange, provincias, distritos },
-        calculadora: { montoBase, porcentajeInteres, nCuotas, interesGenerado, totalAPagar, valorCuotaAprox }
+        avalConfig: { tieneAval, handleToggleAval, handleAvalInputChange, provincias, distritos }
     };
 };
