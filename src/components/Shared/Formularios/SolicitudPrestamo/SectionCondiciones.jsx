@@ -3,13 +3,17 @@ import { BanknotesIcon } from '@heroicons/react/24/outline';
 import { onlyNumbers } from 'utilities/Validations/validations';
 import CalculadoraCuota from 'components/Shared/CalculadoraCuota';
 
-const SectionCondiciones = ({ data, handleChange, isBlocked }) => (
-    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
-        <h3 className="text-sm font-black text-slate-700 uppercase mb-4 flex items-center gap-2">
-            <BanknotesIcon className="w-5 h-5 text-brand-red" /> Condiciones del Préstamo
-        </h3>
+const SectionCondiciones = ({ data, handleChange, isBlocked }) => {
+    
+    const numIntegrantes = data.es_grupal ? Math.max(1, data.integrantes?.length || 1) : 1;
 
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 relative z-10">
+    return (
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
+            <h3 className="text-sm font-black text-slate-700 uppercase mb-4 flex items-center gap-2">
+                <BanknotesIcon className="w-5 h-5 text-brand-red" /> Condiciones del Préstamo
+            </h3>
+
+             <div className="grid grid-cols-2 md:grid-cols-6 gap-4 relative z-10">
             <div className="col-span-2 md:col-span-1">
                 <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Monto Total (S/)</label>
                 <input
@@ -42,40 +46,43 @@ const SectionCondiciones = ({ data, handleChange, isBlocked }) => (
                     <option value="MENSUAL">MENSUAL</option>
                 </select>
             </div>
+                <div>
+                    <label className="block text-[10px] font-bold text-brand-gold-dark uppercase mb-1">
+                        Seguro x Cliente (S/)
+                    </label>
+                    <input
+                        disabled={isBlocked} type="text" value={data.seguro}
+                        onChange={e => handleChange('seguro', e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'))}
+                        placeholder="0.00"
+                        className="w-full p-2.5 bg-brand-gold-light/20 border border-brand-gold/30 rounded-lg text-sm font-black text-slate-800 outline-none focus:ring-2 focus:ring-brand-gold focus:border-brand-gold disabled:cursor-not-allowed"
+                    />
+                </div>
+                <div className="col-span-2 md:col-span-1">
+                    <label className="block text-[10px] font-bold text-brand-gold-dark uppercase mb-1">Cobro Seguro</label>
+                    <select 
+                        disabled={isBlocked} 
+                        value={String(data.seguro_financiado) === 'true' || String(data.seguro_financiado) === '1' ? 'true' : 'false'} 
+                        onChange={e => handleChange('seguro_financiado', e.target.value === 'true')} 
+                        className="w-full p-2.5 bg-brand-gold-light/20 border border-brand-gold/30 rounded-lg text-sm font-black text-slate-800 outline-none focus:ring-2 focus:ring-brand-gold focus:border-brand-gold disabled:cursor-not-allowed"
+                    >
+                        <option value="false">Efectivo (Previo)</option>
+                        <option value="true">Financiado (Cuotas)</option>
+                    </select>
+                </div>
+            </div>
 
-            <div>
-                <label className="block text-[10px] font-bold text-brand-gold-dark uppercase mb-1">Seguro (S/)</label>
-                <input
-                    disabled={isBlocked} type="text" value={data.seguro}
-                    onChange={e => handleChange('seguro', e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1'))}
-                    placeholder="0.00"
-                    className="w-full p-2.5 bg-brand-gold-light/20 border border-brand-gold/30 rounded-lg text-sm font-black text-slate-800 outline-none focus:ring-2 focus:ring-brand-gold focus:border-brand-gold disabled:cursor-not-allowed"
-                />
-            </div>
-            <div className="col-span-2 md:col-span-1">
-                <label className="block text-[10px] font-bold text-brand-gold-dark uppercase mb-1">Cobro Seguro</label>
-                <select 
-                    disabled={isBlocked} 
-                    value={String(data.seguro_financiado) === 'true' || String(data.seguro_financiado) === '1' ? 'true' : 'false'} 
-                    onChange={e => handleChange('seguro_financiado', e.target.value === 'true')} 
-                    className="w-full p-2.5 bg-brand-gold-light/20 border border-brand-gold/30 rounded-lg text-sm font-black text-slate-800 outline-none focus:ring-2 focus:ring-brand-gold focus:border-brand-gold disabled:cursor-not-allowed"
-                >
-                    <option value="false">Efectivo (Previo)</option>
-                    <option value="true">Financiado (Cuotas)</option>
-                </select>
-            </div>
+            <CalculadoraCuota
+                monto={data.monto_solicitado}
+                tasa={data.tasa_interes}
+                cuotas={data.cuotas_solicitadas}
+                frecuencia={data.frecuencia}
+                seguro={data.seguro}
+                seguro_financiado={data.seguro_financiado}
+                cantidadIntegrantes={numIntegrantes}
+                className="mt-6"
+            />
         </div>
-
-        <CalculadoraCuota
-            monto={data.monto_solicitado}
-            tasa={data.tasa_interes}
-            cuotas={data.cuotas_solicitadas}
-            frecuencia={data.frecuencia}
-            seguro={data.seguro}
-            seguro_financiado={data.seguro_financiado}
-            className="mt-6"
-        />
-    </div>
-);
+    );
+};
 
 export default SectionCondiciones;
