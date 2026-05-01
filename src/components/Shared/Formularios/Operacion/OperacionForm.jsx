@@ -3,6 +3,7 @@ import CronogramaTable from 'components/Shared/Tables/CronogramaTable';
 import {
     BanknotesIcon,
     UserGroupIcon,
+    ChartPieIcon
 } from '@heroicons/react/24/outline';
 
 // ── Fila de integrante ────────────────────────────────────────────────────────
@@ -23,21 +24,40 @@ const IntegranteRow = ({ integrante }) => (
 // ── Resumen financiero ────────────────────────────────────────────────────────
 const ResumenFinanciero = ({ datos }) => {
     if (!datos) return null;
+    
+    const seguro = parseFloat(datos.seguro || 0);
+    const interesPuro = parseFloat(datos.total_prestamo) - parseFloat(datos.monto) - seguro;
+
     const items = [
         { label: 'Capital',   value: `S/ ${parseFloat(datos.monto).toFixed(2)}` },
-        { label: `Interés (${datos.interes_porc}%)`, value: `S/ ${(parseFloat(datos.total_prestamo) - parseFloat(datos.monto) - parseFloat(datos.seguro || 0)).toFixed(2)}` },
-        { label: 'Seguro',    value: `S/ ${parseFloat(datos.seguro || 0).toFixed(2)}` },
+        { label: `Interés (${datos.interes_porc}%)`, value: `S/ ${interesPuro.toFixed(2)}` },
+        { label: 'Seguro',    value: `S/ ${seguro.toFixed(2)}` },
         { label: 'Total Cobrar', value: `S/ ${parseFloat(datos.total_prestamo).toFixed(2)}`, bold: true },
         { label: 'Cuota',        value: `S/ ${parseFloat(datos.valor_cuota).toFixed(2)}`,    bold: true },
     ];
+    
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4">
-            {items.map(({ label, value, bold }) => (
-                <div key={label} className="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-center">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
-                    <p className={`text-sm font-black ${bold ? 'text-brand-red' : 'text-slate-600'}`}>{value}</p>
-                </div>
-            ))}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {items.map(({ label, value, bold }) => {
+                if (label === 'Seguro') {
+                    return (
+                        <div key={label} className="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2 flex flex-col justify-center items-center text-center">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
+                            <p className="text-sm font-black text-slate-600">{value}</p>
+                            <p className={`text-[8px] font-black uppercase mt-0.5 ${datos.seguro_financiado ? 'text-brand-gold-dark' : 'text-green-600'}`}>
+                                {datos.seguro_financiado ? '(En Cuotas)' : '✓ Ya Cobrado'}
+                            </p>
+                        </div>
+                    );
+                }
+
+                return (
+                    <div key={label} className="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-center">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
+                        <p className={`text-sm font-black ${bold ? 'text-brand-red' : 'text-slate-600'}`}>{value}</p>
+                    </div>
+                );
+            })}
         </div>
     );
 };
@@ -61,7 +81,9 @@ const OperacionForm = ({ prestamoDetalle, openPagoModal, onHistorialModal }) => 
             const esPagable = [1, 3, 4, 5].includes(row.estado);
             const bloqueada = !esPagable || hayAnteriorPendiente;
 
-            if (row.estado === 2)
+            const saldoGlobal = parseFloat(row.saldo_pendiente ?? row.saldo_real ?? 0);
+
+            if (row.estado === 2 || saldoGlobal <= 0)
                 return <span className="text-[10px] font-black text-green-600 uppercase italic">✓ Cobrado</span>;
 
             return (
@@ -97,16 +119,30 @@ const OperacionForm = ({ prestamoDetalle, openPagoModal, onHistorialModal }) => 
                             Desglose de Integrantes
                         </h4>
                     </div>
-                    <div className="p-5 space-y-4">
+                    <div className="p-5">
                         <div className="divide-y divide-slate-100">
                             {integrantes.map((int) => (
                                 <IntegranteRow key={int.id} integrante={int} />
                             ))}
                         </div>
-                        <ResumenFinanciero datos={datos_economicos} />
                     </div>
                 </div>
             )}
+
+            {/* ── Resumen Económico (Siempre visible para ambos tipos) ── */}
+            <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+                    <div className="p-2 bg-slate-900 rounded-xl">
+                        <ChartPieIcon className="w-4 h-4 text-white" />
+                    </div>
+                    <h4 className="font-black text-slate-800 uppercase text-xs tracking-[0.15em]">
+                        Resumen Económico
+                    </h4>
+                </div>
+                <div className="p-5">
+                    <ResumenFinanciero datos={datos_economicos} />
+                </div>
+            </div>
 
             {/* ── Cronograma ── */}
             <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm overflow-hidden">
