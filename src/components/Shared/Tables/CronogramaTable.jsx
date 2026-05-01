@@ -16,13 +16,6 @@ export const CeldaFinanciera = ({ total, pagado, pendiente }) => (
 
 /**
  * CronogramaTable — Tabla reutilizable de cronograma de pagos.
- *
- * Props:
- * - cronograma:        array   — filas del cronograma
- * - esVistaIntegrante: bool    — true si es cronograma individual de integrante
- * - onHistorialModal:  fn      — abre modal de historial de mora
- * - extraColumns:      array   — columnas adicionales al final (ej: botón Cobrar)
- *                               formato: [{ header, render }]
  */
 const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistorialModal, extraColumns = [] }) => {
 
@@ -35,7 +28,7 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
             5: 'bg-orange-50 text-orange-700 border-orange-100',
             6: 'bg-blue-50 text-blue-700 border-blue-100',
         };
-        const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'PAGO PARCIAL', 6: 'REFINANCIADO' };
+        const labels = { 1: 'PENDIENTE', 2: 'PAGADO', 3: 'VENCE HOY', 4: 'VENCIDO', 5: 'PARCIAL ', 6: 'REFINANCIADO' };
         return (
             <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border ${styles[estado] || styles[1]}`}>
                 {labels[estado] || 'PENDIENTE'}
@@ -45,7 +38,7 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
 
     return (
         <div className="overflow-hidden border border-slate-200 rounded-2xl shadow-sm overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[900px]">
+            <table className="w-full text-left border-collapse min-w-[1000px]">
                 <thead className="bg-slate-50 text-[9px] font-black text-slate-500 uppercase border-b border-slate-100">
                     <tr>
                         <th className="px-4 py-4 text-center">N°</th>
@@ -53,6 +46,7 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                         <th className="px-4 py-4">Cuota</th>
                         <th className="px-4 py-4">Capital</th>
                         <th className="px-4 py-4">Interés</th>
+                        <th className="px-4 py-4">Seguro</th>
                         <th className="px-4 py-4">Mora</th>
                         <th className="px-4 py-4">Abonos</th>
                         <th className="px-4 py-4">Saldo Real</th>
@@ -68,13 +62,20 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                         const monto      = parseFloat(cuota.total_cuota ?? cuota.monto ?? 0);
                         const capital    = parseFloat(cuota.capital ?? 0);
                         const interes    = parseFloat(cuota.interes ?? 0);
+                        
+                        const seguro     = parseFloat(cuota.seguro ?? 0);
+                        const segPagado  = parseFloat(cuota.seguro_pagado ?? 0);
+                        const segPend    = parseFloat(cuota.seguro_pendiente ?? Math.max(0, seguro - segPagado));
+
                         const capPagado  = parseFloat(cuota.capital_pagado ?? 0);
                         const intPagado  = parseFloat(cuota.interes_pagado ?? 0);
                         const capPend    = parseFloat(cuota.capital_pendiente ?? Math.max(0, capital - capPagado));
                         const intPend    = parseFloat(cuota.interes_pendiente ?? Math.max(0, interes - intPagado));
+                        
                         const moraTotal  = parseFloat(cuota.mora_total ?? cuota.mora ?? 0);
                         const moraPagada = parseFloat(cuota.mora_pagada ?? 0);
                         const moraPend   = Math.max(0, moraTotal - moraPagada);
+                        
                         const abonado    = esVistaIntegrante
                             ? parseFloat(cuota.pago_total_real ?? cuota.pago_acumulado ?? 0)
                             : parseFloat(cuota.pago_realizado  ?? cuota.pago_acumulado ?? 0);
@@ -116,6 +117,11 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                                 {/* Interés */}
                                 <td className="px-4 py-4">
                                     <CeldaFinanciera total={interes} pagado={intPagado} pendiente={intPend} />
+                                </td>
+
+                                {/* 🔥 Seguro */}
+                                <td className="px-4 py-4">
+                                    <CeldaFinanciera total={seguro} pagado={segPagado} pendiente={segPend} />
                                 </td>
 
                                 {/* Mora */}
