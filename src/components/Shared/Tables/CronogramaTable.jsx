@@ -39,7 +39,7 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
     return (
         <div className="overflow-hidden border border-slate-200 rounded-2xl shadow-sm overflow-x-auto">
             {/* 🔥 Aumentamos el min-w para que tenga más espacio horizontal */}
-            <table className="w-full text-left border-collapse min-w-[1100px]">
+            <table className="w-full text-left border-collapse min-w-[860px]">
                 <thead className="bg-slate-50 text-[9px] font-black text-slate-500 uppercase border-b border-slate-100 whitespace-nowrap">
                     <tr>
                         <th className="px-3 py-4 text-center">N°</th>
