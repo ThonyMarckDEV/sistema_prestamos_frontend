@@ -1,17 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchWithAuth } from 'js/authToken';
-import API_BASE_URL from 'js/urlHelper';
-import { handleResponse } from 'utilities/Responses/handleResponse';
+import { getAsesoresDashboard } from 'services/dashboardService';
 
 export const useDashboardAsesores = () => {
-    const [loading, setLoading] = useState(true);
-    const [data,    setData]    = useState(null);
+    const [loading,     setLoading]     = useState(true);
+    const [data,        setData]        = useState(null);
+    const [fechaInicio, setFechaInicio] = useState('');
+    const [fechaFin,    setFechaFin]    = useState('');
 
-    const fetchData = useCallback(async () => {
+    const fetchData = useCallback(async (fi = '', ff = '') => {
         setLoading(true);
         try {
-            const res = await fetchWithAuth(`${API_BASE_URL}/api/dashboard/asesores`, { method: 'GET' });
-            const json = await handleResponse(res);
+            const json = await getAsesoresDashboard({ fecha_inicio: fi, fecha_fin: ff });
             setData(json.data || json);
         } catch (e) {
             console.error('Error dashboard asesores:', e);
@@ -22,5 +21,8 @@ export const useDashboardAsesores = () => {
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
-    return { loading, data, refetch: fetchData };
+    const handleFiltrar = () => fetchData(fechaInicio, fechaFin);
+    const handleLimpiar = () => { setFechaInicio(''); setFechaFin(''); fetchData(); };
+
+    return { loading, data, fechaInicio, setFechaInicio, fechaFin, setFechaFin, handleFiltrar, handleLimpiar };
 };

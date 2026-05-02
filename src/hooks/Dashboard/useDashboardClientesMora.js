@@ -1,21 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchWithAuth } from 'js/authToken';
-import API_BASE_URL from 'js/urlHelper';
-import { handleResponse } from 'utilities/Responses/handleResponse';
+import { getClientesMoraDashboard } from 'services/dashboardService';
 
 export const useDashboardClientesMora = () => {
-    const [loading, setLoading] = useState(true);
-    const [data,    setData]    = useState(null);
-    const [page,    setPage]    = useState(1);
+    const [loading,     setLoading]     = useState(true);
+    const [data,        setData]        = useState(null);
+    const [busqueda,    setBusqueda]    = useState('');
+    const [fechaInicio, setFechaInicio] = useState('');
+    const [fechaFin,    setFechaFin]    = useState('');
 
-    const fetchData = useCallback(async (p = 1) => {
+    const fetchData = useCallback(async (p = 1, b = '', fi = '', ff = '') => {
         setLoading(true);
         try {
-            const res = await fetchWithAuth(
-                `${API_BASE_URL}/api/dashboard/clientes-mora?page=${p}&per_page=10`,
-                { method: 'GET' }
-            );
-            const json = await handleResponse(res);
+            const json = await getClientesMoraDashboard({
+                page: p, per_page: 10,
+                busqueda: b, fecha_inicio: fi, fecha_fin: ff,
+            });
             setData(json.data || json);
         } catch (e) {
             console.error('Error dashboard clientes mora:', e);
@@ -24,9 +23,17 @@ export const useDashboardClientesMora = () => {
         }
     }, []);
 
-    useEffect(() => { fetchData(page); }, [fetchData, page]);
+    useEffect(() => { fetchData(1); }, [fetchData]);
 
-    const handlePageChange = (p) => setPage(p);
+    const handleFiltrar    = () => fetchData(1, busqueda, fechaInicio, fechaFin);
+    const handleLimpiar    = () => { setBusqueda(''); setFechaInicio(''); setFechaFin(''); fetchData(1); };
+    const handlePageChange = (p) => fetchData(p, busqueda, fechaInicio, fechaFin);
 
-    return { loading, data, page, handlePageChange };
+    return {
+        loading, data,
+        busqueda, setBusqueda,
+        fechaInicio, setFechaInicio,
+        fechaFin, setFechaFin,
+        handleFiltrar, handleLimpiar, handlePageChange,
+    };
 };
