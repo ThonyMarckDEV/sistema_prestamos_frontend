@@ -1,7 +1,10 @@
 import React from 'react';
 import { useAuth } from 'context/AuthContext';
-import PagoCard     from './Pagocard';
-import PrestamoCard from './Prestamocard';
+import PagoCard          from './Pagocard';
+import PrestamoCard      from './Prestamocard';
+import AsesorCard        from './Asesorcard';
+import MoraCard          from './Moracard';
+import ClientesMoraCard  from './ClientesMoracard';
 
 const Dashboard = () => {
     const { can } = useAuth();
@@ -16,8 +19,11 @@ const Dashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 gap-6">
-                {can('dashboard.pagos')     && <PagoCard />}
-                {can('dashboard.prestamos') && <PrestamoCard />}
+                {can('dashboard.pagos')          && <PagoCard />}
+                {can('dashboard.prestamos')      && <PrestamoCard />}
+                {can('dashboard.asesores')       && <AsesorCard />}
+                {can('dashboard.mora')           && <MoraCard />}
+                {can('dashboard.clientesMora')  && <ClientesMoraCard />}
             </div>
         </div>
     );
