@@ -138,12 +138,16 @@ const FilaCliente = ({ f }) => {
 
 // ── Card principal ────────────────────────────────────────────────────────────
 const ClientesMoraCard = () => {
+    const [collapsed, setCollapsed] = useState(false);
     const { loading, data, handlePageChange } = useDashboardClientesMora();
     const filas = data?.data ?? [];
 
     return (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <div
+                className="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none hover:bg-slate-50/60 transition-colors"
+                onClick={() => setCollapsed(v => !v)}
+            >
                 <div className="flex items-center gap-2.5">
                     <div className="p-2 bg-brand-red-light rounded-xl">
                         <ExclamationTriangleIcon className="w-5 h-5 text-brand-red" />
@@ -156,8 +160,14 @@ const ClientesMoraCard = () => {
                         </p>
                     </div>
                 </div>
+                <div className={`w-6 h-6 flex items-center justify-center text-slate-400 flex-shrink-0 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
+                </div>
             </div>
 
+            {!collapsed && (
             <div className="p-6">
                 {loading ? (
                     <div className="flex items-center justify-center h-40">
@@ -199,6 +209,7 @@ const ClientesMoraCard = () => {
                     </div>
                 )}
             </div>
+            )}
         </div>
     );
 };
