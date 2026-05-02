@@ -26,7 +26,7 @@ const TablaAsesor = ({ filas = [], totales = {}, esMonto }) => (
                                     <div className="w-7 h-7 rounded-lg bg-brand-red-light flex items-center justify-center flex-shrink-0">
                                         <span className="text-[9px] font-black text-brand-red">{f.abrev}</span>
                                     </div>
-                                    <span className="text-xs font-black text-slate-700 uppercase truncate max-w-[130px]">{f.nombre}</span>
+                                    <span className="text-xs font-black text-slate-700 uppercase">{f.nombre}</span>
                                 </div>
                             </td>
                             <td className="px-4 py-3 text-right">

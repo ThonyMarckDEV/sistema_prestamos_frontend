@@ -95,6 +95,9 @@ const FilaCliente = ({ f }) => {
                     {f.cuotas_mora.length > 1 && (
                         <p className="text-[9px] text-slate-400 font-bold">{f.cuotas_mora.length} cuotas</p>
                     )}
+                    {f.cuotas_mora.length === 1 && (
+                        <p className="text-[9px] text-slate-400 font-bold">Cuota #{f.cuotas_mora[0].numero}</p>
+                    )}
                 </td>
 
                 {/* Mora total */}
@@ -116,7 +119,7 @@ const FilaCliente = ({ f }) => {
                     </span>
                 </td>
 
-                {/* Fecha primer vencimiento */}
+                {/* Fecha */}
                 <td className="px-4 py-3">
                     <span className="text-xs font-bold text-slate-600">{f.cuotas_mora[0]?.fecha_venc}</span>
                     {f.cuotas_mora.length > 1 && (
