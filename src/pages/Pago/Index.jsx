@@ -80,7 +80,10 @@ const Index = () => {
             header: 'Titular y Detalle',
             render: (row) => (
                 <div className="flex flex-col uppercase">
-                    <span className="font-black text-[11px] text-slate-800 leading-tight">{row.prestamo}</span>
+                    <span className="font-black text-[11px] text-slate-800 leading-tight">
+                        <span className="text-slate-400 mr-1.5">{row.numero_prestamo}</span>
+                        {row.prestamo}
+                    </span>
                     <span className="text-[9px] text-slate-500 font-bold mt-0.5">
                         Depositó: <span className="text-slate-700">{row.depositado_por}</span>
                     </span>
