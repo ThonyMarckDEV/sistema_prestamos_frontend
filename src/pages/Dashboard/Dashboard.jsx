@@ -5,6 +5,8 @@ import PrestamoCard      from './Prestamocard';
 import AsesorCard        from './Asesorcard';
 import MoraCard          from './Moracard';
 import ClientesMoraCard  from './ClientesMoracard';
+import GruposAsesorCard  from './GruposAsesorCard';
+import SaldoCapitalCard  from './SaldoCapitalCard';
 
 const Dashboard = () => {
     const { can } = useAuth();
@@ -23,7 +25,9 @@ const Dashboard = () => {
                 {can('dashboard.prestamos')      && <PrestamoCard />}
                 {can('dashboard.asesores')       && <AsesorCard />}
                 {can('dashboard.mora')           && <MoraCard />}
-                {can('dashboard.clientesMora')  && <ClientesMoraCard />}
+                {can('dashboard.clientesMora')   && <ClientesMoraCard />}
+                {can('dashboard.gruposAsesor')   && <GruposAsesorCard />}
+                {can('dashboard.saldoCapital')   && <SaldoCapitalCard />}
             </div>
         </div>
     );

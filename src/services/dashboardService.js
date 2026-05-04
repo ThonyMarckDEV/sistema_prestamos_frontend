@@ -59,3 +59,22 @@ export const getClientesMoraDashboard = async (filters = {}) => {
     return handleResponse(response);
 };
  
+
+export const getSaldoCapitalDashboard = async (filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.fecha_inicio) params.append('fecha_inicio', filters.fecha_inicio);
+    if (filters.fecha_fin)    params.append('fecha_fin',    filters.fecha_fin);
+    const qs = params.toString();
+    const response = await fetchWithAuth(`${BASE_URL}/saldo-capital${qs ? '?' + qs : ''}`, { method: 'GET' });
+    return handleResponse(response);
+};
+ 
+export const getGruposAsesorDashboard = async (filters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.fecha_inicio) params.append('fecha_inicio', filters.fecha_inicio);
+    if (filters.fecha_fin)    params.append('fecha_fin',    filters.fecha_fin);
+    const qs = params.toString();
+    const response = await fetchWithAuth(`${BASE_URL}/grupos-asesor${qs ? '?' + qs : ''}`, { method: 'GET' });
+    return handleResponse(response);
+};
+ 
