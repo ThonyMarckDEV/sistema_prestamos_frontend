@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDashboardPrestamos } from 'hooks/Dashboard/useDashboardPrestamos';
 import DashboardCard from 'components/Shared/Cards/DashboardCard';
+import { exportPrestamosDashboard } from 'services/dashboardService';
 import { UserGroupIcon, UserIcon, ClockIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 const TABS = [
@@ -14,7 +15,6 @@ const TABS = [
 
 const fmt = n => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
 
-// ── Render fila: Vigentes ─────────────────────────────────────────────────────
 const filaActivo = p => (
     <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4">
         <div className="flex items-start justify-between gap-3">
@@ -50,7 +50,6 @@ const filaActivo = p => (
     </div>
 );
 
-// ── Render fila: Anteriores ───────────────────────────────────────────────────
 const filaAnterior = p => (
     <div className="flex items-center justify-between gap-3 bg-slate-50 rounded-xl border border-slate-100 px-4 py-3">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -73,7 +72,6 @@ const filaAnterior = p => (
     </div>
 );
 
-// ── Render fila: Próximas ─────────────────────────────────────────────────────
 const filaProxima = c => (
     <div className="flex items-center justify-between gap-3 bg-amber-50/50 border border-amber-100 rounded-xl px-4 py-3">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -97,7 +95,6 @@ const filaProxima = c => (
     </div>
 );
 
-// ── Render fila: Vencidas ─────────────────────────────────────────────────────
 const filaVencida = c => (
     <div className="flex items-center justify-between gap-3 bg-brand-red-light/20 border border-brand-red/20 rounded-xl px-4 py-3">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -121,7 +118,6 @@ const filaVencida = c => (
     </div>
 );
 
-// ── PrestamoCard ──────────────────────────────────────────────────────────────
 const PrestamoCard = () => {
     const {
         loading, data,
@@ -148,15 +144,18 @@ const PrestamoCard = () => {
             onFiltrar={handleFiltrar}
             onLimpiar={handleLimpiar}
             tablas={{
-                activos:    { data: data?.activos,    renderFila: filaActivo,   onPageChange: setActivosPage,    emptyText: 'Sin préstamos vigentes'        },
-                anteriores: { data: data?.anteriores, renderFila: filaAnterior, onPageChange: setAnterioresPage, emptyText: 'Sin préstamos anteriores'      },
-                proximas:   { data: data?.proximas,   renderFila: filaProxima,  onPageChange: setProximasPage,   emptyText: 'Sin cuotas próximas a vencer'  },
-                vencidas:   { data: data?.vencidas,   renderFila: filaVencida,  onPageChange: setVencidasPage,   emptyText: 'Sin cuotas vencidas'           },
+                activos:    { data: data?.activos,    renderFila: filaActivo,   onPageChange: setActivosPage,    emptyText: 'Sin préstamos vigentes'       },
+                anteriores: { data: data?.anteriores, renderFila: filaAnterior, onPageChange: setAnterioresPage, emptyText: 'Sin préstamos anteriores'     },
+                proximas:   { data: data?.proximas,   renderFila: filaProxima,  onPageChange: setProximasPage,   emptyText: 'Sin cuotas próximas a vencer' },
+                vencidas:   { data: data?.vencidas,   renderFila: filaVencida,  onPageChange: setVencidasPage,   emptyText: 'Sin cuotas vencidas'          },
             }}
             graficas={[
                 { tab: 'mensual', tipo: 'barra', data: mensual, xKey: 'mes', dataKey: 'cantidad', label: 'Préstamos por mes',        color: '#8B1A1A', isMoney: false, height: 200 },
                 { tab: 'mensual', tipo: 'barra', data: mensual, xKey: 'mes', dataKey: 'total',    label: 'Monto desembolsado (S/)', color: '#F5A623', isMoney: true,  height: 180 },
             ]}
+            exportService={exportPrestamosDashboard}
+            exportFilename="reporte_prestamos"
+            exportLabel="Excel"
         />
     );
 };

@@ -4,7 +4,6 @@ import { handleResponse } from 'utilities/Responses/handleResponse';
 
 const BASE_URL = `${API_BASE_URL}/api/dashboard`;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 const buildQs = (filters = {}) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([k, v]) => { if (v) params.append(k, v); });
@@ -18,10 +17,6 @@ export const getPagosDashboard = async (filters = {}) => {
     return handleResponse(response);
 };
 
-/**
- * Exporta el reporte de pagos como blob Excel (.xlsx).
- * El ExcelExportButton lo llama con los filtros activos y dispara la descarga.
- */
 export const exportPagosDashboard = async (filters = {}) => {
     const response = await fetchWithAuth(`${BASE_URL}/pagos/export${buildQs(filters)}`, { method: 'GET' });
     if (!response.ok) throw new Error('Error al exportar pagos');
@@ -34,10 +29,22 @@ export const getPrestamosDashboard = async (filters = {}) => {
     return handleResponse(response);
 };
 
+export const exportPrestamosDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/prestamos/export${buildQs(filters)}`, { method: 'GET' });
+    if (!response.ok) throw new Error('Error al exportar préstamos');
+    return response.blob();
+};
+
 // ── Asesores ──────────────────────────────────────────────────────────────────
 export const getAsesoresDashboard = async (filters = {}) => {
     const response = await fetchWithAuth(`${BASE_URL}/asesores${buildQs(filters)}`, { method: 'GET' });
     return handleResponse(response);
+};
+
+export const exportAsesoresDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/asesores/export${buildQs(filters)}`, { method: 'GET' });
+    if (!response.ok) throw new Error('Error al exportar asesores');
+    return response.blob();
 };
 
 // ── Mora ──────────────────────────────────────────────────────────────────────
