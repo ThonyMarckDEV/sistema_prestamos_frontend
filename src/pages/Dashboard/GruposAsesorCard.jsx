@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useDashboardGruposAsesor } from 'hooks/Dashboard/useDashboardGruposAsesor';
+import { exportGruposAsesorDashboard } from 'services/dashboardService';
+import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
 import { UserGroupIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const fmtN = n => parseInt(n || 0).toLocaleString('es-PE');
@@ -15,27 +17,50 @@ const Chevron = ({ collapsed }) => (
 const GruposAsesorCard = () => {
     const { loading, data, fechaInicio, setFechaInicio, fechaFin, setFechaFin, handleFiltrar, handleLimpiar } = useDashboardGruposAsesor();
     const [collapsed, setCollapsed] = useState(false);
-    const filas    = data?.filas   ?? [];
-    const totales  = data?.totales ?? {};
+    const filas      = data?.filas   ?? [];
+    const totales    = data?.totales ?? {};
     const tieneRango = fechaInicio || fechaFin;
+
+    const exportFilters = {
+        ...(fechaInicio ? { fecha_inicio: fechaInicio } : {}),
+        ...(fechaFin    ? { fecha_fin:    fechaFin    } : {}),
+    };
 
     return (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none hover:bg-slate-50/60 transition-colors"
-                onClick={() => setCollapsed(v => !v)}>
-                <div className="flex items-center gap-2.5">
-                    <div className="p-2 bg-brand-red-light rounded-xl"><UserGroupIcon className="w-5 h-5 text-brand-red" /></div>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 hover:bg-slate-50/60 transition-colors">
+                <div
+                    className="flex items-center gap-2.5 flex-1 cursor-pointer select-none"
+                    onClick={() => setCollapsed(v => !v)}
+                >
+                    <div className="p-2 bg-brand-red-light rounded-xl">
+                        <UserGroupIcon className="w-5 h-5 text-brand-red" />
+                    </div>
                     <div>
                         <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight">Grupos por Asesor</h2>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Seguimiento por asesor — grupos inicial vs actual</p>
                     </div>
                 </div>
-                <Chevron collapsed={collapsed} />
+                <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                    {!collapsed && (
+                        <ExcelExportButton
+                            exportService={exportGruposAsesorDashboard}
+                            filters={exportFilters}
+                            filename="reporte_grupos_asesor"
+                            label="Excel"
+                            disabled={loading}
+                        />
+                    )}
+                    <div className="cursor-pointer" onClick={() => setCollapsed(v => !v)}>
+                        <Chevron collapsed={collapsed} />
+                    </div>
+                </div>
             </div>
 
             {!collapsed && (
                 <>
-                    <div className="px-6 py-3 border-b border-slate-50 bg-slate-50/50 flex flex-wrap items-end gap-3" onClick={e => e.stopPropagation()}>
+                    <div className="px-6 py-3 border-b border-slate-50 bg-slate-50/50 flex flex-wrap items-end gap-3">
                         <div>
                             <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fecha Inicial</label>
                             <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)}
