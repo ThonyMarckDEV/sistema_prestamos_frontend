@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDashboardPagos } from 'hooks/Dashboard/useDashboardPagos';
 import DashboardCard from 'components/Shared/Cards/DashboardCard';
+import { exportPagosDashboard } from 'services/dashboardService';
 
 const TABS = [
     { id: 'cards',   label: 'Resumen' },
@@ -21,12 +22,10 @@ const PagoCard = () => {
     const mensual = data?.graficas?.mensual ?? [];
 
     const graficas = [
-        // Tab diaria
-        { tab: 'diaria',  tipo: 'area',   data: diaria,  xKey: 'fecha', dataKey: 'total',    label: 'Monto recaudado (S/)',  color: '#8B1A1A', height: 200 },
-        { tab: 'diaria',  tipo: 'barra',  data: diaria,  xKey: 'fecha', dataKey: 'cantidad', label: 'Cantidad de pagos',     color: '#F5A623', isMoney: false, height: 150 },
-        // Tab mensual
-        { tab: 'mensual', tipo: 'barra',  data: mensual, xKey: 'mes',   dataKey: 'total',    label: 'Monto recaudado (S/)',  color: '#8B1A1A', height: 200 },
-        { tab: 'mensual', tipo: 'barra',  data: mensual, xKey: 'mes',   dataKey: 'cantidad', label: 'Cantidad de pagos',     color: '#F5A623', isMoney: false, height: 150 },
+        { tab: 'diaria',  tipo: 'area',  data: diaria,  xKey: 'fecha', dataKey: 'total',    label: 'Monto recaudado (S/)',  color: '#8B1A1A', height: 200 },
+        { tab: 'diaria',  tipo: 'barra', data: diaria,  xKey: 'fecha', dataKey: 'cantidad', label: 'Cantidad de pagos',     color: '#F5A623', isMoney: false, height: 150 },
+        { tab: 'mensual', tipo: 'barra', data: mensual, xKey: 'mes',   dataKey: 'total',    label: 'Monto recaudado (S/)',  color: '#8B1A1A', height: 200 },
+        { tab: 'mensual', tipo: 'barra', data: mensual, xKey: 'mes',   dataKey: 'cantidad', label: 'Cantidad de pagos',     color: '#F5A623', isMoney: false, height: 150 },
     ];
 
     return (
@@ -43,6 +42,9 @@ const PagoCard = () => {
             fechaFin={fechaFin}       setFechaFin={setFechaFin}
             onFiltrar={handleFiltrar}
             onLimpiar={handleLimpiar}
+            exportService={exportPagosDashboard}
+            exportFilename="reporte_pagos"
+            exportLabel="Excel"
         />
     );
 };

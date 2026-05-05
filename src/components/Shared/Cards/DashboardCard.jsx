@@ -11,6 +11,7 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import Pagination from 'components/Shared/Pagination';
+import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
 
 // ── Íconos ────────────────────────────────────────────────────────────────────
 const ICONS = {
@@ -126,13 +127,12 @@ const GraficaBarra = ({ data, xKey, dataKey = 'total', label, color = '#8B1A1A',
 
 // ── DashboardCard ─────────────────────────────────────────────────────────────
 /**
- * Props nuevas:
- * - tablas: { [tabId]: { data: paginationObj, renderFila: (row) => JSX, onPageChange: fn, emptyText: str } }
- *   Ejemplo:
- *   tablas={{
- *     activos: { data: activosPag, onPageChange: setActivosPage, emptyText: 'Sin vigentes',
- *       renderFila: (p) => <div>{p.nombre}</div> }
- *   }}
+ * Props:
+ * - exportService: fn(filters) => Promise<Blob>
+ *   Si se pasa, aparece el botón "Excel" en el header.
+ *   Los filtros activos (fechaInicio / fechaFin) se pasan automáticamente.
+ * - exportFilename: nombre del archivo xlsx sin extensión
+ * - exportLabel:    texto del botón (default 'Excel')
  */
 const DashboardCard = ({
     title,
@@ -147,8 +147,12 @@ const DashboardCard = ({
     fechaInicio = '', setFechaInicio,
     fechaFin    = '', setFechaFin,
     onFiltrar, onLimpiar,
-    tablas = {},       // NUEVO: { tabId: { data, renderFila, onPageChange, emptyText } }
-    extraContent = {}, // Mantener compatibilidad con JSX directo
+    tablas = {},
+    extraContent = {},
+    // ── Export Excel ──────────────────────────────────────────────────────────
+    exportService  = null,   // fn(filters) => Promise<Blob>
+    exportFilename = 'reporte',
+    exportLabel    = 'Excel',
 }) => {
     const Icon = ICONS[icon] || BanknotesIcon;
     const [tab,       setTab]       = useState(tabActivo);
@@ -159,13 +163,22 @@ const DashboardCard = ({
     const graficasDelTab = graficas.filter(g => !g.tab || g.tab === tab);
     const tablaActual    = tablas[tab];
 
+    // Filtros activos para pasar al exportService
+    const exportFilters = {
+        ...(fechaInicio ? { fecha_inicio: fechaInicio } : {}),
+        ...(fechaFin    ? { fecha_fin:    fechaFin    } : {}),
+    };
+
     return (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 cursor-pointer select-none hover:bg-slate-50/60 transition-colors"
-                onClick={() => setCollapsed(v => !v)}>
-                <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 hover:bg-slate-50/60 transition-colors">
+                {/* Título — clickeable para colapsar */}
+                <div
+                    className="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer select-none"
+                    onClick={() => setCollapsed(v => !v)}
+                >
                     <div className="p-2 bg-brand-red-light rounded-xl flex-shrink-0">
                         <Icon className="w-5 h-5 text-brand-red" />
                     </div>
@@ -174,16 +187,32 @@ const DashboardCard = ({
                         {subtitle && <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate">{subtitle}</p>}
                     </div>
                 </div>
-                <div className={`w-6 h-6 flex items-center justify-center text-slate-400 flex-shrink-0 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                    </svg>
+
+                {/* Acciones header: botón Excel + chevron */}
+                <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                    {exportService && !collapsed && (
+                        <ExcelExportButton
+                            exportService={exportService}
+                            filters={exportFilters}
+                            filename={exportFilename}
+                            label={exportLabel}
+                            disabled={loading}
+                        />
+                    )}
+                    <div
+                        className={`w-6 h-6 flex items-center justify-center text-slate-400 cursor-pointer transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}
+                        onClick={() => setCollapsed(v => !v)}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
                 </div>
             </div>
 
             {/* Tabs */}
             {!collapsed && tabsFinales.length > 1 && (
-                <div className="px-4 py-2 border-b border-slate-100 overflow-x-auto scrollbar-none" onClick={e => e.stopPropagation()}>
+                <div className="px-4 py-2 border-b border-slate-100 overflow-x-auto scrollbar-none">
                     <div className="flex gap-0.5 bg-slate-100 p-0.5 rounded-lg w-fit">
                         {tabsFinales.map(t => (
                             <button key={t.id} onClick={() => setTab(t.id)}
@@ -244,7 +273,7 @@ const DashboardCard = ({
                                 </div>
                             )}
 
-                            {/* Tabla paginada via prop tablas */}
+                            {/* Tabla paginada */}
                             {tablaActual && (
                                 <TablaLista
                                     paginationData={tablaActual.data}
@@ -254,7 +283,7 @@ const DashboardCard = ({
                                 />
                             )}
 
-                            {/* JSX libre via extraContent (compatibilidad) */}
+                            {/* JSX libre */}
                             {!tablaActual && extraContent[tab] && (
                                 <div>{extraContent[tab]}</div>
                             )}
