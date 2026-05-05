@@ -53,6 +53,12 @@ export const getMoraDashboard = async (filters = {}) => {
     return handleResponse(response);
 };
 
+export const exportMoraDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/mora/export${buildQs(filters)}`, { method: 'GET' });
+    if (!response.ok) throw new Error('Error al exportar mora');
+    return response.blob();
+};
+
 // ── Clientes mora ─────────────────────────────────────────────────────────────
 export const getClientesMoraDashboard = async (filters = {}) => {
     const response = await fetchWithAuth(`${BASE_URL}/clientes-mora${buildQs(filters)}`, { method: 'GET' });
