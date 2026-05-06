@@ -25,6 +25,7 @@ export const useDashboardCuotaDia = () => {
     }, [hoy]);
 
     // Carga inicial con hoy
+    // eslint-disable-next-line
     useEffect(() => { fetchData(fecha, asesorId); }, [fetchData]);
 
     const handleFiltrar = () => fetchData(fecha, asesorId);

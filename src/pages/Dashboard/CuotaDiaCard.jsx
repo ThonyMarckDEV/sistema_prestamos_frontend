@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDashboardCuotaDia } from 'hooks/Dashboard/useDashboardCuotaDia';
 import { exportCuotaDiaDashboard } from 'services/dashboardService';
 import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
-import { CalendarDaysIcon, MagnifyingGlassIcon, XMarkIcon, UserGroupIcon, UserIcon } from '@heroicons/react/24/outline';
+import { CalendarDaysIcon, MagnifyingGlassIcon, XMarkIcon} from '@heroicons/react/24/outline';
 
 const fmt = n => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
 
