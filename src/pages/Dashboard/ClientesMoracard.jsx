@@ -220,9 +220,8 @@ const ClientesMoraCard = () => {
                             </div>
                         ) : (
                             <div className="flex flex-col gap-3">
-                                {/* 🔥 TABLA SIN SCROLL: Removido el min-w y ajustado el layout */}
-                                <div className="w-full">
-                                    <table className="w-full text-left border-collapse table-auto">
+                                <div className="w-full overflow-x-auto">
+                                    <table className="min-w-[900px] text-left border-collapse table-auto">
                                         <thead className="bg-slate-50 text-[9px] font-black text-slate-500 uppercase border-b border-slate-100">
                                             <tr>
                                                 <th className="px-2 py-3 w-1/5">Cliente</th>
