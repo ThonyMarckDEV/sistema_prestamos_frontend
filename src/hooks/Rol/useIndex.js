@@ -10,15 +10,12 @@ export const useIndex = () => {
     const filtersRef = useRef(filters);
     const [alert, setAlert] = useState(null);
 
-    // Estados para la Edición (sin modal)
     const [isEditing, setIsEditing] = useState(false);
     const [editLoading, setEditLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState(null);
     const [allPermisos, setAllPermisos] = useState([]);
-    const [checkedPermisos, setCheckedPermisos] = useState([]); 
+    const [checkedPermisos, setCheckedPermisos] = useState([]);
     const [isSaving, setIsSaving] = useState(false);
-    
-    // 🔥 NUEVO: Estado para el filtro local de módulos
     const [moduleFilter, setModuleFilter] = useState('');
 
     const fetchRoles = useCallback(async (page = 1) => {
@@ -29,7 +26,7 @@ export const useIndex = () => {
             setPaginationInfo({
                 currentPage: response.current_page,
                 totalPages: response.last_page,
-                total: response.total
+                total: response.total,
             });
         } catch (err) {
             setAlert(handleApiError(err, 'Error al cargar roles'));
@@ -43,13 +40,12 @@ export const useIndex = () => {
     const handleManage = async (id) => {
         setIsEditing(true);
         setEditLoading(true);
-        setModuleFilter(''); // Limpiamos el buscador al entrar
+        setModuleFilter('');
         try {
             const res = await show(id);
             setSelectedRole(res.data.rol);
             setAllPermisos(res.data.todos_los_permisos);
-            const currentIds = res.data.rol.permisos.map(p => p.id);
-            setCheckedPermisos(currentIds);
+            setCheckedPermisos(res.data.rol.permisos.map(p => p.id));
         } catch (err) {
             setAlert(handleApiError(err, 'Error al obtener permisos'));
             setIsEditing(false);
@@ -58,17 +54,45 @@ export const useIndex = () => {
         }
     };
 
+    // Toggle individual — una sola operación de estado
     const togglePermission = (permisoId) => {
-        setCheckedPermisos(prev => 
-            prev.includes(permisoId) ? prev.filter(id => id !== permisoId) : [...prev, permisoId]
+        setCheckedPermisos(prev =>
+            prev.includes(permisoId)
+                ? prev.filter(id => id !== permisoId)
+                : [...prev, permisoId]
         );
+    };
+
+    // Toggle TODOS — una sola operación de estado
+    const toggleTodos = () => {
+        const todosIds = allPermisos.map(p => p.id);
+        setCheckedPermisos(prev => {
+            const todosActivos = todosIds.every(id => prev.includes(id));
+            return todosActivos ? [] : [...todosIds];
+        });
+    };
+
+    // Toggle módulo completo — una sola operación de estado
+    const toggleModulo = (permisos) => {
+        const ids = permisos.map(p => p.id);
+        setCheckedPermisos(prev => {
+            const todosActivos = ids.every(id => prev.includes(id));
+            if (todosActivos) {
+                // Quitar solo los de este módulo
+                return prev.filter(id => !ids.includes(id));
+            } else {
+                // Agregar los que faltan de este módulo
+                const faltantes = ids.filter(id => !prev.includes(id));
+                return [...prev, ...faltantes];
+            }
+        });
     };
 
     const handleCancel = () => {
         setIsEditing(false);
         setSelectedRole(null);
         setCheckedPermisos([]);
-        setModuleFilter(''); // Limpiamos al salir
+        setModuleFilter('');
     };
 
     const handleSave = async () => {
@@ -78,7 +102,7 @@ export const useIndex = () => {
             setAlert({ type: 'success', message: 'Permisos actualizados correctamente.' });
             setIsEditing(false);
             setSelectedRole(null);
-            setModuleFilter(''); // Limpiamos al salir
+            setModuleFilter('');
             fetchRoles(paginationInfo.currentPage);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al guardar permisos'));
@@ -89,8 +113,9 @@ export const useIndex = () => {
 
     return {
         loading, roles, paginationInfo, filters, setFilters, alert, setAlert, fetchRoles,
-        isEditing, editLoading, selectedRole, allPermisos, checkedPermisos, 
-        togglePermission, handleManage, handleSave, handleCancel, isSaving,
-        moduleFilter, setModuleFilter // Exportamos el nuevo filtro
+        isEditing, editLoading, selectedRole, allPermisos, checkedPermisos,
+        togglePermission, toggleTodos, toggleModulo,
+        handleManage, handleSave, handleCancel, isSaving,
+        moduleFilter, setModuleFilter,
     };
 };
