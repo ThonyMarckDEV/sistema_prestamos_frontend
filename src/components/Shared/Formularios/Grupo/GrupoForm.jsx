@@ -12,21 +12,6 @@ const GrupoForm = ({ data, handleChange }) => {
             
             <div className="space-y-6">
                 <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Código de Recaudo *</label>
-                    <div className="relative">
-                        <HashtagIcon className="w-5 h-5 absolute left-3 top-3.5 text-slate-400"/>
-                        <input 
-                            type="text" 
-                            value={data.codigo_recaudo || ''} 
-                            onChange={(e) => handleChange('codigo_recaudo', toUpper(e.target.value))} 
-                            className="w-full pl-10 p-3.5 text-sm font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none transition-all" 
-                            placeholder="EJ: 0000000060" 
-                            required 
-                        />
-                    </div>
-                </div>
-
-                <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Nombre del Grupo Solidario *</label>
                     <div className="relative">
                         <TagIcon className="w-5 h-5 absolute left-3 top-3.5 text-slate-400"/>

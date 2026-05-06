@@ -9,7 +9,6 @@ export const useStore = () => {
     const [alert, setAlert] = useState(null);
 
     const [formData, setFormData] = useState({
-        codigo_recaudo: '',
         nombre: '',
         zona_id: null
     });
