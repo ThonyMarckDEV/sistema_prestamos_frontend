@@ -59,6 +59,14 @@ const Index = () => {
                     </span>
                 )
             },
+            { 
+                header: 'Cod. Recaudo', 
+                render: (row) => (
+                    <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
+                        {row.codigo_recaudo}
+                    </span>
+                )
+            },
             { header: 'Cliente / Producto', render: (row) => (
                 <div className="flex flex-col uppercase">
                     <div className="flex items-center gap-1.5">
