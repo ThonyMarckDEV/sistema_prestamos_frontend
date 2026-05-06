@@ -90,6 +90,7 @@ const CalculadoraCuota = ({
             </div>
 
             <button
+                type="button"
                 onClick={() => setShowFormulas(v => !v)}
                 className="w-full py-2 bg-black/20 text-xs font-bold"
             >
