@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserGroupIcon, TagIcon, HashtagIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, TagIcon } from '@heroicons/react/24/outline';
 import { toUpper } from 'utilities/Validations/validations';
 import ZonaSearchSelect from 'components/Shared/Comboboxes/ZonaSearchSelect';
 

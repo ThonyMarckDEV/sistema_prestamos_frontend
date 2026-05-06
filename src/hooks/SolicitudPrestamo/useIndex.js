@@ -48,11 +48,10 @@ export const useIndex = () => {
         setIsApproveOpen(true);
     };
 
-    // 🔥 Actualizado el valor por defecto a CUENTA CORRIENTE por si acaso
-    const handleUpdateStatus = async (id, nuevoEstado, abonadoPor = 'CUENTA CORRIENTE') => {
+    const handleUpdateStatus = async (id, nuevoEstado, abonadoPor = 'CUENTA CORRIENTE', codigoRecaudo = null) => {
         setLoading(true);
         try {
-            await changeStatus(id, nuevoEstado, abonadoPor);
+            await changeStatus(id, nuevoEstado, abonadoPor, codigoRecaudo);
             setAlert({ type: 'success', message: 'Solicitud procesada correctamente.' });
             setIsApproveOpen(false);
             fetchSolicitudes(paginationInfo.currentPage);

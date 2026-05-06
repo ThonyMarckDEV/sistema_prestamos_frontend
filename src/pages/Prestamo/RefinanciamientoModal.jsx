@@ -16,6 +16,7 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
         tasa_interes:       '',
         cuotas_solicitadas: '',
         frecuencia:         'SEMANAL',
+        codigo_recaudo:     '',
         incluir_mora:       true,
         observaciones:      '',
     });
@@ -28,6 +29,7 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                 tasa_interes:       '',
                 cuotas_solicitadas: '',
                 frecuencia:         'SEMANAL',
+                codigo_recaudo:     '',
                 incluir_mora:       true,
                 observaciones:      '',
             });
@@ -127,6 +129,15 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                         </div>
                     </div>
 
+                    {/* INPUT PARA EL CÓDIGO DE RECAUDO */}
+                    <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Código de Recaudo *</label>
+                        <input type="text" name="codigo_recaudo" required
+                            value={formData.codigo_recaudo} onChange={handleChange}
+                            placeholder="Ingrese el código único"
+                            className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold uppercase focus:ring-2 focus:ring-brand-red outline-none" />
+                    </div>
+
                     <div>
                         <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Observaciones</label>
                         <textarea name="observaciones" value={formData.observaciones} onChange={handleChange} rows="2"
@@ -146,7 +157,7 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                             className="px-4 py-2 text-xs font-black text-slate-500 hover:bg-slate-100 rounded-xl uppercase disabled:opacity-50">
                             Cancelar
                         </button>
-                        <button type="submit" disabled={loading || !formData.producto_id || !formData.cuotas_solicitadas || !formData.tasa_interes}
+                        <button type="submit" disabled={loading || !formData.producto_id || !formData.cuotas_solicitadas || !formData.tasa_interes || !formData.codigo_recaudo.trim()}
                             className="flex items-center gap-2 px-6 py-2 bg-brand-gold hover:bg-brand-gold-dark text-white text-xs font-black uppercase rounded-xl transition-all shadow-md disabled:opacity-50">
                             {loading ? 'Procesando...' : <><ArrowPathRoundedSquareIcon className="w-4 h-4" /> Aplicar Refinanciamiento</>}
                         </button>

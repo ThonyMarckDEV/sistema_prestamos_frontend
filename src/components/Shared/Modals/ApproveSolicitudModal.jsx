@@ -1,8 +1,15 @@
-import React from 'react';
-import { BuildingLibraryIcon, CheckBadgeIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import React, { useState } from 'react';
+import { BuildingLibraryIcon, CheckBadgeIcon, XMarkIcon, IdentificationIcon } from '@heroicons/react/24/outline';
 
 const ApproveSolicitudModal = ({ isOpen, onClose, onConfirm, solicitud, loading }) => {
+    const [codigoRecaudo, setCodigoRecaudo] = useState('');
+
     if (!isOpen) return null;
+
+    const handleConfirm = () => {
+        // Le mandamos el código al onConfirm
+        onConfirm(solicitud.id, 2, 'CUENTA CORRIENTE', codigoRecaudo.trim());
+    };
 
     return (
         <div className="fixed inset-0 z-[999] overflow-y-auto">
@@ -30,7 +37,7 @@ const ApproveSolicitudModal = ({ isOpen, onClose, onConfirm, solicitud, loading 
                     </div>
 
                     {/* Body */}
-                    <div className="p-8 text-center space-y-4">
+                    <div className="p-6 text-center space-y-5">
                         <p className="text-sm font-bold text-slate-600">
                             ¿Estás seguro de aprobar esta solicitud por <span className="text-black font-black">S/ {solicitud?.monto_solicitado}</span>?
                         </p>
@@ -42,6 +49,25 @@ const ApproveSolicitudModal = ({ isOpen, onClose, onConfirm, solicitud, loading 
                                 <p className="text-xs font-bold text-blue-600">Transferencia Bancaria (Cta. Corriente)</p>
                             </div>
                         </div>
+
+                        {/* 🔥 INPUT PARA EL CÓDIGO DE RECAUDO */}
+                        <div className="text-left">
+                            <label className="flex items-center gap-1.5 text-xs font-black text-slate-700 uppercase mb-2">
+                                <IdentificationIcon className="w-4 h-4 text-brand-red" />
+                                Código de Recaudo *
+                            </label>
+                            <input
+                                type="text"
+                                value={codigoRecaudo}
+                                onChange={(e) => setCodigoRecaudo(e.target.value)}
+                                placeholder="Escribe el código de recaudo aquí..."
+                                className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-bold rounded-xl focus:ring-brand-red focus:border-brand-red block p-3 placeholder-slate-400 uppercase outline-none transition-all"
+                                required
+                            />
+                            <p className="text-[10px] text-slate-400 mt-1.5">
+                                Este código debe ser único. Se usará para los pagos del cliente.
+                            </p>
+                        </div>
                     </div>
 
                     {/* Footer */}
@@ -50,9 +76,9 @@ const ApproveSolicitudModal = ({ isOpen, onClose, onConfirm, solicitud, loading 
                             Cancelar
                         </button>
                         <button 
-                            disabled={loading}
-                            onClick={() => onConfirm(solicitud.id, 2, 'CUENTA CORRIENTE')} // 🔥 Forzamos CUENTA CORRIENTE
-                            className="flex-[2] bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-xs shadow-xl hover:bg-black transition-all disabled:opacity-50 active:scale-95 flex justify-center items-center gap-2"
+                            disabled={loading || !codigoRecaudo.trim()}
+                            onClick={handleConfirm}
+                            className="flex-[2] bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-xs shadow-xl hover:bg-black transition-all disabled:opacity-50 disabled:bg-slate-300 disabled:shadow-none active:scale-95 flex justify-center items-center gap-2"
                         >
                             {loading ? (
                                 <>
