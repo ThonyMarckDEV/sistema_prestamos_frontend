@@ -12,21 +12,21 @@ const fmt = n => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDig
 
 const FilaCuota = ({ cuota }) => (
     <tr className="bg-slate-50/80 border-l-4 border-brand-red/20 text-[10px]">
-        <td className="pl-14 pr-4 py-2 font-bold text-slate-500 whitespace-nowrap">Cuota #{cuota.numero}</td>
-        <td className="px-4 py-2" /> {/* Dirección vacía */}
-        <td className="px-4 py-2" /> {/* Asesor vacío */}
-        <td className="px-4 py-2 text-right font-bold text-slate-500 whitespace-nowrap">S/ {fmt(cuota.monto)}</td>
-        <td className="px-4 py-2 text-right whitespace-nowrap" /> {/* Cuotas vacías */}
-        <td className="px-4 py-2 text-right font-black text-brand-red whitespace-nowrap">S/ {fmt(cuota.capital)}</td>
-        <td className="px-4 py-2 text-right font-bold text-brand-red/70 whitespace-nowrap">
+        <td className="pl-14 pr-2 py-2 font-bold text-slate-500 whitespace-nowrap">Cuota #{cuota.numero}</td>
+        <td className="px-2 py-2" /> {/* Dirección vacía */}
+        <td className="px-2 py-2" /> {/* Asesor vacío */}
+        <td className="px-2 py-2 text-right font-bold text-slate-500 whitespace-nowrap">S/ {fmt(cuota.monto)}</td>
+        <td className="px-2 py-2 text-right whitespace-nowrap" /> {/* Cuotas vacías */}
+        <td className="px-2 py-2 text-right font-black text-brand-red whitespace-nowrap">S/ {fmt(cuota.capital)}</td>
+        <td className="px-2 py-2 text-right font-bold text-brand-red/70 whitespace-nowrap">
             {cuota.mora > 0 ? `+S/ ${fmt(cuota.mora)}` : '—'}
         </td>
-        <td className="px-4 py-2 text-right whitespace-nowrap">
+        <td className="px-2 py-2 text-right whitespace-nowrap">
             <span className="px-2 py-0.5 rounded-full font-black border bg-brand-red-light text-brand-red border-brand-red/30">
                 {cuota.dias_mora} días
             </span>
         </td>
-        <td className="px-4 py-2 font-bold text-slate-500 whitespace-nowrap">{cuota.fecha_venc}</td>
+        <td className="px-2 py-2 font-bold text-slate-500 whitespace-nowrap">{cuota.fecha_venc}</td>
     </tr>
 );
 
@@ -40,9 +40,10 @@ const FilaCliente = ({ f }) => {
                 className={`hover:bg-brand-red-light/20 transition-colors text-[10px] ${tieneMasDeUnaCuota ? 'cursor-pointer' : ''}`}
                 onClick={() => tieneMasDeUnaCuota && setAbierta(v => !v)}
             >
-                <td className="px-4 py-3 min-w-[180px]">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-slate-100 rounded-lg flex-shrink-0">
+                {/* 1. Cliente: Permite que el texto baje de línea de forma natural */}
+                <td className="px-2 py-3 w-1/5">
+                    <div className="flex items-start gap-2">
+                        <div className="p-1.5 bg-slate-100 rounded-lg flex-shrink-0 mt-0.5">
                             {f.es_grupal
                                 ? <UserGroupIcon className="w-3.5 h-3.5 text-slate-500" />
                                 : <UserIcon className="w-3.5 h-3.5 text-slate-500" />
@@ -50,50 +51,60 @@ const FilaCliente = ({ f }) => {
                         </div>
                         <div className="min-w-0">
                             <p className="text-xs font-black text-slate-800 uppercase leading-tight">{f.nombre}</p>
-                            {f.documento && <p className="text-[9px] text-slate-400 font-bold">{f.documento}</p>}
-                            {f.grupo && <p className="text-[9px] text-brand-red/70 font-black">GRUPO: {f.grupo}</p>}
+                            {f.documento && <p className="text-[9px] text-slate-400 font-bold leading-none mt-1">{f.documento}</p>}
+                            {f.grupo && <p className="text-[9px] text-brand-red/70 font-black leading-none mt-0.5">GRUPO: {f.grupo}</p>}
                         </div>
                         {tieneMasDeUnaCuota && (
-                            <ChevronDownIcon className={`w-3 h-3 text-slate-400 flex-shrink-0 transition-transform ${abierta ? 'rotate-180' : ''}`} />
+                            <ChevronDownIcon className={`w-3 h-3 text-slate-400 flex-shrink-0 mt-1 transition-transform ${abierta ? 'rotate-180' : ''}`} />
                         )}
                     </div>
                 </td>
-                {/* Columna Dirección con ancho mínimo para que no ahorque a las demás */}
-                <td className="px-4 py-3 min-w-[200px] max-w-[300px]">
-                    <p className="text-[9px] font-bold text-slate-500 leading-relaxed uppercase">
+                
+                {/* 2. Dirección: Texto compacto y se ajusta al contenido disponible sin empujar */}
+                <td className="px-2 py-3 w-1/4">
+                    <p className="text-[9px] font-bold text-slate-500 leading-tight uppercase tracking-tight line-clamp-3">
                         {f.direccion || '—'}
                     </p>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="font-black text-slate-500 uppercase">{f.asesor}</span>
-                    <p className="text-[9px] text-slate-400 font-bold tracking-tighter">Préstamo #{String(f.prestamo_id).padStart(5, '0')}</p>
+
+                {/* 3. Asesor y Montos: Protegidos de los quiebres de línea (whitespace-nowrap) */}
+                <td className="px-2 py-3 whitespace-nowrap">
+                    <span className="font-black text-slate-500 uppercase block">{f.asesor}</span>
+                    <span className="text-[9px] text-slate-400 font-bold block tracking-tighter">Préstamo #{String(f.prestamo_id).padStart(5, '0')}</span>
                 </td>
-                <td className="px-4 py-3 text-right whitespace-nowrap font-black text-slate-600">
+                
+                <td className="px-2 py-3 text-right whitespace-nowrap font-black text-slate-600">
                     S/ {fmt(f.monto_desemb)}
                 </td>
-                <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <span className="font-black text-slate-600">{f.cuotas_pagadas}/{f.total_cuotas}</span>
-                    <p className="text-[9px] text-slate-400 font-bold">pagadas</p>
+                
+                <td className="px-2 py-3 text-right whitespace-nowrap">
+                    <span className="font-black text-slate-600 block">{f.cuotas_pagadas}/{f.total_cuotas}</span>
+                    <span className="text-[9px] text-slate-400 font-bold block leading-none">pagadas</span>
                 </td>
-                <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <span className="text-xs font-black text-brand-red">S/ {fmt(f.total_capital)}</span>
-                    {f.cuotas_mora.length > 1 && <p className="text-[9px] text-slate-400 font-bold">{f.cuotas_mora.length} cuotas</p>}
-                    {f.cuotas_mora.length === 1 && <p className="text-[9px] text-slate-400 font-bold">Cuota #{f.cuotas_mora[0].numero}</p>}
+                
+                <td className="px-2 py-3 text-right whitespace-nowrap">
+                    <span className="text-xs font-black text-brand-red block">S/ {fmt(f.total_capital)}</span>
+                    <span className="text-[9px] text-slate-400 font-bold block leading-none">
+                        {f.cuotas_mora.length > 1 ? `${f.cuotas_mora.length} cuotas` : `Cuota #${f.cuotas_mora[0].numero}`}
+                    </span>
                 </td>
-                <td className="px-4 py-3 text-right whitespace-nowrap">
+                
+                <td className="px-2 py-3 text-right whitespace-nowrap">
                     {f.total_mora > 0
-                        ? <span className="text-xs font-black text-brand-red/70">+S/ {fmt(f.total_mora)}</span>
-                        : <span className="text-slate-300">—</span>
+                        ? <span className="text-xs font-black text-brand-red/70 block">+S/ {fmt(f.total_mora)}</span>
+                        : <span className="text-slate-300 block">—</span>
                     }
                 </td>
-                <td className="px-4 py-3 text-right whitespace-nowrap">
+                
+                <td className="px-2 py-3 text-right whitespace-nowrap">
                     <span className={`px-2 py-0.5 rounded-full font-black border ${
                         f.max_dias > 30 ? 'bg-brand-red text-white border-brand-red' : 'bg-brand-red-light text-brand-red border-brand-red/30'
                     }`}>{f.max_dias} días</span>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="font-bold text-slate-600">{f.cuotas_mora[0]?.fecha_venc}</span>
-                    {f.cuotas_mora.length > 1 && <p className="text-[8px] text-slate-400 font-black uppercase">más antiguo</p>}
+                
+                <td className="px-2 py-3 whitespace-nowrap text-right">
+                    <span className="font-bold text-slate-600 block">{f.cuotas_mora[0]?.fecha_venc}</span>
+                    {f.cuotas_mora.length > 1 && <span className="text-[8px] text-slate-400 font-black uppercase block leading-none">más antiguo</span>}
                 </td>
             </tr>
             {abierta && f.cuotas_mora.map((c, i) => <FilaCuota key={i} cuota={c} />)}
@@ -209,20 +220,20 @@ const ClientesMoraCard = () => {
                             </div>
                         ) : (
                             <div className="flex flex-col gap-3">
-                                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
-                                    {/* 🔥 TABLA CON MIN-WIDTH DE 1200PX PARA QUE NO SE APLASTE NADA */}
-                                    <table className="w-full text-left border-collapse min-w-[1200px]">
+                                {/* 🔥 TABLA SIN SCROLL: Removido el min-w y ajustado el layout */}
+                                <div className="w-full">
+                                    <table className="w-full text-left border-collapse table-auto">
                                         <thead className="bg-slate-50 text-[9px] font-black text-slate-500 uppercase border-b border-slate-100">
                                             <tr>
-                                                <th className="px-4 py-3">Cliente</th>
-                                                <th className="px-4 py-3">Dirección</th>
-                                                <th className="px-4 py-3">Asesor / Préstamo</th>
-                                                <th className="px-4 py-3 text-right">Desembolsado</th>
-                                                <th className="px-4 py-3 text-right">Cuotas</th>
-                                                <th className="px-4 py-3 text-right whitespace-nowrap">Capital Adeudado</th>
-                                                <th className="px-4 py-3 text-right">Mora</th>
-                                                <th className="px-4 py-3 text-right whitespace-nowrap">Días Atraso</th>
-                                                <th className="px-4 py-3">Vencimiento</th>
+                                                <th className="px-2 py-3 w-1/5">Cliente</th>
+                                                <th className="px-2 py-3 w-1/4">Dirección</th>
+                                                <th className="px-2 py-3 whitespace-nowrap">Asesor / Préstamo</th>
+                                                <th className="px-2 py-3 text-right whitespace-nowrap">Desembolsado</th>
+                                                <th className="px-2 py-3 text-right whitespace-nowrap">Cuotas</th>
+                                                <th className="px-2 py-3 text-right whitespace-nowrap">Capital Adeudado</th>
+                                                <th className="px-2 py-3 text-right whitespace-nowrap">Mora</th>
+                                                <th className="px-2 py-3 text-right whitespace-nowrap">Días Atraso</th>
+                                                <th className="px-2 py-3 text-right whitespace-nowrap">Vencimiento</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 bg-white">
