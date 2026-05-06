@@ -120,7 +120,7 @@ const CalculadoraCuota = ({
                     <FormulaRow
                         paso="3"
                         label="Interés total"
-                        formula={`S/ ${fmt(montoBase)} × ${tasaNum}% × ${mesesTotales} meses`}
+                        formula={`S/ ${fmt(montoAprobado)} × ${tasaNum}% × ${mesesTotales} meses`}
                         resultado={`S/ ${fmt(interesTotal)}`}
                     />
 
