@@ -87,3 +87,14 @@ export const exportGruposAsesorDashboard = async (filters = {}) => {
     if (!response.ok) throw new Error('Error al exportar grupos asesor');
     return response.blob();
 };
+
+// ── Cuota del día ─────────────────────────────────────────────────────────────
+export const getCuotaDiaDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/cuota-dia${buildQs(filters)}`, { method: 'GET' });
+    return handleResponse(response);
+};
+export const exportCuotaDiaDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/cuota-dia/export${buildQs(filters)}`, { method: 'GET' });
+    if (!response.ok) throw new Error('Error al exportar cuotas del día');
+    return response.blob();
+};
