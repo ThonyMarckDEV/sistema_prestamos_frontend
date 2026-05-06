@@ -19,9 +19,12 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
         codigo_recaudo:     '',
         incluir_mora:       true,
         observaciones:      '',
+        // Seguro
+        tiene_seguro:       false,
+        seguro:             '',
+        seguro_financiado:  true,  // true = financiado en cuotas | false = cobrado aparte
     });
 
-    // Limpiar al abrir con préstamo diferente
     useEffect(() => {
         if (isOpen && data) {
             setFormData({
@@ -32,6 +35,9 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                 codigo_recaudo:     '',
                 incluir_mora:       true,
                 observaciones:      '',
+                tiene_seguro:       false,
+                seguro:             '',
+                seguro_financiado:  true,
             });
             setAlert(null);
         }
@@ -50,6 +56,9 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
         try {
             await refinanciar({
                 ...formData,
+                // Si no tiene seguro, mandamos 0
+                seguro:            formData.tiene_seguro ? parseFloat(formData.seguro || 0) : 0,
+                seguro_financiado: formData.tiene_seguro ? formData.seguro_financiado : false,
                 prestamo_refinanciado_id: data.prestamo_id,
                 cliente_refinanciado_id:  data.cliente_id,
             });
@@ -63,10 +72,22 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
 
     if (!data) return null;
 
-    const montoBase = formData.incluir_mora ? (data.deuda + data.mora) : data.deuda;
+    const montoBase    = formData.incluir_mora ? (data.deuda + data.mora) : data.deuda;
+    const seguroValor  = formData.tiene_seguro ? parseFloat(formData.seguro || 0) : 0;
+    // Si el seguro es financiado se suma al capital para la calculadora
+    const montoCalc    = formData.tiene_seguro && formData.seguro_financiado
+        ? montoBase + seguroValor
+        : montoBase;
+
+    const submitDisabled = loading
+        || !formData.producto_id
+        || !formData.cuotas_solicitadas
+        || !formData.tasa_interes
+        || !formData.codigo_recaudo.trim()
+        || (formData.tiene_seguro && (!formData.seguro || parseFloat(formData.seguro) <= 0));
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Refinanciar Préstamo" size="md">
+        <Modal isOpen={isOpen} onClose={onClose} title="Refinanciar Préstamo" size="lg">
             <div className="p-1">
                 {/* Resumen deuda */}
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-4 flex gap-3 items-start">
@@ -90,11 +111,14 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                 <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
                 <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+
+                    {/* Producto */}
                     <div>
                         <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Producto Financiero *</label>
                         <ProductoSearchSelect onSelect={p => setFormData(prev => ({ ...prev, producto_id: p?.id }))} />
                     </div>
 
+                    {/* Cuotas + Tasa */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">N° Cuotas *</label>
@@ -110,6 +134,7 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                         </div>
                     </div>
 
+                    {/* Frecuencia + Incluir mora */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Frecuencia *</label>
@@ -129,7 +154,52 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                         </div>
                     </div>
 
-                    {/* INPUT PARA EL CÓDIGO DE RECAUDO */}
+                    {/* ── Seguro ──────────────────────────────────────────────── */}
+                    <div className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50">
+                        {/* Toggle tiene_seguro */}
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="tiene_seguro" checked={formData.tiene_seguro} onChange={handleChange}
+                                className="w-4 h-4 text-brand-red border-slate-300 rounded focus:ring-brand-red" />
+                            <span className="text-[11px] font-black text-slate-700 uppercase">Aplicar Seguro</span>
+                        </label>
+
+                        {formData.tiene_seguro && (
+                            <div className="grid grid-cols-2 gap-4 pt-1">
+                                {/* Monto seguro */}
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                                        Monto Seguro (S/) *
+                                    </label>
+                                    <input
+                                        type="number" name="seguro" required min="0.01" step="0.01"
+                                        value={formData.seguro} onChange={handleChange}
+                                        placeholder="0.00"
+                                        className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-brand-red outline-none"
+                                    />
+                                </div>
+
+                                {/* Modalidad seguro */}
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                                        Modalidad Seguro *
+                                    </label>
+                                    <select name="seguro_financiado" value={formData.seguro_financiado}
+                                        onChange={e => setFormData(prev => ({ ...prev, seguro_financiado: e.target.value === 'true' }))}
+                                        className="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-bold focus:ring-2 focus:ring-brand-red outline-none bg-white">
+                                        <option value="true">Financiado en cuotas</option>
+                                        <option value="false">Cobrado por separado</option>
+                                    </select>
+                                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase">
+                                        {formData.seguro_financiado
+                                            ? 'Se suma al capital y se paga dentro de las cuotas'
+                                            : 'Se cobra aparte, no afecta el monto de cuotas'}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Código recaudo */}
                     <div>
                         <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Código de Recaudo *</label>
                         <input type="text" name="codigo_recaudo" required
@@ -138,17 +208,19 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                             className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold uppercase focus:ring-2 focus:ring-brand-red outline-none" />
                     </div>
 
+                    {/* Observaciones */}
                     <div>
                         <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Observaciones</label>
                         <textarea name="observaciones" value={formData.observaciones} onChange={handleChange} rows="2"
                             className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-brand-red outline-none" />
                     </div>
 
-                    {/* Calculadora reutilizable */}
+                    {/* Calculadora — usa montoCalc que ya incluye seguro financiado si aplica */}
                     <CalculadoraCuota
-                        monto={montoBase}
+                        monto={montoCalc}
                         tasa={formData.tasa_interes}
                         cuotas={formData.cuotas_solicitadas}
+                        seguro={formData.seguro}
                         frecuencia={formData.frecuencia}
                     />
 
@@ -157,7 +229,7 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                             className="px-4 py-2 text-xs font-black text-slate-500 hover:bg-slate-100 rounded-xl uppercase disabled:opacity-50">
                             Cancelar
                         </button>
-                        <button type="submit" disabled={loading || !formData.producto_id || !formData.cuotas_solicitadas || !formData.tasa_interes || !formData.codigo_recaudo.trim()}
+                        <button type="submit" disabled={submitDisabled}
                             className="flex items-center gap-2 px-6 py-2 bg-brand-gold hover:bg-brand-gold-dark text-white text-xs font-black uppercase rounded-xl transition-all shadow-md disabled:opacity-50">
                             {loading ? 'Procesando...' : <><ArrowPathRoundedSquareIcon className="w-4 h-4" /> Aplicar Refinanciamiento</>}
                         </button>
