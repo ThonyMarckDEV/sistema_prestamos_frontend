@@ -38,7 +38,6 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
 
     return (
         <div className="overflow-hidden border border-slate-200 rounded-2xl shadow-sm overflow-x-auto">
-            {/* 🔥 Aumentamos el min-w para que tenga más espacio horizontal */}
             <table className="w-full text-left border-collapse min-w-[860px]">
                 <thead className="bg-slate-50 text-[9px] font-black text-slate-500 uppercase border-b border-slate-100 whitespace-nowrap">
                     <tr>
@@ -94,14 +93,20 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                         const excConsInd = esVistaIntegrante ? parseFloat(cuota.excedente_consumido || 0) : 0;
                         const excGen     = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_generado || 0);
 
+                        const esRefinanciada = cuota.estado === 6;
+
                         let estadoGlobal = cuota.estado;
                         if (!esVistaIntegrante && cuota.integrantes?.length > 0) {
-                            if (saldo <= 0) estadoGlobal = 2; // Pagado
-                            else if (abonado > 0 && saldo > 0) estadoGlobal = 5; // Parcial
+                            if (saldo <= 0) estadoGlobal = 2;
+                            else if (abonado > 0 && saldo > 0) estadoGlobal = 5;
                         }
 
                         return (
-                            <tr key={nro} className="hover:bg-brand-red-light/30 transition-colors">
+                            <tr key={nro} className={`transition-colors ${
+                                esRefinanciada
+                                    ? 'bg-blue-50/60 opacity-60'
+                                    : 'hover:bg-brand-red-light/30'
+                            }`}>
 
                                 {/* N° */}
                                 <td className="px-3 py-4 text-xs font-black text-slate-400 text-center font-mono">
@@ -110,33 +115,42 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
 
                                 {/* Vencimiento */}
                                 <td className="px-3 py-4 whitespace-nowrap">
-                                    <span className="text-xs font-bold text-slate-600 block">{cuota.vencimiento}</span>
-                                    {diasAtraso > 0 && <span className="text-[9px] font-black text-brand-red uppercase">{diasAtraso} días atraso</span>}
+                                    <span className={`text-xs font-bold block ${esRefinanciada ? 'text-slate-400 line-through' : 'text-slate-600'}`}>
+                                        {cuota.vencimiento}
+                                    </span>
+                                    {diasAtraso > 0 && !esRefinanciada && (
+                                        <span className="text-[9px] font-black text-brand-red uppercase">{diasAtraso} días atraso</span>
+                                    )}
                                 </td>
 
                                 {/* Cuota */}
-                                 <td className="px-3 py-4 whitespace-nowrap">
-                                    <span className="text-sm font-black text-slate-700">S/ {monto.toFixed(2)}</span>
+                                <td className="px-3 py-4 whitespace-nowrap">
+                                    <span className={`text-sm font-black ${esRefinanciada ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
+                                        S/ {monto.toFixed(2)}
+                                    </span>
+                                    {esRefinanciada && (
+                                        <span className="block text-[9px] font-black text-blue-500 uppercase">Refinanciado</span>
+                                    )}
                                 </td>
 
                                 {/* Capital */}
                                 <td className="px-3 py-4">
-                                    <CeldaFinanciera total={capital} pagado={capPagado} pendiente={capPend} />
+                                    <CeldaFinanciera total={capital} pagado={capPagado} pendiente={esRefinanciada ? 0 : capPend} />
                                 </td>
 
                                 {/* Interés */}
                                 <td className="px-3 py-4">
-                                    <CeldaFinanciera total={interes} pagado={intPagado} pendiente={intPend} />
+                                    <CeldaFinanciera total={interes} pagado={intPagado} pendiente={esRefinanciada ? 0 : intPend} />
                                 </td>
 
                                 {/* Seguro */}
                                 <td className="px-3 py-4">
-                                    <CeldaFinanciera total={seguro} pagado={segPagado} pendiente={segPend} />
+                                    <CeldaFinanciera total={seguro} pagado={segPagado} pendiente={esRefinanciada ? 0 : segPend} />
                                 </td>
 
                                 {/* Mora */}
                                 <td className="px-3 py-4">
-                                    {moraTotal <= 0 ? (
+                                    {moraTotal <= 0 || esRefinanciada ? (
                                         <span className="text-slate-300 font-black text-[11px]">—</span>
                                     ) : (
                                         <div className="flex flex-col min-w-[70px]">
@@ -178,20 +192,28 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
 
                                 {/* Saldo Real */}
                                 <td className="px-3 py-4">
-                                    <span className={`text-sm font-black italic whitespace-nowrap ${saldo > 0 ? 'text-brand-red underline' : 'text-green-600'}`}>
-                                        S/ {saldo.toFixed(2)}
-                                    </span>
-                                    {moraPend > 0 && saldo > 0 && (
-                                        <span className="text-[9px] text-slate-400 font-bold block whitespace-nowrap">
-                                            Cap: {Math.max(0, monto - (esVistaIntegrante ? acumInd : parseFloat(cuota.pago_acumulado || 0))).toFixed(2)} | Mora: {moraPend.toFixed(2)}
+                                    {esRefinanciada ? (
+                                        <span className="text-sm font-black italic text-slate-400 line-through whitespace-nowrap">
+                                            S/ {saldo.toFixed(2)}
                                         </span>
+                                    ) : (
+                                        <>
+                                            <span className={`text-sm font-black italic whitespace-nowrap ${saldo > 0 ? 'text-brand-red underline' : 'text-green-600'}`}>
+                                                S/ {saldo.toFixed(2)}
+                                            </span>
+                                            {moraPend > 0 && saldo > 0 && (
+                                                <span className="text-[9px] text-slate-400 font-bold block whitespace-nowrap">
+                                                    Cap: {Math.max(0, monto - (esVistaIntegrante ? acumInd : parseFloat(cuota.pago_acumulado || 0))).toFixed(2)} | Mora: {moraPend.toFixed(2)}
+                                                </span>
+                                            )}
+                                        </>
                                     )}
                                 </td>
 
                                 {/* Estado */}
                                 <td className="px-3 py-4 text-center">{getStatusBadge(estadoGlobal)}</td>
 
-                                {/* Columnas extra (ej: Cobrar) */}
+                                {/* Columnas extra */}
                                 {extraColumns.map((col) => (
                                     <td key={col.header} className="px-3 py-4 text-center">
                                         {col.render(cuota, i, cronograma)}

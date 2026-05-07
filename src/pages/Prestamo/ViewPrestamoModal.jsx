@@ -64,9 +64,12 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
         onClose();
     };
 
-    const cronogramaActivo  = integranteData?.cronograma ?? data?.cronograma;
-    const esVistaIntegrante = !!integranteData;
-    const integranteActivo  = data?.integrantes?.find(i => i.id === integranteSeleccionado);
+    const cronogramaActivo       = integranteData?.cronograma ?? data?.cronograma;
+    const esVistaIntegrante      = !!integranteData;
+    const integranteActivo       = data?.integrantes?.find(i => i.id === integranteSeleccionado) ?? null;
+    const integranteRefinanciado = data?.integrantes_refinanciados?.find(i => i.id === integranteSeleccionado) ?? null;
+    const integranteYaRefinanciado = !!integranteRefinanciado;
+    const integranteNombre       = integranteActivo?.nombre ?? integranteRefinanciado?.nombre;
 
     const handleAbrirRefinanciamiento = () => {
         let deudaPendiente     = 0;
@@ -83,13 +86,12 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                 const moraTotal  = parseFloat(cuota.mora_total ?? cuota.mora ?? 0);
                 const moraPagada = parseFloat(cuota.mora_pagada ?? 0);
 
-                // Excedente solo aplica en la primera cuota pendiente
                 const excedente = !excDeducido
                     ? parseFloat(cuota.excedente_aplicado ?? cuota.excedente_anterior ?? 0)
                     : 0;
 
                 if (!excDeducido) {
-                    excedentePendiente = excedente; // guardar para mostrar en modal
+                    excedentePendiente = excedente;
                     excDeducido        = true;
                 }
 
@@ -101,13 +103,15 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
         setRefData({
             prestamo_id:    data.id,
             cliente_id:     esVistaIntegrante ? integranteSeleccionado : null,
-            cliente_nombre: esVistaIntegrante ? integranteActivo?.nombre : data.cliente?.nombre,
+            cliente_nombre: esVistaIntegrante ? integranteNombre : data.cliente?.nombre,
             deuda:          deudaPendiente,
             mora:           moraPendiente,
             excedente:      excedentePendiente,
         });
         setRefModalOpen(true);
     };
+
+    const tieneIntegrantes = data?.integrantes?.length > 0 || data?.integrantes_refinanciados?.length > 0;
 
     return (
         <>
@@ -148,7 +152,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                         </div>
 
                         {/* 2. Integrantes */}
-                        {data.es_grupal && data.integrantes?.length > 0 && (
+                        {data.es_grupal && tieneIntegrantes && (
                             <div className="bg-brand-red-light/40 p-4 rounded-xl border border-brand-red/10">
                                 <h4 className="flex items-center gap-2 text-xs font-black text-brand-red-dark uppercase mb-1">
                                     <UsersIcon className="w-4 h-4" /> Desglose de Integrantes
@@ -157,6 +161,8 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                     Haz click en un socio para ver su cronograma individual
                                 </p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
+                                    {/* Activos */}
                                     {data.integrantes.map((int) => (
                                         <div key={int.id} onClick={() => handleSelectIntegrante(int.id)}
                                             className={`flex justify-between items-center bg-white p-2 rounded border shadow-sm cursor-pointer transition-all
@@ -173,6 +179,26 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                             </span>
                                         </div>
                                     ))}
+
+                                    {/* Refinanciados */}
+                                    {data.integrantes_refinanciados?.map((int) => (
+                                        <div key={int.id} onClick={() => handleSelectIntegrante(int.id)}
+                                            className={`flex justify-between items-center bg-blue-50 p-2 rounded border shadow-sm cursor-pointer transition-all opacity-70
+                                                ${integranteSeleccionado === int.id
+                                                    ? 'border-blue-400 ring-1 ring-blue-400/50 opacity-100'
+                                                    : 'border-blue-100 hover:border-blue-300'}`}
+                                        >
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-black text-slate-500 uppercase line-through">{int.nombre}</span>
+                                                <span className="text-[10px] text-blue-500 font-black uppercase">Refinanciado</span>
+                                                <span className="text-[9px] text-slate-400 font-bold">CARGO: {int.cargo}</span>
+                                            </div>
+                                            <span className="text-xs font-black text-blue-400 bg-white px-2 py-1 rounded-lg border border-blue-100 shadow-sm line-through">
+                                                S/ {int.monto}
+                                            </span>
+                                        </div>
+                                    ))}
+
                                 </div>
                             </div>
                         )}
@@ -187,8 +213,8 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                 <p className="text-[9px] font-black text-slate-400 uppercase">Interés ({data.datos_economicos?.interes_porc}%)</p>
                                 <p className="text-md font-black text-brand-gold-dark">
                                     S/ {(
-                                        parseFloat(data.datos_economicos?.total_prestamo) 
-                                        - parseFloat(data.datos_economicos?.monto) 
+                                        parseFloat(data.datos_economicos?.total_prestamo)
+                                        - parseFloat(data.datos_economicos?.monto)
                                         - (data.datos_economicos?.seguro_financiado ? parseFloat(data.datos_economicos?.seguro || 0) : 0)
                                     ).toFixed(2)}
                                 </p>
@@ -216,16 +242,27 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                         <div className="flex items-center justify-between">
                             <h4 className="flex items-center gap-2 text-[11px] font-black text-slate-700 uppercase tracking-widest px-1">
                                 <CalendarIcon className="w-4 h-4 text-brand-red" />
-                                {esVistaIntegrante ? `Cronograma — ${integranteActivo?.nombre}` : 'Cronograma de Pagos y Saldos'}
+                                {esVistaIntegrante ? `Cronograma — ${integranteNombre}` : 'Cronograma de Pagos y Saldos'}
                             </h4>
                             <div className="flex items-center gap-2">
-                                {canRefinanciar && data.estado === 1 && (!data.es_grupal || esVistaIntegrante) && (
+
+                                {/* Botón refinanciar: solo si puede, préstamo activo, integrante seleccionado y NO refinanciado */}
+                                {canRefinanciar && data.estado === 1 && (!data.es_grupal || esVistaIntegrante) && !integranteYaRefinanciado && (
                                     <button onClick={handleAbrirRefinanciamiento}
                                         className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-gold hover:bg-brand-gold-dark text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-md shadow-brand-gold/20">
                                         <ArrowPathRoundedSquareIcon className="w-3.5 h-3.5" />
                                         {esVistaIntegrante ? 'Refinanciar Integrante' : 'Refinanciar'}
                                     </button>
                                 )}
+
+                                {/* Badge si ya fue refinanciado */}
+                                {integranteYaRefinanciado && (
+                                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-500 text-[10px] font-black uppercase rounded-lg border border-blue-200">
+                                        <ArrowPathRoundedSquareIcon className="w-3.5 h-3.5" />
+                                        Préstamo #{integranteRefinanciado.refinanciado_prestamo_id?.toString().padStart(5, '0')}
+                                    </span>
+                                )}
+
                                 <button onClick={handleDescargarCronograma} disabled={loadingPdf}
                                     className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-red hover:bg-brand-red-dark text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-md shadow-brand-red/20">
                                     {loadingPdf
