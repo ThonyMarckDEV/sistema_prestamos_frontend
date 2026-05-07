@@ -62,11 +62,11 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                         const monto      = parseFloat(cuota.total_cuota ?? cuota.monto ?? 0);
                         const capital    = parseFloat(cuota.capital ?? 0);
                         const interes    = parseFloat(cuota.interes ?? 0);
-                        
+
                         const seguro     = parseFloat(cuota.seguro ?? 0);
                         let segPagado    = parseFloat(cuota.seguro_pagado ?? 0);
                         if (!esVistaIntegrante && cuota.integrantes?.length > 0) {
-                             segPagado = cuota.integrantes.reduce((sum, int) => sum + parseFloat(int.seguro_pagado || 0), 0);
+                            segPagado = cuota.integrantes.reduce((sum, int) => sum + parseFloat(int.seguro_pagado || 0), 0);
                         }
                         const segPend    = Math.max(0, seguro - segPagado);
 
@@ -74,24 +74,30 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                         const intPagado  = parseFloat(cuota.interes_pagado ?? 0);
                         const capPend    = parseFloat(cuota.capital_pendiente ?? Math.max(0, capital - capPagado));
                         const intPend    = parseFloat(cuota.interes_pendiente ?? Math.max(0, interes - intPagado));
-                        
+
                         const moraTotal  = parseFloat(cuota.mora_total ?? cuota.mora ?? 0);
                         const moraPagada = parseFloat(cuota.mora_pagada ?? 0);
                         const moraPend   = Math.max(0, moraTotal - moraPagada);
-                        
+
+                        // ── Abonos ────────────────────────────────────────────
+                        // pago_total_real = lo que físicamente entró (puede ser > total_cuota si pagó de más)
+                        // pago_acumulado  = lo que se aplicó a la cuota (siempre <= total_cuota)
                         const abonado    = esVistaIntegrante
                             ? parseFloat(cuota.pago_total_real ?? cuota.pago_acumulado ?? 0)
                             : parseFloat(cuota.pago_realizado  ?? cuota.pago_acumulado ?? 0);
                         const acumInd    = esVistaIntegrante ? parseFloat(cuota.pago_acumulado ?? 0) : 0;
                         const saldo      = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? 0);
                         const diasAtraso = cuota.dias_atraso || 0;
+
                         const excAnt     = esVistaIntegrante
                             ? parseFloat(cuota.excedente_aplicado || 0)
                             : (parseFloat(cuota.excedente_consumido || 0) > 0
                                 ? parseFloat(cuota.excedente_consumido)
                                 : parseFloat(cuota.excedente_anterior || 0));
                         const excConsInd = esVistaIntegrante ? parseFloat(cuota.excedente_consumido || 0) : 0;
-                        const excGen     = esVistaIntegrante ? 0 : parseFloat(cuota.excedente_generado || 0);
+
+                        // ── FIX: excedente generado siempre desde el dato, nunca hardcodeado a 0 ──
+                        const excGen     = parseFloat(cuota.excedente_generado || 0);
 
                         const esRefinanciada = cuota.estado === 6;
 
@@ -100,6 +106,8 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                             if (saldo <= 0) estadoGlobal = 2;
                             else if (abonado > 0 && saldo > 0) estadoGlobal = 5;
                         }
+
+                       const mostrarRecibido = abonado > 0;
 
                         return (
                             <tr key={nro} className={`transition-colors ${
@@ -177,14 +185,55 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                                 {/* Abonos */}
                                 <td className="px-3 py-4">
                                     <div className="flex flex-col gap-0.5 min-w-[90px]">
-                                        {abonado > 0 && <span className="text-[9px] font-bold text-brand-red uppercase whitespace-nowrap">Recibido: S/ {abonado.toFixed(2)}</span>}
-                                        {esVistaIntegrante && acumInd > 0 && acumInd !== abonado && <span className="text-[9px] font-bold text-green-700 uppercase whitespace-nowrap">Acumulado: S/ {acumInd.toFixed(2)}</span>}
-                                        {!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0 && <span className="text-[9px] font-bold text-green-700 uppercase whitespace-nowrap">Acumulado: S/ {parseFloat(cuota.pago_acumulado).toFixed(2)}</span>}
-                                        {moraPagada > 0 && <span className="text-[9px] font-bold text-brand-gold-dark uppercase whitespace-nowrap">Mora cubierta: S/ {moraPagada.toFixed(2)}</span>}
-                                        {excAnt > 0 && <span className="text-[9px] font-bold text-purple-600 uppercase whitespace-nowrap">{esVistaIntegrante ? 'Excedente. aplicado' : 'Excedente. usado'}: -S/ {excAnt.toFixed(2)}</span>}
-                                        {esVistaIntegrante && excConsInd > 0 && <span className="text-[9px] font-bold text-purple-600 uppercase whitespace-nowrap">Excedente. usado: -S/ {excConsInd.toFixed(2)}</span>}
-                                        {excGen > 0 && <span className="text-[9px] font-bold text-orange-500 uppercase whitespace-nowrap">Excedente: S/ {excGen.toFixed(2)}</span>}
-                                        {abonado === 0 && excAnt === 0 && moraPagada === 0 && excGen === 0 && excConsInd === 0 && (
+
+                                        {/* Recibido: en vista grupal siempre, en vista individual solo si pagó de más */}
+                                        {mostrarRecibido && (
+                                            <span className="text-[9px] font-bold text-brand-red uppercase whitespace-nowrap">
+                                                Recibido: S/ {abonado.toFixed(2)}
+                                            </span>
+                                        )}
+
+                                        {/* Acumulado: en vista individual siempre que exista */}
+                                        {esVistaIntegrante && acumInd > 0 && (
+                                            <span className="text-[9px] font-bold text-green-700 uppercase whitespace-nowrap">
+                                                Acumulado: S/ {acumInd.toFixed(2)}
+                                            </span>
+                                        )}
+
+                                        {/* Acumulado: en vista grupal */}
+                                        {!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0 && (
+                                            <span className="text-[9px] font-bold text-green-700 uppercase whitespace-nowrap">
+                                                Acumulado: S/ {parseFloat(cuota.pago_acumulado).toFixed(2)}
+                                            </span>
+                                        )}
+
+                                        {moraPagada > 0 && (
+                                            <span className="text-[9px] font-bold text-brand-gold-dark uppercase whitespace-nowrap">
+                                                Mora cubierta: S/ {moraPagada.toFixed(2)}
+                                            </span>
+                                        )}
+
+                                        {excAnt > 0 && (
+                                            <span className="text-[9px] font-bold text-purple-600 uppercase whitespace-nowrap">
+                                                {esVistaIntegrante ? 'Excedente. aplicado' : 'Excedente. usado'}: -S/ {excAnt.toFixed(2)}
+                                            </span>
+                                        )}
+
+                                        {esVistaIntegrante && excConsInd > 0 && (
+                                            <span className="text-[9px] font-bold text-purple-600 uppercase whitespace-nowrap">
+                                                Excedente. usado: -S/ {excConsInd.toFixed(2)}
+                                            </span>
+                                        )}
+
+                                        {/* FIX: excGen ahora muestra en vista individual también */}
+                                        {excGen > 0 && (
+                                            <span className="text-[9px] font-bold text-orange-500 uppercase whitespace-nowrap">
+                                                Excedente: S/ {excGen.toFixed(2)}
+                                            </span>
+                                        )}
+
+                                        {/* Vacío */}
+                                        {!mostrarRecibido && acumInd === 0 && excAnt === 0 && moraPagada === 0 && excGen === 0 && excConsInd === 0 && !(!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0) && (
                                             <span className="text-[10px] text-slate-300 font-bold">—</span>
                                         )}
                                     </div>
