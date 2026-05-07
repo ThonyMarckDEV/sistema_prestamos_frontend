@@ -62,7 +62,7 @@ const Index = () => {
             { 
                 header: 'Cod. Recaudo', 
                 render: (row) => (
-                    <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
+                    <span className="font-mono text-[14px] font-black px-2 py-1 rounded text-slate-600">
                         {row.codigo_recaudo}
                     </span>
                 )
@@ -79,8 +79,8 @@ const Index = () => {
                 </div>
             )},
             { header: 'Asesor', render: (row) => (
-                <div className="flex items-center gap-1.5 text-black w-fit">
-                    <BriefcaseIcon className="w-3 h-3 text-black" />
+                <div className="flex items-center gap-1.5 text-[12px] text-black w-fit">
+                    <BriefcaseIcon className="w-3 h-3 text-black " />
                     {row.asesor}
                 </div>
             )},
