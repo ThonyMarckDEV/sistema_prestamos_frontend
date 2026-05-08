@@ -11,6 +11,7 @@ const LoadingScreen = () => {
         src="https://lottie.host/9f133909-f84b-4318-8a2e-848ca7651cac/149hwE5G3g.lottie"
         loop
         autoplay
+        className="w-40 h-40"
       />
       
       <p className="mt-6 text-gray-500 text-sm font-medium tracking-widest uppercase animate-pulse">
