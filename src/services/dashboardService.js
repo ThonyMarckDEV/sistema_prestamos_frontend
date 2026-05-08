@@ -98,3 +98,14 @@ export const exportCuotaDiaDashboard = async (filters = {}) => {
     if (!response.ok) throw new Error('Error al exportar cuotas del día');
     return response.blob();
 };
+
+// -- SBS ---
+export const getSBSDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/sbs${buildQs(filters)}`, { method: 'GET' });
+    return handleResponse(response);
+};
+export const exportSBSDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/sbs/export${buildQs(filters)}`, { method: 'GET' });
+    if (!response.ok) throw new Error('Error al exportar SBS');
+    return response.blob();
+};
