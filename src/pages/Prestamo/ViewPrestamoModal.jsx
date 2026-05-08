@@ -9,7 +9,7 @@ import {
     InformationCircleIcon, UsersIcon,
     ArrowPathIcon, ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
-import { showIntegrante, descargarCronograma } from 'services/prestamoService';
+import { descargarCronograma, showIntegrante } from 'services/prestamoService';
 import { ArrowPathRoundedSquareIcon } from '@heroicons/react/24/outline';
 import { useAuth } from 'context/AuthContext';
 
@@ -64,12 +64,14 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
         onClose();
     };
 
-    const cronogramaActivo       = integranteData?.cronograma ?? data?.cronograma;
-    const esVistaIntegrante      = !!integranteData;
-    const integranteActivo       = data?.integrantes?.find(i => i.id === integranteSeleccionado) ?? null;
-    const integranteRefinanciado = data?.integrantes_refinanciados?.find(i => i.id === integranteSeleccionado) ?? null;
+    // Cronograma a mostrar: individual (fetch) o global
+    const cronogramaActivo  = integranteData?.cronograma ?? data?.cronograma;
+    const esVistaIntegrante = !!integranteData;
+
+    const integranteActivo         = data?.integrantes?.find(i => i.id === integranteSeleccionado) ?? null;
+    const integranteRefinanciado   = data?.integrantes_refinanciados?.find(i => i.id === integranteSeleccionado) ?? null;
     const integranteYaRefinanciado = !!integranteRefinanciado;
-    const integranteNombre       = integranteActivo?.nombre ?? integranteRefinanciado?.nombre;
+    const integranteNombre         = integranteActivo?.nombre ?? integranteRefinanciado?.nombre;
 
     const handleAbrirRefinanciamiento = () => {
         let deudaPendiente     = 0;
@@ -286,7 +288,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                             </div>
                         </div>
 
-                        {/* 5. Tabla */}
+                        {/* 5. Tabla — sin spinner de integrante, el swap es instantáneo */}
                         {loadingIntegrante ? (
                             <div className="flex items-center justify-center py-12">
                                 <ArrowPathIcon className="w-6 h-6 animate-spin text-brand-red" />
