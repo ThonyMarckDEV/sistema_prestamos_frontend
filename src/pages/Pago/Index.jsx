@@ -16,7 +16,9 @@ const Index = () => {
         handleViewPdf, pdfLoading, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64 
     } = useIndex();
     
-    const { can } = useAuth();
+    const { can, user } = useAuth();
+    const esCliente = user?.rol === 'cliente';
+
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedVoucher, setSelectedVoucher] = useState(null);
 
@@ -97,7 +99,22 @@ const Index = () => {
             header: 'Monto y Modalidad',
             render: (row) => (
                 <div className="flex flex-col">
-                    <span className="font-black text-emerald-600 text-sm">S/ {row.monto}</span>
+                    {esCliente && row.mi_aporte != null ? (
+                        // Cliente grupal: mostrar su aporte individual + nota del total
+                        <>
+                            <span className="font-black text-emerald-600 text-sm">
+                                S/ {parseFloat(row.mi_aporte).toFixed(2)}
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-400 mt-0.5 whitespace-nowrap">
+                                Total grupo: S/ {parseFloat(row.monto).toFixed(2)}
+                            </span>
+                        </>
+                    ) : (
+                        // Monto normal (individual o no-cliente)
+                        <span className="font-black text-emerald-600 text-sm">
+                            S/ {parseFloat(row.monto).toFixed(2)}
+                        </span>
+                    )}
                     <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded w-fit mt-1 border border-slate-200 uppercase tracking-widest">
                         {row.modalidad}
                     </span>
@@ -158,7 +175,7 @@ const Index = () => {
                 </div>
             )
         }
-    ], [can, pdfLoading, handleViewPdf]);
+    ], [can, esCliente, pdfLoading, handleViewPdf]);
 
     return (
         <div className="container mx-auto p-6 max-w-7xl">
