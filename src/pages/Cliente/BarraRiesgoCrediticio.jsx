@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BarraRiesgoSBS = ({ titulo, sbs }) => {
+const BarraRiesgoCrediticio = ({ titulo, sbs }) => {
     const niveles = [
         { id: 'NORMAL',     label: 'NORMAL',  bgColor: 'bg-green-500'  },
         { id: 'CPP',        label: 'CPP',      bgColor: 'bg-yellow-400' },
@@ -105,4 +105,4 @@ const BarraRiesgoSBS = ({ titulo, sbs }) => {
     );
 };
 
-export default BarraRiesgoSBS;
+export default BarraRiesgoCrediticio;

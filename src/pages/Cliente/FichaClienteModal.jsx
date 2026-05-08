@@ -7,7 +7,7 @@ import {
     MapPinIcon, CreditCardIcon, TagIcon,
     ComputerDesktopIcon, PrinterIcon, ArrowPathIcon, ShieldCheckIcon
 } from '@heroicons/react/24/outline';
-import BarraRiesgoSBS from './BarraRiesgoSBS';
+import BarraRiesgoCrediticio from './BarraRiesgoCrediticio';
 
 const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
     const [pdfModalOpen, setPdfModalOpen] = useState(false);
@@ -109,19 +109,19 @@ const FichaClienteModal = ({ isOpen, onClose, data, isLoading }) => {
                             </div>
                         </div>
 
-                        {data.sbs && (
+                        {data.riesgo_crediticio && (
                             <div className="md:col-span-2 pt-2 pb-2">
                                 <div className="flex items-center gap-2 mb-4">
                                     <div className="p-1.5 bg-slate-100 rounded-lg">
                                         <ShieldCheckIcon className="w-5 h-5 text-slate-600" />
                                     </div>
                                     <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                                        Calificación de Riesgo Crediticio (SBS)
+                                        Calificación de Riesgo Crediticio
                                     </h4>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <BarraRiesgoSBS titulo="Riesgo SBS Actual" sbs={data.sbs.actual} />
-                                    <BarraRiesgoSBS titulo="Peor Atraso Histórico" sbs={data.sbs.historico} />
+                                    <BarraRiesgoCrediticio titulo="Riesgo Actual" sbs={data.riesgo_crediticio.actual} />
+                                    <BarraRiesgoCrediticio titulo="Peor Atraso Histórico" sbs={data.riesgo_crediticio.historico} />
                                 </div>
                             </div>
                         )}
