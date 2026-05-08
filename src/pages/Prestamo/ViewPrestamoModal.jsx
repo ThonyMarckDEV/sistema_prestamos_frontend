@@ -113,6 +113,15 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
 
     const tieneIntegrantes = data?.integrantes?.length > 0 || data?.integrantes_refinanciados?.length > 0;
 
+    const eco = data?.datos_economicos;
+    const interesMonto = eco?.interes_monto != null
+        ? parseFloat(eco.interes_monto)
+        : (
+            parseFloat(eco?.total_prestamo ?? 0)
+            - parseFloat(eco?.monto ?? 0)
+            - (eco?.seguro_financiado ? parseFloat(eco?.seguro ?? 0) : 0)
+          );
+
     return (
         <>
             <ViewModal
@@ -145,8 +154,8 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Desembolso</p>
-                                    <p className="text-sm font-black text-slate-800 uppercase">{data.datos_economicos?.modalidad}</p>
-                                    <p className="text-[10px] font-bold text-slate-500">Vía: {data.datos_economicos?.abonado_por}</p>
+                                    <p className="text-sm font-black text-slate-800 uppercase">{eco?.modalidad}</p>
+                                    <p className="text-[10px] font-bold text-slate-500">Vía: {eco?.abonado_por}</p>
                                 </div>
                             </div>
                         </div>
@@ -204,37 +213,42 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                         )}
 
                         {/* 3. Resumen Económico */}
+                        {data.estado === 3 && (
+                            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-xl">
+                                <span className="text-[9px] font-black text-green-700 uppercase">✓ Préstamo Liquidado — Totales históricos del préstamo completo</span>
+                            </div>
+                        )}
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                                <p className="text-[9px] font-black text-slate-400 uppercase">Capital Total</p>
-                                <p className="text-md font-black text-slate-800">S/ {data.datos_economicos?.monto}</p>
+                                <p className="text-[9px] font-black text-slate-400 uppercase">
+                                    {data.estado === 3 ? 'Capital Total' : 'Capital Pendiente'}
+                                </p>
+                                <p className="text-md font-black text-slate-800">S/ {parseFloat(eco?.monto ?? 0).toFixed(2)}</p>
                             </div>
                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                                <p className="text-[9px] font-black text-slate-400 uppercase">Interés ({data.datos_economicos?.interes_porc}%)</p>
+                                <p className="text-[9px] font-black text-slate-400 uppercase">Interés ({eco?.interes_porc}%)</p>
                                 <p className="text-md font-black text-brand-gold-dark">
-                                    S/ {(
-                                        parseFloat(data.datos_economicos?.total_prestamo)
-                                        - parseFloat(data.datos_economicos?.monto)
-                                        - (data.datos_economicos?.seguro_financiado ? parseFloat(data.datos_economicos?.seguro || 0) : 0)
-                                    ).toFixed(2)}
+                                    S/ {interesMonto.toFixed(2)}
                                 </p>
                             </div>
                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center flex flex-col justify-center">
                                 <p className="text-[9px] font-black text-slate-400 uppercase">Seguro</p>
                                 <p className="text-md font-black text-slate-800">
-                                    S/ {parseFloat(data.datos_economicos?.seguro || 0).toFixed(2)}
+                                    S/ {parseFloat(eco?.seguro || 0).toFixed(2)}
                                 </p>
-                                <p className={`text-[8px] font-black uppercase mt-0.5 ${data.datos_economicos?.seguro_financiado ? 'text-brand-gold-dark' : 'text-green-600'}`}>
-                                    {data.datos_economicos?.seguro_financiado ? '(En Cuotas)' : '✓ Ya Cobrado'}
+                                <p className={`text-[8px] font-black uppercase mt-0.5 ${eco?.seguro_financiado ? 'text-brand-gold-dark' : 'text-green-600'}`}>
+                                    {eco?.seguro_financiado ? '(En Cuotas)' : '✓ Ya Cobrado'}
                                 </p>
                             </div>
                             <div className="p-3 bg-slate-900 rounded-xl text-center shadow-lg">
-                                <p className="text-[9px] font-black text-slate-300 uppercase">Total Cobrar</p>
-                                <p className="text-md font-black text-brand-gold">S/ {data.datos_economicos?.total_prestamo}</p>
+                                <p className="text-[9px] font-black text-slate-300 uppercase">
+                                    {data.estado === 3 ? 'Total Cobrado' : 'Total Cobrar'}
+                                </p>
+                                <p className="text-md font-black text-brand-gold">S/ {parseFloat(eco?.total_prestamo ?? 0).toFixed(2)}</p>
                             </div>
                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
                                 <p className="text-[9px] font-black text-slate-400 uppercase">Cuota</p>
-                                <p className="text-md font-black text-slate-800">S/ {data.datos_economicos?.valor_cuota}</p>
+                                <p className="text-md font-black text-slate-800">S/ {parseFloat(eco?.valor_cuota ?? 0).toFixed(2)}</p>
                             </div>
                         </div>
 
@@ -246,7 +260,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                             </h4>
                             <div className="flex items-center gap-2">
 
-                                {/* Botón refinanciar: solo si puede, préstamo activo, integrante seleccionado y NO refinanciado */}
                                 {canRefinanciar && data.estado === 1 && (!data.es_grupal || esVistaIntegrante) && !integranteYaRefinanciado && (
                                     <button onClick={handleAbrirRefinanciamiento}
                                         className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-gold hover:bg-brand-gold-dark text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-md shadow-brand-gold/20">
@@ -255,7 +268,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                     </button>
                                 )}
 
-                                {/* Badge si ya fue refinanciado */}
                                 {integranteYaRefinanciado && (
                                     <span className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-500 text-[10px] font-black uppercase rounded-lg border border-blue-200">
                                         <ArrowPathRoundedSquareIcon className="w-3.5 h-3.5" />
