@@ -87,13 +87,13 @@ const Index = () => {
             { header: 'Financiero', render: (row) => (
                 <div className="flex flex-col">
                     <span className="text-[8px] font-black text-brand-red italic text-sm">S/ {row.monto}</span>
-                    <span className="text-[9px] text-slate-400 font-black uppercase tracking-tighter">{row.abonado_por}</span>
+                    <span className="text-[8px] text-slate-600 font-black uppercase tracking-tighter">{row.abonado_por}</span>
                 </div>
             )},
             { header: 'Cuotas', render: (row) => (
                 <div className="flex flex-col">
                     <span className="text-xs font-black text-slate-700">{row.cuotas_detalle}</span>
-                    <span className="text-[9px] text-slate-400 uppercase font-bold">{row.frecuencia}</span>
+                    <span className="text-[8px] text-slate-400 uppercase font-bold">{row.frecuencia}</span>
                 </div>
             )},
             { header: 'Estado', render: (row) => {
