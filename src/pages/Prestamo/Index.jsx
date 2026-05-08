@@ -79,15 +79,15 @@ const Index = () => {
                 </div>
             )},
             { header: 'Asesor', render: (row) => (
-                <div className="flex items-center gap-1.5 text-[12px] text-black w-fit">
+                <div className="flex items-center gap-1.5 text-[11px] text-black w-fit">
                     <BriefcaseIcon className="w-3 h-3 text-black " />
                     {row.asesor}
                 </div>
             )},
             { header: 'Financiero', render: (row) => (
                 <div className="flex flex-col">
-                    <span className="font-black text-brand-red italic text-sm">S/ {row.monto}</span>
-                    <span className="text-[8px] text-slate-400 font-black uppercase tracking-tighter">{row.abonado_por}</span>
+                    <span className="text-[8px] font-black text-brand-red italic text-sm">S/ {row.monto}</span>
+                    <span className="text-[9px] text-slate-400 font-black uppercase tracking-tighter">{row.abonado_por}</span>
                 </div>
             )},
             { header: 'Cuotas', render: (row) => (
