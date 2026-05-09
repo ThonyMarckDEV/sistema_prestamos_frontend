@@ -29,12 +29,10 @@ const Index = () => {
                     <div className={`flex flex-col gap-1 ${row.estado === 0 ? 'opacity-50' : ''}`}>
                         <div className="flex items-center gap-1.5">
                             {row.categoria === 'desembolso' ? (
-                                // Desembolso: Rojo porque sale plata
                                 <div className={`p-1 rounded-md border ${row.estado === 0 ? 'bg-slate-100 border-slate-300' : 'bg-red-50 border-red-200'}`}>
                                     <ArrowUpRightIcon className={`w-3.5 h-3.5 ${row.estado === 0 ? 'text-slate-500' : 'text-red-600'}`} />
                                 </div>
                             ) : (
-                                // Cobro: Verde porque entra plata
                                 <div className={`p-1 rounded-md border ${row.estado === 0 ? 'bg-slate-100 border-slate-300' : 'bg-green-50 border-green-200'}`}>
                                     <ArrowDownRightIcon className={`w-3.5 h-3.5 ${row.estado === 0 ? 'text-slate-500' : 'text-green-600'}`} />
                                 </div>
@@ -59,6 +57,18 @@ const Index = () => {
                         >
                             {row.motivo}
                         </span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            {row.prestamo_id && (
+                                <span className="text-[9px] font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 font-mono">
+                                    #{String(row.prestamo_id).padStart(5, '0')}
+                                </span>
+                            )}
+                            {row.numero_cuota && (
+                                <span className="text-[9px] font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded px-1.5 py-0.5">
+                                    Cuota {row.numero_cuota}
+                                </span>
+                            )}
+                        </div>
                         {row.estado === 0 && (
                             <span className="text-[9px] text-brand-red font-bold uppercase mt-0.5 block tracking-widest">
                                 Anulado
@@ -123,7 +133,6 @@ const Index = () => {
                                 <PrinterIcon className={`w-4 h-4 ${pdfLoading ? 'animate-spin' : ''}`} />
                             </button>
                         )}
-
                         {canDelete && row.estado !== 0 && (
                             <button
                                 onClick={() => openAnularModal(row.id)}
