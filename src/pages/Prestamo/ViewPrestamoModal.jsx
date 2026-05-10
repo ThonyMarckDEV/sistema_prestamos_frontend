@@ -224,37 +224,94 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                         {/* 3. Resumen Económico */}
                         {data.estado === 3 && (
                             <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-xl">
-                                <span className="text-[9px] font-black text-green-700 uppercase">✓ Préstamo Liquidado — Totales históricos del préstamo completo</span>
+                                <span className="text-[9px] font-black text-green-700 uppercase">
+                                    ✓ Préstamo Liquidado — Totales históricos del préstamo completo
+                                </span>
                             </div>
                         )}
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+                        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+
+                            {/* Capital */}
                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
                                 <p className="text-[9px] font-black text-slate-400 uppercase">
                                     {data.estado === 3 ? 'Capital Total' : 'Capital Pendiente'}
                                 </p>
-                                <p className="text-md font-black text-slate-800">S/ {parseFloat(eco?.monto ?? 0).toFixed(2)}</p>
+                                <p className="text-md font-black text-slate-800">
+                                    S/ {parseFloat(eco?.monto ?? 0).toFixed(2)}
+                                </p>
                             </div>
+
+                            {/* Interés */}
                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                                <p className="text-[9px] font-black text-slate-400 uppercase">Interés ({eco?.interes_porc}%)</p>
-                                <p className="text-md font-black text-brand-gold-dark">S/ {interesMonto.toFixed(2)}</p>
+                                <p className="text-[9px] font-black text-slate-400 uppercase">
+                                    Interés ({eco?.interes_porc}%)
+                                </p>
+                                <p className="text-md font-black text-brand-gold-dark">
+                                    S/ {interesMonto.toFixed(2)}
+                                </p>
                             </div>
+
+                            {/* Seguro */}
                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center flex flex-col justify-center">
-                                <p className="text-[9px] font-black text-slate-400 uppercase">Seguro</p>
-                                <p className="text-md font-black text-slate-800">S/ {parseFloat(eco?.seguro || 0).toFixed(2)}</p>
-                                <p className={`text-[8px] font-black uppercase mt-0.5 ${eco?.seguro_financiado ? 'text-brand-gold-dark' : 'text-green-600'}`}>
+                                <p className="text-[9px] font-black text-slate-400 uppercase">
+                                    Seguro
+                                </p>
+
+                                <p className="text-md font-black text-slate-800">
+                                    S/ {parseFloat(eco?.seguro || 0).toFixed(2)}
+                                </p>
+
+                                <p className={`text-[8px] font-black uppercase mt-0.5 ${
+                                    eco?.seguro_financiado
+                                        ? 'text-brand-gold-dark'
+                                        : 'text-green-600'
+                                }`}>
                                     {eco?.seguro_financiado ? '(En Cuotas)' : '✓ Ya Cobrado'}
                                 </p>
                             </div>
+
+                            {/* Total Original */}
                             <div className="p-3 bg-slate-900 rounded-xl text-center shadow-lg">
                                 <p className="text-[9px] font-black text-slate-300 uppercase">
-                                    {data.estado === 3 ? 'Total Cobrado' : 'Total Cobrar'}
+                                    Total Original
                                 </p>
-                                <p className="text-md font-black text-brand-gold">S/ {parseFloat(eco?.total_prestamo ?? 0).toFixed(2)}</p>
+
+                                <p className="text-md font-black text-brand-gold">
+                                    S/ {parseFloat(eco?.total_original ?? eco?.total_financiado ?? 0).toFixed(2)}
+                                </p>
+
+                                <p className="text-[8px] font-black uppercase text-slate-400 mt-1">
+                                    Histórico
+                                </p>
                             </div>
+
+                            {/* Total Pendiente */}
+                            <div className="p-3 bg-brand-red rounded-xl text-center shadow-lg">
+                                <p className="text-[9px] font-black text-white/70 uppercase">
+                                    Saldo Pendiente
+                                </p>
+
+                                <p className="text-md font-black text-white">
+                                    S/ {parseFloat(eco?.total_prestamo ?? 0).toFixed(2)}
+                                </p>
+
+                                <p className="text-[8px] font-black uppercase text-white/60 mt-1">
+                                    Por Cobrar
+                                </p>
+                            </div>
+
+                            {/* Cuota */}
                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                                <p className="text-[9px] font-black text-slate-400 uppercase">Cuota</p>
-                                <p className="text-md font-black text-slate-800">S/ {parseFloat(eco?.valor_cuota ?? 0).toFixed(2)}</p>
+                                <p className="text-[9px] font-black text-slate-400 uppercase">
+                                    Cuota
+                                </p>
+
+                                <p className="text-md font-black text-slate-800">
+                                    S/ {parseFloat(eco?.valor_cuota ?? 0).toFixed(2)}
+                                </p>
                             </div>
+
                         </div>
 
                         {/* 4. Header cronograma */}
