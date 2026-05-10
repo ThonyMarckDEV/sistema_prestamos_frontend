@@ -220,7 +220,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                 </div>
                             </div>
                         )}
-
+                        
                         {/* 3. Resumen Económico */}
                         {data.estado === 3 && (
                             <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-xl">
@@ -230,86 +230,124 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                             </div>
                         )}
 
-                        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
                             {/* Capital */}
-                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                                <p className="text-[9px] font-black text-slate-400 uppercase">
+                            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <p className="text-[10px] font-black uppercase text-slate-400 mb-1">
                                     {data.estado === 3 ? 'Capital Total' : 'Capital Pendiente'}
                                 </p>
-                                <p className="text-md font-black text-slate-800">
+
+                                <p className="text-xl font-black text-slate-800">
                                     S/ {parseFloat(eco?.monto ?? 0).toFixed(2)}
                                 </p>
+
+                                <p className="text-[11px] font-bold text-slate-500 mt-1">
+                                    de S/ {parseFloat(eco?.monto_original ?? 0).toFixed(2)}
+                                </p>
+
+                                <div className="mt-3 w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                                    <div
+                                        className="h-full bg-slate-700 rounded-full transition-all duration-500"
+                                        style={{
+                                            width: `${
+                                                ((eco?.monto ?? 0) * 100) /
+                                                (eco?.monto_original || 1)
+                                            }%`
+                                        }}
+                                    />
+                                </div>
                             </div>
 
                             {/* Interés */}
-                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                                <p className="text-[9px] font-black text-slate-400 uppercase">
-                                    Interés ({eco?.interes_porc}%)
+                            <div className="p-4 bg-brand-gold-light/20 rounded-2xl border border-brand-gold/10">
+                                <p className="text-[10px] font-black uppercase text-brand-gold-dark mb-1">
+                                    Interés Pendiente
                                 </p>
-                                <p className="text-md font-black text-brand-gold-dark">
-                                    S/ {interesMonto.toFixed(2)}
+
+                                <p className="text-xl font-black text-brand-gold-dark">
+                                    S/ {parseFloat(eco?.interes_monto ?? 0).toFixed(2)}
                                 </p>
+
+                                <p className="text-[11px] font-bold text-brand-gold-dark/70 mt-1">
+                                    de S/ {parseFloat(eco?.interes_original ?? 0).toFixed(2)}
+                                </p>
+
+                                <div className="mt-3 w-full bg-brand-gold/20 rounded-full h-2 overflow-hidden">
+                                    <div
+                                        className="h-full bg-brand-gold rounded-full transition-all duration-500"
+                                        style={{
+                                            width: `${
+                                                ((eco?.interes_monto ?? 0) * 100) /
+                                                (eco?.interes_original || 1)
+                                            }%`
+                                        }}
+                                    />
+                                </div>
                             </div>
 
-                            {/* Seguro */}
-                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center flex flex-col justify-center">
-                                <p className="text-[9px] font-black text-slate-400 uppercase">
-                                    Seguro
+                            {/* Total */}
+                            <div className="p-4 bg-brand-red rounded-2xl shadow-xl shadow-brand-red/20">
+                                <p className="text-[10px] font-black uppercase text-white/70 mb-1">
+                                    {data.estado === 3 ? 'Total Cobrado' : 'Saldo Pendiente'}
                                 </p>
 
-                                <p className="text-md font-black text-slate-800">
-                                    S/ {parseFloat(eco?.seguro || 0).toFixed(2)}
-                                </p>
-
-                                <p className={`text-[8px] font-black uppercase mt-0.5 ${
-                                    eco?.seguro_financiado
-                                        ? 'text-brand-gold-dark'
-                                        : 'text-green-600'
-                                }`}>
-                                    {eco?.seguro_financiado ? '(En Cuotas)' : '✓ Ya Cobrado'}
-                                </p>
-                            </div>
-
-                            {/* Total Original */}
-                            <div className="p-3 bg-slate-900 rounded-xl text-center shadow-lg">
-                                <p className="text-[9px] font-black text-slate-300 uppercase">
-                                    Total Original
-                                </p>
-
-                                <p className="text-md font-black text-brand-gold">
-                                    S/ {parseFloat(eco?.total_original ?? eco?.total_financiado ?? 0).toFixed(2)}
-                                </p>
-
-                                <p className="text-[8px] font-black uppercase text-slate-400 mt-1">
-                                    Histórico
-                                </p>
-                            </div>
-
-                            {/* Total Pendiente */}
-                            <div className="p-3 bg-brand-red rounded-xl text-center shadow-lg">
-                                <p className="text-[9px] font-black text-white/70 uppercase">
-                                    Saldo Pendiente
-                                </p>
-
-                                <p className="text-md font-black text-white">
+                                <p className="text-xl font-black text-white">
                                     S/ {parseFloat(eco?.total_prestamo ?? 0).toFixed(2)}
                                 </p>
 
-                                <p className="text-[8px] font-black uppercase text-white/60 mt-1">
-                                    Por Cobrar
+                                <p className="text-[11px] font-bold text-white/70 mt-1">
+                                    de S/ {parseFloat(eco?.total_original ?? 0).toFixed(2)}
                                 </p>
+
+                                <div className="mt-3 w-full bg-white/20 rounded-full h-2 overflow-hidden">
+                                    <div
+                                        className="h-full bg-white rounded-full transition-all duration-500"
+                                        style={{
+                                            width: `${
+                                                ((eco?.total_prestamo ?? 0) * 100) /
+                                                (eco?.total_original || 1)
+                                            }%`
+                                        }}
+                                    />
+                                </div>
                             </div>
 
-                            {/* Cuota */}
-                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                                <p className="text-[9px] font-black text-slate-400 uppercase">
-                                    Cuota
-                                </p>
+                            {/* Cuota + Seguro */}
+                            <div className="p-4 bg-white rounded-2xl border border-slate-100 flex flex-col justify-between">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-slate-400 mb-1">
+                                        Valor Cuota
+                                    </p>
 
-                                <p className="text-md font-black text-slate-800">
-                                    S/ {parseFloat(eco?.valor_cuota ?? 0).toFixed(2)}
-                                </p>
+                                    <p className="text-xl font-black text-slate-800">
+                                        S/ {parseFloat(eco?.valor_cuota ?? 0).toFixed(2)}
+                                    </p>
+
+                                    <p className="text-[11px] font-bold text-slate-500 mt-1 uppercase">
+                                        {eco?.frecuencia}
+                                    </p>
+                                </div>
+
+                                <div className="mt-4 pt-3 border-t border-slate-100">
+                                    <p className="text-[9px] font-black uppercase text-slate-400">
+                                        Seguro
+                                    </p>
+
+                                    <p className="text-sm font-black text-slate-700">
+                                        S/ {parseFloat(eco?.seguro || 0).toFixed(2)}
+                                    </p>
+
+                                    <p className={`text-[8px] font-black uppercase mt-1 ${
+                                        eco?.seguro_financiado
+                                            ? 'text-brand-gold-dark'
+                                            : 'text-green-600'
+                                    }`}>
+                                        {eco?.seguro_financiado
+                                            ? 'Financiado'
+                                            : '✓ Ya Cobrado'}
+                                    </p>
+                                </div>
                             </div>
 
                         </div>
