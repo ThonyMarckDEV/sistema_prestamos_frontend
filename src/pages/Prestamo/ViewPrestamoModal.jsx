@@ -119,14 +119,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
     const tieneIntegrantes = data?.integrantes?.length > 0 || data?.integrantes_refinanciados?.length > 0;
 
     const eco = data?.datos_economicos;
-    const interesMonto = eco?.interes_monto != null
-        ? parseFloat(eco.interes_monto)
-        : (
-            parseFloat(eco?.total_prestamo ?? 0)
-            - parseFloat(eco?.monto ?? 0)
-            - (eco?.seguro_financiado ? parseFloat(eco?.seguro ?? 0) : 0)
-          );
-
     return (
         <>
             <ViewModal
