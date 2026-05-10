@@ -32,8 +32,9 @@ export const useDashboardCuotaDia = () => {
 
     useEffect(() => {
         fetchData(fecha, asesorId);
+        // eslint-disable-next-line
     }, [fetchData]);
-
+    
     const handleFiltrar = () => fetchData(fecha, asesorId);
 
     const handleLimpiar = () => {
