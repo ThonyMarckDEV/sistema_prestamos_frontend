@@ -93,6 +93,8 @@ import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
 import ProtectedRoute from 'utilities/ProtectedRoutes/ProtectedRoute';
 import { AuthProvider } from 'context/AuthContext';
 import { NotificacionProvider } from 'components/Shared/Notificaciones/NotificacionContext';
+import SecureRoute from 'utilities/ProtectedRoutes/SecureRoute';
+import { SecureModuleProvider } from 'context/SecureModuleContext';
 
 
 function AppContent() {
@@ -170,15 +172,15 @@ function AppContent() {
         <Route path="/prospecto/editar/:id"   element={<ProtectedRoute requiredPermission="prospecto.update" element={<EditarProspecto  />} />} />
 
         {/* FERIADOS */}
-        <Route path="/feriados/listar" element={<ProtectedRoute requiredPermission="feriado.index" element={<ListarFeriados />} />} />
-        <Route path="/feriados/agregar" element={<ProtectedRoute requiredPermission="feriado.store" element={<AgregarFeriado />} />} />
-        <Route path="/feriados/editar/:id" element={<ProtectedRoute requiredPermission="feriado.update" element={<EditarFeriado />} />} />
+        <Route path="/feriados/listar" element={<ProtectedRoute requiredPermission="feriado.index" element={<SecureRoute element={<ListarFeriados />} />} />} />
+        <Route path="/feriados/agregar" element={<ProtectedRoute requiredPermission="feriado.store" element={<SecureRoute element={<AgregarFeriado />} />} />} />
+        <Route path="/feriados/editar/:id" element={<ProtectedRoute requiredPermission="feriado.update" element={<SecureRoute element={<EditarFeriado />} />} />} />
 
         {/* ROLES Y PERMISOS */}
-        <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />        
+        <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index"  element={<SecureRoute element={<ListarRoles />} />} />} />   
         {/* SETTINGS */}
-        <Route path="/parametro/listar" element={<ProtectedRoute requiredPermission="parametro.index" element={<ListarParametros />} />} />
-        <Route path="/parametro/editar/:id" element={<ProtectedRoute requiredPermission="parametro.update" element={<EditarParametro />} />} />
+        <Route path="/parametro/listar" element={<ProtectedRoute requiredPermission="parametro.index" element={<SecureRoute element={<ListarParametros />} />} />} />   
+        <Route path="/parametro/editar/:id" element={<ProtectedRoute requiredPermission="parametro.update" element={<SecureRoute element={<EditarParametro />} />} />} />   
 
 
       </Route>
@@ -194,12 +196,14 @@ function App() {
   return (   
     <AuthProvider>
      <NotificacionProvider>
-        <Router>
-          <div className="min-h-screen bg-white text-primary">
-            <AppContent />
-            <ToastContainer />
-          </div>
-        </Router>
+        <SecureModuleProvider>
+          <Router>
+            <div className="min-h-screen bg-white text-primary">
+              <AppContent />
+              <ToastContainer />
+            </div>
+          </Router>
+        </SecureModuleProvider>
       </NotificacionProvider>
     </AuthProvider>
   );
