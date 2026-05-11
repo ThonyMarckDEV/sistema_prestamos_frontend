@@ -239,7 +239,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                 <div className="p-4 bg-white rounded-2xl border border-slate-100 flex flex-col justify-between">
                                     <div>
                                         <p className="text-[10px] font-black uppercase text-slate-400 mb-1">
-                                            {esVistaIntegrante ? 'Monto Individual' : 'Valor Cuota'}
+                                            {esVistaIntegrante ? 'Cuota Individual' : 'Valor Cuota'}
                                         </p>
                                         <p className="text-xl font-black text-slate-800">
                                             S/ {parseFloat(eco?.valor_cuota ?? 0).toFixed(2)}
