@@ -2,8 +2,8 @@ import API_BASE_URL from './urlHelper';
 import jwtUtils from 'utilities/Token/jwtUtils';
 import { logout } from 'js/logout';
 
-let isRefreshing        = false;
-let refreshSubscribers  = [];
+let isRefreshing       = false;
+let refreshSubscribers = [];
 
 const onRefreshed = (token) => {
     refreshSubscribers.forEach(cb => cb(token));
@@ -33,6 +33,20 @@ export async function fetchWithAuth(url, options = {}) {
 
     if (response.status !== 401) return response;
 
+    // ── Leer el body para detectar HORARIO_BLOQUEADO ──────────────────────────
+    // Clonar la respuesta porque el body solo se puede leer una vez
+    const cloned = response.clone();
+    try {
+        const json = await cloned.json();
+        if (json?.code === 'HORARIO_BLOQUEADO') {
+            refreshSubscribers = [];
+            logout();
+            return response;
+        }
+    } catch (_) {
+        // No era JSON, continuar flujo normal
+    }
+
     // Si ya hay un refresh en curso — encolar y esperar
     if (isRefreshing) {
         return new Promise((resolve) => {
@@ -57,7 +71,7 @@ export async function fetchWithAuth(url, options = {}) {
             throw new Error('Refresh inválido');
         }
 
-        const json          = await refreshResponse.json();
+        const json           = await refreshResponse.json();
         const newAccessToken = json?.data?.access_token;
 
         if (!newAccessToken) throw new Error('Token no recibido');
