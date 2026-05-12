@@ -4,10 +4,10 @@ import jwtUtils from 'utilities/Token/jwtUtils';
 import API_BASE_URL from 'js/urlHelper';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 
+import { fetchWithAuth } from 'js/authToken';
+
 export async function logout() {
-  // Crear el contenedor
   const container = document.createElement('div');
-  
   container.style.position = 'fixed';
   container.style.top = '0';
   container.style.left = '0';
@@ -20,24 +20,19 @@ export async function logout() {
   const root = createRoot(container);
 
   try {
-    // Renderizar LoadingScreen
     root.render(<LoadingScreen />);
 
-    await fetch(`${API_BASE_URL}/api/logout`, {
+    await fetchWithAuth(`${API_BASE_URL}/api/logout`, {
         method: 'POST',
-        credentials: 'include' 
     });
 
   } catch (error) {
     console.warn('[Logout] Error notificando al backend (igual cerramos localmente):', error);
   } finally {
     jwtUtils.removeTokensFromCookie();
-
     setTimeout(() => {
         root.unmount();
-        if (document.body.contains(container)) {
-            document.body.removeChild(container);
-        }
+        if (document.body.contains(container)) document.body.removeChild(container);
         window.location.href = '/';
     }, 500);
   }
