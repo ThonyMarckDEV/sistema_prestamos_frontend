@@ -1,4 +1,10 @@
-const UNLOCK_MS = 5 * 60 * 1000;
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { verifyPassword } from 'services/securityService';
+import { handleApiError } from 'utilities/Errors/apiErrorHandler';
+
+const UNLOCK_MS = 5 * 60 * 1000; // 5 minutos
+
+const SecureModuleContext = createContext(null);
 
 export function SecureModuleProvider({ children }) {
     const [isUnlocked, setIsUnlocked]   = useState(false);
