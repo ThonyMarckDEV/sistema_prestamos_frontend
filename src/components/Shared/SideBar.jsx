@@ -4,7 +4,8 @@ import {
     HomeIcon, ChartPieIcon, UsersIcon, BanknotesIcon, 
     CurrencyDollarIcon, BuildingLibraryIcon, UserGroupIcon, 
     WalletIcon, DocumentChartBarIcon, Bars3Icon,
-    ArrowRightOnRectangleIcon, CubeIcon
+    ArrowRightOnRectangleIcon, CubeIcon,
+    ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import { useAuth } from 'context/AuthContext';
@@ -176,6 +177,7 @@ export const MENU_GROUPS = [
             { section: 'Feriados',         icon: Calendar1Icon, link: '/feriados/listar', requiredPermission: 'feriado.index'   },
             { section: 'Roles y Permisos', icon: Lock,          link: '/rol/listar',       requiredPermission: 'rol.index'       },
             { section: 'Horarios Sistema', icon: ClockIcon,     link: '/horario-sistema/listar', requiredPermission: 'horarioSistema.index' },
+            { section: 'Auditoria',        icon: ClipboardDocumentListIcon,     link: '/auditoria/listar', requiredPermission: 'auditoria.index' },
             { section: 'Parámetros',       icon: SettingsIcon,  link: '/parametro/listar', requiredPermission: 'parametro.index' },
         ]
     }

@@ -88,6 +88,9 @@ import ListarHorarios from 'pages/HorarioSistema/Index';
 import AgregarHorario from 'pages/HorarioSistema/Store';
 import EditarHorario  from 'pages/HorarioSistema/Update';
 
+// UI AUDITORIA
+import ListarAuditoria from 'pages/Auditoria/Index';
+
 // SETTINGS
 import ListarParametros from 'pages/Parametro/Index';
 import EditarParametro from 'pages/Parametro/Update';
@@ -187,6 +190,8 @@ function AppContent() {
         <Route path="/horario-sistema/listar"     element={<ProtectedRoute requiredPermission="horarioSistema.index"  element={<SecureRoute element={<ListarHorarios />} />} />} />
         <Route path="/horario-sistema/agregar"    element={<ProtectedRoute requiredPermission="horarioSistema.store"   element={<SecureRoute element={<AgregarHorario />} />} />} />
         <Route path="/horario-sistema/editar/:id" element={<ProtectedRoute requiredPermission="horarioSistema.update"  element={<SecureRoute element={<EditarHorario />} />} />} />
+        
+        <Route path="/auditoria/listar" element={<ProtectedRoute requiredPermission="auditoria.index"  element={<SecureRoute element={<ListarAuditoria/>} />} />} />   
 
         {/* SETTINGS */}
         <Route path="/parametro/listar" element={<ProtectedRoute requiredPermission="parametro.index" element={<SecureRoute element={<ListarParametros />} />} />} />   
