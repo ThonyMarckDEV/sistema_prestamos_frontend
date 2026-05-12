@@ -166,16 +166,6 @@ const ProspectoForm = ({ data, onChange, isEditing = false }) => {
                         <input type="email" value={data.correo || ''} onChange={(e) => onChange('correo', toUpper(e.target.value))}
                             className={inputClass} />
                     </div>
-                    <div className="sm:col-span-2 mt-2">
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Zona Operativa *</label>
-                        <ZonaSearchSelect
-                            initialName={data.zona_nombre || ''}
-                            onSelect={(zona) => {
-                                onChange('zona_id', zona ? zona.id : null);
-                                onChange('zona_nombre', zona ? zona.nombre : '');
-                            }}
-                        />
-                    </div>
                     <div className="sm:col-span-2">
                         <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Dirección Fiscal *</label>
                         <input type="text" value={data.direccionFiscal || ''} onChange={(e) => onChange('direccionFiscal', toUpper(e.target.value))}
@@ -232,6 +222,16 @@ const ProspectoForm = ({ data, onChange, isEditing = false }) => {
                             <input type="text" value={data.tiempoResidencia || ''} onChange={(e) => onChange('tiempoResidencia', toUpper(e.target.value))}
                                 placeholder="EJ: 2 AÑOS" className={inputClass} required />
                         </div>
+                    </div>
+                    <div className="sm:col-span-2 mt-2">
+                        <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Zona Operativa *</label>
+                        <ZonaSearchSelect
+                            initialName={data.zona_nombre || ''}
+                            onSelect={(zona) => {
+                                onChange('zona_id', zona ? zona.id : null);
+                                onChange('zona_nombre', zona ? zona.nombre : '');
+                            }}
+                        />
                     </div>
                 </div>
             </div>
