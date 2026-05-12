@@ -6,28 +6,84 @@ import { EstadoBadge } from 'components/Shared/Formularios/Prospecto/ProspectoFo
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from 'context/AuthContext';
 import {
-    UserIcon, CurrencyDollarIcon, ClockIcon,
+    UserIcon, ClockIcon,
     ArrowPathIcon, PencilSquareIcon, ArrowRightIcon,
     CheckCircleIcon, IdentificationIcon,
-    PhoneIcon, BuildingOfficeIcon
+    PhoneIcon, BuildingOfficeIcon,
+    ChartBarIcon, ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 
-const Row = ({ label, value }) => (
-    <div className="flex justify-between items-start py-1.5 border-b border-slate-50 last:border-0">
-        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide w-2/5">{label}</span>
-        <span className="text-[11px] font-bold text-slate-700 w-3/5 text-right leading-snug">{value || '—'}</span>
+/* ─── FILA DE DATO ────────────────────────────────────────── */
+const DataRow = ({ label, value, highlight = false }) => (
+    <div className="flex items-start justify-between py-2 border-b border-slate-100 last:border-0">
+        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest pt-0.5 w-2/5 flex-shrink-0">
+            {label}
+        </span>
+        <span className={`text-[11px] font-bold text-right w-3/5 leading-snug ${highlight ? 'text-red-900 font-black' : 'text-slate-700'}`}>
+            {value || <span className="text-slate-300">—</span>}
+        </span>
     </div>
 );
 
-const Section = ({ icon: Icon, title, color = 'text-slate-400', children }) => (
-    <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
-        <h4 className={`text-[9px] font-black uppercase tracking-widest mb-3 flex items-center gap-1.5 ${color}`}>
-            <Icon className="w-3 h-3" /> {title}
-        </h4>
-        {children}
+/* ─── CARD SECCIÓN ────────────────────────────────────────── */
+const Card = ({ icon: Icon, title, accentColor = 'text-slate-400', badge, children }) => (
+    <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-50">
+            <div className={`flex items-center gap-2 ${accentColor}`}>
+                <div className="p-1.5 bg-slate-50 rounded-lg">
+                    <Icon className="w-3 h-3" />
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest">{title}</span>
+            </div>
+            {badge}
+        </div>
+        <div className="px-4 pb-3 pt-1">
+            {children}
+        </div>
     </div>
 );
 
+/* ─── MÉTRICA ─────────────────────────────────────────────── */
+const Metric = ({ label, value, color = 'text-slate-800' }) => (
+    <div className="flex flex-col gap-0.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
+        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+        <span className={`text-base font-black leading-tight ${color}`}>{value || '—'}</span>
+    </div>
+);
+
+/* ─── TIMELINE ITEM ───────────────────────────────────────── */
+const TimelineItem = ({ s, isLast }) => (
+    <div className="relative flex gap-3">
+        {!isLast && (
+            <div className="absolute left-[11px] top-7 bottom-0 w-px bg-slate-100" />
+        )}
+        <div className="relative z-10 w-6 h-6 mt-0.5 flex-shrink-0 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center">
+            <div className="w-1.5 h-1.5 rounded-full bg-red-900" />
+        </div>
+        <div className="flex-1 bg-white border border-slate-100 rounded-xl p-3 mb-3 shadow-sm">
+            <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                <EstadoBadge estado={s.estado_anterior} />
+                <ArrowRightIcon className="w-3 h-3 text-slate-300 flex-shrink-0" />
+                <EstadoBadge estado={s.estado_nuevo} />
+            </div>
+            {s.nota && (
+                <p className="text-[10px] text-slate-600 leading-relaxed mb-2 italic border-l-2 border-amber-400 pl-2">
+                    {s.nota}
+                </p>
+            )}
+            <div className="flex items-center justify-between pt-1 border-t border-slate-50">
+                <span className="text-[9px] font-black text-slate-400 uppercase truncate max-w-[55%]">
+                    {s.asesor}
+                </span>
+                <span className="text-[9px] font-black text-slate-400 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">
+                    {s.fecha}
+                </span>
+            </div>
+        </div>
+    </div>
+);
+
+/* ─── MODAL PRINCIPAL ─────────────────────────────────────── */
 const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuccess }) => {
     const navigate = useNavigate();
     const { can } = useAuth();
@@ -41,112 +97,175 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
 
     const handleSuccess = (updatedData) => onSeguimientoSuccess?.(updatedData);
 
+    const fmt = (n) => n
+        ? `S/ ${parseFloat(n).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`
+        : null;
+
     return (
         <>
             <ViewModal
                 isOpen={isOpen}
                 onClose={onClose}
-                title={`Prospecto #${data?.id?.toString().padStart(5, '0') ?? ''}`}
+                title={`Expediente #${data?.id?.toString().padStart(6, '0') ?? ''}`}
                 isLoading={isLoading}
                 size="2xl"
             >
                 {data && (
                     <div className="flex flex-col md:flex-row gap-5 min-h-0">
 
-                        {/* ── COLUMNA IZQUIERDA ── */}
+                        {/* ══ COLUMNA IZQUIERDA ══ */}
                         <div className="flex-1 flex flex-col gap-4 min-w-0">
 
                             {/* Header */}
-                            <div className="flex items-center justify-between bg-slate-900 text-white p-4 rounded-2xl">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2.5 bg-white/10 rounded-xl">
-                                        {data.tipo === 2
-                                            ? <BuildingOfficeIcon className="w-5 h-5 text-amber-400" />
-                                            : <UserIcon className="w-5 h-5 text-white" />
-                                        }
+                            <div className="relative bg-red-900 rounded-2xl overflow-hidden">
+                                <div
+                                    className="absolute inset-0 opacity-[0.04]"
+                                    style={{
+                                        backgroundImage: 'repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%)',
+                                        backgroundSize: '12px 12px'
+                                    }}
+                                />
+                                <div className="relative p-5">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0">
+                                                {data.tipo === 2
+                                                    ? <BuildingOfficeIcon className="w-5 h-5 text-amber-400" />
+                                                    : <UserIcon className="w-5 h-5 text-white" />
+                                                }
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-white uppercase leading-tight tracking-tight">
+                                                    {data.nombre_completo}
+                                                </p>
+                                                <p className="text-[10px] text-white/50 mt-0.5 font-semibold">
+                                                    {data.tipo === 1 ? `DNI ${data.dni}` : `RUC ${data.ruc}`}
+                                                    <span className="mx-1.5 opacity-40">·</span>
+                                                    {data.tipo === 2 ? 'Persona Jurídica' : 'Persona Natural'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <EstadoBadge estado={data.estado} />
                                     </div>
-                                    <div>
-                                        <p className="font-black text-sm uppercase leading-tight">{data.nombre_completo}</p>
-                                        <p className="text-[10px] text-slate-400 mt-0.5">
-                                            {data.tipo === 1 ? `DNI: ${data.dni}` : `RUC: ${data.ruc}`}
-                                            {' · '}{data.tipo === 2 ? 'Empresa' : 'Persona Natural'}
-                                        </p>
-                                    </div>
+
+                                    {(data.monto_solicitado || data.ingreso_estimado) && (
+                                        <div className="grid grid-cols-2 gap-2 mt-4">
+                                            {data.monto_solicitado && (
+                                                <div className="bg-white/10 rounded-xl p-2.5 border border-white/10">
+                                                    <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-0.5">Monto Solicitado</p>
+                                                    <p className="text-sm font-black text-amber-400">{fmt(data.monto_solicitado)}</p>
+                                                </div>
+                                            )}
+                                            {data.ingreso_estimado && (
+                                                <div className="bg-white/10 rounded-xl p-2.5 border border-white/10">
+                                                    <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-0.5">Ingreso Estimado</p>
+                                                    <p className="text-sm font-black text-white">{fmt(data.ingreso_estimado)}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-                                <EstadoBadge estado={data.estado} />
                             </div>
 
                             {/* Identificación */}
-                            <Section icon={IdentificationIcon} title="Identificación" color="text-red-500">
+                            <Card icon={IdentificationIcon} title="Identificación" accentColor="text-red-800">
                                 {data.tipo === 1 ? (
                                     <>
-                                        <Row label="DNI"         value={data.dni} />
-                                        <Row label="Vencimiento" value={data.fechaVencimientoDni} />
-                                        <Row label="Nacimiento"  value={data.fechaNacimiento} />
-                                        <Row label="Sexo"        value={data.sexo} />
+                                        <DataRow label="DNI"          value={data.dni} />
+                                        <DataRow label="Vencimiento"  value={data.fechaVencimientoDni} />
+                                        <DataRow label="Nacimiento"   value={data.fechaNacimiento} />
+                                        <DataRow label="Sexo"         value={data.sexo} />
                                     </>
                                 ) : (
                                     <>
-                                        <Row label="RUC"         value={data.ruc} />
-                                        <Row label="Razón Social" value={data.razon_social} />
-                                        <Row label="N. Comercial" value={data.nombre_comercial} />
+                                        <DataRow label="RUC"          value={data.ruc} />
+                                        <DataRow label="Razón Social" value={data.razon_social} />
+                                        <DataRow label="N. Comercial" value={data.nombre_comercial} />
                                     </>
                                 )}
-                                <Row label="CIIU"    value={data.ciiu ? `${data.ciiu.codigo} - ${data.ciiu.descripcion}` : null} />
-                                <Row label="Asesor"  value={data.asesor} />
-                                <Row label="Registro" value={data.created_at?.split(' ')[0]} />
-                            </Section>
+                                <DataRow label="Actividad (CIIU)" value={data.ciiu ? `${data.ciiu.codigo} — ${data.ciiu.descripcion}` : null} />
+                                <DataRow label="Asesor Asignado"  value={data.asesor} />
+                                <DataRow label="Fecha Registro"   value={data.created_at?.split(' ')[0]} />
+                            </Card>
 
                             {/* Contacto */}
-                            <Section icon={PhoneIcon} title="Contacto y Residencia" color="text-blue-500">
-                                <Row label="Celular"   value={data.telefono} />
-                                <Row label="Fijo"      value={data.telefonoFijo} />
-                                <Row label="Correo"    value={data.correo} />
-                                <Row label="Zona"      value={data.zona} />
-                                <Row label="Ubicación" value={data.departamento ? `${data.distrito}, ${data.provincia}` : null} />
-                                <Row label="Dirección" value={data.direccionFiscal} />
-                                <Row label="Vivienda"  value={data.tipoVivienda ? `${data.tipoVivienda} · ${data.tiempoResidencia}` : null} />
-                            </Section>
+                            <Card icon={PhoneIcon} title="Contacto y Residencia" accentColor="text-blue-600">
+                                <DataRow label="Celular"   value={data.telefono} />
+                                <DataRow label="Teléfono"  value={data.telefonoFijo} />
+                                <DataRow label="Correo"    value={data.correo} />
+                                <DataRow label="Zona"      value={data.zona} />
+                                <DataRow label="Ubicación" value={data.departamento ? `${data.distrito}, ${data.provincia}` : null} />
+                                <DataRow label="Dirección" value={data.direccionFiscal} />
+                                <DataRow label="Vivienda"  value={data.tipoVivienda ? `${data.tipoVivienda} · ${data.tiempoResidencia}` : null} />
+                            </Card>
 
                             {/* Financiero */}
-                            <Section icon={CurrencyDollarIcon} title="Evaluación Financiera" color="text-green-500">
-                                <Row label="Ingreso Est."  value={data.ingreso_estimado ? `S/ ${data.ingreso_estimado}` : null} />
-                                <Row label="Monto Solic."  value={data.monto_solicitado ? `S/ ${data.monto_solicitado}` : null} />
-                                <Row label="Propósito"     value={data.proposito} />
+                            <Card
+                                icon={ChartBarIcon}
+                                title="Evaluación Financiera"
+                                accentColor="text-emerald-600"
+                                badge={
+                                    data.proposito && (
+                                        <span className="text-[9px] font-black text-slate-400 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 uppercase tracking-wide">
+                                            {data.proposito}
+                                        </span>
+                                    )
+                                }
+                            >
+                                <div className="grid grid-cols-2 gap-2 mt-1">
+                                    <Metric label="Ingreso Estimado" value={fmt(data.ingreso_estimado)} color="text-slate-700" />
+                                    <Metric label="Monto Solicitado" value={fmt(data.monto_solicitado)} color="text-red-900"   />
+                                </div>
                                 {data.observaciones && (
-                                    <div className="mt-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Observaciones</p>
-                                        <p className="text-[11px] text-slate-600 leading-relaxed">{data.observaciones}</p>
+                                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                                        <p className="text-[8px] font-black text-amber-600 uppercase tracking-widest mb-1.5">Observaciones</p>
+                                        <p className="text-[10px] text-slate-600 leading-relaxed font-medium">{data.observaciones}</p>
                                     </div>
                                 )}
-                            </Section>
+                            </Card>
 
                             {/* Convertido */}
                             {data.estado === 6 && data.cliente_id && (
-                                <div className="p-4 bg-purple-50 border border-purple-200 rounded-2xl flex items-center gap-3">
-                                    <CheckCircleIcon className="w-5 h-5 text-purple-600 flex-shrink-0" />
-                                    <p className="text-xs font-black text-purple-700 uppercase">Prospecto convertido a cliente</p>
+                                <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
+                                    <div className="p-2 bg-emerald-100 rounded-xl flex-shrink-0">
+                                        <ShieldCheckIcon className="w-4 h-4 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-emerald-700 uppercase tracking-wide">
+                                            Prospecto convertido a cliente
+                                        </p>
+                                        <p className="text-[9px] text-emerald-500 mt-0.5">
+                                            ID Cliente: #{data.cliente_id.toString().padStart(6, '0')}
+                                        </p>
+                                    </div>
+                                    <CheckCircleIcon className="w-5 h-5 text-emerald-400 ml-auto flex-shrink-0" />
                                 </div>
                             )}
 
-                            {/* Botones de acción */}
+                            {/* Acciones */}
                             {(puedeSeguimiento || puedeStatus || puedeEditar) && (
                                 <div className="flex flex-wrap gap-2 pt-1">
                                     {puedeSeguimiento && (
-                                        <button onClick={() => setSeguimientoOpen(true)}
-                                            className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase hover:bg-slate-700 transition-all">
+                                        <button
+                                            onClick={() => setSeguimientoOpen(true)}
+                                            className="flex items-center gap-2 px-4 py-2.5 bg-red-900 hover:bg-red-950 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-colors shadow-sm"
+                                        >
                                             <ArrowPathIcon className="w-3.5 h-3.5" /> Seguimiento
                                         </button>
                                     )}
                                     {puedeStatus && (
-                                        <button onClick={() => setStatusOpen(true)}
-                                            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase hover:bg-blue-700 transition-all">
+                                        <button
+                                            onClick={() => setStatusOpen(true)}
+                                            className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-colors shadow-sm"
+                                        >
                                             <CheckCircleIcon className="w-3.5 h-3.5" /> Aprobar / Rechazar
                                         </button>
                                     )}
                                     {puedeEditar && (
-                                        <button onClick={() => { onClose(); navigate(`/prospecto/editar/${data.id}`); }}
-                                            className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase hover:bg-slate-200 transition-all">
+                                        <button
+                                            onClick={() => { onClose(); navigate(`/prospecto/editar/${data.id}`); }}
+                                            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest transition-colors"
+                                        >
                                             <PencilSquareIcon className="w-3.5 h-3.5" /> Editar
                                         </button>
                                     )}
@@ -154,55 +273,45 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                             )}
                         </div>
 
-                        {/* ── COLUMNA DERECHA — HISTORIAL ── */}
-                        <div className="w-full md:w-96 flex-shrink-0 flex flex-col">
-                            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 h-full flex flex-col">
-                                <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                                    <ClockIcon className="w-3 h-3" /> Historial de Seguimientos
-                                </h4>
+                        {/* ══ COLUMNA DERECHA — HISTORIAL ══ */}
+                        <div className="w-full md:w-80 flex-shrink-0 flex flex-col">
+                            <div className="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden h-full flex flex-col">
 
-                                {data.seguimientos && data.seguimientos.length > 0 ? (
-                                    <div className="flex flex-col gap-2 overflow-y-auto flex-1 pr-1">
-                                        {data.seguimientos.map((s, i) => (
-                                            <div key={s.id} className="relative">
-                                                {/* Línea vertical conectora */}
-                                                {i < data.seguimientos.length - 1 && (
-                                                    <div className="absolute left-3 top-8 bottom-0 w-px bg-slate-200" />
-                                                )}
-                                                <div className="flex gap-2.5">
-                                                    <div className="w-6 h-6 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center flex-shrink-0 mt-1 z-10">
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                                                    </div>
-                                                    <div className="flex-1 bg-white border border-slate-100 rounded-xl p-3 shadow-sm mb-2">
-                                                        <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
-                                                            <EstadoBadge estado={s.estado_anterior} />
-                                                            <ArrowRightIcon className="w-2.5 h-2.5 text-slate-300" />
-                                                            <EstadoBadge estado={s.estado_nuevo} />
-                                                        </div>
-                                                        {s.nota && (
-                                                            <p className="text-[10px] text-slate-600 leading-relaxed mb-1.5 font-medium">
-                                                                "{s.nota}"
-                                                            </p>
-                                                        )}
-                                                        <div className="flex items-center justify-between">
-                                                            <p className="text-[9px] font-bold text-slate-400 uppercase truncate max-w-[70%]">
-                                                                {s.asesor}
-                                                            </p>
-                                                            <span className="text-[9px] font-black text-slate-300 bg-slate-50 px-1.5 py-0.5 rounded-lg border border-slate-100">
-                                                                {s.fecha}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
+                                    <div className="flex items-center gap-2 text-slate-500">
+                                        <div className="p-1.5 bg-slate-50 rounded-lg">
+                                            <ClockIcon className="w-3 h-3" />
+                                        </div>
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Historial de Gestión</span>
+                                    </div>
+                                    {data.seguimientos?.length > 0 && (
+                                        <span className="text-[9px] font-black bg-red-900 text-white px-2 py-0.5 rounded-full">
+                                            {data.seguimientos.length}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto p-4">
+                                    {data.seguimientos && data.seguimientos.length > 0 ? (
+                                        data.seguimientos.map((s, i) => (
+                                            <TimelineItem
+                                                key={s.id}
+                                                s={s}
+                                                isLast={i === data.seguimientos.length - 1}
+                                            />
+                                        ))
+                                    ) : (
+                                        <div className="h-full flex flex-col items-center justify-center text-center gap-3 py-10">
+                                            <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
+                                                <ClockIcon className="w-6 h-6 text-slate-300" />
                                             </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 opacity-40">
-                                        <ClockIcon className="w-8 h-8 text-slate-300" />
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase">Sin seguimientos</p>
-                                    </div>
-                                )}
+                                            <div>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sin gestiones</p>
+                                                <p className="text-[9px] text-slate-300 mt-0.5">No hay seguimientos registrados</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -210,8 +319,18 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                 )}
             </ViewModal>
 
-            <SeguimientoModal isOpen={seguimientoOpen} onClose={() => setSeguimientoOpen(false)} prospecto={data} onSuccess={handleSuccess} />
-            <StatusModal     isOpen={statusOpen}      onClose={() => setStatusOpen(false)}      prospecto={data} onSuccess={handleSuccess} />
+            <SeguimientoModal
+                isOpen={seguimientoOpen}
+                onClose={() => setSeguimientoOpen(false)}
+                prospecto={data}
+                onSuccess={handleSuccess}
+            />
+            <StatusModal
+                isOpen={statusOpen}
+                onClose={() => setStatusOpen(false)}
+                prospecto={data}
+                onSuccess={handleSuccess}
+            />
         </>
     );
 };
