@@ -17,6 +17,7 @@ const LoginForm = ({
   setTurnstileToken
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [widgetListo, setWidgetListo]   = useState(false);
   const turnstileRef = useRef(null);
 
   const onSubmit = (e) => {
@@ -94,15 +95,37 @@ const LoginForm = ({
           </button>
         </div>
 
-        <div className="flex justify-center">
-          <Turnstile
-            ref={turnstileRef}
-            siteKey={TURNSTILE_SITE_KEY}
-            onSuccess={(token) => setTurnstileToken(token)}
-            onExpire={() => setTurnstileToken('')}
-            onError={() => setTurnstileToken('')}
-            options={{ theme: 'light', language: 'es' }}
-          />
+        {/* Skeleton + Widget */}
+        <div className="flex justify-center min-h-[65px] items-center">
+
+          {/* Skeleton animado mientras carga el widget */}
+          {!widgetListo && (
+            <div className="w-[300px] h-[65px] rounded-xl bg-slate-100 animate-pulse flex items-center justify-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-slate-300 animate-bounce [animation-delay:0ms]" />
+              <div className="w-3 h-3 rounded-full bg-slate-300 animate-bounce [animation-delay:150ms]" />
+              <div className="w-3 h-3 rounded-full bg-slate-300 animate-bounce [animation-delay:300ms]" />
+            </div>
+          )}
+
+          {/* Widget oculto hasta estar listo, para evitar el salto de layout */}
+          <div className={widgetListo ? 'block' : 'hidden'}>
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={TURNSTILE_SITE_KEY}
+              onBeforeInteractive={() => setWidgetListo(true)}
+              onSuccess={(token) => {
+                setWidgetListo(true);
+                setTurnstileToken(token);
+              }}
+              onExpire={() => setTurnstileToken('')}
+              onError={() => setTurnstileToken('')}
+              options={{
+                theme: 'light',
+                language: 'es',
+                execution: 'render',
+              }}
+            />
+          </div>
         </div>
 
         <div>
