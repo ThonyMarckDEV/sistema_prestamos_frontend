@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { Turnstile } from '@marsidev/react-turnstile';
+
+const TURNSTILE_SITE_KEY = process.env.REACT_APP_TURNSTILE_SITE_KEY;
 
 const LoginForm = ({
   username,
@@ -9,9 +12,18 @@ const LoginForm = ({
   handleLogin,
   rememberMe,
   setRememberMe,
-  setShowForgotPassword
+  setShowForgotPassword,
+  turnstileToken,
+  setTurnstileToken
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const turnstileRef = useRef(null);
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (!turnstileToken) return;
+    handleLogin(e);
+  };
 
   return (
     <div className="w-full animate-fade-in">
@@ -24,7 +36,7 @@ const LoginForm = ({
         </p>
       </div>
 
-      <form onSubmit={handleLogin} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-1 relative">
           <input
             type="text"
@@ -59,7 +71,7 @@ const LoginForm = ({
           </button>
         </div>
 
-        <div className="flex items-center justify-between pt-2 pb-4">
+        <div className="flex items-center justify-between pt-2 pb-2">
           <div className="flex items-center">
             <input
               id="remember-me"
@@ -82,10 +94,22 @@ const LoginForm = ({
           </button>
         </div>
 
+        <div className="flex justify-center">
+          <Turnstile
+            ref={turnstileRef}
+            siteKey={TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setTurnstileToken(token)}
+            onExpire={() => setTurnstileToken('')}
+            onError={() => setTurnstileToken('')}
+            options={{ theme: 'light', language: 'es' }}
+          />
+        </div>
+
         <div>
           <button
             type="submit"
-            className="w-full flex justify-center py-4 px-4 rounded-2xl shadow-lg shadow-red-600/30 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transform transition-all duration-300 hover:-translate-y-1 tracking-wide"
+            disabled={!turnstileToken}
+            className="w-full flex justify-center py-4 px-4 rounded-2xl shadow-lg shadow-red-600/30 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transform transition-all duration-300 hover:-translate-y-1 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
             INGRESAR AHORA
           </button>
