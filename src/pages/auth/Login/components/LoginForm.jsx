@@ -1,8 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { Turnstile } from '@marsidev/react-turnstile';
-
-const TURNSTILE_SITE_KEY = process.env.REACT_APP_TURNSTILE_SITE_KEY;
 
 const LoginForm = ({
   username,
@@ -12,19 +9,9 @@ const LoginForm = ({
   handleLogin,
   rememberMe,
   setRememberMe,
-  setShowForgotPassword,
-  turnstileToken,
-  setTurnstileToken
+  setShowForgotPassword
 }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [widgetListo, setWidgetListo]   = useState(false);
-  const turnstileRef = useRef(null);
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-    if (!turnstileToken) return;
-    handleLogin(e);
-  };
 
   return (
     <div className="w-full animate-fade-in">
@@ -37,7 +24,7 @@ const LoginForm = ({
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-1 relative">
           <input
             type="text"
@@ -72,7 +59,7 @@ const LoginForm = ({
           </button>
         </div>
 
-        <div className="flex items-center justify-between pt-2 pb-2">
+        <div className="flex items-center justify-between pt-2 pb-4">
           <div className="flex items-center">
             <input
               id="remember-me"
@@ -95,44 +82,10 @@ const LoginForm = ({
           </button>
         </div>
 
-        {/* Skeleton + Widget */}
-        <div className="flex justify-center min-h-[65px] items-center">
-
-          {/* Skeleton animado mientras carga el widget */}
-          {!widgetListo && (
-            <div className="w-[300px] h-[65px] rounded-xl bg-slate-100 animate-pulse flex items-center justify-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-slate-300 animate-bounce [animation-delay:0ms]" />
-              <div className="w-3 h-3 rounded-full bg-slate-300 animate-bounce [animation-delay:150ms]" />
-              <div className="w-3 h-3 rounded-full bg-slate-300 animate-bounce [animation-delay:300ms]" />
-            </div>
-          )}
-
-          {/* Widget oculto hasta estar listo, para evitar el salto de layout */}
-          <div className={widgetListo ? 'block' : 'hidden'}>
-            <Turnstile
-              ref={turnstileRef}
-              siteKey={TURNSTILE_SITE_KEY}
-              onBeforeInteractive={() => setWidgetListo(true)}
-              onSuccess={(token) => {
-                setWidgetListo(true);
-                setTurnstileToken(token);
-              }}
-              onExpire={() => setTurnstileToken('')}
-              onError={() => setTurnstileToken('')}
-              options={{
-                theme: 'light',
-                language: 'es',
-                execution: 'render',
-              }}
-            />
-          </div>
-        </div>
-
         <div>
           <button
             type="submit"
-            disabled={!turnstileToken}
-            className="w-full flex justify-center py-4 px-4 rounded-2xl shadow-lg shadow-red-600/30 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transform transition-all duration-300 hover:-translate-y-1 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            className="w-full flex justify-center py-4 px-4 rounded-2xl shadow-lg shadow-red-600/30 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transform transition-all duration-300 hover:-translate-y-1 tracking-wide"
           >
             INGRESAR AHORA
           </button>

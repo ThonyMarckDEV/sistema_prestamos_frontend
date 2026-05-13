@@ -10,43 +10,35 @@ import background from 'assets/img/background.jpg';
 import logo from 'assets/img/logo.png';
 
 const Login = () => {
-  const [username, setUsername]                     = useState('');
-  const [password, setPassword]                     = useState('');
-  const [dni, setDni]                               = useState('');
-  const [loading, setLoading]                       = useState(false);
-  const [rememberMe, setRememberMe]                 = useState(false);
+  const [username, setUsername]             = useState('');
+  const [password, setPassword]             = useState('');
+  const [dni, setDni]                       = useState('');
+  const [loading, setLoading]               = useState(false);
+  const [rememberMe, setRememberMe]         = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [turnstileToken, setTurnstileToken]         = useState('');   // ← nuevo
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+      e.preventDefault();
+      setLoading(true);
+      try {
+        const result       = await authService.login(username, password, rememberMe);
+        const access_token = result.data ? result.data.access_token : result.access_token;
 
-    if (!turnstileToken) {
-      notify.error('Por favor completa la verificación de seguridad.');
-      return;
-    }
+        if (!access_token) throw new Error("No se pudo obtener el token de acceso.");
 
-    setLoading(true);
-    try {
-      const result       = await authService.login(username, password, rememberMe, turnstileToken);
-      const access_token = result.data ? result.data.access_token : result.access_token;
-
-      if (!access_token) throw new Error('No se pudo obtener el token de acceso.');
-
-      document.cookie = `access_token=${access_token}; path=/; Secure; SameSite=Strict`;
-      login();
-      notify.success('¡Bienvenido al sistema!');
-      setTimeout(() => navigate('/home'), 1500);
-      return;
-
-    } catch (error) {
-      const msg = error.response?.data?.message || error.message || 'Credenciales inválidas';
-      notify.error(msg);
-      setTurnstileToken('');   // reset widget al fallar
-      setLoading(false);
-    }
+        document.cookie = `access_token=${access_token}; path=/; Secure; SameSite=Strict`;
+        login();
+        notify.success('¡Bienvenido al sistema!');
+        setTimeout(() => navigate('/home'), 1500);
+        return;
+        
+      } catch (error) {
+        const msg = error.response?.data?.message || error.message || 'Credenciales inválidas';
+        notify.error(msg);
+        setLoading(false);
+      }
   };
 
   const handleForgotPassword = async (e) => {
@@ -54,7 +46,7 @@ const Login = () => {
     setLoading(true);
     try {
       const result = await authService.forgotPassword(dni);
-      notify.success(result.message || 'Enlace enviado a tu correo.');
+      notify.success(result.message || "Enlace enviado a tu correo.");
       setDni('');
       setShowForgotPassword(false);
     } catch (error) {
@@ -103,8 +95,6 @@ const Login = () => {
               rememberMe={rememberMe}
               setRememberMe={setRememberMe}
               setShowForgotPassword={setShowForgotPassword}
-              turnstileToken={turnstileToken}
-              setTurnstileToken={setTurnstileToken}
             />
           )}
         </div>
