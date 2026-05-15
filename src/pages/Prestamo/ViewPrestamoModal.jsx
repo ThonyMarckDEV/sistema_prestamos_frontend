@@ -10,7 +10,7 @@ import {
     InformationCircleIcon, UsersIcon,
     ArrowPathIcon, ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
-import { ArrowPathRoundedSquareIcon, ScissorsIcon } from '@heroicons/react/24/outline';
+import { ArrowPathRoundedSquareIcon } from '@heroicons/react/24/outline';
 import { useAuth } from 'context/AuthContext';
 import { useViewPrestamoModal } from 'hooks/Prestamo/useViewPrestamoModal';
 
@@ -66,11 +66,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
         setHistorialModal,
         setRefModalOpen,
     } = useViewPrestamoModal({ data, onClose, onRefresh });
-
-    // ── Cuota con mora pendiente del cronograma activo (la primera) ──────────
-    const cuotaConMora = cronogramaActivo?.find(
-        c => !([0, 2, 6].includes(c.estado)) && parseFloat(c.mora ?? 0) > 0
-    ) ?? null;
 
     const handleAbrirReducirMora = (cuota) => {
         setCuotaParaReducir(cuota);
@@ -254,17 +249,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                             </h4>
                             <div className="flex items-center gap-2 flex-wrap">
 
-                                {/* ── Botón Reducir Mora ── */}
-                                {canReducirMora && !prestamoCancelado && cuotaConMora && (
-                                    <button
-                                        onClick={() => handleAbrirReducirMora(cuotaConMora)}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-md shadow-orange-500/20"
-                                    >
-                                        <ScissorsIcon className="w-3.5 h-3.5" />
-                                        Reducir Mora
-                                    </button>
-                                )}
-
                                 {canRefinanciar && data.estado === 1 && !prestamoCancelado && (!data.es_grupal || esVistaIntegrante) && !integranteYaRefinanciado && (
                                     <button
                                         onClick={() => handleAbrirRefinanciamiento(cronogramaActivo, esVistaIntegrante, integranteNombre)}
@@ -306,6 +290,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                 cronograma={cronogramaActivo}
                                 esVistaIntegrante={esVistaIntegrante}
                                 onHistorialModal={setHistorialModal}
+                                onReducirMora={canReducirMora && !prestamoCancelado ? handleAbrirReducirMora : undefined}
                             />
                         )}
 

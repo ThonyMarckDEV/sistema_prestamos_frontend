@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClockIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, ScissorsIcon } from '@heroicons/react/24/outline';
 
 export const CeldaFinanciera = ({ total, pagado, pendiente }) => (
     <div className="flex flex-col min-w-[80px]">
@@ -34,38 +34,54 @@ export const AbonosContent = ({ d, esVistaIntegrante }) => (
 );
 
 /**
- * MoraContent — muestra mora pendiente y, si hay mora_reducida, la tacha en verde.
- * cuota.mora_reducida viene del backend (suma acumulada de reducciones).
+ * MoraContent
+ * - onReducirMora: callback (cuota) => void — solo se pasa en vista global, no integrante
+ * - cuota: objeto completo de la cuota (para pasarlo al modal)
  */
-export const MoraContent = ({ d, cuota, nro, onHistorialModal }) => {
+export const MoraContent = ({ d, cuota, nro, onHistorialModal, onReducirMora, esVistaIntegrante }) => {
     if (d.moraTotal <= 0 || d.esInactiva) return <span className="text-slate-300 font-black text-[11px]">—</span>;
 
     const moraReducida = parseFloat(cuota?.mora_reducida ?? 0);
 
     return (
         <div className="flex flex-col min-w-[70px]">
-            {/* Mora pendiente actual */}
+            {/* Mora pendiente */}
             <span className={`font-black text-[11px] whitespace-nowrap ${d.moraPend > 0 ? 'text-brand-red' : 'text-brand-red line-through'}`}>
                 {d.moraPend > 0 ? `+S/ ${d.moraPend.toFixed(2)}` : `S/ ${d.moraTotal.toFixed(2)}`}
             </span>
 
-            {/* Mora reducida — tachada en verde */}
+            {/* Mora reducida tachada */}
             {moraReducida > 0 && (
                 <span className="text-[9px] font-black text-green-600 line-through whitespace-nowrap">
                     -S/ {moraReducida.toFixed(2)} reducida
                 </span>
             )}
 
+            {/* Botones: historial + reducir mora */}
             <div className="flex items-center gap-1 mt-0.5">
                 <span className={`text-[8px] font-bold whitespace-nowrap ${d.moraPend === 0 ? 'text-green-600' : 'text-slate-400'}`}>
                     {d.moraPend === 0 ? '✓ Cubierta' : `De S/ ${d.moraTotal.toFixed(2)}`}
                 </span>
+
+                {/* Historial */}
                 {cuota.historial_mora?.length > 0 && (
                     <button
                         onClick={(e) => { e.stopPropagation(); onHistorialModal?.({ nro, historial: cuota.historial_mora, total: d.moraPend }); }}
                         className="text-slate-400 hover:text-brand-red transition-all p-0.5 rounded-full hover:bg-brand-red-light shrink-0"
+                        title="Ver historial de mora"
                     >
                         <ClockIcon className="w-3 h-3" />
+                    </button>
+                )}
+
+                {/* Reducir mora — solo vista global y si hay mora pendiente */}
+                {!esVistaIntegrante && d.moraPend > 0 && onReducirMora && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onReducirMora(cuota); }}
+                        className="text-orange-400 hover:text-orange-600 transition-all p-0.5 rounded-full hover:bg-orange-50 shrink-0"
+                        title="Reducir mora"
+                    >
+                        <ScissorsIcon className="w-3 h-3" />
                     </button>
                 )}
             </div>
