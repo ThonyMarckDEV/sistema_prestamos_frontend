@@ -20,7 +20,14 @@ export const useRefinanciamientoModal = ({ isOpen, data, integrantesGrupo, onSuc
         nuevo_presidente_id: '',
     });
 
-    // Filtramos a los integrantes que se quedan en el grupo
+    // 1. Verificamos si el integrante que se está refinanciando es el PRESIDENTE actual
+    const esPresidenteRefinanciado = useMemo(() => {
+        if (!integrantesGrupo || !data?.cliente_id) return false;
+        const integranteTarget = integrantesGrupo.find(int => int.id === data.cliente_id);
+        return integranteTarget?.cargo === 'PRESIDENTE';
+    }, [integrantesGrupo, data?.cliente_id]);
+
+    // 2. Filtramos a los integrantes que se quedan en el grupo
     const integrantesRestantes = useMemo(() => {
         if (!integrantesGrupo || !data?.cliente_id) return [];
         return integrantesGrupo.filter(int => int.id !== data.cliente_id);
@@ -30,9 +37,11 @@ export const useRefinanciamientoModal = ({ isOpen, data, integrantesGrupo, onSuc
     useEffect(() => {
         if (isOpen && data) {
             let presiInicial = '';
-            if (integrantesRestantes.length > 0) {
-                const actual = integrantesRestantes.find(i => i.cargo === 'PRESIDENTE');
-                presiInicial = actual ? actual.id : integrantesRestantes[0].id;
+            
+            // SOLO si se va el presidente, pre-seleccionamos a uno de los que quedan
+            if (esPresidenteRefinanciado && integrantesRestantes.length > 0) {
+                // Como el presidente se fue, agarramos al primero de la lista de los que quedan
+                presiInicial = integrantesRestantes[0].id;
             }
 
             setFormData({
@@ -51,7 +60,7 @@ export const useRefinanciamientoModal = ({ isOpen, data, integrantesGrupo, onSuc
             setAlert(null);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen, data?.prestamo_id, data?.cliente_id, integrantesRestantes]);
+    }, [isOpen, data?.prestamo_id, data?.cliente_id, integrantesRestantes, esPresidenteRefinanciado]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -100,6 +109,7 @@ export const useRefinanciamientoModal = ({ isOpen, data, integrantesGrupo, onSuc
         alert,
         setAlert,
         integrantesRestantes,
+        esPresidenteRefinanciado, // Pasamos esto a la vista
         handleChange,
         handleSubmit,
         montoBase,

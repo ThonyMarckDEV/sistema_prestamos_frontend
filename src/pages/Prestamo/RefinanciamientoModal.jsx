@@ -14,6 +14,7 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, integrantesGrupo, onSucc
         alert,
         setAlert,
         integrantesRestantes,
+        esPresidenteRefinanciado,
         handleChange,
         handleSubmit,
         montoBase,
@@ -55,8 +56,8 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, integrantesGrupo, onSucc
                         <ProductoSearchSelect onSelect={p => setFormData(prev => ({ ...prev, producto_id: p?.id }))} />
                     </div>
 
-                    {/* Selector de Nuevo Presidente (SOLO PARA GRUPOS) */}
-                    {integrantesRestantes.length > 0 && (
+                    {/* ── Selector de Nuevo Presidente (SOLO SI SE VA EL ACTUAL Y QUEDAN 2 O MÁS) ── */}
+                    {esPresidenteRefinanciado && integrantesRestantes.length > 1 && (
                         <div className="border border-blue-200 rounded-xl p-4 bg-blue-50/50">
                             <label className="flex items-center gap-1.5 text-[10px] font-black text-blue-700 uppercase mb-2">
                                 <UserIcon className="w-4 h-4" />
@@ -72,6 +73,19 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, integrantesGrupo, onSucc
                             </select>
                             <p className="text-[9px] text-blue-500 font-bold mt-1.5 uppercase">
                                 El integrante seleccionado asumirá la titularidad (PRESIDENTE) del préstamo grupal que queda activo.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* ── Mensaje Automático (SOLO SI SE VA EL ACTUAL Y QUEDA 1 SOLO) ── */}
+                    {esPresidenteRefinanciado && integrantesRestantes.length === 1 && (
+                        <div className="border border-blue-200 rounded-xl p-4 bg-blue-50/50 flex flex-col gap-1">
+                            <label className="flex items-center gap-1.5 text-[10px] font-black text-blue-700 uppercase">
+                                <UserIcon className="w-4 h-4" />
+                                Actualización Automática de Titular
+                            </label>
+                            <p className="text-[10px] text-blue-800 font-bold uppercase mt-1">
+                                Al ser el único integrante restante, <span className="font-black">{integrantesRestantes[0].nombre}</span> asumirá automáticamente como PRESIDENTE del préstamo original.
                             </p>
                         </div>
                     )}
