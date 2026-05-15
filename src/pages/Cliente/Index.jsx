@@ -10,8 +10,10 @@ import {
     UserGroupIcon, PencilSquareIcon, IdentificationIcon,
     BriefcaseIcon, EyeIcon, CalendarDaysIcon, BuildingOfficeIcon, UserIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from 'context/AuthContext';
 
 const Index = () => {
+    const { can } = useAuth(); 
     const {
         loading, clientes, paginationInfo, filters, alert, setAlert,
         isViewOpen, setIsViewOpen, viewData, viewLoading,
@@ -28,102 +30,120 @@ const Index = () => {
           options: [{ value: '', label: 'Todos' }, { value: '1', label: 'Activos' }, { value: '0', label: 'Inactivos' }] }
     ], []);
 
-    const columns = useMemo(() => [
-        {
-            header: 'ID',
-            render: (row) => (
-                <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
-                    {row.id}
-                </span>
-            )
-        },
-        {
-            header: 'Cliente',
-            render: (row) => (
-                <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-full border ${row.tipo === 2 ? 'bg-amber-50 border-amber-200' : 'bg-brand-red-light border-brand-red/20'}`}>
-                        {row.tipo === 2
-                            ? <BuildingOfficeIcon className="w-6 h-6 text-amber-600" />
-                            : <UserIcon className="w-6 h-6 text-brand-red" />
-                        }
+    const columns = useMemo(() => {
+        const canShow   = can('cliente.show');
+        const canUpdate = can('cliente.update');
+        const canStatus = can('cliente.status');
+
+        const base = [
+            {
+                header: 'ID',
+                render: (row) => (
+                    <span className="font-mono text-[15px] font-black px-2 py-1 rounded text-slate-600">
+                        {row.id}
+                    </span>
+                )
+            },
+            {
+                header: 'Cliente',
+                render: (row) => (
+                    <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-full border ${row.tipo === 2 ? 'bg-amber-50 border-amber-200' : 'bg-brand-red-light border-brand-red/20'}`}>
+                            {row.tipo === 2
+                                ? <BuildingOfficeIcon className="w-6 h-6 text-amber-600" />
+                                : <UserIcon className="w-6 h-6 text-brand-red" />
+                            }
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="font-bold text-slate-800 text-sm">{row.nombre_completo}</span>
+                            <span className="text-xs text-slate-500 flex items-center gap-1">
+                                <BriefcaseIcon className="w-3 h-3"/> {row.usuario || 'Sin usuario'}
+                            </span>
+                        </div>
                     </div>
-                    <div className="flex flex-col">
-                        <span className="font-bold text-slate-800 text-sm">{row.nombre_completo}</span>
-                        <span className="text-xs text-slate-500 flex items-center gap-1">
-                            <BriefcaseIcon className="w-3 h-3"/> {row.usuario || 'Sin usuario'}
+                )
+            },
+            {
+                header: 'Tipo / Documento',
+                render: (row) => (
+                    <div className="flex flex-col gap-1">
+                        <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase border w-fit ${
+                            row.tipo === 2
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : 'bg-brand-red-light text-brand-red border-brand-red/20'
+                        }`}>
+                            {row.tipo === 2 ? 'Empresa' : 'Persona Natural'}
+                        </span>
+                        <span className="text-sm font-bold text-slate-600 flex items-center gap-1">
+                            <IdentificationIcon className="w-4 h-4 text-slate-400"/>
+                            {row.documento || 'S/N'}
                         </span>
                     </div>
-                </div>
-            )
-        },
-        {
-            header: 'Tipo / Documento',
-            render: (row) => (
-                <div className="flex flex-col gap-1">
-                    <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase border w-fit ${
-                        row.tipo === 2
-                            ? 'bg-amber-50 text-amber-700 border-amber-200'
-                            : 'bg-brand-red-light text-brand-red border-brand-red/20'
-                    }`}>
-                        {row.tipo === 2 ? 'Empresa' : 'Persona Natural'}
+                )
+            },
+            {
+                header: 'Registro',
+                render: (row) => (
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                        <CalendarDaysIcon className="w-4 h-4"/> {row.created_at?.split(' ')[0]}
                     </span>
-                    <span className="text-sm font-bold text-slate-600 flex items-center gap-1">
-                        <IdentificationIcon className="w-4 h-4 text-slate-400"/>
-                        {row.documento || 'S/N'}
-                    </span>
-                </div>
-            )
-        },
-        {
-            header: 'Registro',
-            render: (row) => (
-                <span className="text-xs text-slate-500 flex items-center gap-1">
-                    <CalendarDaysIcon className="w-4 h-4"/> {row.created_at?.split(' ')[0]}
-                </span>
-            )
-        },
-        {
-            header: 'Acceso Sistema',
-            render: (row) => (
-                <button
-                    onClick={() => handleAskToggle(row.id)}
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
-                        ${row.estado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-brand-red-light text-brand-red border border-brand-red/30'}`}
-                >
-                    {row.estado ? 'Activo' : 'Bloqueado'}
-                </button>
-            )
-        },
-        {
-            header: 'Acciones',
-            render: (row) => (
-                <div className="flex items-center gap-2 justify-end">
+                )
+            },
+        ];
+
+        if (canStatus) {
+            base.push({
+                header: 'Acceso Sistema',
+                render: (row) => (
                     <button
-                        onClick={() => handleView(row.id)}
-                        title="Ver Detalle"
-                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
+                        onClick={() => handleAskToggle(row.id)}
+                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
+                            ${row.estado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-brand-red-light text-brand-red border border-brand-red/30'}`}
                     >
-                        <EyeIcon className="w-4 h-4" />
+                        {row.estado ? 'Activo' : 'Bloqueado'}
                     </button>
-                    <Link
-                        to={`/cliente/editar/${row.id}`}
-                        title="Editar"
-                        className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-200 shadow-sm"
-                    >
-                        <PencilSquareIcon className="w-4 h-4" />
-                    </Link>
-                </div>
-            )
+                )
+            });
         }
-    ], [handleAskToggle, handleView]);
+
+        if (canShow || canUpdate) {
+            base.push({
+                header: 'Acciones',
+                render: (row) => (
+                    <div className="flex items-center gap-2 justify-end">
+                        {canShow && (
+                            <button
+                                onClick={() => handleView(row.id)}
+                                title="Ver Detalle"
+                                className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
+                            >
+                                <EyeIcon className="w-4 h-4" />
+                            </button>
+                        )}
+                        {canUpdate && (
+                            <Link
+                                to={`/cliente/editar/${row.id}`}
+                                title="Editar"
+                                className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-200 shadow-sm"
+                            >
+                                <PencilSquareIcon className="w-4 h-4" />
+                            </Link>
+                        )}
+                    </div>
+                )
+            });
+        }
+
+        return base;
+    }, [handleAskToggle, handleView, can]);
 
     return (
         <div className="container mx-auto p-6">
             <PageHeader
                 title="Gestión de Clientes"
                 icon={UserGroupIcon}
-                buttonText="+ Nuevo Cliente"
-                buttonLink="/cliente/agregar"
+                buttonText={can('cliente.store') ? "+ Nuevo Cliente" : null}
+                buttonLink={can('cliente.store') ? "/cliente/agregar" : null}
             />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <Table
