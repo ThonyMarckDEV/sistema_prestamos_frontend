@@ -38,6 +38,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
 
     const { can } = useAuth();
     const canRefinanciar = can('prestamo.refinanciar');
+    const canGeneratePdf = can('prestamo.generatePDF');
 
     const {
         integranteSeleccionado,
@@ -287,7 +288,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                     </span>
                                 )}
 
-                                {!prestamoCancelado && (
+                                {!prestamoCancelado && canGeneratePdf && (
                                     <button onClick={handleDescargarCronograma} disabled={loadingPdf}
                                         className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-red hover:bg-brand-red-dark text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-md shadow-brand-red/20">
                                         {loadingPdf

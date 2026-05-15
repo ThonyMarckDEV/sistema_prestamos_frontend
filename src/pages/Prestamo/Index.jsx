@@ -110,37 +110,46 @@ const Index = () => {
                 const labels = { 1: 'VIGENTE', 2: 'CANCELADO', 3: 'LIQUIDADO', 4: 'REFINANCIADO' };
                 return <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border ${colors[row.estado]}`}>{labels[row.estado]}</span>;
             }},
-            { header: 'Acciones', render: (row) => (
-                <div className="flex gap-2 items-center justify-end">
-                    <button 
-                        onClick={() => handleView(row.id)} 
-                        title="Ver Cronograma" 
-                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
-                    >
-                        <EyeIcon className="w-4 h-4" />
-                    </button>
+            { header: 'Acciones', render: (row) => {
+                const canShow = can('prestamo.show');
+                const hasActions = canShow || row.abono_url || (canDelete && !row.desembolsado && row.estado !== 2);
+                
+                if (!hasActions) return null;
+                
+                return (
+                    <div className="flex gap-2 items-center justify-end">
+                        {canShow && (
+                            <button 
+                                onClick={() => handleView(row.id)} 
+                                title="Ver Cronograma" 
+                                className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
+                            >
+                                <EyeIcon className="w-4 h-4" />
+                            </button>
+                        )}
 
-                    {row.abono_url && (
-                        <button 
-                            onClick={() => handleOpenAbono(row.abono_url)}
-                            title="Ver Comprobante" 
-                            className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl border border-transparent hover:border-emerald-100 transition-all shadow-sm"
-                        >
-                            <PhotoIcon className="w-4 h-4" />
-                        </button>
-                    )}
+                        {row.abono_url && (
+                            <button 
+                                onClick={() => handleOpenAbono(row.abono_url)}
+                                title="Ver Comprobante" 
+                                className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl border border-transparent hover:border-emerald-100 transition-all shadow-sm"
+                            >
+                                <PhotoIcon className="w-4 h-4" />
+                            </button>
+                        )}
 
-                    {canDelete && !row.desembolsado && row.estado !== 2 && (
-                        <button
-                            onClick={() => openDeleteModal(row.id)}
-                            title="Cancelar Préstamo"
-                            className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
-                        >
-                            <TrashIcon className="w-4 h-4" />
-                        </button>
-                    )}
-                </div>
-            )}
+                        {canDelete && !row.desembolsado && row.estado !== 2 && (
+                            <button
+                                onClick={() => openDeleteModal(row.id)}
+                                title="Cancelar Préstamo"
+                                className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
+                            >
+                                <TrashIcon className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+                );
+            }}
         ];
 
         return cols;

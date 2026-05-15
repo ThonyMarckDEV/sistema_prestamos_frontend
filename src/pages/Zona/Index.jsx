@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useIndex } from 'hooks/Zona/useIndex';
+import { useAuth } from 'context/AuthContext';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -8,6 +9,12 @@ import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import { MapIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const Index = () => {
+    const { can } = useAuth();
+    const canStatus = can('zona.status');
+    const canUpdate = can('zona.update');
+    const canDelete = can('zona.delete');
+    const canStore  = can('zona.store');
+
     const {
         loading, zonas, paginationInfo, filters, alert, setAlert,
         showConfirm, setShowConfirm, showDelete, setShowDelete,
@@ -15,58 +22,75 @@ const Index = () => {
         handleFilterChange, handleFilterSubmit, handleFilterClear
     } = useIndex();
 
-    const columns = useMemo(() => [
-        {
-            header: 'Zona Comercial',
-            render: (row) => (
-                <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl border bg-brand-red-light/50 border-brand-red/20">
-                        <MapIcon className="w-5 h-5 text-brand-red" />
+    const columns = useMemo(() => {
+        const base = [
+            {
+                header: 'Zona Comercial',
+                render: (row) => (
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl border bg-brand-red-light/50 border-brand-red/20">
+                            <MapIcon className="w-5 h-5 text-brand-red" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="font-black text-slate-800 text-sm uppercase">{row.nombre}</span>
+                        </div>
                     </div>
-                    <div className="flex flex-col">
-                        <span className="font-black text-slate-800 text-sm uppercase">{row.nombre}</span>
-                    </div>
-                </div>
-            )
-        },
-        {
-            header: 'Estado',
-            render: (row) => (
-                <button onClick={() => handleAskStatus(row.id)}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase border transition-all hover:scale-105
-                        ${row.activo ? 'bg-green-50 text-green-700 border-green-200' : 'bg-brand-red-light text-brand-red border-brand-red/30'}`}>
-                    {row.activo ? 'Activa' : 'Inactiva'}
-                </button>
-            )
-        },
-        {
-            header: 'Acciones',
-            render: (row) => (
-                <div className="flex items-center gap-2 justify-end">
-                    {/* 🔥 Hover corporativo */}
-                    <Link 
-                        to={`/zona/editar/${row.id}`}
-                        title="Editar"
-                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
-                    >
-                        <PencilSquareIcon className="w-4 h-4" />
-                    </Link>
+                )
+            },
+        ];
 
-                    <button 
-                        onClick={() => handleAskDelete(row.id)}
-                        title="Eliminar"
-                        className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
-                    >
-                        <TrashIcon className="w-4 h-4" />
+        if (canStatus) {
+            base.push({
+                header: 'Estado',
+                render: (row) => (
+                    <button onClick={() => handleAskStatus(row.id)}
+                        className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase border transition-all hover:scale-105
+                            ${row.activo ? 'bg-green-50 text-green-700 border-green-200' : 'bg-brand-red-light text-brand-red border-brand-red/30'}`}>
+                        {row.activo ? 'Activa' : 'Inactiva'}
                     </button>
-                </div>
-            )
+                )
+            });
         }
-    ], [handleAskStatus, handleAskDelete]);
+
+        if (canUpdate || canDelete) {
+            base.push({
+                header: 'Acciones',
+                render: (row) => (
+                    <div className="flex items-center gap-2 justify-end">
+                        {canUpdate && (
+                            <Link 
+                                to={`/zona/editar/${row.id}`}
+                                title="Editar"
+                                className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
+                            >
+                                <PencilSquareIcon className="w-4 h-4" />
+                            </Link>
+                        )}
+                        {canDelete && (
+                            <button 
+                                onClick={() => handleAskDelete(row.id)}
+                                title="Eliminar"
+                                className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm"
+                            >
+                                <TrashIcon className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+                )
+            });
+        }
+
+        return base;
+    }, [handleAskStatus, handleAskDelete, canStatus, canUpdate, canDelete]);
 
     return (
         <div className="container mx-auto p-4 sm:p-6">
-            <PageHeader title="Gestión de Zonas" icon={MapIcon} buttonText="+ Nueva Zona" buttonLink="/zona/agregar" />
+            <PageHeader 
+                title="Gestión de Zonas" 
+                icon={MapIcon} 
+                buttonText={canStore ? "+ Nueva Zona" : null}
+                buttonLink={canStore ? "/zona/agregar" : null}
+            />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
             <Table
