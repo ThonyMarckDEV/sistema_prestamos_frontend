@@ -5,6 +5,7 @@ import {
     ArrowPathIcon, ChevronDownIcon, ChevronUpIcon 
 } from '@heroicons/react/24/outline';
 import { useNotificacionesGlobal } from './NotificacionContext';
+import { EyeIcon } from '@heroicons/react/24/outline';
 
 const NotificacionItem = ({ n, handleMarcarLeida, formatTiempo }) => {
     const [esExpandida, setEsExpandida] = useState(false);
@@ -23,26 +24,60 @@ const NotificacionItem = ({ n, handleMarcarLeida, formatTiempo }) => {
         setEsExpandida(!esExpandida);
     };
 
+    const handleClick = () => {
+        if (n.url) {
+            window.location.href = n.url;
+        }
+    };
+
+    const handleMarcar = (e) => {
+        e.stopPropagation();
+        if (!n.leido) handleMarcarLeida(n.id);
+    };
+
     return (
-        <div onClick={() => !n.leido && handleMarcarLeida(n.id)}
-            className={`px-4 py-4 border-b border-slate-50 flex gap-3 items-start transition-all cursor-pointer group ${n.leido ? 'bg-white opacity-70' : 'bg-brand-red-light/30 hover:bg-brand-red-light/60'}`}
+        <div
+            onClick={handleClick}
+            className={`px-4 py-4 border-b border-slate-50 flex gap-3 items-start transition-all group
+                ${n.url ? 'cursor-pointer' : 'cursor-default'}
+                ${n.leido ? 'bg-white opacity-70' : 'bg-brand-red-light/30 hover:bg-brand-red-light/60'}
+            `}
         >
-            {!n.leido && <span className="mt-1.5 w-2 h-2 bg-brand-red rounded-full shrink-0 shadow-[0_0_8px_rgba(139,26,26,0.8)]" />}
+            {!n.leido && (
+                <span className="mt-1.5 w-2 h-2 bg-brand-red rounded-full shrink-0 shadow-[0_0_8px_rgba(139,26,26,0.8)]" />
+            )}
+
             <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start gap-2 mb-1">
-                    <p className={`text-xs leading-snug ${n.leido ? 'font-medium text-slate-600' : 'font-black text-slate-900'}`}>{n.titulo}</p>
-                    <span className="text-[9px] text-slate-400 font-bold uppercase">{formatTiempo(n.created_at)}</span>
+                    <p className={`text-xs leading-snug ${n.leido ? 'font-medium text-slate-600' : 'font-black text-slate-900'}`}>
+                        {n.titulo}
+                    </p>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[9px] text-slate-400 font-bold uppercase">
+                            {formatTiempo(n.created_at)}
+                        </span>
+                        {/* Ojito para marcar como leído */}
+                        {!n.leido && (
+                            <button
+                                onClick={handleMarcar}
+                                title="Marcar como leído"
+                                className="p-0.5 rounded text-slate-300 hover:text-brand-red transition-colors"
+                            >
+                                <EyeIcon className="w-3.5 h-3.5" />
+                            </button>
+                        )}
+                    </div>
                 </div>
-                
-                <p 
+
+                <p
                     ref={textRef}
                     className={`text-[11px] text-slate-500 leading-relaxed transition-all ${esExpandida ? '' : 'line-clamp-2'}`}
                 >
                     {n.mensaje}
                 </p>
-                
+
                 {esLarga && (
-                    <button 
+                    <button
                         onClick={toggleExpandir}
                         className="mt-1 text-[10px] font-bold text-brand-red hover:text-brand-red-dark flex items-center gap-0.5"
                     >
