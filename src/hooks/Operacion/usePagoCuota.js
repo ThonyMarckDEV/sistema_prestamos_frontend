@@ -1,0 +1,117 @@
+import { useState, useEffect } from 'react';
+
+export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
+    const [metodo, setMetodo]             = useState('DEPOSITO');
+    const [recibido, setRecibido]         = useState('');
+    const [referencia, setReferencia]     = useState('');
+    const [archivo, setArchivo]           = useState(null);
+    const [preview, setPreview]           = useState(null);
+    const [esParcial, setEsParcial]       = useState(false);
+    const [distribucion, setDistribucion] = useState({});
+    const [alertLocal, setAlertLocal]     = useState(null);
+
+    const esGrupal = !!(cuota?.integrantes && cuota.integrantes.length > 0);
+    const integrantesPendientes = cuota?.integrantes?.filter(i => ![2, 6].includes(i.estado)) ?? [];
+    const soloUnIntegrante      = esGrupal && integrantesPendientes.length === 1;
+
+    const totalAPagar = parseFloat(cuota?.saldo_pendiente ?? cuota?.monto ?? 0).toFixed(2);
+    const mora        = parseFloat(cuota?.mora ?? 0);
+    const excedenteIndividual = !esGrupal ? parseFloat(cuota?.excedente_anterior ?? 0) : 0;
+
+    // ── Validaciones ──
+    const integrantesSinCubrirMora = (esGrupal && esParcial)
+        ? integrantesPendientes.filter(int => {
+            const moraPend   = parseFloat(int.mora_pendiente ?? 0);
+            if (moraPend <= 0) return false;
+            const esCompleto = !distribucion[int.id] || distribucion[int.id] === '';
+            if (esCompleto) return false;
+            return parseFloat(distribucion[int.id] || 0) < moraPend;
+        }) : [];
+
+    const montoNum    = parseFloat(recibido || 0);
+    const noCubreMora = !esGrupal && mora > 0 && montoNum > 0 && montoNum < mora;
+    const puedeSubmit = !noCubreMora && integrantesSinCubrirMora.length === 0;
+
+    // ── Efectos ──
+    useEffect(() => {
+        if (isOpen) {
+            setMetodo('DEPOSITO');
+            setRecibido(totalAPagar);
+            setReferencia('');
+            setArchivo(null);
+            setPreview(null);
+            setEsParcial(soloUnIntegrante);
+            setDistribucion({});
+            setAlertLocal(null);
+        }
+    }, [isOpen, totalAPagar, soloUnIntegrante]);
+
+    const calcularTotalDistribuido = () => {
+        if (integrantesPendientes.length === 0) return parseFloat(totalAPagar);
+        const todosEnFull = integrantesPendientes.every(int => !distribucion[int.id] || distribucion[int.id] === '');
+        if (todosEnFull) return parseFloat(totalAPagar);
+
+        return integrantesPendientes.reduce((acc, int) => {
+            const val        = distribucion[int.id];
+            const esCompleto = !val || val === '';
+            const saldoCap   = parseFloat(int.saldo_capital ?? int.saldo ?? 0);
+            const moraPend   = parseFloat(int.mora_pendiente ?? 0);
+            return acc + (esCompleto ? saldoCap + moraPend : parseFloat(val || 0));
+        }, 0);
+    };
+
+    const totalDistribuido = calcularTotalDistribuido();
+
+    useEffect(() => {
+        if (esGrupal && esParcial) setRecibido(totalDistribuido.toFixed(2));
+    }, [totalDistribuido, esGrupal, esParcial]);
+
+    useEffect(() => {
+        if (esGrupal && !esParcial) setRecibido(totalAPagar);
+    }, [esParcial, esGrupal, totalAPagar]);
+
+    // ── Handlers ──
+    const handleFileChange = (e) => {
+        const f = e.target.files[0];
+        if (f) { setArchivo(f); setPreview(URL.createObjectURL(f)); }
+    };
+
+    const handleMontoIntegrante = (id, valor) => {
+        const sanitized = valor.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');
+        setDistribucion(prev => ({ ...prev, [id]: sanitized }));
+    };
+
+    const reset = () => { setArchivo(null); setPreview(null); onClose(); };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('cuota_id',         cuota.id);
+        formData.append('metodo_pago',      metodo);
+        formData.append('monto_recibido',   recibido);
+        formData.append('numero_operacion', referencia);
+        if (archivo) formData.append('comprobante', archivo);
+
+        if (esGrupal && (esParcial || soloUnIntegrante)) {
+            formData.append('es_parcial_grupal', '1');
+            formData.append('distribucion', JSON.stringify(
+                integrantesPendientes.map(int => ({
+                    cliente_id:    int.id,
+                    total_cuota:   parseFloat(int.saldo ?? int.saldo_capital ?? 0),
+                    monto:         parseFloat(distribucion[int.id] || 0),
+                    pago_completo: !distribucion[int.id] || distribucion[int.id] === '',
+                }))
+            ));
+        }
+
+        setAlertLocal(null);
+        onConfirm(formData, setAlertLocal);
+    };
+
+    return {
+        state: { metodo, recibido, referencia, archivo, preview, esParcial, distribucion, alertLocal },
+        setters: { setMetodo, setRecibido, setReferencia, setEsParcial, setAlertLocal, setArchivo, setPreview },
+        computed: { esGrupal, integrantesPendientes, soloUnIntegrante, totalAPagar, mora, excedenteIndividual, integrantesSinCubrirMora, noCubreMora, puedeSubmit, totalDistribuido },
+        handlers: { handleFileChange, handleMontoIntegrante, reset, handleSubmit }
+    };
+};
