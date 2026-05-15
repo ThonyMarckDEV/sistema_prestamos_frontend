@@ -164,8 +164,8 @@ const Index = () => {
             <PageHeader 
                 title="Historial de Movimientos" 
                 icon={DocumentTextIcon} 
-                buttonText="Ir a Caja Operativa" 
-                buttonLink="/operacion/caja" 
+                buttonText={can('operacion.store') ? "Ir a Caja Operativa" : null}
+                buttonLink={can('operacion.store') ? "/operacion/caja" : null}
             />
             
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />

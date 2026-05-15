@@ -75,7 +75,12 @@ const Index = () => {
 
     return (
         <div className="container mx-auto p-6">
-            <PageHeader title="Solicitudes" icon={DocumentTextIcon} buttonText="+ Nueva" buttonLink="/solicitudPrestamo/agregar" />
+            <PageHeader 
+                title="Solicitudes" 
+                icon={DocumentTextIcon} 
+                buttonText={can('solicitudPrestamo.store') ? "+ Nueva" : null}
+                buttonLink={can('solicitudPrestamo.store') ? "/solicitudPrestamo/agregar" : null}
+            />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             
             <Table 
