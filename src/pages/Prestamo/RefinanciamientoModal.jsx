@@ -1,90 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Modal from 'components/Shared/Modals/ViewModal';
 import ProductoSearchSelect from 'components/Shared/Comboboxes/ProductoSearchSelect';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import CalculadoraCuota from 'components/Shared/CalculadoraCuota';
-import { refinanciar } from 'services/prestamoService';
-import { handleApiError } from 'utilities/Errors/apiErrorHandler';
-import { ArrowPathRoundedSquareIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { useRefinanciamientoModal } from 'hooks/Prestamo/useRefinanciamientoModal';
+import { ArrowPathRoundedSquareIcon, ExclamationTriangleIcon, UserIcon } from '@heroicons/react/24/outline';
 
-const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
-    const [loading, setLoading] = useState(false);
-    const [alert,   setAlert]   = useState(null);
-
-    const [formData, setFormData] = useState({
-        producto_id:        '',
-        tasa_interes:       '',
-        cuotas_solicitadas: '',
-        frecuencia:         'SEMANAL',
-        codigo_recaudo:     '',
-        incluir_mora:       true,
-        observaciones:      '',
-        // Seguro
-        tiene_seguro:       false,
-        seguro:             '',
-        seguro_financiado:  true,  // true = financiado en cuotas | false = cobrado aparte
-    });
-
-    useEffect(() => {
-        if (isOpen && data) {
-            setFormData({
-                producto_id:        '',
-                tasa_interes:       '',
-                cuotas_solicitadas: '',
-                frecuencia:         'SEMANAL',
-                codigo_recaudo:     '',
-                incluir_mora:       true,
-                observaciones:      '',
-                tiene_seguro:       false,
-                seguro:             '',
-                seguro_financiado:  true,
-            });
-            setAlert(null);
-        }
-        // eslint-disable-next-line
-    }, [isOpen, data?.prestamo_id, data?.cliente_id]);
-
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setAlert(null);
-        setLoading(true);
-        try {
-            await refinanciar({
-                ...formData,
-                // Si no tiene seguro, mandamos 0
-                seguro:            formData.tiene_seguro ? parseFloat(formData.seguro || 0) : 0,
-                seguro_financiado: formData.tiene_seguro ? formData.seguro_financiado : false,
-                prestamo_refinanciado_id: data.prestamo_id,
-                cliente_refinanciado_id:  data.cliente_id,
-            });
-            onSuccess();
-        } catch (err) {
-            setAlert(handleApiError(err));
-        } finally {
-            setLoading(false);
-        }
-    };
+const RefinanciamientoModal = ({ isOpen, onClose, data, integrantesGrupo, onSuccess }) => {
+    const {
+        formData,
+        setFormData,
+        loading,
+        alert,
+        setAlert,
+        integrantesRestantes,
+        handleChange,
+        handleSubmit,
+        montoBase,
+        montoCalc,
+        submitDisabled,
+    } = useRefinanciamientoModal({ isOpen, data, integrantesGrupo, onSuccess });
 
     if (!data) return null;
-
-    const montoBase    = formData.incluir_mora ? (data.deuda + data.mora) : data.deuda;
-    const seguroValor  = formData.tiene_seguro ? parseFloat(formData.seguro || 0) : 0;
-    // Si el seguro es financiado se suma al capital para la calculadora
-    const montoCalc    = formData.tiene_seguro && formData.seguro_financiado
-        ? montoBase + seguroValor
-        : montoBase;
-
-    const submitDisabled = loading
-        || !formData.producto_id
-        || !formData.cuotas_solicitadas
-        || !formData.tasa_interes
-        || !formData.codigo_recaudo.trim()
-        || (formData.tiene_seguro && (!formData.seguro || parseFloat(formData.seguro) <= 0));
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Refinanciar Préstamo" size="lg">
@@ -117,6 +54,27 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                         <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Producto Financiero *</label>
                         <ProductoSearchSelect onSelect={p => setFormData(prev => ({ ...prev, producto_id: p?.id }))} />
                     </div>
+
+                    {/* Selector de Nuevo Presidente (SOLO PARA GRUPOS) */}
+                    {integrantesRestantes.length > 0 && (
+                        <div className="border border-blue-200 rounded-xl p-4 bg-blue-50/50">
+                            <label className="flex items-center gap-1.5 text-[10px] font-black text-blue-700 uppercase mb-2">
+                                <UserIcon className="w-4 h-4" />
+                                Actualizar Presidente del Grupo Original *
+                            </label>
+                            <select name="nuevo_presidente_id" value={formData.nuevo_presidente_id} onChange={handleChange}
+                                className="w-full border border-blue-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-400 outline-none bg-white">
+                                {integrantesRestantes.map(int => (
+                                    <option key={int.id} value={int.id}>
+                                        {int.nombre} (Cargo actual: {int.cargo})
+                                    </option>
+                                ))}
+                            </select>
+                            <p className="text-[9px] text-blue-500 font-bold mt-1.5 uppercase">
+                                El integrante seleccionado asumirá la titularidad (PRESIDENTE) del préstamo grupal que queda activo.
+                            </p>
+                        </div>
+                    )}
 
                     {/* Cuotas + Tasa */}
                     <div className="grid grid-cols-2 gap-4">
@@ -154,9 +112,8 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                         </div>
                     </div>
 
-                    {/* ── Seguro ──────────────────────────────────────────────── */}
+                    {/* ── Seguro ── */}
                     <div className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50">
-                        {/* Toggle tiene_seguro */}
                         <label className="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" name="tiene_seguro" checked={formData.tiene_seguro} onChange={handleChange}
                                 className="w-4 h-4 text-brand-red border-slate-300 rounded focus:ring-brand-red" />
@@ -165,7 +122,6 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
 
                         {formData.tiene_seguro && (
                             <div className="grid grid-cols-2 gap-4 pt-1">
-                                {/* Monto seguro */}
                                 <div>
                                     <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
                                         Monto Seguro (S/) *
@@ -177,8 +133,6 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                                         className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-brand-red outline-none"
                                     />
                                 </div>
-
-                                {/* Modalidad seguro */}
                                 <div>
                                     <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
                                         Modalidad Seguro *
@@ -215,7 +169,6 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, onSuccess }) => {
                             className="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-brand-red outline-none" />
                     </div>
 
-                    {/* Calculadora — usa montoCalc que ya incluye seguro financiado si aplica */}
                     <CalculadoraCuota
                         monto={montoCalc}
                         tasa={formData.tasa_interes}

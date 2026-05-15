@@ -13,7 +13,6 @@ import { ArrowPathRoundedSquareIcon } from '@heroicons/react/24/outline';
 import { useAuth } from 'context/AuthContext';
 import { useViewPrestamoModal } from 'hooks/Prestamo/useViewPrestamoModal';
 
-// ── Skeleton de una card económica ───────────────────────────────────────────
 const CardSkeleton = ({ accent = 'slate' }) => {
     const bg = {
         slate: 'bg-slate-50 border border-slate-100',
@@ -96,7 +95,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Desembolso</p>
-                                    {/* Header siempre muestra datos del préstamo global, no del integrante */}
                                     <p className="text-sm font-black text-slate-800 uppercase">{data.datos_economicos?.modalidad}</p>
                                     <p className="text-[10px] font-bold text-slate-500">Vía: {data.datos_economicos?.abonado_por}</p>
                                 </div>
@@ -168,7 +166,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                             </div>
                         )}
 
-                        {/* 4. Cards económicas — skeleton mientras carga integrante */}
+                        {/* 4. Cards económicas */}
                         {loadingIntegrante ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <CardSkeleton accent="slate" />
@@ -178,7 +176,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
                                 {/* Capital */}
                                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                                     <p className="text-[10px] font-black uppercase text-slate-400 mb-1">
@@ -259,7 +256,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                         </p>
                                     </div>
                                 </div>
-
                             </div>
                         )}
 
@@ -325,10 +321,13 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
 
             <HistorialMoraModal isOpen={!!historialModal} onClose={() => setHistorialModal(null)} data={historialModal} />
             <PdfModal isOpen={pdfOpen} onClose={handleCerrarPdf} title={pdfTitle} base64={pdfBase64} />
+            
+            {/* AQUÍ PASAMOS LOS INTEGRANTES */}
             <RefinanciamientoModal
                 isOpen={refModalOpen}
                 onClose={() => setRefModalOpen(false)}
                 data={refData}
+                integrantesGrupo={data?.integrantes} 
                 onSuccess={handleSuccessRefinanciamiento}
             />
         </>
