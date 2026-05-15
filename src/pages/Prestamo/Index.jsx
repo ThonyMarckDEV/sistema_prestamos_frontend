@@ -153,7 +153,7 @@ const Index = () => {
         ];
 
         return cols;
-    }, [handleView, handleOpenAbono, openDeleteModal, canDelete]);
+    }, [handleView, handleOpenAbono, openDeleteModal, canDelete, can]);
 
     if (loading && prestamos.length === 0) return <LoadingScreen />;
 
