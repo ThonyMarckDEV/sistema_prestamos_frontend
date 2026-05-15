@@ -19,13 +19,26 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     const esGrupal = !!(cuota?.integrantes && cuota.integrantes.length > 0);
 
     // ── Integrantes pendientes: los que llegan en cuota.integrantes
+    //    ya vienen filtrados por OperacionForm (solo los que pueden pagar)
     const integrantesPendientes = cuota?.integrantes?.filter(i => ![2, 6].includes(i.estado)) ?? [];
 
     // Si hay exactamente 1 integrante habilitado, mostrar distribución siempre
     const soloUnIntegrante = esGrupal && integrantesPendientes.length === 1;
 
-    const totalAPagar = parseFloat(cuota?.saldo_pendiente ?? cuota?.monto ?? 0).toFixed(2);
-    const mora        = parseFloat(cuota?.mora ?? 0);
+    // Para grupales: el total real a cobrar = suma de saldos individuales de los
+    // integrantes habilitados (cada uno ya tiene su excedente descontado en saldo_capital)
+    // Para individuales: usar saldo_pendiente de la cuota global
+    const totalAPagar = esGrupal && integrantesPendientes.length > 0
+        ? integrantesPendientes.reduce((acc, int) => {
+            const saldoCap = parseFloat(int.saldo_capital ?? int.saldo ?? 0);
+            const moraPend = parseFloat(int.mora_pendiente ?? 0);
+            return acc + saldoCap + moraPend;
+          }, 0).toFixed(2)
+        : parseFloat(cuota?.saldo_pendiente ?? cuota?.monto ?? 0).toFixed(2);
+
+    const mora = esGrupal
+        ? integrantesPendientes.reduce((acc, int) => acc + parseFloat(int.mora_pendiente ?? 0), 0)
+        : parseFloat(cuota?.mora ?? 0);
 
     // ── Validación mora por integrante (modo parcial grupal) ─────────────────
     const integrantesSinCubrirMora = (esGrupal && esParcial)
@@ -159,12 +172,21 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                     Mora ya cubierta: S/ {parseFloat(cuota.mora_pagada).toFixed(2)}
                                 </p>
                             )}
-                            {parseFloat(cuota?.excedente_anterior || 0) > 0 && (
-                                <p className="text-[10px] font-bold text-purple-400 mt-1">
-                                    Excedente aplicado: -S/ {parseFloat(cuota.excedente_anterior).toFixed(2)}
-                                </p>
-                            )}
-                            {parseFloat(cuota?.pago_acumulado) > 0 && (
+                            {(() => {
+                                // Grupal: excedente es individual por integrante
+                                // Individual: excedente global en la cuota
+                                const excedente = esGrupal && integrantesPendientes.length === 1
+                                    ? parseFloat(integrantesPendientes[0]?.excedente_anterior ?? 0)
+                                    : esGrupal
+                                        ? 0  // >1 integrante: cada uno ve su excedente en la distribución
+                                        : parseFloat(cuota?.excedente_anterior || 0);
+                                return excedente > 0 ? (
+                                    <p className="text-[10px] font-bold text-purple-400 mt-1">
+                                        Excedente a aplicar: -S/ {excedente.toFixed(2)}
+                                    </p>
+                                ) : null;
+                            })()}
+                            {!esGrupal && parseFloat(cuota?.pago_acumulado) > 0 && (
                                 <p className="text-[10px] font-bold text-blue-400 mt-1">
                                     Ya abonado: S/ {parseFloat(cuota.pago_acumulado).toFixed(2)}
                                 </p>
@@ -188,7 +210,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         {/* Método */}
                         <div className="grid grid-cols-2 gap-3">
                             {['DEPOSITO', 'EFECTIVO'].map((m) => (
-                                <button key={m} type="button" onClick={() => { setMetodo(m); setReferencia(''); }}
+                                <button key={m} type="button" onClick={() => setMetodo(m)}
                                     className={`p-3 rounded-2xl font-black text-xs flex items-center justify-center gap-2 border-2 transition-all
                                         ${metodo === m
                                             ? 'border-brand-red bg-brand-red-light/50 text-brand-red shadow-sm'
@@ -201,7 +223,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                             ))}
                         </div>
 
-                       {/* Campos */}
+                        {/* Campos */}
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">
@@ -223,24 +245,20 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                     </p>
                                 )}
                             </div>
-
-                            {/* N° Operación solo para DEPOSITO */}
-                            {metodo === 'DEPOSITO' && (
-                                <div>
-                                    <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">
-                                        N° Operación / Referencia *
-                                    </label>
-                                    <input type="text" value={referencia} onChange={e => setReferencia(e.target.value)}
-                                        placeholder="Ej: 002938"
-                                        className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-800 focus:border-brand-red focus:ring-1 focus:ring-brand-red focus:bg-white outline-none transition-all" />
-                                </div>
-                            )}
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">
+                                    N° Operación / Referencia
+                                </label>
+                                <input type="text" value={referencia} onChange={e => setReferencia(e.target.value)}
+                                    placeholder="Ej: 002938"
+                                    className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-800 focus:border-brand-red focus:ring-1 focus:ring-brand-red focus:bg-white outline-none transition-all" />
+                            </div>
                         </div>
 
                         {/* Voucher */}
                         <div>
                             <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">
-                                {metodo === 'DEPOSITO' ? 'Comprobante *' : 'Foto del Efectivo (Opcional)'}
+                                Comprobante
                             </label>
                             <input type="file" accept="image/*" onChange={handleFileChange}
                                 className="hidden" id="pago-cuota-upload" />
@@ -251,18 +269,9 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                         : 'border-slate-200 hover:border-brand-red/50 hover:bg-slate-50 text-slate-500'}`}>
                                 <div className="flex flex-col items-center gap-1 font-black text-[10px] uppercase">
                                     <PhotoIcon className="w-6 h-6 mb-1" />
-                                    {archivo
-                                        ? 'Comprobante Cargado ✓'
-                                        : metodo === 'DEPOSITO'
-                                            ? 'Subir Voucher / Captura'
-                                            : 'Subir Foto (opcional)'}
+                                    {archivo ? 'Comprobante Cargado ✓' : 'Subir Voucher / Captura'}
                                 </div>
                             </label>
-                            {metodo === 'EFECTIVO' && (
-                                <p className="text-[9px] text-slate-400 font-bold mt-1 ml-1">
-                                    Puedes adjuntar una foto del efectivo recibido si lo deseas.
-                                </p>
-                            )}
                         </div>
 
                         {/* Toggle pago parcial (solo si hay más de 1 integrante habilitado) */}
@@ -329,6 +338,11 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                                                 </p>
                                                             )}
                                                         </div>
+                                                        {parseFloat(int.excedente_anterior ?? 0) > 0 && (
+                                                            <p className="text-[9px] text-purple-600 font-bold">
+                                                                Exc. anterior: -S/ {parseFloat(int.excedente_anterior).toFixed(2)}
+                                                            </p>
+                                                        )}
                                                         {parseFloat(int.excedente_aplicado ?? 0) > 0 && (
                                                             <p className="text-[9px] text-purple-600 font-bold">
                                                                 Exc. aplicado: -S/ {parseFloat(int.excedente_aplicado).toFixed(2)}

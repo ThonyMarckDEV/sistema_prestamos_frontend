@@ -13,7 +13,6 @@ export const CeldaFinanciera = ({ total, pagado, pendiente }) => (
     </div>
 );
 
-/* ─── Badge reutilizable ─────────────────────────────── */
 const getStatusBadge = (estado) => {
     const styles = {
         0: 'bg-slate-100 text-slate-400 border-slate-200',
@@ -24,15 +23,7 @@ const getStatusBadge = (estado) => {
         5: 'bg-orange-50 text-orange-700 border-orange-100',
         6: 'bg-blue-50 text-blue-700 border-blue-100',
     };
-    const labels = {
-        0: 'CANCELADO',
-        1: 'PENDIENTE',
-        2: 'PAGADO',
-        3: 'VENCE HOY',
-        4: 'VENCIDO',
-        5: 'PARCIAL',
-        6: 'REFINANCIADO',
-    };
+    const labels = { 0:'CANCELADO', 1:'PENDIENTE', 2:'PAGADO', 3:'VENCE HOY', 4:'VENCIDO', 5:'PARCIAL', 6:'REFINANCIADO' };
     return (
         <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border whitespace-nowrap ${styles[estado] ?? styles[1]}`}>
             {labels[estado] ?? 'PENDIENTE'}
@@ -40,7 +31,6 @@ const getStatusBadge = (estado) => {
     );
 };
 
-/* ─── Fila de detalle en cards ───────────────────────── */
 const CardRow = ({ label, children, hidden }) => {
     if (hidden) return null;
     return (
@@ -50,6 +40,10 @@ const CardRow = ({ label, children, hidden }) => {
         </div>
     );
 };
+
+// ── Helper: suma de excedentes individuales de integrantes ────────────────────
+const sumaExcedentesIntegrantes = (integrantes) =>
+    (integrantes ?? []).reduce((acc, int) => acc + parseFloat(int.excedente_anterior ?? 0), 0);
 
 /* ─── Card individual por cuota ─────────────────────── */
 const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, extraColumns }) => {
@@ -83,13 +77,29 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
     const saldo      = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? 0);
     const diasAtraso = cuota.dias_atraso || 0;
 
-    const excAnt     = esVistaIntegrante
-        ? parseFloat(cuota.excedente_aplicado || 0)
-        : (parseFloat(cuota.excedente_consumido || 0) > 0
+    // ── Excedente: individual (integrante) o suma de integrantes (global grupal) ──
+    let excAnt     = 0;
+    let excConsInd = 0;
+    let excGen     = 0;
+
+    if (esVistaIntegrante) {
+        // Vista integrante: usar excedente_anterior individual del detalle
+        excAnt     = parseFloat(cuota.excedente_anterior || 0);
+        excConsInd = parseFloat(cuota.excedente_aplicado || 0);  // ya consumido
+        excGen     = parseFloat(cuota.excedente_generado || 0);
+    } else if (cuota.integrantes?.length > 0) {
+        // Vista global grupal: sumar excedentes individuales de los integrantes
+        excAnt     = sumaExcedentesIntegrantes(cuota.integrantes);
+        excConsInd = 0;
+        excGen     = 0; // grupal no tiene excedente_generado global
+    } else {
+        // Individual: excedente global en la cuota
+        excAnt     = parseFloat(cuota.excedente_consumido || 0) > 0
             ? parseFloat(cuota.excedente_consumido)
-            : parseFloat(cuota.excedente_anterior || 0));
-    const excConsInd = esVistaIntegrante ? parseFloat(cuota.excedente_consumido || 0) : 0;
-    const excGen     = parseFloat(cuota.excedente_generado || 0);
+            : parseFloat(cuota.excedente_anterior || 0);
+        excConsInd = 0;
+        excGen     = parseFloat(cuota.excedente_generado || 0);
+    }
 
     const esCancelada    = cuota.estado === 0;
     const esRefinanciada = cuota.estado === 6;
@@ -102,7 +112,6 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
         else if (abonado > 0 && saldo > 0) estadoGlobal = 5;
     }
 
-    /* colores de borde lateral según estado */
     const borderColor = esCancelada
         ? 'border-l-slate-300'
         : esRefinanciada
@@ -115,14 +124,8 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
 
     return (
         <div className={`relative bg-white rounded-2xl border border-slate-200 border-l-4 ${borderColor} shadow-sm overflow-hidden transition-all ${esInactiva ? 'opacity-55' : ''}`}>
-
-            {/* ── Cabecera siempre visible ─── */}
-            <button
-                className="w-full text-left px-4 pt-3 pb-3"
-                onClick={() => setExpanded(v => !v)}
-            >
+            <button className="w-full text-left px-4 pt-3 pb-3" onClick={() => setExpanded(v => !v)}>
                 <div className="flex items-start justify-between gap-2">
-                    {/* Número + fecha */}
                     <div className="flex items-center gap-2">
                         <span className="text-[10px] font-black text-slate-400 font-mono bg-slate-100 rounded-lg px-2 py-0.5">
                             #{nro.toString().padStart(2, '0')}
@@ -136,8 +139,6 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
                             )}
                         </div>
                     </div>
-
-                    {/* Monto + estado */}
                     <div className="flex flex-col items-end gap-1 shrink-0">
                         <span className={`text-sm font-black ${esInactiva ? 'text-slate-400 line-through' : 'text-slate-800'}`}>
                             S/ {monto.toFixed(2)}
@@ -146,7 +147,6 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
                     </div>
                 </div>
 
-                {/* Saldo real siempre visible */}
                 <div className="flex items-center justify-between mt-2">
                     <span className="text-[10px] font-black text-slate-400 uppercase">Saldo real</span>
                     {esInactiva ? (
@@ -158,38 +158,38 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
                     )}
                 </div>
 
-                {/* Etiquetas especiales */}
+                {/* Excedente disponible — visible siempre en cabecera si existe */}
+                {excAnt > 0 && !esInactiva && (
+                    <div className="flex items-center justify-between mt-1">
+                        <span className="text-[9px] font-black text-purple-500 uppercase">
+                            {esVistaIntegrante ? 'Exc. anterior (tuyo)' : 'Exc. socios disponible'}
+                        </span>
+                        <span className="text-[9px] font-black text-purple-600">-S/ {excAnt.toFixed(2)}</span>
+                    </div>
+                )}
+
                 {(esCancelada || esRefinanciada) && (
                     <span className={`mt-1.5 inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${esCancelada ? 'bg-slate-100 text-slate-400' : 'bg-blue-50 text-blue-500'}`}>
                         {esCancelada ? 'Cancelado' : 'Refinanciado'}
                     </span>
                 )}
-
-                {/* Toggle icon */}
                 <div className="absolute top-3 right-3 text-slate-300">
-                    {expanded
-                        ? <ChevronUpIcon className="w-4 h-4" />
-                        : <ChevronDownIcon className="w-4 h-4" />}
+                    {expanded ? <ChevronUpIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />}
                 </div>
             </button>
 
-            {/* ── Detalle expandible ─── */}
             {expanded && (
                 <div className="px-4 pb-4 pt-1 bg-slate-50/60 border-t border-slate-100 space-y-0">
-
                     <CardRow label="Capital">
                         <CeldaFinanciera total={capital} pagado={capPagado} pendiente={esInactiva ? 0 : capPend} />
                     </CardRow>
-
                     <CardRow label="Interés">
                         <CeldaFinanciera total={interes} pagado={intPagado} pendiente={esInactiva ? 0 : intPend} />
                     </CardRow>
-
                     <CardRow label="Seguro" hidden={seguro <= 0}>
                         <CeldaFinanciera total={seguro} pagado={segPagado} pendiente={esInactiva ? 0 : segPend} />
                     </CardRow>
 
-                    {/* Mora */}
                     <CardRow label="Mora" hidden={moraTotal <= 0 || esInactiva}>
                         <div className="flex flex-col items-end gap-0.5">
                             <span className={`font-black text-[11px] whitespace-nowrap ${moraPend > 0 ? 'text-brand-red' : 'text-brand-red line-through'}`}>
@@ -200,10 +200,8 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
                                     {moraPend === 0 ? '✓ Cubierta' : `De S/ ${moraTotal.toFixed(2)}`}
                                 </span>
                                 {cuota.historial_mora?.length > 0 && (
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); onHistorialModal?.({ nro, historial: cuota.historial_mora, total: moraTotal }); }}
-                                        className="text-slate-400 hover:text-brand-red transition-all p-0.5 rounded-full hover:bg-brand-red-light shrink-0"
-                                    >
+                                    <button onClick={(e) => { e.stopPropagation(); onHistorialModal?.({ nro, historial: cuota.historial_mora, total: moraTotal }); }}
+                                        className="text-slate-400 hover:text-brand-red transition-all p-0.5 rounded-full hover:bg-brand-red-light shrink-0">
                                         <ClockIcon className="w-3 h-3" />
                                     </button>
                                 )}
@@ -211,8 +209,18 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
                         </div>
                     </CardRow>
 
-                    {/* Abonos */}
-                    {(mostrarRecibido || acumInd > 0 || excAnt > 0 || moraPagada > 0 || excGen > 0 || excConsInd > 0 || (!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0)) && (
+                    {/* Excedente disponible (detalle expandido) */}
+                    <CardRow label={esVistaIntegrante ? "Exc. Anterior (tuyo)" : "Exc. Socios disponible"} hidden={excAnt <= 0 || esInactiva}>
+                        <span className="text-[11px] font-black text-purple-600 whitespace-nowrap">-S/ {excAnt.toFixed(2)}</span>
+                    </CardRow>
+
+                    {excConsInd > 0 && esVistaIntegrante && (
+                        <CardRow label="Exc. Ya aplicado">
+                            <span className="text-[11px] font-black text-purple-400 whitespace-nowrap">S/ {excConsInd.toFixed(2)}</span>
+                        </CardRow>
+                    )}
+
+                    {(mostrarRecibido || acumInd > 0 || moraPagada > 0 || excGen > 0 || (!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0)) && (
                         <CardRow label="Abonos">
                             <div className="flex flex-col gap-0.5 items-end">
                                 {mostrarRecibido && (
@@ -227,22 +235,13 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
                                 {moraPagada > 0 && (
                                     <span className="text-[9px] font-bold text-brand-gold-dark uppercase whitespace-nowrap">Mora cubierta: S/ {moraPagada.toFixed(2)}</span>
                                 )}
-                                {excAnt > 0 && (
-                                    <span className="text-[9px] font-bold text-purple-600 uppercase whitespace-nowrap">
-                                        {esVistaIntegrante ? 'Excedente. aplicado' : 'Excedente. usado'}: -S/ {excAnt.toFixed(2)}
-                                    </span>
-                                )}
-                                {esVistaIntegrante && excConsInd > 0 && (
-                                    <span className="text-[9px] font-bold text-purple-600 uppercase whitespace-nowrap">Excedente. usado: -S/ {excConsInd.toFixed(2)}</span>
-                                )}
                                 {excGen > 0 && (
-                                    <span className="text-[9px] font-bold text-orange-500 uppercase whitespace-nowrap">Excedente: S/ {excGen.toFixed(2)}</span>
+                                    <span className="text-[9px] font-bold text-orange-500 uppercase whitespace-nowrap">Excedente generado: +S/ {excGen.toFixed(2)}</span>
                                 )}
                             </div>
                         </CardRow>
                     )}
 
-                    {/* Columnas extra */}
                     {extraColumns.map((col) => (
                         <CardRow key={col.header} label={col.header}>
                             {col.render(cuota, i, cronograma)}
@@ -264,21 +263,13 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
    COMPONENTE PRINCIPAL
 ═══════════════════════════════════════════════════════ */
 const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistorialModal, extraColumns = [] }) => {
-
     return (
         <>
             {/* ══════════════ VISTA MÓVIL — cards ══════════════ */}
             <div className="flex flex-col gap-3 md:hidden">
                 {cronograma.map((cuota, i) => (
-                    <CuotaCard
-                        key={cuota.nro ?? i}
-                        cuota={cuota}
-                        i={i}
-                        cronograma={cronograma}
-                        esVistaIntegrante={esVistaIntegrante}
-                        onHistorialModal={onHistorialModal}
-                        extraColumns={extraColumns}
-                    />
+                    <CuotaCard key={cuota.nro ?? i} cuota={cuota} i={i} cronograma={cronograma}
+                        esVistaIntegrante={esVistaIntegrante} onHistorialModal={onHistorialModal} extraColumns={extraColumns} />
                 ))}
             </div>
 
@@ -294,6 +285,7 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                             <th className="px-3 py-4">Interés</th>
                             <th className="px-3 py-4">Seguro</th>
                             <th className="px-3 py-4">Mora</th>
+                            <th className="px-3 py-4">Excedente</th>
                             <th className="px-3 py-4">Abonos</th>
                             <th className="px-3 py-4">Saldo Real</th>
                             <th className="px-3 py-4 text-center">Estado</th>
@@ -332,13 +324,20 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                             const saldo      = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? 0);
                             const diasAtraso = cuota.dias_atraso || 0;
 
-                            const excAnt     = esVistaIntegrante
-                                ? parseFloat(cuota.excedente_aplicado || 0)
-                                : (parseFloat(cuota.excedente_consumido || 0) > 0
+                            // ── Excedente según tipo de vista ──────────────────
+                            let excAnt = 0, excConsInd = 0, excGen = 0;
+                            if (esVistaIntegrante) {
+                                excAnt     = parseFloat(cuota.excedente_anterior || 0);
+                                excConsInd = parseFloat(cuota.excedente_aplicado || 0);
+                                excGen     = parseFloat(cuota.excedente_generado || 0);
+                            } else if (cuota.integrantes?.length > 0) {
+                                excAnt     = sumaExcedentesIntegrantes(cuota.integrantes);
+                            } else {
+                                excAnt     = parseFloat(cuota.excedente_consumido || 0) > 0
                                     ? parseFloat(cuota.excedente_consumido)
-                                    : parseFloat(cuota.excedente_anterior || 0));
-                            const excConsInd = esVistaIntegrante ? parseFloat(cuota.excedente_consumido || 0) : 0;
-                            const excGen     = parseFloat(cuota.excedente_generado || 0);
+                                    : parseFloat(cuota.excedente_anterior || 0);
+                                excGen     = parseFloat(cuota.excedente_generado || 0);
+                            }
 
                             const esCancelada    = cuota.estado === 0;
                             const esRefinanciada = cuota.estado === 6;
@@ -354,12 +353,9 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
 
                             return (
                                 <tr key={nro} className={`transition-colors ${
-                                    esCancelada
-                                        ? 'bg-slate-50/80 opacity-50'
-                                        : esRefinanciada
-                                            ? 'bg-blue-50/60 opacity-60'
-                                            : 'hover:bg-brand-red-light/30'
-                                }`}>
+                                    esCancelada ? 'bg-slate-50/80 opacity-50'
+                                    : esRefinanciada ? 'bg-blue-50/60 opacity-60'
+                                    : 'hover:bg-brand-red-light/30'}`}>
                                     <td className="px-3 py-4 text-xs font-black text-slate-400 text-center font-mono">
                                         #{nro.toString().padStart(2, '0')}
                                     </td>
@@ -375,12 +371,8 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                                         <span className={`text-sm font-black ${esInactiva ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
                                             S/ {monto.toFixed(2)}
                                         </span>
-                                        {esCancelada && (
-                                            <span className="block text-[9px] font-black text-slate-400 uppercase">Cancelado</span>
-                                        )}
-                                        {esRefinanciada && (
-                                            <span className="block text-[9px] font-black text-blue-500 uppercase">Refinanciado</span>
-                                        )}
+                                        {esCancelada && <span className="block text-[9px] font-black text-slate-400 uppercase">Cancelado</span>}
+                                        {esRefinanciada && <span className="block text-[9px] font-black text-blue-500 uppercase">Refinanciado</span>}
                                     </td>
                                     <td className="px-3 py-4">
                                         <CeldaFinanciera total={capital} pagado={capPagado} pendiente={esInactiva ? 0 : capPend} />
@@ -404,10 +396,8 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                                                         {moraPend === 0 ? '✓ Cubierta' : `De S/ ${moraTotal.toFixed(2)}`}
                                                     </span>
                                                     {cuota.historial_mora?.length > 0 && (
-                                                        <button
-                                                            onClick={() => onHistorialModal?.({ nro, historial: cuota.historial_mora, total: moraTotal })}
-                                                            className="text-slate-400 hover:text-brand-red transition-all p-0.5 rounded-full hover:bg-brand-red-light shrink-0"
-                                                        >
+                                                        <button onClick={() => onHistorialModal?.({ nro, historial: cuota.historial_mora, total: moraTotal })}
+                                                            className="text-slate-400 hover:text-brand-red transition-all p-0.5 rounded-full hover:bg-brand-red-light shrink-0">
                                                             <ClockIcon className="w-3 h-3" />
                                                         </button>
                                                     )}
@@ -415,6 +405,28 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                                             </div>
                                         )}
                                     </td>
+
+                                    {/* ── Excedente disponible ── */}
+                                    <td className="px-3 py-4">
+                                        {excAnt > 0 && !esInactiva ? (
+                                            <div className="flex flex-col">
+                                                <span className="text-[11px] font-black text-purple-600 whitespace-nowrap">
+                                                    -S/ {excAnt.toFixed(2)}
+                                                </span>
+                                                <span className="text-[8px] font-bold text-purple-400 whitespace-nowrap">
+                                                    {esVistaIntegrante ? 'Tuyo' : 'De socios'}
+                                                </span>
+                                                {excConsInd > 0 && esVistaIntegrante && (
+                                                    <span className="text-[8px] font-bold text-purple-300 whitespace-nowrap">
+                                                        Usado: S/ {excConsInd.toFixed(2)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span className="text-slate-300 font-black text-[11px]">—</span>
+                                        )}
+                                    </td>
+
                                     <td className="px-3 py-4">
                                         <div className="flex flex-col gap-0.5 min-w-[90px]">
                                             {mostrarRecibido && (
@@ -437,22 +449,13 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                                                     Mora cubierta: S/ {moraPagada.toFixed(2)}
                                                 </span>
                                             )}
-                                            {excAnt > 0 && (
-                                                <span className="text-[9px] font-bold text-purple-600 uppercase whitespace-nowrap">
-                                                    {esVistaIntegrante ? 'Excedente. aplicado' : 'Excedente. usado'}: -S/ {excAnt.toFixed(2)}
-                                                </span>
-                                            )}
-                                            {esVistaIntegrante && excConsInd > 0 && (
-                                                <span className="text-[9px] font-bold text-purple-600 uppercase whitespace-nowrap">
-                                                    Excedente. usado: -S/ {excConsInd.toFixed(2)}
-                                                </span>
-                                            )}
                                             {excGen > 0 && (
                                                 <span className="text-[9px] font-bold text-orange-500 uppercase whitespace-nowrap">
-                                                    Excedente: S/ {excGen.toFixed(2)}
+                                                    Excedente: +S/ {excGen.toFixed(2)}
                                                 </span>
                                             )}
-                                            {!mostrarRecibido && acumInd === 0 && excAnt === 0 && moraPagada === 0 && excGen === 0 && excConsInd === 0 && !(!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0) && (
+                                            {!mostrarRecibido && acumInd === 0 && moraPagada === 0 && excGen === 0
+                                                && !(!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0) && (
                                                 <span className="text-[10px] text-slate-300 font-bold">—</span>
                                             )}
                                         </div>
