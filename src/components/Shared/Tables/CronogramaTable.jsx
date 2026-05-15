@@ -41,10 +41,6 @@ const CardRow = ({ label, children, hidden }) => {
     );
 };
 
-// ── Helper: suma de excedentes individuales de integrantes ────────────────────
-const sumaExcedentesIntegrantes = (integrantes) =>
-    (integrantes ?? []).reduce((acc, int) => acc + parseFloat(int.excedente_anterior ?? 0), 0);
-
 /* ─── Card individual por cuota ─────────────────────── */
 const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, extraColumns }) => {
     const [expanded, setExpanded] = React.useState(false);
@@ -53,53 +49,33 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
     const monto      = parseFloat(cuota.total_cuota ?? cuota.monto ?? 0);
     const capital    = parseFloat(cuota.capital ?? 0);
     const interes    = parseFloat(cuota.interes ?? 0);
-
     const seguro     = parseFloat(cuota.seguro ?? 0);
-    let segPagado    = parseFloat(cuota.seguro_pagado ?? 0);
-    if (!esVistaIntegrante && cuota.integrantes?.length > 0) {
-        segPagado = cuota.integrantes.reduce((sum, int) => sum + parseFloat(int.seguro_pagado || 0), 0);
-    }
-    const segPend    = Math.max(0, seguro - segPagado);
-
+    
+    // Todo directo del backend
+    const segPagado  = parseFloat(cuota.seguro_pagado ?? 0);
+    const segPend    = parseFloat(cuota.seguro_pendiente ?? 0);
     const capPagado  = parseFloat(cuota.capital_pagado ?? 0);
     const intPagado  = parseFloat(cuota.interes_pagado ?? 0);
-    const capPend    = parseFloat(cuota.capital_pendiente ?? Math.max(0, capital - capPagado));
-    const intPend    = parseFloat(cuota.interes_pendiente ?? Math.max(0, interes - intPagado));
+    const capPend    = parseFloat(cuota.capital_pendiente ?? 0);
+    const intPend    = parseFloat(cuota.interes_pendiente ?? 0);
 
     const moraTotal  = parseFloat(cuota.mora_total ?? cuota.mora ?? 0);
     const moraPagada = parseFloat(cuota.mora_pagada ?? 0);
-    const moraPend   = Math.max(0, moraTotal - moraPagada);
+    const moraPend   = parseFloat(cuota.mora_pendiente ?? Math.max(0, moraTotal - moraPagada));
 
     const abonado    = esVistaIntegrante
         ? parseFloat(cuota.pago_total_real ?? cuota.pago_acumulado ?? 0)
         : parseFloat(cuota.pago_realizado  ?? cuota.pago_acumulado ?? 0);
     const acumInd    = esVistaIntegrante ? parseFloat(cuota.pago_acumulado ?? 0) : 0;
-    const saldo      = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? 0);
+    
+    // Saldo directo del backend (ya tiene excedentes descontados y todo)
+    const saldo      = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? cuota.saldo ?? 0);
     const diasAtraso = cuota.dias_atraso || 0;
 
-    // ── Excedente: individual (integrante) o suma de integrantes (global grupal) ──
-    let excAnt     = 0;
-    let excConsInd = 0;
-    let excGen     = 0;
-
-    if (esVistaIntegrante) {
-        // Vista integrante: usar excedente_anterior individual del detalle
-        excAnt     = parseFloat(cuota.excedente_anterior || 0);
-        excConsInd = parseFloat(cuota.excedente_aplicado || 0);  // ya consumido
-        excGen     = parseFloat(cuota.excedente_generado || 0);
-    } else if (cuota.integrantes?.length > 0) {
-        // Vista global grupal: sumar excedentes individuales de los integrantes
-        excAnt     = sumaExcedentesIntegrantes(cuota.integrantes);
-        excConsInd = 0;
-        excGen     = 0; // grupal no tiene excedente_generado global
-    } else {
-        // Individual: excedente global en la cuota
-        excAnt     = parseFloat(cuota.excedente_consumido || 0) > 0
-            ? parseFloat(cuota.excedente_consumido)
-            : parseFloat(cuota.excedente_anterior || 0);
-        excConsInd = 0;
-        excGen     = parseFloat(cuota.excedente_generado || 0);
-    }
+    // ── Excedentes (el backend ahora manda todo masticado en AMBAS vistas) ──
+    const excAnt     = parseFloat(cuota.excedente_anterior || 0);
+    const excConsInd = parseFloat(cuota.excedente_consumido || cuota.excedente_aplicado || 0);
+    const excGen     = parseFloat(cuota.excedente_generado || 0);
 
     const esCancelada    = cuota.estado === 0;
     const esRefinanciada = cuota.estado === 6;
@@ -158,7 +134,6 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
                     )}
                 </div>
 
-                {/* Excedente disponible — visible siempre en cabecera si existe */}
                 {excAnt > 0 && !esInactiva && (
                     <div className="flex items-center justify-between mt-1">
                         <span className="text-[9px] font-black text-purple-500 uppercase">
@@ -209,12 +184,11 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
                         </div>
                     </CardRow>
 
-                    {/* Excedente disponible (detalle expandido) */}
                     <CardRow label={esVistaIntegrante ? "Exc. Anterior (tuyo)" : "Exc. Socios disponible"} hidden={excAnt <= 0 || esInactiva}>
                         <span className="text-[11px] font-black text-purple-600 whitespace-nowrap">-S/ {excAnt.toFixed(2)}</span>
                     </CardRow>
 
-                    {excConsInd > 0 && esVistaIntegrante && (
+                    {excConsInd > 0 && (
                         <CardRow label="Exc. Ya aplicado">
                             <span className="text-[11px] font-black text-purple-400 whitespace-nowrap">S/ {excConsInd.toFixed(2)}</span>
                         </CardRow>
@@ -250,7 +224,7 @@ const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorialModal, 
 
                     {moraPend > 0 && saldo > 0 && (
                         <p className="text-[9px] text-slate-400 font-bold pt-1">
-                            Cap: {Math.max(0, monto - (esVistaIntegrante ? acumInd : parseFloat(cuota.pago_acumulado || 0))).toFixed(2)} | Mora: {moraPend.toFixed(2)}
+                            Cap: {parseFloat(cuota.saldo_capital ?? 0).toFixed(2)} | Mora: {moraPend.toFixed(2)}
                         </p>
                     )}
                 </div>
@@ -300,56 +274,43 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                             const monto      = parseFloat(cuota.total_cuota ?? cuota.monto ?? 0);
                             const capital    = parseFloat(cuota.capital ?? 0);
                             const interes    = parseFloat(cuota.interes ?? 0);
-
                             const seguro     = parseFloat(cuota.seguro ?? 0);
-                            let segPagado    = parseFloat(cuota.seguro_pagado ?? 0);
-                            if (!esVistaIntegrante && cuota.integrantes?.length > 0) {
-                                segPagado = cuota.integrantes.reduce((sum, int) => sum + parseFloat(int.seguro_pagado || 0), 0);
-                            }
-                            const segPend    = Math.max(0, seguro - segPagado);
-
+                            
+                            // Todo directo del backend
+                            const segPagado  = parseFloat(cuota.seguro_pagado ?? 0);
+                            const segPend    = parseFloat(cuota.seguro_pendiente ?? 0);
                             const capPagado  = parseFloat(cuota.capital_pagado ?? 0);
                             const intPagado  = parseFloat(cuota.interes_pagado ?? 0);
-                            const capPend    = parseFloat(cuota.capital_pendiente ?? Math.max(0, capital - capPagado));
-                            const intPend    = parseFloat(cuota.interes_pendiente ?? Math.max(0, interes - intPagado));
+                            const capPend    = parseFloat(cuota.capital_pendiente ?? 0);
+                            const intPend    = parseFloat(cuota.interes_pendiente ?? 0);
 
                             const moraTotal  = parseFloat(cuota.mora_total ?? cuota.mora ?? 0);
                             const moraPagada = parseFloat(cuota.mora_pagada ?? 0);
-                            const moraPend   = Math.max(0, moraTotal - moraPagada);
+                            const moraPend   = parseFloat(cuota.mora_pendiente ?? Math.max(0, moraTotal - moraPagada));
 
                             const abonado    = esVistaIntegrante
                                 ? parseFloat(cuota.pago_total_real ?? cuota.pago_acumulado ?? 0)
                                 : parseFloat(cuota.pago_realizado  ?? cuota.pago_acumulado ?? 0);
                             const acumInd    = esVistaIntegrante ? parseFloat(cuota.pago_acumulado ?? 0) : 0;
-                            const saldo      = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? 0);
+                            
+                            const saldo      = parseFloat(cuota.saldo_pendiente ?? cuota.saldo_real ?? cuota.saldo ?? 0);
                             const diasAtraso = cuota.dias_atraso || 0;
 
-                            // ── Excedente según tipo de vista ──────────────────
-                            let excAnt = 0, excConsInd = 0, excGen = 0;
-                            if (esVistaIntegrante) {
-                                excAnt     = parseFloat(cuota.excedente_anterior || 0);
-                                excConsInd = parseFloat(cuota.excedente_aplicado || 0);
-                                excGen     = parseFloat(cuota.excedente_generado || 0);
-                            } else if (cuota.integrantes?.length > 0) {
-                                excAnt     = sumaExcedentesIntegrantes(cuota.integrantes);
-                            } else {
-                                excAnt     = parseFloat(cuota.excedente_consumido || 0) > 0
-                                    ? parseFloat(cuota.excedente_consumido)
-                                    : parseFloat(cuota.excedente_anterior || 0);
-                                excGen     = parseFloat(cuota.excedente_generado || 0);
-                            }
+                            // ── Excedentes (todo directo del JSON en ambas vistas) ──
+                            const excAnt     = parseFloat(cuota.excedente_anterior || 0);
+                            const excConsInd = parseFloat(cuota.excedente_consumido || cuota.excedente_aplicado || 0);
+                            const excGen     = parseFloat(cuota.excedente_generado || 0);
 
                             const esCancelada    = cuota.estado === 0;
                             const esRefinanciada = cuota.estado === 6;
                             const esInactiva     = esCancelada || esRefinanciada;
+                            const mostrarRecibido = abonado > 0;
 
                             let estadoGlobal = cuota.estado;
                             if (!esVistaIntegrante && cuota.integrantes?.length > 0 && !esInactiva) {
                                 if (saldo <= 0) estadoGlobal = 2;
                                 else if (abonado > 0 && saldo > 0) estadoGlobal = 5;
                             }
-
-                            const mostrarRecibido = abonado > 0;
 
                             return (
                                 <tr key={nro} className={`transition-colors ${
@@ -406,19 +367,23 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                                         )}
                                     </td>
 
-                                    {/* ── Excedente disponible ── */}
                                     <td className="px-3 py-4">
-                                        {excAnt > 0 && !esInactiva ? (
-                                            <div className="flex flex-col">
-                                                <span className="text-[11px] font-black text-purple-600 whitespace-nowrap">
-                                                    -S/ {excAnt.toFixed(2)}
-                                                </span>
-                                                <span className="text-[8px] font-bold text-purple-400 whitespace-nowrap">
-                                                    {esVistaIntegrante ? 'Tuyo' : 'De socios'}
-                                                </span>
-                                                {excConsInd > 0 && esVistaIntegrante && (
-                                                    <span className="text-[8px] font-bold text-purple-300 whitespace-nowrap">
-                                                        Usado: S/ {excConsInd.toFixed(2)}
+                                        {excAnt > 0 || excConsInd > 0 || excGen > 0 ? (
+                                            <div className="flex flex-col gap-0.5 min-w-[90px]">
+                                                {excAnt > 0 && !esInactiva && (
+                                                    <span className="text-[9px] font-bold text-purple-600 uppercase whitespace-nowrap">
+                                                        {esVistaIntegrante ? 'Anterior: ' : 'Disponible: '}
+                                                        -S/ {excAnt.toFixed(2)}
+                                                    </span>
+                                                )}
+                                                {excConsInd > 0 && (
+                                                    <span className="text-[9px] font-bold text-purple-400 uppercase whitespace-nowrap">
+                                                        Usado: -S/ {excConsInd.toFixed(2)}
+                                                    </span>
+                                                )}
+                                                {excGen > 0 && (
+                                                    <span className="text-[9px] font-bold text-orange-500 uppercase whitespace-nowrap">
+                                                        Generado: +S/ {excGen.toFixed(2)}
                                                     </span>
                                                 )}
                                             </div>
@@ -449,12 +414,7 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                                                     Mora cubierta: S/ {moraPagada.toFixed(2)}
                                                 </span>
                                             )}
-                                            {excGen > 0 && (
-                                                <span className="text-[9px] font-bold text-orange-500 uppercase whitespace-nowrap">
-                                                    Excedente: +S/ {excGen.toFixed(2)}
-                                                </span>
-                                            )}
-                                            {!mostrarRecibido && acumInd === 0 && moraPagada === 0 && excGen === 0
+                                            {!mostrarRecibido && acumInd === 0 && moraPagada === 0
                                                 && !(!esVistaIntegrante && parseFloat(cuota.pago_acumulado || 0) > 0) && (
                                                 <span className="text-[10px] text-slate-300 font-bold">—</span>
                                             )}
@@ -472,7 +432,7 @@ const CronogramaTable = ({ cronograma = [], esVistaIntegrante = false, onHistori
                                                 </span>
                                                 {moraPend > 0 && saldo > 0 && (
                                                     <span className="text-[9px] text-slate-400 font-bold block whitespace-nowrap">
-                                                        Cap: {Math.max(0, monto - (esVistaIntegrante ? acumInd : parseFloat(cuota.pago_acumulado || 0))).toFixed(2)} | Mora: {moraPend.toFixed(2)}
+                                                        Cap: {parseFloat(cuota.saldo_capital ?? 0).toFixed(2)} | Mora: {moraPend.toFixed(2)}
                                                     </span>
                                                 )}
                                             </>
