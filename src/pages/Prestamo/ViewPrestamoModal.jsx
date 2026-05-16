@@ -235,6 +235,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                         </p>
                                         <p className="text-xl font-black text-slate-800">S/ {parseFloat(eco?.valor_cuota ?? 0).toFixed(2)}</p>
                                         <p className="text-[11px] font-bold text-slate-500 mt-1 uppercase">{eco?.frecuencia}</p>
+                                        <p className="text-[10px] font-bold text-brand-gold-dark mt-0.5">Tasa: {eco?.interes_porc}%</p>
                                     </div>
                                     <div className="mt-4 pt-3 border-t border-slate-100">
                                         <p className="text-[9px] font-black uppercase text-slate-400">Seguro</p>
