@@ -59,8 +59,8 @@ export const CuotaCard = ({ cuota, i, cronograma, esVistaIntegrante, onHistorial
                 </div>
 
                 {/* Saldo real */}
-                <div className="flex items-center justify-between mt-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase">Saldo real</span>
+                <div className="flex items-center gap-1.5 mt-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase">Saldo a pagar:</span>
                     <SaldoContent d={d} />
                 </div>
 

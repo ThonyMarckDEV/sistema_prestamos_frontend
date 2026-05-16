@@ -98,11 +98,6 @@ export const SaldoContent = ({ d }) => {
             <span className={`text-sm font-black italic whitespace-nowrap ${d.saldo > 0 ? 'text-brand-red underline' : 'text-green-600'}`}>
                 S/ {d.saldo.toFixed(2)}
             </span>
-            {d.moraPend > 0 && d.saldo > 0 && (
-                <span className="text-[9px] text-slate-400 font-bold block whitespace-nowrap">
-                    Cap: {Math.max(0, d.monto - (d.acumInd || d.pagoAcumGrupo)).toFixed(2)} | Mora: {d.moraPend.toFixed(2)}
-                </span>
-            )}
         </>
     );
 };
