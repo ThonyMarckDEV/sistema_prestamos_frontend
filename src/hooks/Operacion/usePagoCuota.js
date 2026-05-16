@@ -14,9 +14,18 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
     const integrantesPendientes = cuota?.integrantes?.filter(i => ![2, 6].includes(i.estado)) ?? [];
     const soloUnIntegrante      = esGrupal && integrantesPendientes.length === 1;
 
-    const totalAPagar = parseFloat(cuota?.saldo_pendiente ?? cuota?.monto ?? 0).toFixed(2);
+    // Para grupales: totalAPagar = suma de saldos individuales (ya tiene excedente descontado)
+    const totalAPagar = esGrupal && integrantesPendientes.length > 0
+        ? integrantesPendientes.reduce((acc, int) => {
+            const saldoCap = parseFloat(int.saldo_capital ?? int.saldo ?? 0);
+            const moraPend = parseFloat(int.mora_pendiente ?? 0);
+            return acc + saldoCap + moraPend;
+          }, 0).toFixed(2)
+        : parseFloat(cuota?.saldo_pendiente ?? cuota?.monto ?? 0).toFixed(2);
 
-   const mora        = parseFloat(cuota?.mora ?? 0);
+    const mora = esGrupal
+        ? integrantesPendientes.reduce((acc, int) => acc + parseFloat(int.mora_pendiente ?? 0), 0)
+        : parseFloat(cuota?.mora ?? 0);
 
     const excedenteIndividual = !esGrupal ? parseFloat(cuota?.excedente_anterior ?? 0) : 0;
 
