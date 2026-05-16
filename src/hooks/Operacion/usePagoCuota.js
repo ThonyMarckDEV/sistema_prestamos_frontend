@@ -111,6 +111,7 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
             formData.append('distribucion', JSON.stringify(
                 integrantesPendientes.map(int => ({
                     cliente_id:    int.id,
+                    cuota_id:      cuota.id,
                     total_cuota:   parseFloat(int.saldo_capital ?? int.saldo ?? 0),
                     monto:         parseFloat(distribucion[int.id] || 0),
                     pago_completo: !distribucion[int.id] || distribucion[int.id] === '',
