@@ -56,6 +56,14 @@ export const reducirMora = async (data) => {
     return handleResponse(response);
 };
 
+export const cambiarPresidente = async (data) => {
+    const response = await fetchWithAuth(`${BASE_URL}/cambiar-presidente`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+};
+
 export const deletePrestamo = async (id) => {
     const response = await fetchWithAuth(`${BASE_URL}/delete/${id}`, { method: 'DELETE' });
     return handleResponse(response);

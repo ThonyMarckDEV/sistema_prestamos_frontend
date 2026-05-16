@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import { descargarCronograma, showIntegrante } from 'services/prestamoService';
+import { useAuth } from 'context/AuthContext';
 
 export function useViewPrestamoModal({ data, onClose, onRefresh }) {
+
+    const { can } = useAuth();
+
+    // ── Permisos ──────────────────────────────────────────────────────────────
+    const canRefinanciar       = can('prestamo.refinanciar');
+    const canGeneratePdf       = can('prestamo.generatePDF');
+    const canReducirMora       = can('prestamo.reducirMora');
+    const canCambiarPresidente = can('prestamo.cambiarPresidente');
 
     const [integranteSeleccionado, setIntegranteSeleccionado] = useState(null);
     const [integranteData, setIntegranteData]                 = useState(null);
@@ -88,7 +97,6 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
             });
         }
 
-        // ── Validar que haya saldo pendiente ──────────────────────────────────
         if (deudaPendiente <= 0) {
             alert('No hay saldo pendiente para refinanciar.');
             return;
@@ -128,28 +136,20 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
             : data?.datos_economicos;
 
     return {
-        integranteSeleccionado,
-        integranteData,
-        loadingIntegrante,
+        // permisos
+        canRefinanciar, canGeneratePdf, canReducirMora, canCambiarPresidente,
+        // estado
+        integranteSeleccionado, integranteData, loadingIntegrante,
         pdfOpen, pdfBase64, pdfTitle, loadingPdf,
-        historialModal,
-        refModalOpen, refData,
-        esVistaIntegrante,
-        cronogramaActivo,
-        integranteActivo,
-        integranteRefinanciado,
-        integranteYaRefinanciado,
-        integranteNombre,
-        prestamoCancelado,
-        tieneIntegrantes,
-        eco,
-        handleSelectIntegrante,
-        handleDescargarCronograma,
-        handleCerrarPdf,
-        handleClose,
-        handleAbrirRefinanciamiento,
-        handleSuccessRefinanciamiento,
-        setHistorialModal,
-        setRefModalOpen,
+        historialModal, refModalOpen, refData,
+        // derivados
+        esVistaIntegrante, cronogramaActivo,
+        integranteActivo, integranteRefinanciado, integranteYaRefinanciado,
+        integranteNombre, prestamoCancelado, tieneIntegrantes, eco,
+        // handlers
+        handleSelectIntegrante, handleDescargarCronograma,
+        handleCerrarPdf, handleClose,
+        handleAbrirRefinanciamiento, handleSuccessRefinanciamiento,
+        setHistorialModal, setRefModalOpen,
     };
 }

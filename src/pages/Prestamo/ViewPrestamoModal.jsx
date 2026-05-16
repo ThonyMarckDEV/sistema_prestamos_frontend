@@ -4,14 +4,14 @@ import PdfModal from 'components/Shared/Modals/PdfModal';
 import HistorialMoraModal from 'components/Shared/Modals/HistorialMoraModal';
 import RefinanciamientoModal from './RefinanciamientoModal';
 import ReducirMoraModal from './ReducirMoraModal';
+import CambiarPresidenteModal from './CambiarPresidenteModal';
 import CronogramaTable from 'components/Shared/Tables/CronogramaTable';
 import {
     CalendarIcon, UserIcon, UserGroupIcon,
     InformationCircleIcon, UsersIcon,
     ArrowPathIcon, ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
-import { ArrowPathRoundedSquareIcon } from '@heroicons/react/24/outline';
-import { useAuth } from 'context/AuthContext';
+import { ArrowPathRoundedSquareIcon, StarIcon } from '@heroicons/react/24/outline';
 import { useViewPrestamoModal } from 'hooks/Prestamo/useViewPrestamoModal';
 
 const CardSkeleton = ({ accent = 'slate' }) => {
@@ -34,16 +34,12 @@ const CardSkeleton = ({ accent = 'slate' }) => {
 
 const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
 
-    const { can } = useAuth();
-    const canRefinanciar  = can('prestamo.refinanciar');
-    const canGeneratePdf  = can('prestamo.generatePDF');
-    const canReducirMora  = can('prestamo.reducirMora');
-
-    // ── Estado local para ReducirMoraModal ───────────────────────────────────
-    const [reducirMoraOpen, setReducirMoraOpen]   = useState(false);
-    const [cuotaParaReducir, setCuotaParaReducir] = useState(null);
+    const [reducirMoraOpen, setReducirMoraOpen]               = useState(false);
+    const [cuotaParaReducir, setCuotaParaReducir]             = useState(null);
+    const [cambiarPresidenteOpen, setCambiarPresidenteOpen]   = useState(false);
 
     const {
+        canRefinanciar, canGeneratePdf, canReducirMora, canCambiarPresidente,
         integranteSeleccionado,
         loadingIntegrante,
         pdfOpen, pdfBase64, pdfTitle, loadingPdf,
@@ -67,7 +63,6 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
         setRefModalOpen,
     } = useViewPrestamoModal({ data, onClose, onRefresh });
 
-    // Integrante tiene cuotas pendientes (no todas pagadas/refinanciadas)
     const integranteTienePendientes = esVistaIntegrante
         ? (cronogramaActivo ?? []).some(c => ![2, 6, 0].includes(c.estado))
         : false;
@@ -77,10 +72,9 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
         setReducirMoraOpen(true);
     };
 
-    const handleSuccessReducirMora = async () => {
+    const handleSuccessReducirMora = () => {
         setReducirMoraOpen(false);
         setCuotaParaReducir(null);
-        // Recargar datos del préstamo actual sin cerrar el modal
         if (onRefresh) onRefresh();
     };
 
@@ -266,6 +260,16 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                     </button>
                                 )}
 
+                                {canCambiarPresidente && data.es_grupal && !esVistaIntegrante && data.estado === 1 && !prestamoCancelado && data.integrantes?.length > 1 && (
+                                    <button
+                                        onClick={() => setCambiarPresidenteOpen(true)}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-md"
+                                    >
+                                        <StarIcon className="w-3.5 h-3.5" />
+                                        Cambiar Presidente
+                                    </button>
+                                )}
+
                                 {integranteYaRefinanciado && (
                                     <span className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-500 text-[10px] font-black uppercase rounded-lg border border-blue-200">
                                         <ArrowPathRoundedSquareIcon className="w-3.5 h-3.5" />
@@ -323,6 +327,12 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                 onClose={() => { setReducirMoraOpen(false); setCuotaParaReducir(null); }}
                 cuota={cuotaParaReducir}
                 onSuccess={handleSuccessReducirMora}
+            />
+            <CambiarPresidenteModal
+                isOpen={cambiarPresidenteOpen}
+                onClose={() => setCambiarPresidenteOpen(false)}
+                prestamo={data}
+                onSuccess={() => { setCambiarPresidenteOpen(false); if (onRefresh) onRefresh(); }}
             />
         </>
     );
