@@ -67,14 +67,20 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
         setRefModalOpen,
     } = useViewPrestamoModal({ data, onClose, onRefresh });
 
+    // Integrante tiene cuotas pendientes (no todas pagadas/refinanciadas)
+    const integranteTienePendientes = esVistaIntegrante
+        ? (cronogramaActivo ?? []).some(c => ![2, 6, 0].includes(c.estado))
+        : false;
+
     const handleAbrirReducirMora = (cuota) => {
         setCuotaParaReducir(cuota);
         setReducirMoraOpen(true);
     };
 
-    const handleSuccessReducirMora = () => {
+    const handleSuccessReducirMora = async () => {
         setReducirMoraOpen(false);
         setCuotaParaReducir(null);
+        // Recargar datos del préstamo actual sin cerrar el modal
         if (onRefresh) onRefresh();
     };
 
@@ -249,7 +255,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                             </h4>
                             <div className="flex items-center gap-2 flex-wrap">
 
-                                {canRefinanciar && data.estado === 1 && !prestamoCancelado && (!data.es_grupal || esVistaIntegrante) && !integranteYaRefinanciado && (
+                                {canRefinanciar && data.estado === 1 && !prestamoCancelado && (!data.es_grupal || esVistaIntegrante) && !integranteYaRefinanciado && (!esVistaIntegrante || integranteTienePendientes) && (
                                     <button
                                         onClick={() => handleAbrirRefinanciamiento(cronogramaActivo, esVistaIntegrante, integranteNombre)}
                                         className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-gold hover:bg-brand-gold-dark text-white text-[10px] font-black uppercase rounded-lg transition-all shadow-md shadow-brand-gold/20"

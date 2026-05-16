@@ -23,7 +23,7 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
         }
         setIntegranteSeleccionado(clienteId);
         setLoadingIntegrante(true);
-        setIntegranteData(null); // limpia antes para que las cards entren en skeleton
+        setIntegranteData(null);
         try {
             const res = await showIntegrante(data.id, clienteId);
             setIntegranteData(res.data || res);
@@ -88,6 +88,12 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
             });
         }
 
+        // ── Validar que haya saldo pendiente ──────────────────────────────────
+        if (deudaPendiente <= 0) {
+            alert('No hay saldo pendiente para refinanciar.');
+            return;
+        }
+
         setRefData({
             prestamo_id:    data.id,
             cliente_id:     esVistaIntegrante ? integranteSeleccionado : null,
@@ -115,7 +121,6 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
     const prestamoCancelado        = data?.estado === 2;
     const tieneIntegrantes         = data?.integrantes?.length > 0 || data?.integrantes_refinanciados?.length > 0;
 
-    // eco: mientras carga integrante se queda en null para activar skeleton
     const eco = loadingIntegrante
         ? null
         : (esVistaIntegrante && integranteData?.datos_economicos)
@@ -123,19 +128,12 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
             : data?.datos_economicos;
 
     return {
-        // estado
         integranteSeleccionado,
         integranteData,
         loadingIntegrante,
-        pdfOpen,
-        pdfBase64,
-        pdfTitle,
-        loadingPdf,
+        pdfOpen, pdfBase64, pdfTitle, loadingPdf,
         historialModal,
-        refModalOpen,
-        refData,
-
-        // derivados
+        refModalOpen, refData,
         esVistaIntegrante,
         cronogramaActivo,
         integranteActivo,
@@ -145,8 +143,6 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
         prestamoCancelado,
         tieneIntegrantes,
         eco,
-
-        // handlers
         handleSelectIntegrante,
         handleDescargarCronograma,
         handleCerrarPdf,
