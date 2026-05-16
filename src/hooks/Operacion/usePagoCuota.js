@@ -10,29 +10,34 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
     const [distribucion, setDistribucion] = useState({});
     const [alertLocal, setAlertLocal]     = useState(null);
 
-    const esGrupal = !!(cuota?.integrantes && cuota.integrantes.length > 0);
+    const esGrupal              = !!(cuota?.integrantes && cuota.integrantes.length > 0);
     const integrantesPendientes = cuota?.integrantes?.filter(i => ![2, 6].includes(i.estado)) ?? [];
     const soloUnIntegrante      = esGrupal && integrantesPendientes.length === 1;
 
     const totalAPagar = parseFloat(cuota?.saldo_pendiente ?? cuota?.monto ?? 0).toFixed(2);
-    const mora        = parseFloat(cuota?.mora ?? 0);
+
+   const mora        = parseFloat(cuota?.mora ?? 0);
+
     const excedenteIndividual = !esGrupal ? parseFloat(cuota?.excedente_anterior ?? 0) : 0;
 
-    // ── Validaciones ──
+    // ── Validaciones ──────────────────────────────────────────────────────────
     const integrantesSinCubrirMora = (esGrupal && esParcial)
         ? integrantesPendientes.filter(int => {
-            const moraPend   = parseFloat(int.mora_pendiente ?? 0);
+            const moraPend = parseFloat(int.mora_pendiente ?? 0);
             if (moraPend <= 0) return false;
-            const esCompleto = !distribucion[int.id] || distribucion[int.id] === '';
-            if (esCompleto) return false;
-            return parseFloat(distribucion[int.id] || 0) < moraPend;
+            const val = distribucion[int.id];
+            // Vacío = pago completo → OK
+            // "0" exacto = otro socio lo cubre → OK (el cajero lo pone adrede)
+            if (!val || val === '' || parseFloat(val) === 0) return false;
+            // Solo bloquear si puso monto > 0 pero insuficiente para cubrir su mora
+            return parseFloat(val) < moraPend;
         }) : [];
 
     const montoNum    = parseFloat(recibido || 0);
     const noCubreMora = !esGrupal && mora > 0 && montoNum > 0 && montoNum < mora;
     const puedeSubmit = !noCubreMora && integrantesSinCubrirMora.length === 0;
 
-    // ── Efectos ──
+    // ── Efectos ───────────────────────────────────────────────────────────────
     useEffect(() => {
         if (isOpen) {
             setMetodo('DEPOSITO');
@@ -70,7 +75,7 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
         if (esGrupal && !esParcial) setRecibido(totalAPagar);
     }, [esParcial, esGrupal, totalAPagar]);
 
-    // ── Handlers ──
+    // ── Handlers ──────────────────────────────────────────────────────────────
     const handleFileChange = (e) => {
         const f = e.target.files[0];
         if (f) { setArchivo(f); setPreview(URL.createObjectURL(f)); }
@@ -97,7 +102,7 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
             formData.append('distribucion', JSON.stringify(
                 integrantesPendientes.map(int => ({
                     cliente_id:    int.id,
-                    total_cuota:   parseFloat(int.saldo ?? int.saldo_capital ?? 0),
+                    total_cuota:   parseFloat(int.saldo_capital ?? int.saldo ?? 0),
                     monto:         parseFloat(distribucion[int.id] || 0),
                     pago_completo: !distribucion[int.id] || distribucion[int.id] === '',
                 }))
@@ -109,9 +114,9 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
     };
 
     return {
-        state: { metodo, recibido, referencia, archivo, preview, esParcial, distribucion, alertLocal },
-        setters: { setMetodo, setRecibido, setReferencia, setEsParcial, setAlertLocal, setArchivo, setPreview },
+        state:    { metodo, recibido, referencia, archivo, preview, esParcial, distribucion, alertLocal },
+        setters:  { setMetodo, setRecibido, setReferencia, setEsParcial, setAlertLocal, setArchivo, setPreview },
         computed: { esGrupal, integrantesPendientes, soloUnIntegrante, totalAPagar, mora, excedenteIndividual, integrantesSinCubrirMora, noCubreMora, puedeSubmit, totalDistribuido },
-        handlers: { handleFileChange, handleMontoIntegrante, reset, handleSubmit }
+        handlers: { handleFileChange, handleMontoIntegrante, reset, handleSubmit },
     };
 };
