@@ -30,21 +30,15 @@ const Index = () => {
             placeholder: 'Nombre / DNI / Op...',
             colSpan: 'col-span-12 md:col-span-4' 
         },
-        { 
-            name: 'fecha_inicio', type: 'date', label: 'Fecha Inicio', 
-            colSpan: 'col-span-12 md:col-span-3' 
-        },
-        { 
-            name: 'fecha_fin', type: 'date', label: 'Fecha Fin', 
-            colSpan: 'col-span-12 md:col-span-3' 
-        },
+        { name: 'fecha_inicio', type: 'date', label: 'Fecha Inicio', colSpan: 'col-span-12 md:col-span-3' },
+        { name: 'fecha_fin',    type: 'date', label: 'Fecha Fin',    colSpan: 'col-span-12 md:col-span-3' },
         { 
             name: 'estado', type: 'select', label: 'Estado', 
             colSpan: 'col-span-12 md:col-span-2',
             options: [
-                { value: '', label: 'TODOS' },
+                { value: '',  label: 'TODOS'    },
                 { value: '0', label: 'ANULADOS' },
-                { value: '1', label: 'APROBADOS' },
+                { value: '1', label: 'APROBADOS'},
             ]
         }
     ], []);
@@ -55,7 +49,14 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col">
                     <span className="font-mono text-[14px] font-black text-slate-600">#{row.id}</span>
-                    <span className="text-[9px] text-slate-400 font-bold whitespace-nowrap">{row.fecha}</span>
+                    {row.pago_origen_id ? (
+                        <span className="flex items-center gap-1 mt-0.5">
+                            <span className="text-[11px] font-bold text-slate-400">
+                                Excedente de Pago <span className="text-amber-600 font-black">#{row.pago_origen_id}</span>
+                            </span>
+                        </span>
+                    ) : null}
+                    <span className="text-[9px] text-slate-400 font-bold whitespace-nowrap mt-0.5">{row.fecha}</span>
                 </div>
             )
         },
@@ -100,7 +101,6 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col">
                     {esCliente && row.mi_aporte != null ? (
-                        // Cliente grupal: mostrar su aporte individual + nota del total
                         <>
                             <span className="font-black text-emerald-600 text-sm">
                                 S/ {parseFloat(row.mi_aporte).toFixed(2)}
@@ -110,7 +110,6 @@ const Index = () => {
                             </span>
                         </>
                     ) : (
-                        // Monto normal (individual o no-cliente)
                         <span className="font-black text-emerald-600 text-sm">
                             S/ {parseFloat(row.monto).toFixed(2)}
                         </span>
@@ -191,7 +190,7 @@ const Index = () => {
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
                 onFilterSubmit={handleFilterSubmit}
                 onFilterClear={handleFilterClear}
-                pagination={{ ...paginationInfo, onPageChange: fetchPagos }} 
+                pagination={{ ...paginationInfo, onPageChange: fetchPagos }}
             />
 
             <ViewModal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} title="Voucher de Pago">
