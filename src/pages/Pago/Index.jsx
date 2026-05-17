@@ -136,8 +136,8 @@ const Index = () => {
                         Cajero: <span className="text-slate-600">{row.registrado_por}</span>
                     </span>
                     {row.estado === 0 && row.observaciones && (
-                        <div className="flex items-center gap-1 pl-2 border-l-2 border-brand-red max-w-[180px] mt-1">
-                            <span className="text-[9px] font-semibold text-brand-red truncate" title={row.observaciones}>
+                        <div className="pl-2 border-l-2 border-brand-red max-w-[180px] mt-1">
+                            <span className="text-[9px] font-semibold text-brand-red break-words leading-tight block">
                                 {row.observaciones}
                             </span>
                         </div>
