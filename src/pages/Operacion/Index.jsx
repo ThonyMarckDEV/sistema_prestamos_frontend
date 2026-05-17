@@ -57,7 +57,7 @@ const Index = () => {
                         >
                             {row.motivo}
                         </span>
-                        <div className="flex items-center gap-1.5 mt-0.5">
+                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                             {row.prestamo_id && (
                                 <span className="text-[9px] font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 font-mono">
                                     Prestamo #{String(row.prestamo_id).padStart(5, '0')}
@@ -74,6 +74,29 @@ const Index = () => {
                                 </span>
                             )}
                         </div>
+
+                        {/* Pagos hijos por excedente */}
+                        {row.pagos_cascada?.length > 0 && (
+                            <div className="mt-1.5 flex flex-col gap-1">
+                                {row.pagos_cascada.map(hijo => (
+                                    <div key={hijo.pago_id} className="flex items-center gap-1.5">
+                                        <span className="text-[7px] font-black text-amber-500 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded tracking-wider uppercase">
+                                            Excedente
+                                        </span>
+                                        <span className="text-[9px] font-bold text-amber-700 font-mono">
+                                            Pago #{hijo.pago_id}
+                                        </span>
+                                        <span className="text-[9px] text-slate-400 font-bold">
+                                            Cuota #{hijo.cuota_nro}
+                                        </span>
+                                        <span className="text-[9px] font-black text-emerald-600">
+                                            S/ {parseFloat(hijo.monto).toFixed(2)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
                         {row.estado === 0 && (
                             <span className="text-[9px] text-brand-red font-bold uppercase mt-0.5 block tracking-widest">
                                 Anulado
