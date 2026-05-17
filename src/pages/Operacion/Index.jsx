@@ -60,12 +60,17 @@ const Index = () => {
                         <div className="flex items-center gap-1.5 mt-0.5">
                             {row.prestamo_id && (
                                 <span className="text-[9px] font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 font-mono">
-                                    #{String(row.prestamo_id).padStart(5, '0')}
+                                    Prestamo #{String(row.prestamo_id).padStart(5, '0')}
                                 </span>
                             )}
                             {row.numero_cuota && (
                                 <span className="text-[9px] font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded px-1.5 py-0.5">
-                                    Cuota {row.numero_cuota}
+                                    Cuota #{row.numero_cuota}
+                                </span>
+                            )}
+                            {row.pago_id && (
+                                <span className="text-[9px] font-bold text-purple-600 bg-purple-50 border border-purple-200 rounded px-1.5 py-0.5 font-mono">
+                                    Pago #{row.pago_id}
                                 </span>
                             )}
                         </div>
