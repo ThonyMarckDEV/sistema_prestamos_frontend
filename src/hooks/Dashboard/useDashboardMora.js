@@ -1,28 +1,75 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getMoraDashboard } from 'services/dashboardService';
 
-export const useDashboardMora = () => {
-    const [loading,     setLoading]     = useState(true);
-    const [data,        setData]        = useState(null);
-    const [fechaInicio, setFechaInicio] = useState('');
-    const [fechaFin,    setFechaFin]    = useState('');
+const hoy = new Date();
 
-    const fetchData = useCallback(async (fi = '', ff = '') => {
+const primerDiaMes = new Date(
+    hoy.getFullYear(),
+    hoy.getMonth(),
+    1
+).toISOString().split('T')[0];
+
+const fechaHoy = hoy.toISOString().split('T')[0];
+
+export const useDashboardMora = () => {
+
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(null);
+
+    // ← fechas por defecto
+    const [fechaInicio, setFechaInicio] = useState(primerDiaMes);
+    const [fechaFin, setFechaFin] = useState(fechaHoy);
+
+    const fetchData = useCallback(async (fi = primerDiaMes, ff = fechaHoy) => {
+
         setLoading(true);
+
         try {
-            const json = await getMoraDashboard({ fecha_inicio: fi, fecha_fin: ff });
+
+            const json = await getMoraDashboard({
+                fecha_inicio: fi,
+                fecha_fin: ff,
+            });
+
             setData(json.data || json);
+
         } catch (e) {
+
             console.error('Error dashboard mora:', e);
+
         } finally {
+
             setLoading(false);
         }
+
     }, []);
 
-    useEffect(() => { fetchData(); }, [fetchData]);
+    useEffect(() => {
 
-    const handleFiltrar = () => fetchData(fechaInicio, fechaFin);
-    const handleLimpiar = () => { setFechaInicio(''); setFechaFin(''); fetchData(); };
+        fetchData(fechaInicio, fechaFin);
 
-    return { loading, data, fechaInicio, setFechaInicio, fechaFin, setFechaFin, handleFiltrar, handleLimpiar };
+    }, []);
+
+    const handleFiltrar = () => {
+        fetchData(fechaInicio, fechaFin);
+    };
+
+    const handleLimpiar = () => {
+
+        setFechaInicio(primerDiaMes);
+        setFechaFin(fechaHoy);
+
+        fetchData(primerDiaMes, fechaHoy);
+    };
+
+    return {
+        loading,
+        data,
+        fechaInicio,
+        setFechaInicio,
+        fechaFin,
+        setFechaFin,
+        handleFiltrar,
+        handleLimpiar,
+    };
 };
