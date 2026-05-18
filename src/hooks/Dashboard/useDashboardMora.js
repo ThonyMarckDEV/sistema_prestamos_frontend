@@ -16,11 +16,14 @@ export const useDashboardMora = () => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
 
-    // ← fechas por defecto
+    // Fechas por defecto
     const [fechaInicio, setFechaInicio] = useState(primerDiaMes);
     const [fechaFin, setFechaFin] = useState(fechaHoy);
 
-    const fetchData = useCallback(async (fi = primerDiaMes, ff = fechaHoy) => {
+    const fetchData = useCallback(async (
+        fi = primerDiaMes,
+        ff = fechaHoy
+    ) => {
 
         setLoading(true);
 
@@ -44,14 +47,17 @@ export const useDashboardMora = () => {
 
     }, []);
 
+    // Carga inicial
     useEffect(() => {
 
-        fetchData(fechaInicio, fechaFin);
+        fetchData(primerDiaMes, fechaHoy);
 
-    }, []);
+    }, [fetchData]);
 
     const handleFiltrar = () => {
+
         fetchData(fechaInicio, fechaFin);
+
     };
 
     const handleLimpiar = () => {
@@ -60,15 +66,19 @@ export const useDashboardMora = () => {
         setFechaFin(fechaHoy);
 
         fetchData(primerDiaMes, fechaHoy);
+
     };
 
     return {
         loading,
         data,
+
         fechaInicio,
         setFechaInicio,
+
         fechaFin,
         setFechaFin,
+
         handleFiltrar,
         handleLimpiar,
     };
