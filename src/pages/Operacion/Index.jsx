@@ -19,7 +19,7 @@ const Index = () => {
     } = useIndex();
 
     const canGeneratePdf = can('operacion.generatePDF');
-    const canDelete = can('operacion.delete');
+    const canDelete      = can('operacion.delete');
 
     const columns = useMemo(() => {
         const baseColumns = [
@@ -51,8 +51,8 @@ const Index = () => {
                 header: 'Detalle',
                 render: (row) => (
                     <div className="flex flex-col min-w-0">
-                        <span 
-                            className={`text-[11px] font-bold truncate max-w-[160px] lg:max-w-[280px] xl:max-w-[350px] ${row.estado === 0 ? 'text-red-400 line-through' : 'text-slate-800'}`} 
+                        <span
+                            className={`text-[11px] font-bold truncate max-w-[160px] lg:max-w-[280px] xl:max-w-[350px] ${row.estado === 0 ? 'text-red-400 line-through' : 'text-slate-800'}`}
                             title={row.motivo}
                         >
                             {row.motivo}
@@ -74,33 +74,22 @@ const Index = () => {
                                 </span>
                             )}
                         </div>
-
-                        {/* Pagos hijos por excedente */}
                         {row.pagos_cascada?.length > 0 && (
                             <div className="mt-1.5 flex flex-col gap-1">
                                 {row.pagos_cascada.map(hijo => (
                                     <div key={hijo.pago_id} className="flex items-center gap-1.5">
-                                        <span className="text-[7px] font-black text-amber-500 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded tracking-wider uppercase">
+                                        <span className="text-[7px] font-black text-amber-500 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded uppercase">
                                             Excedente
                                         </span>
-                                        <span className="text-[9px] font-bold text-amber-700 font-mono">
-                                            Pago #{hijo.pago_id}
-                                        </span>
-                                        <span className="text-[9px] text-slate-400 font-bold">
-                                            Cuota #{hijo.cuota_nro}
-                                        </span>
-                                        <span className="text-[9px] font-black text-emerald-600">
-                                            S/ {parseFloat(hijo.monto).toFixed(2)}
-                                        </span>
+                                        <span className="text-[9px] font-bold text-amber-700 font-mono">Pago #{hijo.pago_id}</span>
+                                        <span className="text-[9px] text-slate-400 font-bold">Cuota #{hijo.cuota_nro}</span>
+                                        <span className="text-[9px] font-black text-emerald-600">S/ {parseFloat(hijo.monto).toFixed(2)}</span>
                                     </div>
                                 ))}
                             </div>
                         )}
-
                         {row.estado === 0 && (
-                            <span className="text-[9px] text-brand-red font-bold uppercase mt-0.5 block tracking-widest">
-                                Anulado
-                            </span>
+                            <span className="text-[9px] text-brand-red font-bold uppercase mt-0.5 block tracking-widest">Anulado</span>
                         )}
                     </div>
                 )
@@ -108,10 +97,7 @@ const Index = () => {
             {
                 header: 'Cajero',
                 render: (row) => (
-                    <div 
-                        className={`text-[10px] font-bold uppercase truncate max-w-[100px] lg:max-w-[140px] ${row.estado === 0 ? 'text-slate-400' : 'text-slate-600'}`}
-                        title={row.cajero}
-                    >
+                    <div className={`text-[10px] font-bold uppercase truncate max-w-[100px] lg:max-w-[140px] ${row.estado === 0 ? 'text-slate-400' : 'text-slate-600'}`} title={row.cajero}>
                         {row.cajero === 'SISTEMA AUTOMATIZADO PRESTAMOS' ? 'SISTEMA AUTO.' : row.cajero}
                     </div>
                 )
@@ -152,11 +138,7 @@ const Index = () => {
                                 onClick={() => handleViewPdf(row.id)}
                                 disabled={pdfLoading || row.estado === 0}
                                 title="Ver Comprobante"
-                                className={`p-1.5 rounded-lg transition-all border border-transparent shadow-sm
-                                ${row.estado === 0
-                                    ? 'bg-slate-50 text-slate-300 cursor-not-allowed'
-                                    : 'text-slate-500 hover:text-brand-red hover:bg-brand-red-light hover:border-brand-red/20'
-                                }`}
+                                className={`p-1.5 rounded-lg transition-all border border-transparent shadow-sm ${row.estado === 0 ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:text-brand-red hover:bg-brand-red-light hover:border-brand-red/20'}`}
                             >
                                 <PrinterIcon className={`w-4 h-4 ${pdfLoading ? 'animate-spin' : ''}`} />
                             </button>
@@ -181,31 +163,28 @@ const Index = () => {
     const filterConfig = [
         { name: 'search', type: 'text', label: 'Buscar por Código o Motivo', colSpan: 'col-span-12 sm:col-span-8' },
         { name: 'tipo', type: 'select', label: 'Filtrar Tipo', colSpan: 'col-span-12 sm:col-span-4', options: [
-            { value: '', label: 'Todos los Movimientos' }, 
-            { value: 'desembolso', label: 'Solo Desembolsos' }, 
-            { value: 'cobro', label: 'Solo Cobros' }
+            { value: '',           label: 'Todos los Movimientos' },
+            { value: 'desembolso', label: 'Solo Desembolsos' },
+            { value: 'cobro',      label: 'Solo Cobros' }
         ]}
     ];
 
     return (
         <div className="container mx-auto p-4 sm:p-6 w-full max-w-full xl:max-w-7xl">
-            <PageHeader 
-                title="Historial de Movimientos" 
-                icon={DocumentTextIcon} 
+            <PageHeader
+                title="Historial de Movimientos"
+                icon={DocumentTextIcon}
                 buttonText={can('operacion.store') ? "Ir a Caja Operativa" : null}
                 buttonLink={can('operacion.store') ? "/operacion/caja" : null}
             />
-            
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
-
             <Table
                 columns={columns} data={operaciones} loading={loading}
-                filterConfig={filterConfig} filters={filters} 
-                onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit} 
+                filterConfig={filterConfig} filters={filters}
+                onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit}
                 onFilterClear={handleFilterClear}
                 pagination={{ ...paginationInfo, onPageChange: fetchOperaciones }}
             />
-
             <PdfModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} title={pdfTitle} base64={pdfBase64} />
 
             {isAnularModalOpen && (
@@ -213,7 +192,8 @@ const Index = () => {
                     title="¿Anular Operación?"
                     message="Esta acción realizará un extorno de caja y revertirá los estados del préstamo o la cuota. No se puede deshacer."
                     confirmText="Sí, Anular Operación"
-                    onConfirm={handleConfirmAnular}
+                    requirePin={true}
+                    onConfirm={(pin) => handleConfirmAnular(pin)}
                     onCancel={() => setIsAnularModalOpen(false)}
                 />
             )}
