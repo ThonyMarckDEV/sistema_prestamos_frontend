@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useIndex } from 'hooks/Traslado/useIndex';
+import { useAuth } from 'context/AuthContext';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -11,6 +12,8 @@ const Index = () => {
         loading, traslados, paginationInfo, filters, alert, setAlert,
         fetchTraslados, handleFilterChange, handleFilterSubmit, handleFilterClear,
     } = useIndex();
+
+    const { can } = useAuth();
 
     const [comboKey, setComboKey] = useState(Date.now());
 
@@ -124,8 +127,8 @@ const Index = () => {
             <PageHeader
                 title="Historial de Traslados"
                 icon={ArrowsRightLeftIcon}
-                buttonText="+ Registrar Traslado"
-                buttonLink="/traslado/registrar"
+                buttonText={can('traslado.store') ? '+ Registrar Traslado' : null}
+                buttonLink={can('traslado.store') ? '/traslado/registrar' : null}
             />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <Table
