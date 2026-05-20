@@ -11,7 +11,7 @@ import {
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import { useAuth } from 'context/AuthContext';
 import logo from 'assets/img/logo.png'; 
-import { Calendar1Icon, ChevronDownIcon, ChevronLeftIcon, ClockIcon, CreditCardIcon, Lock, MapIcon, SettingsIcon, ShoppingBagIcon, TagIcon, UserPlusIcon } from 'lucide-react';
+import { Calendar1Icon, ChevronDownIcon, ChevronLeftIcon, ClockIcon, CreditCardIcon, Lock, MapIcon, SettingsIcon, ShieldCheckIcon, ShoppingBagIcon, TagIcon, UserPlusIcon } from 'lucide-react';
 
 // ── Reloj en tiempo real ──────────────────────────────────────────────────────
 const LiveClock = ({ collapsed = false }) => {
@@ -194,6 +194,13 @@ export const MENU_GROUPS = [
             { section: 'Horarios Sistema', icon: ClockIcon,     link: '/horario-sistema/listar', requiredPermission: 'horarioSistema.index' },
             { section: 'Auditoria',        icon: ClipboardDocumentListIcon,     link: '/auditoria/listar', requiredPermission: 'auditoria.index' },
             { section: 'Parámetros',       icon: SettingsIcon,  link: '/parametro/listar', requiredPermission: 'parametro.index' },
+            {
+                section: 'Pin', icon: ShieldCheckIcon,
+                subs: [
+                    { name: 'Listar PINS',  link: '/pin/listar',  requiredPermission: 'pin.index' },
+                    { name: 'Generar PIN', link: '/pin/generar', requiredPermission: 'pin.store' },
+                ],
+            },
         ]
     }
 ];

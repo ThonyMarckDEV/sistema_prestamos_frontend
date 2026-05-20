@@ -100,6 +100,10 @@ import EditarHorario  from 'pages/HorarioSistema/Update';
 // UI AUDITORIA
 import ListarAuditoria from 'pages/Auditoria/Index';
 
+// UI PIN
+import GenerarPin from 'pages/Pin/Store';
+import ListarPin from 'pages/Pin/Index';
+
 // SETTINGS
 import ListarParametros from 'pages/Parametro/Index';
 import EditarParametro from 'pages/Parametro/Update';
@@ -209,11 +213,15 @@ function AppContent() {
         <Route path="/horario-sistema/agregar"    element={<ProtectedRoute requiredPermission="horarioSistema.store"   element={<SecureRoute element={<AgregarHorario />} />} />} />
         <Route path="/horario-sistema/editar/:id" element={<ProtectedRoute requiredPermission="horarioSistema.update"  element={<SecureRoute element={<EditarHorario />} />} />} />
         
-        <Route path="/auditoria/listar" element={<ProtectedRoute requiredPermission="auditoria.index"  element={<SecureRoute element={<ListarAuditoria/>} />} />} />   
+        {/* AUDITORIA */}
+        <Route path="/auditoria/listar" element={<ProtectedRoute requiredPermission="auditoria.index"  element={<SecureRoute element={<ListarAuditoria/>} />} />} />
+      
 
         {/* SETTINGS */}
         <Route path="/parametro/listar" element={<ProtectedRoute requiredPermission="parametro.index" element={<SecureRoute element={<ListarParametros />} />} />} />   
         <Route path="/parametro/editar/:id" element={<ProtectedRoute requiredPermission="parametro.update" element={<SecureRoute element={<EditarParametro />} />} />} />   
+        <Route path="/pin/generar" element={<ProtectedRoute requiredPermission="pin.store" element={<SecureRoute element={<GenerarPin />} />} />} />  
+        <Route path="/pin/listar" element={<ProtectedRoute requiredPermission="pin.index" element={<SecureRoute element={<ListarPin />} />} />} />  
 
 
       </Route>
