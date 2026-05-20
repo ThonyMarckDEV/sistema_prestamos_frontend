@@ -51,6 +51,7 @@ export const useStore = () => {
             setIsAbrirModalOpen(false);
             verifySesion();
         } catch (err) {
+            setIsAbrirModalOpen(false);
             setAlert(handleApiError(err));
             setLoading(false);
         }
