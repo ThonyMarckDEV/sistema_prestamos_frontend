@@ -7,14 +7,14 @@ export const useIndex = () => {
     const [prestamos, setPrestamos] = useState([]);
     const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
 
-    const [filters, setFilters] = useState({ search: '', estado: '1' });
+    const [filters, setFilters] = useState({ search: '', estado: '1', asesor_id: '' });
     const filtersRef = useRef(filters);
     const [alert, setAlert] = useState(null);
 
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [viewData, setViewData] = useState(null);
     const [viewLoading, setViewLoading] = useState(false);
-    const viewIdRef = useRef(null); // ← guardar el id del préstamo abierto
+    const viewIdRef = useRef(null);
 
     const [isAbonoModalOpen, setIsAbonoModalOpen] = useState(false);
     const [selectedAbonoUrl, setSelectedAbonoUrl] = useState(null);
@@ -57,7 +57,6 @@ export const useIndex = () => {
         }
     };
 
-    // ── Recargar solo el préstamo abierto (sin cerrar el modal) ──────────────
     const handleRefreshView = useCallback(async () => {
         if (!viewIdRef.current) return;
         setViewLoading(true);
@@ -69,7 +68,6 @@ export const useIndex = () => {
         } finally {
             setViewLoading(false);
         }
-        // También refresca la lista en segundo plano
         fetchPrestamos(paginationInfo.currentPage);
     }, [fetchPrestamos, paginationInfo.currentPage]);
 
@@ -100,7 +98,7 @@ export const useIndex = () => {
     const handleFilterChange = (name, val) => setFilters(prev => ({ ...prev, [name]: val }));
     const handleFilterSubmit = () => { filtersRef.current = filters; fetchPrestamos(1); };
     const handleFilterClear = () => {
-        const res = { search: '', estado: '1' };
+        const res = { search: '', estado: '1', asesor_id: '' };
         setFilters(res);
         filtersRef.current = res;
         fetchPrestamos(1);
@@ -110,7 +108,7 @@ export const useIndex = () => {
         loading, prestamos, paginationInfo, filters, alert, setAlert,
         handleFilterChange, handleFilterSubmit, handleFilterClear, fetchPrestamos,
         handleView, isViewOpen, setIsViewOpen, viewData, viewLoading,
-        handleRefreshView, // ← nuevo
+        handleRefreshView,
         handleOpenAbono, isAbonoModalOpen, setIsAbonoModalOpen, selectedAbonoUrl,
         isDeleteModalOpen, setIsDeleteModalOpen, openDeleteModal, handleConfirmDelete, deleteLoading,
     };

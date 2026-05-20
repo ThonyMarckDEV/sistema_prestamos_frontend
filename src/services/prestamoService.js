@@ -10,6 +10,7 @@ export const index = async (page = 1, filters = {}) => {
         search: filters.search || '',
         estado: filters.estado || '',
         tipo_operacion: filters.tipo_operacion || '',
+        asesor_id: filters.asesor_id || '',
     });
     const response = await fetchWithAuth(`${BASE_URL}/index?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);

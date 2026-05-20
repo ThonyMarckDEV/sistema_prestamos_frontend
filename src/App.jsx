@@ -50,6 +50,10 @@ import ListarSolicitudes from 'pages/SolicitudPrestamo/Index';
 // UI PRESTAMO
 import ListarPrestamos from 'pages/Prestamo/Index';
 
+// UI TRASLADOS
+import ListarTraslados  from 'pages/Traslado/Index';
+import RegistrarTraslado from 'pages/Traslado/Store';
+
 // UI CAJAS
 import ListarCajas from 'pages/Caja/Index';
 import AgregarCaja from 'pages/Caja/Store';
@@ -158,6 +162,10 @@ function AppContent() {
 
         {/* PRESTAMO */}
         <Route path="/prestamo/listar" element={<ProtectedRoute requiredPermission="prestamo.index" element={<ListarPrestamos />} />} />
+
+        {/* TRASLADOS */}
+        <Route path="/traslado/listar"     element={<ProtectedRoute requiredPermission="traslado.index" element={<ListarTraslados />} />} />
+        <Route path="/traslado/registrar"  element={<ProtectedRoute requiredPermission="traslado.store" element={<RegistrarTraslado />} />} />
 
         {/* CAJAS  */}
         <Route path="/caja/listar" element={<ProtectedRoute requiredPermission="caja.index" element={<ListarCajas />} />} />

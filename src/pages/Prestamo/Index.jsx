@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useIndex } from 'hooks/Prestamo/useIndex';
 import { useAuth } from 'context/AuthContext';
 import Table from 'components/Shared/Tables/Table';
@@ -8,6 +8,7 @@ import LoadingScreen from 'components/Shared/LoadingScreen';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import ViewPrestamoModal from './ViewPrestamoModal';
+import EmpleadoSearchSelect from 'components/Shared/Comboboxes/EmpleadoSearchSelect';
 import { 
     BanknotesIcon, EyeIcon, PhotoIcon,
     ArrowPathIcon, UserGroupIcon, UserIcon,
@@ -26,28 +27,49 @@ const Index = () => {
 
     const { role, can } = useAuth();
     const canDelete = can('prestamo.delete');
+    const [asesorKey, setAsesorKey] = useState(Date.now());
+
+    const onClearFilters = () => {
+        handleFilterClear();
+        setAsesorKey(Date.now());
+    };
 
     const filterConfig = useMemo(() => {
         const config = [];
         if (role !== 'cliente') {
             config.push({ 
-                name: 'search', type: 'text', label: 'Buscar: ID / Cod. Recaudo / Cliente / DNI  / RUC / Grupo', 
-                placeholder: 'Ej: Mendoza o Los Halcones...', colSpan: 'col-span-12 md:col-span-8' 
+                name: 'search', type: 'text', 
+                label: 'Buscar: ID / Cod. Recaudo / Cliente / DNI / RUC / Grupo', 
+                placeholder: 'Ej: Mendoza o Los Halcones...', 
+                colSpan: 'col-span-12 md:col-span-5' 
+            });
+            config.push({
+                name: 'asesor_id', type: 'custom',
+                label: 'Filtrar por Asesor',
+                colSpan: 'col-span-12 md:col-span-4',
+                render: () => (
+                    <EmpleadoSearchSelect
+                        key={asesorKey}
+                        rol="asesor"
+                        onSelect={(a) => handleFilterChange('asesor_id', a ? a.id : '')}
+                        clearOnSelect={false}
+                    />
+                ),
             });
         }
         config.push({ 
             name: 'estado', type: 'select', label: 'Estado Préstamo', 
-            colSpan: role !== 'cliente' ? 'col-span-12 md:col-span-4' : 'col-span-12',
+            colSpan: role !== 'cliente' ? 'col-span-12 md:col-span-3' : 'col-span-12',
             options: [
-                { value: '1', label: 'VIGENTES' },
-                { value: '2', label: 'CANCELADOS' },
-                { value: '3', label: 'LIQUIDADOS' },
-                { value: '4', label: 'REFINANCIADOS' },
+                { value: '1',   label: 'VIGENTES' },
+                { value: '2',   label: 'CANCELADOS' },
+                { value: '3',   label: 'LIQUIDADOS' },
+                { value: '4',   label: 'REFINANCIADOS' },
                 { value: 'all', label: 'TODOS' }
             ]
         });
         return config;
-    }, [role]);
+    }, [role, asesorKey, handleFilterChange]);
 
     const columns = useMemo(() => {
         const cols = [
@@ -147,7 +169,8 @@ const Index = () => {
             <Table 
                 columns={columns} data={prestamos} loading={loading} 
                 pagination={{ ...paginationInfo, onPageChange: fetchPrestamos }} 
-                onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit} onFilterClear={handleFilterClear} 
+                onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit}
+                onFilterClear={onClearFilters}
                 filters={filters} filterConfig={filterConfig}
             />
 

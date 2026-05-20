@@ -5,7 +5,8 @@ import {
     CurrencyDollarIcon, BuildingLibraryIcon, UserGroupIcon, 
     WalletIcon, DocumentChartBarIcon, Bars3Icon,
     ArrowRightOnRectangleIcon, CubeIcon,
-    ClipboardDocumentListIcon
+    ClipboardDocumentListIcon,
+    ArrowsRightLeftIcon
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import { useAuth } from 'context/AuthContext';
@@ -108,7 +109,14 @@ export const MENU_GROUPS = [
                     { name: 'Nueva Solicitud',  link: '/solicitudPrestamo/agregar', requiredPermission: 'solicitudPrestamo.store' },
                     { name: 'Solicitudes',      link: '/solicitudPrestamo/listar',  requiredPermission: 'solicitudPrestamo.index' },
                 ],
-            }
+            },
+            {
+                section: 'Traslados', icon: ArrowsRightLeftIcon,
+                subs: [
+                    { name: 'Historial Traslados',   link: '/traslado/listar',    requiredPermission: 'traslado.index' },
+                    { name: 'Registrar Traslado',    link: '/traslado/registrar', requiredPermission: 'traslado.store' },
+                ],
+            },
         ]
     },
     {
