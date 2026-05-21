@@ -67,7 +67,7 @@ export const MENU_GROUPS = [
         ]
     },
     {
-        groupName: 'Portal del Cliente',
+        groupName: 'Portal de Pagos',
         items: [
             {
                 section: 'Pagos', icon: CreditCardIcon,
