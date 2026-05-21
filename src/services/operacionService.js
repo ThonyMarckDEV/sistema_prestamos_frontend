@@ -35,7 +35,13 @@ export const getPdfOperacion = async (id) => {
     return handleResponse(response);
 };
 
-export const destroy = async (id) => {
-    const response = await fetchWithAuth(`${BASE_URL}/delete/${id}`, { method: 'DELETE' });
+export const destroy = async (id, pin = null) => {
+    const body = pin ? JSON.stringify({ pin }) : undefined;
+    const response = await fetchWithAuth(`${BASE_URL}/delete/${id}`, {
+        method: 'DELETE',
+        headers: body ? { 'Content-Type': 'application/json' } : {},
+        body,
+    });
     return handleResponse(response);
 };
+ 

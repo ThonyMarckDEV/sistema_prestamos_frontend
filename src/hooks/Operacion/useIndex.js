@@ -26,8 +26,8 @@ export const useIndex = () => {
             setOperaciones(response.data.data || response.data || []);
             setPaginationInfo({
                 currentPage: response.data.current_page || response.current_page,
-                totalPages: response.data.last_page || response.last_page,
-                total: response.data.total || response.total
+                totalPages:  response.data.last_page    || response.last_page,
+                total:       response.data.total        || response.total,
             });
         } catch (err) {
             setAlert(handleApiError(err, 'Error al cargar el historial.'));
@@ -38,11 +38,9 @@ export const useIndex = () => {
 
     const handleFilterChange = (name, val) => setFilters(prev => ({ ...prev, [name]: val }));
     const handleFilterSubmit = () => { filtersRef.current = filters; fetchOperaciones(1); };
-    const handleFilterClear = () => {
+    const handleFilterClear  = () => {
         const res = { search: '', tipo: '' };
-        setFilters(res); 
-        filtersRef.current = res; 
-        fetchOperaciones(1); 
+        setFilters(res); filtersRef.current = res; fetchOperaciones(1);
     };
 
     const handleViewPdf = async (id) => {
@@ -54,9 +52,7 @@ export const useIndex = () => {
             setIsPdfModalOpen(true);
         } catch (err) {
             setAlert(handleApiError(err, 'No se pudo generar el comprobante.'));
-        } finally {
-            setPdfLoading(false);
-        }
+        } finally { setPdfLoading(false); }
     };
 
     const openAnularModal = (id) => {
@@ -64,11 +60,11 @@ export const useIndex = () => {
         setIsAnularModalOpen(true);
     };
 
-    const handleConfirmAnular = async () => {
+    const handleConfirmAnular = async (pin) => {
         if (!operacionToAnular) return;
         setLoading(true);
         try {
-            await destroy(operacionToAnular);
+            await destroy(operacionToAnular, pin ?? null);
             setAlert({ type: 'success', message: 'Operación anulada y reversada exitosamente.' });
             fetchOperaciones(paginationInfo.currentPage);
         } catch (err) {
@@ -84,6 +80,6 @@ export const useIndex = () => {
         loading, operaciones, paginationInfo, filters, alert, setAlert, 
         fetchOperaciones, handleFilterChange, handleFilterSubmit, handleFilterClear,
         handleViewPdf, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64, pdfLoading,
-        isAnularModalOpen, setIsAnularModalOpen, openAnularModal, handleConfirmAnular // 🔥 Exportamos
+        isAnularModalOpen, setIsAnularModalOpen, openAnularModal, handleConfirmAnular,
     };
 };
