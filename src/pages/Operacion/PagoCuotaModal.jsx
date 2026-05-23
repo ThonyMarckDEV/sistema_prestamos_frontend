@@ -6,7 +6,6 @@ import { ResumenPago, DistribucionGrupal, AlertasPago } from './Components/PagoC
 import { BanknotesIcon, DevicePhoneMobileIcon, PhotoIcon, UserGroupIcon, DocumentCheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
-    // Inicializamos el Hook
     const { state, setters, computed, handlers } = usePagoCuota({ isOpen, cuota, onClose, onConfirm });
 
     return (
@@ -16,12 +15,12 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                 {/* ── Panel Izquierdo ── */}
                 <div className="w-full md:w-[55%] p-8 flex flex-col bg-white border-r border-slate-100">
                     <div className="space-y-5 flex-1 overflow-y-auto pr-2">
-                        
+
                         {/* 1. Resumen */}
-                        <ResumenPago 
-                            cuota={cuota} totalAPagar={computed.totalAPagar} mora={computed.mora} 
-                            excedenteIndividual={computed.excedenteIndividual} esGrupal={computed.esGrupal} 
-                            integrantesPendientes={computed.integrantesPendientes} 
+                        <ResumenPago
+                            cuota={cuota} totalAPagar={computed.totalAPagar} mora={computed.mora}
+                            excedenteIndividual={computed.excedenteIndividual} esGrupal={computed.esGrupal}
+                            integrantesPendientes={computed.integrantesPendientes}
                         />
 
                         {/* 2. Selector de Método */}
@@ -35,7 +34,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                             ))}
                         </div>
 
-                        {/* 3. Inputs (Monto y Referencia) */}
+                        {/* 3. Inputs */}
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Monto a Registrar *</label>
@@ -83,17 +82,17 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
 
                         {/* 6. Distribución Grupal */}
                         {computed.esGrupal && (state.esParcial || computed.soloUnIntegrante) && computed.integrantesPendientes.length > 0 && (
-                            <DistribucionGrupal 
+                            <DistribucionGrupal
                                 distribucion={state.distribucion} handleMontoIntegrante={handlers.handleMontoIntegrante}
                                 integrantesPendientes={computed.integrantesPendientes} soloUnIntegrante={computed.soloUnIntegrante}
                                 totalDistribuido={computed.totalDistribuido} totalAPagar={computed.totalAPagar} recibido={state.recibido}
                             />
                         )}
 
-                        {/* 7. Alertas */}
+                        {/* 7. Alertas de mora */}
                         <AlertasPago noCubreMora={computed.noCubreMora} mora={computed.mora} integrantesSinCubrirMora={computed.integrantesSinCubrirMora} />
 
-                        {/* 8. Preview Móvil y Backend Alertas */}
+                        {/* 8. Preview móvil */}
                         {state.preview && (
                             <div className="md:hidden">
                                 <p className="text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Vista Previa:</p>
@@ -102,11 +101,22 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                 </div>
                             </div>
                         )}
-                        {state.alertLocal && <AlertMessage type={state.alertLocal.type} message={state.alertLocal.message} details={state.alertLocal.details} onClose={() => setters.setAlertLocal(null)} />}
                     </div>
 
+                    {/* Alert encima del botón — siempre visible */}
+                    {state.alertLocal && (
+                        <div className="pt-4">
+                            <AlertMessage
+                                type={state.alertLocal.type}
+                                message={state.alertLocal.message}
+                                details={state.alertLocal.details}
+                                onClose={() => setters.setAlertLocal(null)}
+                            />
+                        </div>
+                    )}
+
                     {/* Botón Guardar */}
-                    <div className="pt-6 mt-auto">
+                    <div className="pt-4 mt-auto">
                         <button onClick={handlers.handleSubmit} disabled={loading || !computed.puedeSubmit} className="w-full bg-brand-red text-white py-5 rounded-2xl font-black uppercase text-xs shadow-xl shadow-brand-red/30 hover:bg-brand-red-dark transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-95">
                             {loading ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <DocumentCheckIcon className="w-5 h-5" />}
                             Registrar Pago de Cuota
