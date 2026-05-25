@@ -25,7 +25,7 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, integrantesGrupo, onSucc
     if (!data) return null;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Refinanciar Préstamo" size="lg">
+        <Modal isOpen={isOpen} onClose={onClose} title="Refinanciar Integrante" size="lg">
             <div className="p-1">
                 {/* Resumen deuda */}
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-4 flex gap-3 items-start">
