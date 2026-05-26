@@ -2,39 +2,46 @@ import { useState } from 'react';
 import { prestamosPorAsesor, store } from 'services/trasladoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
+const filtrosVacios = {
+    search: '', monto_min: '', monto_max: '',
+    frecuencia: '', tipo: '',
+    cuotas_pagadas_min: '', cuotas_pagadas_max: '',
+};
+
 export const useStore = () => {
-    const [loading, setLoading]           = useState(false);
+    const [loading, setLoading]                   = useState(false);
     const [loadingPrestamos, setLoadingPrestamos] = useState(false);
-    const [alert, setAlert]               = useState(null);
-    const [prestamos, setPrestamos]       = useState([]);
+    const [alert, setAlert]                       = useState(null);
+    const [prestamos, setPrestamos]               = useState([]);
+    const [selectedIds, setSelectedIds]           = useState([]);
+    const [filtrosPrestamos, setFiltrosPrestamos] = useState(filtrosVacios);
 
     const [formData, setFormData] = useState({
-        prestamo_id:       null,
-        asesor_origen_id:  null,   // solo para mostrar, no se envía
+        asesor_origen_id:  null,
         asesor_destino_id: null,
         motivo:            '',
     });
 
-    // Cuando seleccionan asesor origen → cargar sus préstamos
-    const handleSelectAsesorOrigen = async (asesor) => {
-        setFormData(prev => ({
-            ...prev,
-            asesor_origen_id: asesor ? asesor.id : null,
-            prestamo_id: null,
-        }));
-        setPrestamos([]);
-
-        if (!asesor) return;
-
+    const cargarPrestamos = async (asesorId, filtros = filtrosVacios) => {
         setLoadingPrestamos(true);
         try {
-            const data = await prestamosPorAsesor(asesor.id);
-            // El backend puede devolver array directo o { data: [...] }
+            const data  = await prestamosPorAsesor(asesorId, filtros);
             const lista = Array.isArray(data) ? data : (data?.data ?? []);
             setPrestamos(lista);
         } catch (err) {
             setAlert(handleApiError(err));
-        } finally { setLoadingPrestamos(false); }
+        } finally {
+            setLoadingPrestamos(false);
+        }
+    };
+
+    const handleSelectAsesorOrigen = async (asesor) => {
+        setFormData(prev => ({ ...prev, asesor_origen_id: asesor?.id ?? null }));
+        setSelectedIds([]);
+        setPrestamos([]);
+        setFiltrosPrestamos(filtrosVacios);
+        if (!asesor) return;
+        await cargarPrestamos(asesor.id);
     };
 
     const handleSelectAsesorDestino = (asesor) => {
@@ -43,20 +50,36 @@ export const useStore = () => {
             return;
         }
         setAlert(null);
-        setFormData(prev => ({ ...prev, asesor_destino_id: asesor ? asesor.id : null }));
+        setFormData(prev => ({ ...prev, asesor_destino_id: asesor?.id ?? null }));
     };
 
-    const handleSelectPrestamo = (prestamoId) => {
-        setFormData(prev => ({ ...prev, prestamo_id: prestamoId }));
+    const handleFiltroChange = (name, val) =>
+        setFiltrosPrestamos(prev => ({ ...prev, [name]: val }));
+
+    const handleFiltroSubmit = () => {
+        if (!formData.asesor_origen_id) return;
+        setSelectedIds([]);
+        cargarPrestamos(formData.asesor_origen_id, filtrosPrestamos);
     };
 
-    const handleChange = (field, value) => {
+    const handleFiltroClear = () => {
+        setFiltrosPrestamos(filtrosVacios);
+        setSelectedIds([]);
+        if (formData.asesor_origen_id) cargarPrestamos(formData.asesor_origen_id);
+    };
+
+    const handleTogglePrestamo = (id) =>
+        setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+    const handleToggleTodos = () =>
+        setSelectedIds(selectedIds.length === prestamos.length ? [] : prestamos.map(p => p.id));
+
+    const handleChange = (field, value) =>
         setFormData(prev => ({ ...prev, [field]: value }));
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.prestamo_id)       return setAlert({ type: 'error', message: 'Selecciona un préstamo.' });
+        if (selectedIds.length === 0)    return setAlert({ type: 'error', message: 'Selecciona al menos un préstamo.' });
         if (!formData.asesor_destino_id) return setAlert({ type: 'error', message: 'Selecciona un asesor de destino.' });
         if (formData.asesor_origen_id === formData.asesor_destino_id)
             return setAlert({ type: 'error', message: 'El asesor de destino debe ser diferente al origen.' });
@@ -65,23 +88,30 @@ export const useStore = () => {
         setLoading(true);
         try {
             await store({
-                prestamo_id:       formData.prestamo_id,
+                prestamo_ids:      selectedIds,
                 asesor_destino_id: formData.asesor_destino_id,
                 motivo:            formData.motivo,
             });
-            setAlert({ type: 'success', message: 'Préstamo trasladado correctamente.' });
-            // Reset
-            setFormData({ prestamo_id: null, asesor_origen_id: null, asesor_destino_id: null, motivo: '' });
+            const n = selectedIds.length;
+            setAlert({ type: 'success', message: `${n} préstamo${n > 1 ? 's' : ''} trasladado${n > 1 ? 's' : ''} correctamente.` });
+            setFormData({ asesor_origen_id: null, asesor_destino_id: null, motivo: '' });
             setPrestamos([]);
+            setSelectedIds([]);
+            setFiltrosPrestamos(filtrosVacios);
         } catch (err) {
             setAlert(handleApiError(err));
-        } finally { setLoading(false); }
+        } finally {
+            setLoading(false);
+        }
     };
 
     return {
         loading, loadingPrestamos, alert, setAlert,
-        formData, prestamos,
+        formData, prestamos, selectedIds,
+        filtrosPrestamos,
         handleSelectAsesorOrigen, handleSelectAsesorDestino,
-        handleSelectPrestamo, handleChange, handleSubmit,
+        handleTogglePrestamo, handleToggleTodos,
+        handleFiltroChange, handleFiltroSubmit, handleFiltroClear,
+        handleChange, handleSubmit,
     };
 };
