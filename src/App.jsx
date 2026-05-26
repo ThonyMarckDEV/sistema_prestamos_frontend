@@ -17,6 +17,11 @@ import Home from 'pages/home/Home';
 //UI DASHBOARD
 import Dashboard from 'pages/Dashboard/Dashboard';
 
+//UI META ASESOR
+import ListarMetaAsesor  from 'pages/MetaAsesor/Index';
+import AgregarMetaAsesor from 'pages/MetaAsesor/Store';
+import EditarMetaAsesor  from 'pages/MetaAsesor/Update';
+
 //UI EMPLEADOS
 import AgregarEmpleado from 'pages/Empleado/Store';
 import EditarEmpleado from 'pages/Empleado/Update';
@@ -132,6 +137,12 @@ function AppContent() {
 
         {/* DASHBOARD */}
         <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
+
+        {/* META ASESOR */}
+        <Route path="/meta-asesor/listar"      element={<ProtectedRoute requiredPermission="metaAsesor.index"   element={<ListarMetaAsesor  />} />} />
+        <Route path="/meta-asesor/agregar"     element={<ProtectedRoute requiredPermission="metaAsesor.store"   element={<AgregarMetaAsesor />} />} />
+        <Route path="/meta-asesor/editar/:id"  element={<ProtectedRoute requiredPermission="metaAsesor.update"  element={<EditarMetaAsesor  />} />} />
+        
         
         {/* CLIENTES */}
         <Route path="/cliente/agregar" element={<ProtectedRoute requiredPermission="cliente.store" element={<AgregarCliente />} />} />

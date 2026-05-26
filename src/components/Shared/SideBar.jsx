@@ -11,7 +11,7 @@ import {
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import { useAuth } from 'context/AuthContext';
 import logo from 'assets/img/logo.png'; 
-import { Calendar1Icon, ChevronDownIcon, ChevronLeftIcon, ClockIcon, CreditCardIcon, Lock, MapIcon, SettingsIcon, ShieldCheckIcon, ShoppingBagIcon, TagIcon, UserPlusIcon } from 'lucide-react';
+import { Calendar1Icon, ChartBarIcon, ChevronDownIcon, ChevronLeftIcon, ClockIcon, CreditCardIcon, Lock, MapIcon, SettingsIcon, ShieldCheckIcon, ShoppingBagIcon, TagIcon, UserPlusIcon } from 'lucide-react';
 
 // ── Reloj en tiempo real ──────────────────────────────────────────────────────
 const LiveClock = ({ collapsed = false }) => {
@@ -63,7 +63,14 @@ export const MENU_GROUPS = [
     {
         groupName: 'Métricas y Análisis',
         items: [
-            { section: 'Dashboard', link: '/dashboard', icon: ChartPieIcon }
+            { section: 'Dashboard', link: '/dashboard', icon: ChartPieIcon },
+            {
+                section: 'Metas Asesores', icon: ChartBarIcon,
+                subs: [
+                    { name: 'Listar Metas', link: '/meta-asesor/listar',  requiredPermission: 'metaAsesor.index' },
+                    { name: 'Nueva Meta',   link: '/meta-asesor/agregar', requiredPermission: 'metaAsesor.store'  },
+                ],
+            },
         ]
     },
     {
