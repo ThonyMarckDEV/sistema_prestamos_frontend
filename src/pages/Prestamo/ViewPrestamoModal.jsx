@@ -176,7 +176,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                         {data.estado === 3 && !loadingIntegrante && (
                             <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-xl">
                                 <span className="text-[9px] font-black text-green-700 uppercase">
-                                    ✓ Préstamo Liquidado — Totales históricos del préstamo completo
+                                    ✓ Préstamo Liquidado
                                 </span>
                             </div>
                         )}
