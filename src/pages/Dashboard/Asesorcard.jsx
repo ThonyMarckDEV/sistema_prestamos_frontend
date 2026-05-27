@@ -37,10 +37,7 @@ const AsesorCard = () => {
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 hover:bg-slate-50/60 transition-colors">
-                <div
-                    className="flex items-center gap-2.5 flex-1 cursor-pointer select-none"
-                    onClick={() => setCollapsed(v => !v)}
-                >
+                <div className="flex items-center gap-2.5 flex-1 cursor-pointer select-none" onClick={() => setCollapsed(v => !v)}>
                     <div className="p-2 bg-brand-red-light rounded-xl">
                         <UserGroupIcon className="w-5 h-5 text-brand-red" />
                     </div>
@@ -89,11 +86,17 @@ const AsesorCard = () => {
                                 <XMarkIcon className="w-3.5 h-3.5" /> Limpiar
                             </button>
                         )}
-                        {tieneRango && (
-                            <span className="text-[9px] font-black text-brand-red uppercase tracking-widest bg-brand-red-light px-2 py-1 rounded-lg border border-brand-red/20">
-                                Rango personalizado
-                            </span>
-                        )}
+                    </div>
+
+                    {/* Rango */}
+                    <div className="px-6 py-2 border-b border-slate-50 bg-white">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100">
+                            <div className="w-2 h-2 rounded-full bg-brand-red" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Rango:</span>
+                            <span className="text-[10px] font-black text-slate-700">{fechaInicio}</span>
+                            <span className="text-slate-400 text-[10px]">→</span>
+                            <span className="text-[10px] font-black text-slate-700">{fechaFin}</span>
+                        </div>
                     </div>
 
                     {/* Tabla */}
