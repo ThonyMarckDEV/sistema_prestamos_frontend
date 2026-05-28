@@ -16,6 +16,7 @@ export const useStore = () => {
     const [formData, setFormData] = useState({
         es_grupal:          false,
         cliente_id:         '',
+        cliente_nombre:     '',   // ← nuevo
         fechaVencimientoDni:'',
         dni_status:         null,
         grupo_id:           '',
@@ -37,7 +38,6 @@ export const useStore = () => {
         prestamo_origen_id: '',
     });
 
-    // ── Solo lo que es exclusivo de este hook ─────────────────────────────────
     const esRenovacionActiva = !!formData.prestamo_origen_id;
 
     // ── handleChange ─────────────────────────────────────────────────────────
@@ -52,6 +52,7 @@ export const useStore = () => {
                     if (value === true) {
                         newData.modalidad           = 'GRUPAL';
                         newData.cliente_id          = '';
+                        newData.cliente_nombre      = '';
                         newData.fechaVencimientoDni = '';
                         newData.dni_status          = null;
                     } else {
@@ -120,6 +121,7 @@ export const useStore = () => {
             grupo_id:           '',
             grupo_nombre:       '',
             cliente_id:         '',
+            cliente_nombre:     '',   // ← limpiar
             integrantes:        [],
             producto_id:        '',
             producto_nombre:    '',
@@ -141,24 +143,28 @@ export const useStore = () => {
         const updates = {
             prestamo_origen_id: prestamo.id,
             modalidad:          'RSS',
-            asesor_id:          prestamo.asesor_id      ?? '',
-            asesor_nombre:      prestamo.asesor_nombre  ?? '',
-            producto_id:        prestamo.producto_id    ?? '',
+            asesor_id:          prestamo.asesor_id       ?? '',
+            asesor_nombre:      prestamo.asesor_nombre   ?? '',
+            producto_id:        prestamo.producto_id     ?? '',
             producto_nombre:    prestamo.producto_nombre ?? '',
         };
 
         if (prestamo.es_grupal) {
             updates.es_grupal    = true;
-            updates.grupo_id     = prestamo.grupo_id    ?? '';
+            updates.grupo_id     = prestamo.grupo_id     ?? '';
             updates.grupo_nombre = prestamo.grupo_nombre ?? '';
             updates.cliente_id   = '';
+            updates.cliente_nombre = '';
             updates.integrantes  = [];
         } else {
-            updates.es_grupal   = false;
-            updates.cliente_id  = prestamo.cliente_id ?? '';
-            updates.grupo_id    = '';
-            updates.integrantes = [];
-            if (prestamo.modalidad_cliente) updates.modalidad = prestamo.modalidad_cliente;
+            updates.es_grupal      = false;
+            updates.cliente_id     = prestamo.cliente_id ?? '';
+            updates.cliente_nombre = prestamo.cliente    ?? '';  // ← nombre del cliente
+            updates.grupo_id       = '';
+            updates.integrantes    = [];
+            updates.modalidad      = prestamo.modalidad_cliente ?? 'RSS';
+            updates.dni_status     = prestamo.dni_status ?? null;
+            updates.fechaVencimientoDni = prestamo.dni_status?.fecha_texto ?? '';
         }
 
         setFormData(prev => ({ ...prev, ...updates }));
@@ -178,7 +184,7 @@ export const useStore = () => {
         }
     };
 
-    // ── Submit — recibe isBlocked desde el form ───────────────────────────────
+    // ── Submit ────────────────────────────────────────────────────────────────
     const handleSubmit = async (e, isBlocked) => {
         e.preventDefault();
         if (isBlocked) {
@@ -198,6 +204,7 @@ export const useStore = () => {
         try {
             const payload = { ...formData };
             delete payload.asesor_nombre;
+            delete payload.cliente_nombre;   // ← no enviar al backend
             delete payload.fechaVencimientoDni;
             delete payload.dni_status;
             delete payload.producto_nombre;
@@ -233,7 +240,6 @@ export const useStore = () => {
         handleChange, handleSubmit,
         addIntegrante, handleRemoveIntegrante,
         updateMontoIntegrante, updateCargoIntegrante,
-        // renovación
         esRenovacion, prestamoOrigen, comboKey,
         handleToggleRenovacion,
         handleSelectPrestamoOrigen,
