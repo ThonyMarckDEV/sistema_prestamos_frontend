@@ -139,7 +139,7 @@ const PrestamoSearchSelect = ({ onSelect, disabled, tipoOperacion = 'cobro', ini
                         )) : (
                             <li className="px-4 py-6 text-slate-400 text-xs text-center flex flex-col items-center gap-2">
                                 <BanknotesIcon className="w-8 h-8 text-slate-200" />
-                                <span className="font-bold">No se encontraron préstamos para {isDesembolso ? 'desembolsar' : 'cobrar'}.</span>
+                                <span className="font-bold">No se encontraron préstamos para {isDesembolso ? 'desembolsar' : tipoOperacion === 'renovacion' ? 'renovar' : 'cobrar'}.</span>
                             </li>
                         )}
                     </ul>
