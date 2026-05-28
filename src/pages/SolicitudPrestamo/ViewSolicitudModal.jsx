@@ -161,6 +161,17 @@ const ViewSolicitudModal = ({ isOpen, onClose, data, isLoading }) => {
                         </div>
                     )}
 
+                    {/* ── Observaciones ─────────────────────────────────────── */}
+                    {data.observaciones && data.observaciones !== 'Sin observaciones.' && (
+                        <div className="bg-brand-gold-light/40 p-4 rounded-xl border border-brand-gold/30 flex gap-3">
+                            <ClipboardDocumentListIcon className="w-5 h-5 text-brand-gold-dark flex-shrink-0" />
+                            <div>
+                                <h4 className="text-[10px] font-black text-brand-gold-dark uppercase mb-1">Notas del Asesor</h4>
+                                <p className="text-xs text-slate-700 leading-relaxed font-medium italic">"{data.observaciones}"</p>
+                            </div>
+                        </div>
+                    )}
+                    
                     {/* ── Aval ──────────────────────────────────────────────── */}
                     <div className={`p-5 rounded-2xl border ${data.aval ? 'bg-brand-gold-light/30 border-brand-gold/30' : 'bg-slate-50 border-dashed border-slate-100'}`}>
                         <h4 className="text-xs font-black text-slate-400 uppercase mb-4 flex items-center gap-2">
@@ -200,16 +211,6 @@ const ViewSolicitudModal = ({ isOpen, onClose, data, isLoading }) => {
                         cantidadIntegrantes={data.es_grupal ? (data.integrantes?.length || 1) : 1}
                     />
 
-                    {/* ── Observaciones ─────────────────────────────────────── */}
-                    {data.observaciones && data.observaciones !== 'Sin observaciones.' && (
-                        <div className="bg-brand-gold-light/40 p-4 rounded-xl border border-brand-gold/30 flex gap-3">
-                            <ClipboardDocumentListIcon className="w-5 h-5 text-brand-gold-dark flex-shrink-0" />
-                            <div>
-                                <h4 className="text-[10px] font-black text-brand-gold-dark uppercase mb-1">Notas del Asesor</h4>
-                                <p className="text-xs text-slate-700 leading-relaxed font-medium italic">"{data.observaciones}"</p>
-                            </div>
-                        </div>
-                    )}
 
                 </div>
             )}
