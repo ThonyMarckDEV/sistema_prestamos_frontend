@@ -17,7 +17,7 @@ const SolicitudForm = ({
     updateMontoIntegrante,
     updateCargoIntegrante,
     isUpdate           = false,
-    onBlockedChange    = null,   // ← Update lo usa para saber si puede guardar
+    onBlockedChange    = null,
     // props renovación — solo Store las pasa; Update las omite
     esRenovacion       = false,
     prestamoOrigen     = null,
@@ -28,16 +28,18 @@ const SolicitudForm = ({
 }) => {
     const prestamoOrigenEfectivo = prestamoOrigen ?? (
         data.prestamo_origen_id ? {
-            id:          data.prestamo_origen_id,
-            cliente:     data.cliente_nombre   ?? '',
-            monto:       data.monto_solicitado ?? 0,
-            es_grupal:   data.es_grupal,
-            integrantes: data.integrantes?.map(i => ({
-                id:              i.id,
-                nombre:          i.nombre,
-                puede_excluirse: i.puede_excluirse,
-                saldo_pendiente: i.saldo_pendiente,
-            })) ?? [],
+            id:        data.prestamo_origen_id,
+            cliente:   data.cliente_nombre   ?? '',
+            monto:     data.monto_solicitado ?? 0,
+            es_grupal: data.es_grupal,
+            integrantes: data.integrantes
+                ?.filter(i => i.puede_excluirse === false)
+                .map(i => ({
+                    id:              i.id,
+                    nombre:          i.nombre,
+                    puede_excluirse: i.puede_excluirse,
+                    saldo_pendiente: i.saldo_pendiente,
+                })) ?? [],
         } : null
     );
 

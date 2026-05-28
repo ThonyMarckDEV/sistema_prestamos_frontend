@@ -29,7 +29,7 @@ const SectionClienteGrupo = ({
         alertMessage = data.modalidad;
         if (data.dni_status?.estado === 'POR_VENCER') {
             alertClass = 'bg-yellow-50 border-yellow-200 text-yellow-700';
-            alertMessage = `${data.modalidad} | DNI VENCE EN ${data.dni_status.dias_restantes} DÍAS (${data.dni_status.fecha_texto})`;
+            alertMessage = `${data.modalidad}`;
             AlertIcon = ExclamationTriangleIcon;
         }
     }
@@ -119,9 +119,7 @@ const SectionClienteGrupo = ({
                                                     }`}>
                                                         {int.dni_status?.estado === 'VENCIDO' 
                                                             ? `DNI VENCIDO (${int.dni_status.fecha_texto})` 
-                                                            : (isYellow 
-                                                                ? `VENCE EN ${int.dni_status?.dias_restantes} DÍAS (${int.dni_status?.fecha_texto})` 
-                                                                : int.modalidad)}
+                                                            : int.modalidad}
                                                     </span>
                                                 </div>
                                             </td>
