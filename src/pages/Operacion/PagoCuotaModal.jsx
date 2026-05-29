@@ -8,8 +8,19 @@ import { BanknotesIcon, DevicePhoneMobileIcon, PhotoIcon, UserGroupIcon, Documen
 const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     const { state, setters, computed, handlers } = usePagoCuota({ isOpen, cuota, onClose, onConfirm });
 
+    // Bloquear cierre mientras se procesa el pago
+    const handleClose = () => { if (!loading) handlers.reset(); };
+
     return (
-        <ViewModal isOpen={isOpen} hideFooter onClose={handlers.reset} title={`Cobrar Cuota N° ${cuota?.nro}`} size="2xl">
+        <ViewModal isOpen={isOpen} hideFooter onClose={handleClose} title={`Cobrar Cuota N° ${cuota?.nro}`} size="2xl">
+            {/* Overlay bloqueante mientras carga */}
+            {loading && (
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-[inherit] gap-3">
+                    <div className="w-10 h-10 border-4 border-brand-red/20 border-t-brand-red rounded-full animate-spin" />
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Registrando pago...</p>
+                </div>
+            )}
+
             <div className="flex flex-col md:flex-row -m-5 h-full min-h-[600px] max-h-[80vh]">
 
                 {/* ── Panel Izquierdo ── */}
@@ -27,7 +38,8 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         <div className="grid grid-cols-2 gap-3">
                             {['DEPOSITO', 'EFECTIVO'].map((m) => (
                                 <button key={m} type="button" onClick={() => { setters.setMetodo(m); setters.setReferencia(''); }}
-                                    className={`p-3 rounded-2xl font-black text-xs flex items-center justify-center gap-2 border-2 transition-all ${state.metodo === m ? 'border-brand-red bg-brand-red-light/50 text-brand-red shadow-sm' : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}>
+                                    disabled={loading}
+                                    className={`p-3 rounded-2xl font-black text-xs flex items-center justify-center gap-2 border-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${state.metodo === m ? 'border-brand-red bg-brand-red-light/50 text-brand-red shadow-sm' : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}>
                                     {m === 'EFECTIVO' ? <BanknotesIcon className="w-4 h-4"/> : <DevicePhoneMobileIcon className="w-4 h-4"/>}
                                     {m}
                                 </button>
@@ -38,15 +50,18 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Monto a Registrar *</label>
-                                <input type="number" step="0.01" required value={state.recibido} readOnly={computed.esGrupal} onChange={e => !computed.esGrupal && setters.setRecibido(e.target.value)}
-                                    className={`w-full p-4 border-2 rounded-2xl text-sm font-bold outline-none transition-all text-slate-800 ${computed.esGrupal ? 'bg-slate-50 border-slate-100 cursor-not-allowed opacity-70' : 'bg-slate-50 border-slate-100 focus:border-brand-red focus:ring-1 focus:ring-brand-red focus:bg-white'}`} />
+                                <input type="number" step="0.01" required value={state.recibido}
+                                    readOnly={computed.esGrupal || loading}
+                                    onChange={e => !computed.esGrupal && !loading && setters.setRecibido(e.target.value)}
+                                    className={`w-full p-4 border-2 rounded-2xl text-sm font-bold outline-none transition-all text-slate-800 ${computed.esGrupal || loading ? 'bg-slate-50 border-slate-100 cursor-not-allowed opacity-70' : 'bg-slate-50 border-slate-100 focus:border-brand-red focus:ring-1 focus:ring-brand-red focus:bg-white'}`} />
                                 {!computed.esGrupal && <p className="text-[9px] text-slate-400 font-bold mt-1 ml-1">Puedes ajustar si el cliente paga una cantidad diferente.</p>}
                             </div>
                             {state.metodo === 'DEPOSITO' && (
                                 <div>
                                     <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">N° Operación / Referencia *</label>
-                                    <input type="text" value={state.referencia} onChange={e => setters.setReferencia(e.target.value)} placeholder="Ej: 002938"
-                                        className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-800 focus:border-brand-red focus:ring-1 focus:ring-brand-red focus:bg-white outline-none transition-all" />
+                                    <input type="text" value={state.referencia} disabled={loading}
+                                        onChange={e => setters.setReferencia(e.target.value)} placeholder="Ej: 002938"
+                                        className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-slate-800 focus:border-brand-red focus:ring-1 focus:ring-brand-red focus:bg-white outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed" />
                                 </div>
                             )}
                         </div>
@@ -54,8 +69,8 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         {/* 4. Voucher Upload */}
                         <div>
                             <label className="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">{state.metodo === 'DEPOSITO' ? 'Comprobante *' : 'Foto del Efectivo (Opcional)'}</label>
-                            <input type="file" accept="image/*" onChange={handlers.handleFileChange} className="hidden" id="pago-cuota-upload" />
-                            <label htmlFor="pago-cuota-upload" className={`flex items-center justify-center w-full p-5 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 ${state.archivo ? 'border-brand-red bg-brand-red-light/50 text-brand-red' : 'border-slate-200 hover:border-brand-red/50 hover:bg-slate-50 text-slate-500'}`}>
+                            <input type="file" accept="image/*" onChange={handlers.handleFileChange} className="hidden" id="pago-cuota-upload" disabled={loading} />
+                            <label htmlFor="pago-cuota-upload" className={`flex items-center justify-center w-full p-5 border-2 border-dashed rounded-2xl transition-all duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${state.archivo ? 'border-brand-red bg-brand-red-light/50 text-brand-red' : 'border-slate-200 hover:border-brand-red/50 hover:bg-slate-50 text-slate-500'}`}>
                                 <div className="flex flex-col items-center gap-1 font-black text-[10px] uppercase">
                                     <PhotoIcon className="w-6 h-6 mb-1" />
                                     {state.archivo ? 'Comprobante Cargado ✓' : state.metodo === 'DEPOSITO' ? 'Subir Voucher / Captura' : 'Subir Foto (opcional)'}
@@ -66,7 +81,8 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
 
                         {/* 5. Toggle Parcial Grupal */}
                         {computed.esGrupal && computed.integrantesPendientes.length > 1 && (
-                            <div onClick={() => setters.setEsParcial(!state.esParcial)} className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all select-none ${state.esParcial ? 'border-brand-gold bg-brand-gold-light/30' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
+                            <div onClick={() => !loading && setters.setEsParcial(!state.esParcial)}
+                                className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all select-none ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${state.esParcial ? 'border-brand-gold bg-brand-gold-light/30' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}>
                                 <div className="flex items-center gap-3">
                                     <UserGroupIcon className={`w-5 h-5 ${state.esParcial ? 'text-brand-gold-dark' : 'text-slate-400'}`} />
                                     <div>
@@ -86,6 +102,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                 distribucion={state.distribucion} handleMontoIntegrante={handlers.handleMontoIntegrante}
                                 integrantesPendientes={computed.integrantesPendientes} soloUnIntegrante={computed.soloUnIntegrante}
                                 totalDistribuido={computed.totalDistribuido} totalAPagar={computed.totalAPagar} recibido={state.recibido}
+                                disabled={loading}
                             />
                         )}
 
@@ -103,7 +120,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         )}
                     </div>
 
-                    {/* Alert encima del botón — siempre visible */}
+                    {/* Alert encima del botón */}
                     {state.alertLocal && (
                         <div className="pt-4">
                             <AlertMessage
@@ -117,9 +134,10 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
 
                     {/* Botón Guardar */}
                     <div className="pt-4 mt-auto">
-                        <button onClick={handlers.handleSubmit} disabled={loading || !computed.puedeSubmit} className="w-full bg-brand-red text-white py-5 rounded-2xl font-black uppercase text-xs shadow-xl shadow-brand-red/30 hover:bg-brand-red-dark transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-95">
+                        <button onClick={handlers.handleSubmit} disabled={loading || !computed.puedeSubmit}
+                            className="w-full bg-brand-red text-white py-5 rounded-2xl font-black uppercase text-xs shadow-xl shadow-brand-red/30 hover:bg-brand-red-dark transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-95">
                             {loading ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <DocumentCheckIcon className="w-5 h-5" />}
-                            Registrar Pago de Cuota
+                            {loading ? 'Procesando...' : 'Registrar Pago de Cuota'}
                         </button>
                     </div>
                 </div>
@@ -129,9 +147,12 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                     {state.preview ? (
                         <div className="relative w-full h-full flex items-center justify-center group">
                             <img src={state.preview} alt="Voucher Preview" className="max-w-full max-h-full object-contain rounded-xl shadow-2xl bg-white border border-slate-200" />
-                            <button onClick={() => { setters.setArchivo(null); setters.setPreview(null); }} className="absolute top-4 right-4 bg-white text-brand-red p-2 rounded-full shadow-xl hover:bg-brand-red hover:text-white transition-all opacity-0 group-hover:opacity-100">
-                                <XMarkIcon className="h-5 w-5" />
-                            </button>
+                            {!loading && (
+                                <button onClick={() => { setters.setArchivo(null); setters.setPreview(null); }}
+                                    className="absolute top-4 right-4 bg-white text-brand-red p-2 rounded-full shadow-xl hover:bg-brand-red hover:text-white transition-all opacity-0 group-hover:opacity-100">
+                                    <XMarkIcon className="h-5 w-5" />
+                                </button>
+                            )}
                         </div>
                     ) : (
                         <div className="text-center">

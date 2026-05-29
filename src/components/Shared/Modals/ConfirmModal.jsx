@@ -10,6 +10,9 @@ import { ExclamationTriangleIcon, KeyIcon } from '@heroicons/react/24/outline';
  * Props para PIN:
  *   requirePin  - boolean — si true muestra inputs de PIN antes de confirmar
  *   onConfirm   - fn(pin?: string) — recibe el PIN si requirePin=true
+ *
+ * Props de loading:
+ *   loading     - boolean — bloquea backdrop, cancelar y botón confirmar mientras procesa
  */
 const ConfirmModal = ({
     title       = "¿Estás seguro?",
@@ -19,9 +22,10 @@ const ConfirmModal = ({
     confirmText = 'Sí, continuar',
     cancelText  = 'Cancelar',
     requirePin  = false,
+    loading     = false,
 }) => {
-    const [digits, setDigits]   = useState(['', '', '', '', '', '']);
-    const inputsRef             = useRef([]);
+    const [digits, setDigits] = useState(['', '', '', '', '', '']);
+    const inputsRef           = useRef([]);
 
     const handleChange = (index, value) => {
         const val  = value.replace(/\D/, '').slice(-1);
@@ -46,8 +50,8 @@ const ConfirmModal = ({
         e.preventDefault();
     };
 
-    const pin      = digits.join('');
-    const canSubmit = !requirePin || pin.length === 6;
+    const pin       = digits.join('');
+    const canSubmit = !loading && (!requirePin || pin.length === 6);
 
     const handleConfirm = () => {
         if (!canSubmit) return;
@@ -56,9 +60,22 @@ const ConfirmModal = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onCancel} />
+            {/* Backdrop — bloqueado mientras loading */}
+            <div
+                className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
+                onClick={loading ? undefined : onCancel}
+            />
 
             <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100">
+
+                {/* Overlay bloqueante mientras procesa */}
+                {loading && (
+                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center gap-3 rounded-2xl">
+                        <div className="w-8 h-8 border-4 border-brand-red/20 border-t-brand-red rounded-full animate-spin" />
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Procesando...</p>
+                    </div>
+                )}
+
                 <div className="p-6">
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-50 mb-5">
                         <ExclamationTriangleIcon className="h-7 w-7 text-brand-red" />
@@ -69,7 +86,6 @@ const ConfirmModal = ({
                         <p className="mt-2 text-sm text-slate-500 font-medium">{message}</p>
                     </div>
 
-                    {/* PIN inputs — solo si requirePin=true */}
                     {requirePin && (
                         <div className="mt-5">
                             <div className="flex items-center gap-1.5 justify-center mb-3">
@@ -87,9 +103,10 @@ const ConfirmModal = ({
                                         inputMode="numeric"
                                         maxLength={1}
                                         value={d}
+                                        disabled={loading}
                                         onChange={e => handleChange(i, e.target.value)}
                                         onKeyDown={e => handleKeyDown(i, e)}
-                                        className={`w-10 h-11 text-center text-base font-black rounded-xl border-2 outline-none transition-all
+                                        className={`w-10 h-11 text-center text-base font-black rounded-xl border-2 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed
                                             ${d ? 'border-brand-red bg-brand-red-light text-brand-red' : 'border-slate-200 bg-slate-50 text-slate-700'}
                                             focus:border-brand-red focus:ring-2 focus:ring-brand-red/20`}
                                     />
@@ -104,8 +121,8 @@ const ConfirmModal = ({
 
                 <div className="bg-slate-50 px-4 py-4 flex flex-col-reverse sm:flex-row justify-center gap-3">
                     <button
-                        type="button" onClick={onCancel}
-                        className="w-full sm:w-auto inline-flex justify-center rounded-lg border border-slate-300 bg-white px-6 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-100 transition-all active:scale-95 uppercase tracking-wide"
+                        type="button" onClick={onCancel} disabled={loading}
+                        className="w-full sm:w-auto inline-flex justify-center rounded-lg border border-slate-300 bg-white px-6 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-100 transition-all active:scale-95 uppercase tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         {cancelText}
                     </button>
@@ -113,7 +130,12 @@ const ConfirmModal = ({
                         type="button" onClick={handleConfirm} disabled={!canSubmit}
                         className="w-full sm:w-auto inline-flex justify-center rounded-lg border border-transparent bg-brand-red px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-brand-red-dark transition-all active:scale-95 uppercase tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                        {confirmText}
+                        {loading ? (
+                            <span className="flex items-center gap-2">
+                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Procesando...
+                            </span>
+                        ) : confirmText}
                     </button>
                 </div>
             </div>

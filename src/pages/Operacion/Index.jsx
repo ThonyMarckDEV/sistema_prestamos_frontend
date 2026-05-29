@@ -191,10 +191,11 @@ const Index = () => {
                 <ConfirmModal
                     title="¿Anular Operación?"
                     message="Esta acción realizará un extorno de caja y revertirá los estados del préstamo o la cuota. No se puede deshacer."
-                    confirmText="Sí, Anular Operación"
+                    confirmText={loading ? "Anulando..." : "Sí, Anular Operación"}
                     requirePin={true}
+                    loading={loading} 
                     onConfirm={(pin) => handleConfirmAnular(pin)}
-                    onCancel={() => setIsAnularModalOpen(false)}
+                    onCancel={() => !loading && setIsAnularModalOpen(false)}
                 />
             )}
         </div>
