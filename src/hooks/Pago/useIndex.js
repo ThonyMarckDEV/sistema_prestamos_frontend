@@ -1,31 +1,36 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { index, pdf } from 'services/pagoService';
+import { index, pdf, destroy } from 'services/pagoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useIndex = () => {
-    const [loading, setLoading] = useState(true);
-    const [pagos, setPagos] = useState([]);
+    const [loading,        setLoading]        = useState(true);
+    const [pagos,          setPagos]          = useState([]);
     const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
-    
-    const [filters, setFilters] = useState({ search: '', estado: '' });
+    const [filters,        setFilters]        = useState({ search: '', estado: '' });
     const filtersRef = useRef(filters);
-    
-    const [alert, setAlert] = useState(null);
-    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
-    const [pdfBase64, setPdfBase64] = useState(null);
-    const [pdfTitle, setPdfTitle] = useState('');
-    const [pdfLoading, setPdfLoading] = useState(false);
 
+    const [alert,          setAlert]          = useState(null);
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+    const [pdfBase64,      setPdfBase64]      = useState(null);
+    const [pdfTitle,       setPdfTitle]       = useState('');
+    const [pdfLoading,     setPdfLoading]     = useState(false);
+
+    // ── Anulación ─────────────────────────────────────────────────────────────
+    const [isAnularModalOpen,  setIsAnularModalOpen]  = useState(false);
+    const [pagoToAnular,       setPagoToAnular]       = useState(null);
+    const [anularLoading,      setAnularLoading]      = useState(false);
+
+    // ── Fetch ─────────────────────────────────────────────────────────────────
     const fetchPagos = useCallback(async (page = 1) => {
         setLoading(true);
         try {
             const res = await index(page, filtersRef.current);
-            if (res && res.data) {
+            if (res?.data) {
                 setPagos([...res.data]);
                 setPaginationInfo({
                     currentPage: res.current_page,
-                    totalPages: res.last_page,
-                    total: res.total
+                    totalPages:  res.last_page,
+                    total:       res.total,
                 });
             }
         } catch (err) {
@@ -37,6 +42,7 @@ export const useIndex = () => {
 
     useEffect(() => { fetchPagos(1); }, [fetchPagos]);
 
+    // ── PDF ───────────────────────────────────────────────────────────────────
     const handleViewPdf = async (id) => {
         setPdfLoading(true);
         try {
@@ -51,21 +57,39 @@ export const useIndex = () => {
         }
     };
 
-    const handleFilterSubmit = () => {
-        filtersRef.current = filters;
-        fetchPagos(1);
-    };
-
-    const handleFilterClear = () => {
+    // ── Filtros ───────────────────────────────────────────────────────────────
+    const handleFilterSubmit = () => { filtersRef.current = filters; fetchPagos(1); };
+    const handleFilterClear  = () => {
         const initial = { search: '', estado: '' };
         setFilters(initial);
         filtersRef.current = initial;
         fetchPagos(1);
     };
 
-    return { 
-        loading, pagos, paginationInfo, filters, setFilters, alert, setAlert, 
+    // ── Anular ────────────────────────────────────────────────────────────────
+    const openAnularModal  = (pago) => { setPagoToAnular(pago); setIsAnularModalOpen(true); };
+
+    const handleConfirmAnular = async (pin) => {
+        if (!pagoToAnular) return;
+        setAnularLoading(true);
+        try {
+            await destroy(pagoToAnular.id, pin);
+            setAlert({ type: 'success', message: 'Pago anulado y revertido correctamente.' });
+            fetchPagos(paginationInfo.currentPage);
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setAnularLoading(false);
+            setIsAnularModalOpen(false);
+            setPagoToAnular(null);
+        }
+    };
+
+    return {
+        loading, pagos, paginationInfo, filters, setFilters, alert, setAlert,
         fetchPagos, handleFilterSubmit, handleFilterClear,
-        handleViewPdf, isPdfModalOpen, setIsPdfModalOpen, pdfBase64, pdfTitle, pdfLoading
+        handleViewPdf, isPdfModalOpen, setIsPdfModalOpen, pdfBase64, pdfTitle, pdfLoading,
+        isAnularModalOpen, setIsAnularModalOpen, openAnularModal, handleConfirmAnular, anularLoading,
+        pagoToAnular,
     };
 };

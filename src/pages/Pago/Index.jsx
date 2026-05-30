@@ -6,56 +6,57 @@ import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import PdfModal from 'components/Shared/Modals/PdfModal';
-import { BanknotesIcon, PrinterIcon } from '@heroicons/react/24/outline';
+import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
+import { BanknotesIcon, PrinterIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { FileSearch } from 'lucide-react';
 
 const Index = () => {
-    const { 
+    const {
         loading, pagos, paginationInfo, filters, setFilters, alert, setAlert, fetchPagos,
         handleFilterSubmit, handleFilterClear,
-        handleViewPdf, pdfLoading, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64 
+        handleViewPdf, pdfLoading, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64,
+        isAnularModalOpen, setIsAnularModalOpen, openAnularModal, handleConfirmAnular, anularLoading,
+        pagoToAnular,
     } = useIndex();
-    
+
     const { can, user } = useAuth();
     const esCliente = user?.rol === 'cliente';
+    const canDelete  = can('pago.delete');
 
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedVoucher, setSelectedVoucher] = useState(null);
-
     const openVoucher = (url) => { setSelectedVoucher(url); setIsViewModalOpen(true); };
 
     const filterConfig = useMemo(() => [
-        { 
-            name: 'search', type: 'text', label: 'Buscador', 
+        {
+            name: 'search', type: 'text', label: 'Buscador',
             placeholder: 'Nombre / DNI / Op...',
-            colSpan: 'col-span-12 md:col-span-4' 
+            colSpan: 'col-span-12 md:col-span-4'
         },
         { name: 'fecha_inicio', type: 'date', label: 'Fecha Inicio', colSpan: 'col-span-12 md:col-span-3' },
         { name: 'fecha_fin',    type: 'date', label: 'Fecha Fin',    colSpan: 'col-span-12 md:col-span-3' },
-        { 
-            name: 'estado', type: 'select', label: 'Estado', 
+        {
+            name: 'estado', type: 'select', label: 'Estado',
             colSpan: 'col-span-12 md:col-span-2',
             options: [
-                { value: '',  label: 'TODOS'    },
-                { value: '0', label: 'ANULADOS' },
-                { value: '1', label: 'APROBADOS'},
+                { value: '',  label: 'TODOS'     },
+                { value: '0', label: 'ANULADOS'  },
+                { value: '1', label: 'APROBADOS' },
             ]
         }
     ], []);
 
     const columns = useMemo(() => [
-        { 
-            header: 'ID / Fecha', 
+        {
+            header: 'ID / Fecha',
             render: (row) => (
                 <div className="flex flex-col">
                     <span className="font-mono text-[14px] font-black text-slate-600">#{row.id}</span>
-                    {row.pago_origen_id ? (
-                        <span className="flex items-center gap-1 mt-0.5">
-                            <span className="text-[11px] font-bold text-slate-400">
-                                Excedente de Pago <span className="text-amber-600 font-black">#{row.pago_origen_id}</span>
-                            </span>
+                    {row.pago_origen_id && (
+                        <span className="text-[11px] font-bold text-slate-400 mt-0.5">
+                            Excedente de Pago <span className="text-amber-600 font-black">#{row.pago_origen_id}</span>
                         </span>
-                    ) : null}
+                    )}
                     <span className="text-[9px] text-slate-400 font-bold whitespace-nowrap mt-0.5">{row.fecha}</span>
                 </div>
             )
@@ -149,47 +150,41 @@ const Index = () => {
             render: (row) => (
                 <div className="flex gap-2 items-center justify-end">
                     {row.comprobante_url && (
-                        <button 
-                            onClick={() => openVoucher(row.comprobante_url)}
-                            title="Ver Voucher"
-                            className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl border border-transparent hover:border-emerald-100 transition-all shadow-sm"
-                        >
+                        <button onClick={() => openVoucher(row.comprobante_url)} title="Ver Voucher"
+                            className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl border border-transparent hover:border-emerald-100 transition-all shadow-sm">
                             <FileSearch className="w-4 h-4" />
                         </button>
                     )}
                     {row.estado === 1 && can('pago.generatePDF') && (
-                        <button 
-                            onClick={() => handleViewPdf(row.id)}
-                            disabled={pdfLoading}
-                            title="Imprimir Recibo"
+                        <button onClick={() => handleViewPdf(row.id)} disabled={pdfLoading} title="Imprimir Recibo"
                             className={`p-2 rounded-xl transition-all border border-transparent shadow-sm ${
-                                pdfLoading 
-                                    ? 'bg-slate-50 text-slate-300' 
-                                    : 'text-slate-400 hover:text-brand-red hover:bg-brand-red-light hover:border-brand-red/20'
-                            }`}
-                        >
+                                pdfLoading ? 'bg-slate-50 text-slate-300' : 'text-slate-400 hover:text-brand-red hover:bg-brand-red-light hover:border-brand-red/20'
+                            }`}>
                             <PrinterIcon className={`w-4 h-4 ${pdfLoading ? 'animate-spin' : ''}`} />
+                        </button>
+                    )}
+                    {/* Solo pagos padre (sin pago_origen_id) y aprobados pueden anularse */}
+                    {row.estado === 1 && !row.pago_origen_id && canDelete && (
+                        <button onClick={() => openAnularModal(row)} title="Anular Pago"
+                            className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm">
+                            <TrashIcon className="w-4 h-4" />
                         </button>
                     )}
                 </div>
             )
         }
-    ], [can, esCliente, pdfLoading, handleViewPdf]);
+    ], [can, canDelete, esCliente, pdfLoading, handleViewPdf, openAnularModal]);
 
     return (
         <div className="container mx-auto p-6 max-w-7xl">
             <PageHeader title="Control de Pagos" icon={BanknotesIcon} />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
-            
-            <Table 
-                columns={columns} 
-                data={pagos} 
-                loading={loading}
-                filterConfig={filterConfig}
-                filters={filters}
+
+            <Table
+                columns={columns} data={pagos} loading={loading}
+                filterConfig={filterConfig} filters={filters}
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
-                onFilterSubmit={handleFilterSubmit}
-                onFilterClear={handleFilterClear}
+                onFilterSubmit={handleFilterSubmit} onFilterClear={handleFilterClear}
                 pagination={{ ...paginationInfo, onPageChange: fetchPagos }}
             />
 
@@ -199,12 +194,19 @@ const Index = () => {
                 </div>
             </ViewModal>
 
-            <PdfModal 
-                isOpen={isPdfModalOpen} 
-                onClose={() => setIsPdfModalOpen(false)} 
-                title={pdfTitle} 
-                base64={pdfBase64} 
-            />
+            <PdfModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} title={pdfTitle} base64={pdfBase64} />
+
+            {isAnularModalOpen && (
+                <ConfirmModal
+                    title="¿Anular Pago?"
+                    message={`El pago #${pagoToAnular?.id} será revertido. Las cuotas de integrantes vigentes volverán a su estado anterior. Los refinanciados no se tocan.`}
+                    confirmText={anularLoading ? 'Anulando...' : 'Sí, Anular Pago'}
+                    requirePin={true}
+                    loading={anularLoading}
+                    onConfirm={(pin) => handleConfirmAnular(pin)}
+                    onCancel={() => !anularLoading && setIsAnularModalOpen(false)}
+                />
+            )}
         </div>
     );
 };

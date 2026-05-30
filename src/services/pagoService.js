@@ -7,10 +7,10 @@ const BASE_URL = `${API_BASE_URL}/api/pagos`;
 export const index = async (page = 1, filters = {}) => {
     const params = new URLSearchParams({
         page,
-        search: filters.search || '',
-        estado: filters.estado ?? '',
-        fecha_inicio: filters.fecha_inicio || '', 
-        fecha_fin: filters.fecha_fin || ''
+        search:      filters.search      || '',
+        estado:      filters.estado      ?? '',
+        fecha_inicio: filters.fecha_inicio || '',
+        fecha_fin:   filters.fecha_fin   || '',
     });
     const response = await fetchWithAuth(`${BASE_URL}/index?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);
@@ -23,5 +23,14 @@ export const show = async (id) => {
 
 export const pdf = async (id) => {
     const response = await fetchWithAuth(`${BASE_URL}/${id}/pdf`, { method: 'GET' });
+    return handleResponse(response);
+};
+
+export const destroy = async (id, pin) => {
+    const response = await fetchWithAuth(`${BASE_URL}/delete/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin }),
+    });
     return handleResponse(response);
 };
