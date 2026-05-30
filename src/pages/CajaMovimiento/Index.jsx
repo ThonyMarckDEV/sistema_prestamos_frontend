@@ -1,3 +1,4 @@
+// Index.jsx
 import React, { useMemo } from 'react';
 import { useIndex } from 'hooks/CajaMovimiento/useIndex';
 import { useAuth } from 'context/AuthContext';
@@ -5,7 +6,25 @@ import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import PdfModal from 'components/Shared/Modals/PdfModal';
-import { DocumentTextIcon, ArrowDownRightIcon, ArrowUpRightIcon, PrinterIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon, ArrowDownRightIcon, ArrowUpRightIcon, ArrowUturnLeftIcon, PrinterIcon } from '@heroicons/react/24/outline';
+
+const CATEGORIA_CONFIG = {
+    desembolso: {
+        bg: 'bg-red-50', border: 'border-red-200',
+        iconColor: 'text-red-600', labelColor: 'text-red-700',
+        label: 'Desemb.', Icon: ArrowUpRightIcon,
+    },
+    extorno: {
+        bg: 'bg-amber-50', border: 'border-amber-200',
+        iconColor: 'text-amber-600', labelColor: 'text-amber-700',
+        label: 'Extorno', Icon: ArrowUturnLeftIcon,
+    },
+    default: {
+        bg: 'bg-green-50', border: 'border-green-200',
+        iconColor: 'text-green-600', labelColor: 'text-green-700',
+        label: 'Cobro', Icon: ArrowDownRightIcon,
+    },
+};
 
 const Index = () => {
     const { can } = useAuth();
@@ -22,27 +41,25 @@ const Index = () => {
         const baseColumns = [
             {
                 header: 'Tipo y Cód.',
-                render: (row) => (
-                    <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-1.5">
-                            {row.categoria === 'desembolso' ? (
-                                <div className="p-1 rounded-md border bg-red-50 border-red-200">
-                                    <ArrowUpRightIcon className="w-3.5 h-3.5 text-red-600" />
+                render: (row) => {
+                    const cfg = CATEGORIA_CONFIG[row.categoria] ?? CATEGORIA_CONFIG.default;
+                    const { bg, border, iconColor, labelColor, label, Icon } = cfg;
+                    return (
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-1.5">
+                                <div className={`p-1 rounded-md border ${bg} ${border}`}>
+                                    <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
                                 </div>
-                            ) : (
-                                <div className="p-1 rounded-md border bg-green-50 border-green-200">
-                                    <ArrowDownRightIcon className="w-3.5 h-3.5 text-green-600" />
-                                </div>
-                            )}
-                            <span className={`font-black text-[10px] uppercase tracking-wide ${row.categoria === 'desembolso' ? 'text-red-700' : 'text-green-700'}`}>
-                                {row.categoria === 'desembolso' ? 'Desemb.' : 'Cobro'}
+                                <span className={`font-black text-[10px] uppercase tracking-wide ${labelColor}`}>
+                                    {label}
+                                </span>
+                            </div>
+                            <span className="font-mono text-[12px] font-bold px-1.5 py-0.5 rounded w-fit text-slate-600 bg-slate-100 border border-slate-200">
+                                {row.numero_comprobante ?? '—'}
                             </span>
                         </div>
-                        <span className="font-mono text-[12px] font-bold px-1.5 py-0.5 rounded w-fit text-slate-600 bg-slate-100 border border-slate-200">
-                            {row.numero_comprobante}
-                        </span>
-                    </div>
-                )
+                    );
+                }
             },
             {
                 header: 'Detalle',
@@ -146,6 +163,7 @@ const Index = () => {
             { value: '',           label: 'Todos los Movimientos' },
             { value: 'desembolso', label: 'Solo Desembolsos' },
             { value: 'cobro',      label: 'Solo Cobros' },
+            { value: 'extorno',    label: 'Solo Extornos' },
         ]}
     ];
 
