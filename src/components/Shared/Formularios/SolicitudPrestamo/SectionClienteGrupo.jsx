@@ -101,11 +101,22 @@ const SectionClienteGrupo = ({
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {data.integrantes.map((int) => {
-                                    const esDeOrigen  = idsOrigenRenovacion.includes(int.id);
-                                    const tieneRiesgo = int.modalidad === 'RCS' || int.modalidad?.includes('VIGENTE') || int.dni_status?.estado === 'VENCIDO';
+                                    const esDeOrigen = idsOrigenRenovacion.includes(int.id);
 
-                                    const isRed    = tieneRiesgo && !esDeOrigen;
-                                    const isYellow = (int.dni_status?.estado === 'POR_VENCER' && !isRed) || (tieneRiesgo && esDeOrigen);
+                                    // Rojo: VIGENTE GRUPAL o RCS (bloquea) — excepto si es del origen
+                                    const tieneRiesgoGrupal = int.modalidad === 'RCS' ||
+                                        int.modalidad === 'VIGENTE GRUPAL' ||
+                                        (int.modalidad?.includes('VIGENTE') && int.modalidad?.includes('GRUPAL'));
+
+                                    // Amarillo: DNI por vencer, VIGENTE INDIVIDUAL, o es del origen con riesgo
+                                    const tieneRiesgoIndividual = int.modalidad === 'VIGENTE INDIVIDUAL' ||
+                                        (int.modalidad?.includes('VIGENTE') && !int.modalidad?.includes('GRUPAL'));
+
+                                    const dniVencido    = int.dni_status?.estado === 'VENCIDO';
+                                    const dniPorVencer  = int.dni_status?.estado === 'POR_VENCER';
+
+                                    const isRed    = (tieneRiesgoGrupal && !esDeOrigen) || dniVencido;
+                                    const isYellow = !isRed && (dniPorVencer || tieneRiesgoIndividual || (tieneRiesgoGrupal && esDeOrigen));
 
                                     return (
                                         <tr key={int.id} className={isRed ? 'bg-red-50/50' : (isYellow ? 'bg-yellow-50/50' : 'hover:bg-slate-50')}>
@@ -117,7 +128,7 @@ const SectionClienteGrupo = ({
                                                         isYellow ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 
                                                                    'bg-green-50 text-green-600 border-green-100'
                                                     }`}>
-                                                        {int.dni_status?.estado === 'VENCIDO' 
+                                                        {dniVencido
                                                             ? `DNI VENCIDO (${int.dni_status.fecha_texto})` 
                                                             : int.modalidad}
                                                     </span>

@@ -68,6 +68,7 @@ const filaAnterior = p => (
             <span className="text-sm font-black text-slate-600">S/ {fmt(p.monto)}</span>
             {p.estado === 3 && <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200 uppercase shadow-sm">Liquidado</span>}
             {p.estado === 2 && <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-brand-red-light text-brand-red border border-brand-red/20 uppercase shadow-sm">Cancelado</span>}
+            {p.estado === 4 && <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 uppercase shadow-sm">Refinanciado</span>}
         </div>
     </div>
 );
