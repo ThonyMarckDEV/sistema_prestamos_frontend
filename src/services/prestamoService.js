@@ -13,6 +13,7 @@ export const index = async (page = 1, filters = {}) => {
         asesor_id: filters.asesor_id || '',
         fecha_inicio: filters.fecha_inicio || '',
         fecha_fin: filters.fecha_fin || '',
+        cliente: filters.cliente || '',
     });
     const response = await fetchWithAuth(`${BASE_URL}/index?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);

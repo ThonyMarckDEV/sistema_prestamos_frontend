@@ -37,11 +37,17 @@ const Index = () => {
     const filterConfig = useMemo(() => {
         const config = [];
         if (role !== 'cliente') {
-            config.push({ 
-                name: 'search', type: 'text', 
-                label: 'Buscar: ID / Cod. Recaudo / Cliente / DNI / RUC / Grupo', 
-                placeholder: 'Ej: Mendoza o Los Halcones...', 
-                colSpan: 'col-span-12 md:col-span-5' 
+            config.push({
+                name: 'search', type: 'text',
+                label: 'ID / Cod. Recaudo',
+                placeholder: 'Ej: 61 o SIM-I-...',
+                colSpan: 'col-span-12 md:col-span-2'
+            });
+            config.push({
+                name: 'cliente', type: 'text',
+                label: 'Cliente / DNI / RUC / Grupo',
+                placeholder: 'Ej: Mendoza o Los Halcones...',
+                colSpan: 'col-span-12 md:col-span-4'
             });
             config.push({
                 name: 'fecha_inicio', type: 'date',
