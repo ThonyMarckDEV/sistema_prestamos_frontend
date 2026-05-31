@@ -6,9 +6,11 @@ const BASE_URL = `${API_BASE_URL}/api/caja-movimientos`;
 
 export const index = async (page = 1, filters = {}) => {
     const params = new URLSearchParams({
-        page:   page,
-        search: filters.search || '',
-        tipo:   filters.tipo   || '',
+        page:         page,
+        search:       filters.search       || '',
+        tipo:         filters.tipo         || '',
+        fecha_inicio: filters.fecha_inicio || '',
+        fecha_fin:    filters.fecha_fin    || '',
     });
     const response = await fetchWithAuth(`${BASE_URL}/index?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);

@@ -170,15 +170,18 @@ const Index = () => {
     }, [handleViewPdf, pdfLoading, canGeneratePdf]);
 
     const filterConfig = [
-        { name: 'search', type: 'text', label: 'Buscar por Código o Motivo', colSpan: 'col-span-12 sm:col-span-8' },
-        { name: 'tipo', type: 'select', label: 'Filtrar Tipo', colSpan: 'col-span-12 sm:col-span-4', options: [
+        { name: 'search',       type: 'text',   label: 'Buscar por Código o Motivo',  colSpan: 'col-span-12 sm:col-span-4' },
+        { name: 'fecha_inicio', type: 'date',   label: 'Fecha Inicio',                colSpan: 'col-span-12 sm:col-span-2' },
+        { name: 'fecha_fin',    type: 'date',   label: 'Fecha Fin',                   colSpan: 'col-span-12 sm:col-span-2' },
+        { name: 'tipo',         type: 'select', label: 'Filtrar Tipo',                colSpan: 'col-span-12 sm:col-span-4',
+        options: [
             { value: '',           label: 'Todos los Movimientos' },
             { value: 'desembolso', label: 'Solo Desembolsos' },
             { value: 'cobro',      label: 'Solo Cobros' },
             { value: 'extorno',    label: 'Solo Extornos' },
         ]}
     ];
-
+    
     return (
         <div className="container mx-auto p-4 sm:p-6 w-full max-w-full">
             <PageHeader
