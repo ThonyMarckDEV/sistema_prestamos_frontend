@@ -5,7 +5,12 @@ import {
   ShieldCheck, 
   MessageSquare,
   UserCircle,
-  NotepadText
+  NotepadText,
+  Building2,
+  MapPin,
+  Phone,
+  Mail,
+  Clock
 } from "lucide-react"; 
 import { toUpper } from 'utilities/Validations/validations';
 
@@ -91,31 +96,39 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Tarjeta de Soporte IT */}
-          <div className="bg-red-900 p-6 rounded-2xl text-white shadow-lg flex flex-col justify-between relative overflow-hidden">
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-4">
-                 <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
-                    <MessageSquare size={20} className="text-white"/>
-                 </div>
-                 <h3 className="text-lg font-black tracking-tight text-yellow-300">¿Necesitas Soporte Técnico?</h3>
-              </div>
-              <p className="text-white text-sm font-medium leading-relaxed mb-6">
-                Si tienes problemas con el sistema, o necesitas ayuda con algún módulo, escríbenos un correo explicando tu problema.
-              </p>
-            </div>
-            
-            {/* CORREO ESCRITO DIRECTO SIN BOTÓN */}
-            <div className="relative z-10 mt-auto bg-white/10 p-4 rounded-xl border border-white/20 backdrop-blur-sm text-center">
-              <p className="text-[10px] text-yellow-300 uppercase tracking-widest font-bold mb-1">Envía un mensaje a:</p>
-              <a href="mailto:thonymarckdev@gmail.com" className="font-mono text-lg font-black text-white hover:underline">
-                thonymarckdev@gmail.com
-              </a>
-            </div>
+            <div className="bg-red-900 p-6 rounded-2xl text-white shadow-lg flex flex-col justify-between relative overflow-hidden">
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
+                    <Building2 size={20} className="text-white"/>
+                  </div>
+                  <h3 className="text-lg font-black tracking-tight text-yellow-300">Talara Créditos e Inversiones</h3>
+                </div>
 
-            {/* Icono de fondo decorativo */}
-            <MessageSquare size={120} className="absolute -bottom-10 -right-6 text-white/5 rotate-12" />
-          </div>
+                <div className="space-y-3 relative z-10">
+                  <div className="flex items-center gap-3">
+                    <MapPin size={15} className="text-yellow-300 shrink-0"/>
+                    <p className="text-white text-sm font-medium">Av. Principal 123, Talara, Piura</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Phone size={15} className="text-yellow-300 shrink-0"/>
+                    <p className="text-white text-sm font-medium">+51 999 999 999</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Mail size={15} className="text-yellow-300 shrink-0"/>
+                    <a href="mailto:talaracreditos@gmail.com" className="text-white text-sm font-medium hover:underline">
+                      talaracreditos@gmail.com
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Clock size={15} className="text-yellow-300 shrink-0"/>
+                    <p className="text-white text-sm font-medium">Lun – Sáb: 8:00 am – 6:00 pm</p>
+                  </div>
+                </div>
+              </div>
+
+              <Building2 size={120} className="absolute -bottom-10 -right-6 text-white/5" />
+            </div>
 
         </div>
 
