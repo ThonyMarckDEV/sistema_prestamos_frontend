@@ -7,54 +7,48 @@ export const useRefinanciamientoModal = ({ isOpen, data, integrantesGrupo, onSuc
     const [alert, setAlert] = useState(null);
 
     const [formData, setFormData] = useState({
-        producto_id: '',
-        tasa_interes: '',
-        cuotas_solicitadas: '',
-        frecuencia: 'SEMANAL',
-        codigo_recaudo: '',
-        incluir_mora: true,
-        observaciones: '',
-        tiene_seguro: false,
-        seguro: '',
-        seguro_financiado: true,
+        producto_id:         '',
+        tasa_interes:        '',
+        cuotas_solicitadas:  '',
+        frecuencia:          'SEMANAL',
+        codigo_recaudo:      '',
+        incluir_mora:        true,
+        observaciones:       '',
+        tiene_seguro:        false,
+        seguro:              '',
+        seguro_financiado:   true,
         nuevo_presidente_id: '',
     });
 
-    // 1. Verificamos si el integrante que se está refinanciando es el PRESIDENTE actual
     const esPresidenteRefinanciado = useMemo(() => {
         if (!integrantesGrupo || !data?.cliente_id) return false;
         const integranteTarget = integrantesGrupo.find(int => int.id === data.cliente_id);
         return integranteTarget?.cargo === 'PRESIDENTE';
     }, [integrantesGrupo, data?.cliente_id]);
 
-    // 2. Filtramos a los integrantes que se quedan en el grupo
     const integrantesRestantes = useMemo(() => {
         if (!integrantesGrupo || !data?.cliente_id) return [];
         return integrantesGrupo.filter(int => int.id !== data.cliente_id);
     }, [integrantesGrupo, data?.cliente_id]);
 
-    // Reseteo e inicialización al abrir el modal
     useEffect(() => {
         if (isOpen && data) {
             let presiInicial = '';
-            
-            // SOLO si se va el presidente, pre-seleccionamos a uno de los que quedan
             if (esPresidenteRefinanciado && integrantesRestantes.length > 0) {
-                // Como el presidente se fue, agarramos al primero de la lista de los que quedan
                 presiInicial = integrantesRestantes[0].id;
             }
-
             setFormData({
-                producto_id: '',
-                tasa_interes: '',
-                cuotas_solicitadas: '',
-                frecuencia: 'SEMANAL',
-                codigo_recaudo: '',
-                incluir_mora: true,
-                observaciones: '',
-                tiene_seguro: false,
-                seguro: '',
-                seguro_financiado: true,
+                producto_id:         '',
+                tasa_interes:        '',
+                cuotas_solicitadas:  '',
+                frecuencia:          'SEMANAL',
+                codigo_recaudo:      '',
+                incluir_mora:        true,
+                incluir_excedente:   true,
+                observaciones:       '',
+                tiene_seguro:        false,
+                seguro:              '',
+                seguro_financiado:   true,
                 nuevo_presidente_id: presiInicial,
             });
             setAlert(null);
@@ -74,10 +68,10 @@ export const useRefinanciamientoModal = ({ isOpen, data, integrantesGrupo, onSuc
         try {
             await refinanciar({
                 ...formData,
-                seguro: formData.tiene_seguro ? parseFloat(formData.seguro || 0) : 0,
-                seguro_financiado: formData.tiene_seguro ? formData.seguro_financiado : false,
+                seguro:                   formData.tiene_seguro ? parseFloat(formData.seguro || 0) : 0,
+                seguro_financiado:        formData.tiene_seguro ? formData.seguro_financiado : false,
                 prestamo_refinanciado_id: data.prestamo_id,
-                cliente_refinanciado_id: data.cliente_id,
+                cliente_refinanciado_id:  data.cliente_id,
             });
             onSuccess();
         } catch (err) {
@@ -87,14 +81,17 @@ export const useRefinanciamientoModal = ({ isOpen, data, integrantesGrupo, onSuc
         }
     };
 
-    // Cálculos financieros
-    const montoBase = formData.incluir_mora ? ((data?.deuda || 0) + (data?.mora || 0)) : (data?.deuda || 0);
-    const seguroValor = formData.tiene_seguro ? parseFloat(formData.seguro || 0) : 0;
-    const montoCalc = formData.tiene_seguro && formData.seguro_financiado
-        ? montoBase + seguroValor
-        : montoBase;
+    // Cálculos financieros — excedente siempre se aplica si existe
+    const montoBase   = formData.incluir_mora
+        ? ((data?.deuda || 0) + (data?.mora || 0))
+        : (data?.deuda || 0);
 
-    // Validación del botón de submit
+    const excedente   = data?.excedente || 0;
+    const seguroValor = formData.tiene_seguro ? parseFloat(formData.seguro || 0) : 0;
+    const montoCalc   = (formData.tiene_seguro && formData.seguro_financiado)
+        ? Math.max(0, montoBase - excedente) + seguroValor
+        : Math.max(0, montoBase - excedente);
+
     const submitDisabled = loading
         || !formData.producto_id
         || !formData.cuotas_solicitadas
@@ -103,17 +100,11 @@ export const useRefinanciamientoModal = ({ isOpen, data, integrantesGrupo, onSuc
         || (formData.tiene_seguro && (!formData.seguro || parseFloat(formData.seguro) <= 0));
 
     return {
-        formData,
-        setFormData,
-        loading,
-        alert,
-        setAlert,
-        integrantesRestantes,
-        esPresidenteRefinanciado, // Pasamos esto a la vista
-        handleChange,
-        handleSubmit,
-        montoBase,
-        montoCalc,
+        formData, setFormData,
+        loading, alert, setAlert,
+        integrantesRestantes, esPresidenteRefinanciado,
+        handleChange, handleSubmit,
+        montoBase, montoCalc,
         submitDisabled,
     };
 };

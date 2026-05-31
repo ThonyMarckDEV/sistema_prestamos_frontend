@@ -10,7 +10,8 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, integrantesGrupo, onSucc
     const {
         formData, setFormData, loading, alert, setAlert,
         integrantesRestantes, esPresidenteRefinanciado,
-        handleChange, handleSubmit, montoBase, montoCalc, submitDisabled,
+        handleChange, handleSubmit, montoCalc,
+        submitDisabled,
     } = useRefinanciamientoModal({ isOpen, data, integrantesGrupo, onSuccess });
 
     if (!data) return null;
@@ -35,9 +36,11 @@ const RefinanciamientoModal = ({ isOpen, onClose, data, integrantesGrupo, onSucc
                             Deuda Base: S/ {data.deuda.toFixed(2)} | Mora: S/ {data.mora.toFixed(2)}
                         </p>
                         {data.excedente > 0 && (
-                            <p className="text-[10px] text-purple-700 font-bold mt-0.5">Excedente aplicado: -S/ {data.excedente.toFixed(2)}</p>
+                            <p className="text-[10px] text-purple-700 font-bold mt-0.5">
+                                Excedente aplicado: -S/ {data.excedente.toFixed(2)}
+                            </p>
                         )}
-                        <p className="text-sm font-black text-brand-red mt-2">Total a Refinanciar: S/ {montoBase.toFixed(2)}</p>
+                        <p className="text-sm font-black text-brand-red mt-2">Total a Refinanciar: S/ {montoCalc.toFixed(2)}</p>
                     </div>
                 </div>
 

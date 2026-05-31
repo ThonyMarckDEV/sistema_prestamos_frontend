@@ -84,7 +84,7 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
                 const moraPagada = parseFloat(cuota.mora_pagada ?? 0);
 
                 const excedente = !excDeducido
-                    ? parseFloat(cuota.excedente_aplicado ?? cuota.excedente_anterior ?? 0)
+                    ? parseFloat(cuota.excedente_anterior ?? 0)
                     : 0;
 
                 if (!excDeducido) {
@@ -92,7 +92,7 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
                     excDeducido        = true;
                 }
 
-                deudaPendiente += Math.max(0, deudaBase - abonado - excedente);
+                deudaPendiente += Math.max(0, deudaBase - abonado);
                 moraPendiente  += Math.max(0, moraTotal - moraPagada);
             });
         }
