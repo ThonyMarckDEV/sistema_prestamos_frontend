@@ -44,6 +44,16 @@ const Index = () => {
                 colSpan: 'col-span-12 md:col-span-5' 
             });
             config.push({
+                name: 'fecha_inicio', type: 'date',
+                label: 'Fecha Inicio (desde)',
+                colSpan: 'col-span-12 md:col-span-3',
+            });
+            config.push({
+                name: 'fecha_fin', type: 'date',
+                label: 'Fecha Inicio (hasta)',
+                colSpan: 'col-span-12 md:col-span-3',
+            });
+            config.push({
                 name: 'asesor_id', type: 'custom',
                 label: 'Filtrar por Asesor',
                 colSpan: 'col-span-12 md:col-span-4',
