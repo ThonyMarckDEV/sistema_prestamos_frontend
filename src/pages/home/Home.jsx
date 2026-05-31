@@ -3,7 +3,6 @@ import jwtUtils from "utilities/Token/jwtUtils";
 import { 
   User, 
   ShieldCheck, 
-  MessageSquare,
   UserCircle,
   NotepadText,
   Building2,
