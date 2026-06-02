@@ -7,6 +7,7 @@ import { BanknotesIcon, DevicePhoneMobileIcon, PhotoIcon, UserGroupIcon, Documen
 
 const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     const { state, setters, computed, handlers } = usePagoCuota({ isOpen, cuota, onClose, onConfirm });
+    const { metodo, referencia, archivo } = state;
 
     // Bloquear cierre mientras se procesa el pago
     const handleClose = () => { if (!loading) handlers.reset(); };
@@ -139,6 +140,15 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                             {loading ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <DocumentCheckIcon className="w-5 h-5" />}
                             {loading ? 'Procesando...' : 'Registrar Pago de Cuota'}
                         </button>
+                        {metodo === 'DEPOSITO' && (!referencia?.trim() || !archivo) && (
+                        <p className="text-[9px] text-center text-slate-400 font-bold uppercase mt-2">
+                            {!referencia?.trim() && !archivo
+                                ? 'Ingresa el N° de operación y sube el voucher'
+                                : !referencia?.trim()
+                                    ? 'Ingresa el N° de operación'
+                                    : 'Sube el comprobante / voucher'}
+                        </p>
+                    )}
                     </div>
                 </div>
 

@@ -44,7 +44,10 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
 
     const montoNum    = parseFloat(recibido || 0);
     const noCubreMora = !esGrupal && mora > 0 && montoNum > 0 && montoNum < mora;
-    const puedeSubmit = !noCubreMora && integrantesSinCubrirMora.length === 0;
+    const validacionMetodo = metodo === 'DEPOSITO'
+        ? !!referencia?.trim() && !!archivo
+        : true;
+    const puedeSubmit = !noCubreMora && integrantesSinCubrirMora.length === 0 && validacionMetodo;
 
     // ── Efectos ───────────────────────────────────────────────────────────────
     useEffect(() => {
