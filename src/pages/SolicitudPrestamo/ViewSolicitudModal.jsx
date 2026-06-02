@@ -31,7 +31,8 @@ const ViewSolicitudModal = ({ isOpen, onClose, data, isLoading }) => {
 
     const totalSinSeguro = parseFloat(data?.monto_solicitado || 0);
     const seguro         = parseFloat(data?.seguro || 0);
-    const totalConSeguro = data?.seguro_financiado ? totalSinSeguro + seguro : totalSinSeguro;
+    const cantIntegrantes = data?.es_grupal ? (data?.integrantes?.length || 1) : 1;
+    const totalConSeguro  = data?.seguro_financiado ? totalSinSeguro + (seguro * cantIntegrantes) : totalSinSeguro;
 
     return (
         <ViewModal isOpen={isOpen} onClose={onClose} title="Detalle de Solicitud de Crédito" isLoading={isLoading} size='2xl'>
