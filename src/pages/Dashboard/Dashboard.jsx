@@ -18,7 +18,7 @@ const Dashboard = () => {
             <div className="mb-6">
                 <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Dashboard</h1>
                 <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
-                    Panel de control — Talara Créditos e Inversiones
+                    Metricas — Talara Créditos e Inversiones
                 </p>
             </div>
 
