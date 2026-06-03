@@ -342,7 +342,7 @@ const SaldoCapitalCard = () => {
 
                     {/* ── Nota meta ─────────────────────────────────────────── */}
                     <div className="px-6 pb-4">
-                        <p className="text-[9px] text-slate-400 italic">
+                        <p className="text-[12px] text-slate-400 italic">
                             * Meta = crecimiento de cartera del mes. Objetivo = Saldo Inicial + Meta.
                             Avance = Saldo Actual ÷ Objetivo × 100.
                             Saldo inicial a 0 el primer mes de operación.
