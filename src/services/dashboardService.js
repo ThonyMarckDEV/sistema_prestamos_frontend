@@ -77,6 +77,17 @@ export const exportSaldoCapitalDashboard = async (filters = {}) => {
     return response.blob();
 };
 
+// ── Desembolso y recupero de capital ─────────────────────────────────────────
+export const getDesembolsoCapitalDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/desembolso-capital${buildQs(filters)}`, { method: 'GET' });
+    return handleResponse(response);
+};
+export const exportDesembolsoCapitalDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/desembolso-capital/export${buildQs(filters)}`, { method: 'GET' });
+    if (!response.ok) throw new Error('Error al exportar desembolso y recupero de capital');
+    return response.blob();
+};
+
 // ── Grupos asesor ─────────────────────────────────────────────────────────────
 export const getGruposAsesorDashboard = async (filters = {}) => {
     const response = await fetchWithAuth(`${BASE_URL}/grupos-asesor${buildQs(filters)}`, { method: 'GET' });
@@ -99,7 +110,7 @@ export const exportCuotaDiaDashboard = async (filters = {}) => {
     return response.blob();
 };
 
-// -- SBS ---
+// ── SBS ───────────────────────────────────────────────────────────────────────
 export const getSBSDashboard = async (filters = {}) => {
     const response = await fetchWithAuth(`${BASE_URL}/sbs${buildQs(filters)}`, { method: 'GET' });
     return handleResponse(response);
