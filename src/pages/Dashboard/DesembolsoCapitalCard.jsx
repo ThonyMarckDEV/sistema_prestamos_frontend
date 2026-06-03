@@ -24,7 +24,6 @@ const ASESOR_COLORS = [
     { bg: 'bg-orange-100', text: 'text-orange-700', dot: 'bg-orange-500' },
 ];
 
-
 const Chevron = ({ collapsed }) => (
     <div className={`w-6 h-6 flex items-center justify-center text-slate-400 flex-shrink-0 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
@@ -100,9 +99,6 @@ const DayCell = ({ fecha, eventos, asesorColorMap, esHoy, esMesActual }) => {
     const handleMouseEnter = useCallback(() => { if (!tieneEventos || !ref.current) return; setAnchorRect(ref.current.getBoundingClientRect()); }, [tieneEventos]);
     const handleMouseLeave = useCallback(() => setAnchorRect(null), []);
 
-    // Solo mostrar montos en celdas del mes actual en adelante
-    
-
     return (
         <div ref={ref}
             className={`relative min-h-[72px] p-1.5 border rounded-lg flex flex-col
@@ -111,12 +107,9 @@ const DayCell = ({ fecha, eventos, asesorColorMap, esHoy, esMesActual }) => {
                 ${tieneEventos ? 'cursor-pointer hover:border-slate-300 transition-colors' : ''}
             `}
             onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-            {/* Número del día — más grande */}
             <span className={`text-base font-black self-end leading-none mb-1 ${esHoy ? 'text-brand-red' : esMesActual ? 'text-slate-700' : 'text-slate-300'}`}>
                 {new Date(fecha + 'T00:00:00').getDate()}
             </span>
-
-            {/* Dots de asesor — solo si hay eventos */}
             {tieneEventos && asesoresPresentes.length > 0 && (
                 <div className="flex flex-wrap gap-0.5 mb-0.5">
                     {asesoresPresentes.slice(0, 4).map(aid => {
@@ -125,15 +118,12 @@ const DayCell = ({ fecha, eventos, asesorColorMap, esHoy, esMesActual }) => {
                     })}
                 </div>
             )}
-
-            {/* Montos — solo en mes actual y meses futuros */}
             {tieneEventos && (
                 <div className="flex flex-col gap-0.5 mt-auto">
-                    {totalDesemb  > 0 && <span className="text-[12px] font-black text-blue-600 leading-none truncate">↑ S/{fmt(totalDesemb)}</span>}
-                    {totalCapital > 0 && <span className="text-[12px] font-black text-green-600 leading-none truncate">↓ S/{fmt(totalCapital)}</span>}
+                    {totalDesemb  > 0 && <span className="text-[11px] font-black text-blue-600 leading-none truncate">↑ S/{fmt(totalDesemb)}</span>}
+                    {totalCapital > 0 && <span className="text-[11px] font-black text-green-600 leading-none truncate">↓ S/{fmt(totalCapital)}</span>}
                 </div>
             )}
-
             {anchorRect && tieneEventos && (
                 <DayTooltip dia={fecha} eventos={eventos} asesorColorMap={asesorColorMap} anchorRect={anchorRect} />
             )}
@@ -141,42 +131,40 @@ const DayCell = ({ fecha, eventos, asesorColorMap, esHoy, esMesActual }) => {
     );
 };
 
-// ── Calendario ────────────────────────────────────────────────────────────────
-const Calendario = ({ eventos, asesorColorMap, onMesChange }) => {
-    const hoy = new Date();
-    const [mes, setMes] = useState({ year: hoy.getFullYear(), month: hoy.getMonth() });
+// ── Calendario — navega libremente, notifica al padre al cambiar mes ──────────
+const Calendario = ({ eventos, asesorColorMap, mes, anio, onMesChange }) => {
+    const hoy  = new Date();
 
-    const cambiarMes = useCallback((nuevoMes) => {
-        setMes(nuevoMes);
-        onMesChange?.(nuevoMes);
-    }, [onMesChange]);
-
-    // Prefijo YYYY-MM del mes que se está navegando
+    const prevMes = () => {
+        const nuevo = mes === 1 ? { mes: 12, anio: anio - 1 } : { mes: mes - 1, anio };
+        onMesChange(nuevo);
+    };
+    const nextMes = () => {
+        const nuevo = mes === 12 ? { mes: 1, anio: anio + 1 } : { mes: mes + 1, anio };
+        onMesChange(nuevo);
+    };
 
     const diasDelMes = useMemo(() => {
         const result  = [];
-        const primero = new Date(mes.year, mes.month, 1);
-        const ultimo  = new Date(mes.year, mes.month + 1, 0);
+        const primero = new Date(anio, mes - 1, 1);
+        const ultimo  = new Date(anio, mes, 0);
         for (let i = 0; i < primero.getDay(); i++) {
-            const d = new Date(mes.year, mes.month, -primero.getDay() + i + 1);
+            const d = new Date(anio, mes - 1, -primero.getDay() + i + 1);
             result.push({ fecha: d.toISOString().split('T')[0], esMesActual: false });
         }
         for (let d = 1; d <= ultimo.getDate(); d++) {
-            const fecha = `${mes.year}-${String(mes.month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const fecha = `${anio}-${String(mes).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             result.push({ fecha, esMesActual: true });
         }
         const restantes = 42 - result.length;
         for (let i = 1; i <= restantes; i++) {
-            const d = new Date(mes.year, mes.month + 1, i);
+            const d = new Date(anio, mes, i);
             result.push({ fecha: d.toISOString().split('T')[0], esMesActual: false });
         }
         return result;
-    }, [mes]);
+    }, [mes, anio]);
 
     const hoyStr = hoy.toISOString().split('T')[0];
-
-    const prevMes = () => cambiarMes(mes.month === 0  ? { year: mes.year - 1, month: 11 } : { ...mes, month: mes.month - 1 });
-    const nextMes = () => cambiarMes(mes.month === 11 ? { year: mes.year + 1, month: 0  } : { ...mes, month: mes.month + 1 });
 
     return (
         <div>
@@ -184,9 +172,9 @@ const Calendario = ({ eventos, asesorColorMap, onMesChange }) => {
                 <button onClick={prevMes} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
                     <ChevronLeftIcon className="w-4 h-4 text-slate-500" />
                 </button>
-                <div className="text-center">
-                    <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{MESES[mes.month]} {mes.year}</p>
-                </div>
+                <p className="text-sm font-black text-slate-900 uppercase tracking-tight">
+                    {MESES[mes - 1]} {anio}
+                </p>
                 <button onClick={nextMes} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
                     <ChevronRightIcon className="w-4 h-4 text-slate-500" />
                 </button>
@@ -206,8 +194,6 @@ const Calendario = ({ eventos, asesorColorMap, onMesChange }) => {
                     />
                 ))}
             </div>
-
-            {/* Leyenda — más grande */}
             <div className="flex flex-wrap gap-4 mt-4 pt-3 border-t border-slate-100">
                 <div className="flex items-center gap-1.5">
                     <span className="text-sm font-black text-blue-600">↑</span>
@@ -238,17 +224,17 @@ const AsesorChip = ({ nombre, color, desembolsos, capital }) => (
 
 // ── Card principal ─────────────────────────────────────────────────────────────
 const DesembolsoCapitalCard = () => {
-    const hoy = new Date();
     const {
         loading, data,
+        mesVisible,
         asesoresSeleccionados,
+        handleCambiarMes,
         handleAgregarAsesor, handleQuitarAsesor,
-        handleFiltrar, handleLimpiar,
+        handleFiltrarAsesor, handleLimpiar,
     } = useDashboardDesembolsoCapital();
 
     const [collapsed, setCollapsed] = useState(false);
     const [comboKey,  setComboKey]  = useState(Date.now());
-    const [mesVisible, setMesVisible] = useState({ year: hoy.getFullYear(), month: hoy.getMonth() });
 
     const eventos  = useMemo(() => data?.eventos  ?? {}, [data]);
     const asesores = useMemo(() => data?.asesores ?? [], [data]);
@@ -259,15 +245,13 @@ const DesembolsoCapitalCard = () => {
         return map;
     }, [asesores]);
 
+    // Chips: acumulados del mes visible calculados localmente sobre los eventos ya cargados
     const acumMesPorAsesor = useMemo(() => {
         const map    = {};
-        const year   = mesVisible.year;
-        const month  = String(mesVisible.month + 1).padStart(2, '0');
-        const prefix = `${year}-${month}-`;
-
+        const prefix = `${mesVisible.anio}-${String(mesVisible.mes).padStart(2, '0')}-`;
         Object.entries(eventos).forEach(([fecha, ev]) => {
             if (!fecha.startsWith(prefix)) return;
-            (ev.desembolsos ?? []).forEach(d => {
+            (ev.desembolsos   ?? []).forEach(d => {
                 if (!map[d.asesor_id]) map[d.asesor_id] = { desembolsos: 0, capital: 0 };
                 map[d.asesor_id].desembolsos += d.monto;
             });
@@ -276,23 +260,21 @@ const DesembolsoCapitalCard = () => {
                 map[p.asesor_id].capital += p.capital;
             });
         });
-
         return map;
     }, [eventos, mesVisible]);
 
-    const totalesMesVisible = useMemo(() => {
+    const totalesMes = useMemo(() => {
         let desembolsos = 0, capital = 0;
-        Object.values(acumMesPorAsesor).forEach(a => {
-            desembolsos += a.desembolsos;
-            capital     += a.capital;
-        });
+        Object.values(acumMesPorAsesor).forEach(a => { desembolsos += a.desembolsos; capital += a.capital; });
         return { desembolsos, capital };
     }, [acumMesPorAsesor]);
 
-    const tieneAsesoresFiltrados = asesoresSeleccionados.length > 0;
-    const exportFilters = tieneAsesoresFiltrados
-        ? { asesor_ids: asesoresSeleccionados.map(a => a.id).join(',') }
-        : {};
+    // Export usa el mes visible y los asesores seleccionados
+    const exportFilters = {
+        mes:  mesVisible.mes,
+        anio: mesVisible.anio,
+        ...(asesoresSeleccionados.length > 0 ? { asesor_ids: asesoresSeleccionados.map(a => a.id).join(',') } : {}),
+    };
 
     const onLimpiar = () => { setComboKey(Date.now()); handleLimpiar(); };
 
@@ -309,7 +291,7 @@ const DesembolsoCapitalCard = () => {
                             Calendario de Desembolsos y Recupero de Capital
                         </h2>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                            Movimientos diarios por asesor
+                            {MESES[mesVisible.mes - 1]} {mesVisible.anio} · Movimientos diarios por asesor
                         </p>
                     </div>
                 </div>
@@ -331,7 +313,7 @@ const DesembolsoCapitalCard = () => {
 
             {!collapsed && (
                 <>
-                    {/* Filtro asesor */}
+                    {/* Filtro asesor únicamente */}
                     <div className="px-6 py-3 border-b border-slate-50 bg-slate-50/50 flex flex-wrap items-end gap-3">
                         <div className="flex flex-col gap-1">
                             <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest">Asesor</label>
@@ -344,7 +326,7 @@ const DesembolsoCapitalCard = () => {
                             />
                         </div>
                         <div className="flex items-end gap-2">
-                            <button onClick={handleFiltrar} disabled={loading}
+                            <button onClick={handleFiltrarAsesor} disabled={loading}
                                 className="flex items-center gap-1.5 px-4 py-2 bg-brand-red text-white text-[10px] font-black uppercase rounded-lg hover:bg-brand-red-dark transition-all disabled:opacity-50">
                                 <MagnifyingGlassIcon className="w-3.5 h-3.5" /> Filtrar
                             </button>
@@ -373,17 +355,16 @@ const DesembolsoCapitalCard = () => {
                         </div>
                     )}
 
-                    {/* Chips por asesor */}
+                    {/* Chips por asesor — totales del mes visible */}
                     {!loading && asesores.length > 0 && (
                         <div className="px-6 py-3 border-b border-slate-50 bg-white flex flex-wrap gap-2">
                             {asesores.map((a, i) => {
-                                const color = ASESOR_COLORS[i % ASESOR_COLORS.length];
-                                const acum  = acumMesPorAsesor[a.asesor_id] ?? { desembolsos: 0, capital: 0 };
+                                const acum = acumMesPorAsesor[a.asesor_id] ?? { desembolsos: 0, capital: 0 };
                                 return (
                                     <AsesorChip
                                         key={a.asesor_id}
                                         nombre={a.nombre}
-                                        color={color}
+                                        color={ASESOR_COLORS[i % ASESOR_COLORS.length]}
                                         desembolsos={acum.desembolsos}
                                         capital={acum.capital}
                                     />
@@ -391,11 +372,11 @@ const DesembolsoCapitalCard = () => {
                             })}
                             <div className="flex flex-col gap-1 px-3 py-2 rounded-xl bg-slate-900 min-w-[160px]">
                                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                                    Total {MESES[mesVisible.month]}
+                                    Total {MESES[mesVisible.mes - 1]}
                                 </p>
                                 <div className="flex items-center justify-between gap-3">
-                                    <span className="text-[10px] font-black text-white">↑ S/{fmt(totalesMesVisible.desembolsos)}</span>
-                                    <span className="text-[10px] font-black text-slate-300">↓ S/{fmt(totalesMesVisible.capital)}</span>
+                                    <span className="text-[10px] font-black text-white">↑ S/{fmt(totalesMes.desembolsos)}</span>
+                                    <span className="text-[10px] font-black text-slate-300">↓ S/{fmt(totalesMes.capital)}</span>
                                 </div>
                             </div>
                         </div>
@@ -411,7 +392,9 @@ const DesembolsoCapitalCard = () => {
                             <Calendario
                                 eventos={eventos}
                                 asesorColorMap={asesorColorMap}
-                                onMesChange={setMesVisible}
+                                mes={mesVisible.mes}
+                                anio={mesVisible.anio}
+                                onMesChange={handleCambiarMes}
                             />
                         )}
                     </div>

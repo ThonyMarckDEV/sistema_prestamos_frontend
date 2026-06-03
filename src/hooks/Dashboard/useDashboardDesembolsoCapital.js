@@ -2,10 +2,17 @@ import { useState, useEffect, useCallback } from 'react';
 import { getDesembolsoCapitalDashboard } from 'services/dashboardService';
 
 export const useDashboardDesembolsoCapital = () => {
+    const hoy = new Date();
+
     const [loading, setLoading] = useState(true);
     const [data,    setData]    = useState(null);
     const [asesoresSeleccionados, setAsesoresSeleccionados] = useState([]);
+    const [mesVisible, setMesVisible] = useState({
+        mes:  hoy.getMonth() + 1,
+        anio: hoy.getFullYear(),
+    });
 
+    // Fetch solo por asesores — sin mes, trae toda la data de una
     const fetchData = useCallback(async (asesorIds = []) => {
         setLoading(true);
         try {
@@ -19,13 +26,19 @@ export const useDashboardDesembolsoCapital = () => {
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
-    const handleFiltrar = () =>
-        fetchData(asesoresSeleccionados.map(a => a.id));
+    const handleCambiarMes = useCallback((nuevoMes) => {
+        setMesVisible(nuevoMes);
+    }, []);
 
-    const handleLimpiar = () => {
+    const handleFiltrarAsesor = useCallback(() => {
+        fetchData(asesoresSeleccionados.map(a => a.id));
+    }, [asesoresSeleccionados, fetchData]);
+
+    const handleLimpiar = useCallback(() => {
         setAsesoresSeleccionados([]);
+        setMesVisible({ mes: hoy.getMonth() + 1, anio: hoy.getFullYear() });
         fetchData([]);
-    };
+    }, [fetchData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleAgregarAsesor = (asesor) => {
         if (!asesor) return;
@@ -42,8 +55,10 @@ export const useDashboardDesembolsoCapital = () => {
 
     return {
         loading, data,
+        mesVisible,
         asesoresSeleccionados,
+        handleCambiarMes,
         handleAgregarAsesor, handleQuitarAsesor,
-        handleFiltrar, handleLimpiar,
+        handleFiltrarAsesor, handleLimpiar,
     };
 };
