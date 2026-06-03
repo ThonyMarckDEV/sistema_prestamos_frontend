@@ -210,14 +210,14 @@ const Calendario = ({ eventos, asesorColorMap, mes, anio, onMesChange }) => {
 
 // ── Chip de asesor ────────────────────────────────────────────────────────────
 const AsesorChip = ({ nombre, color, desembolsos, capital }) => (
-    <div className={`flex flex-col gap-1 px-3 py-2 rounded-xl ${color.bg} min-w-[160px]`}>
-        <div className="flex items-center gap-1.5">
+    <div className={`flex flex-col gap-1.5 px-3.5 py-2.5 rounded-xl ${color.bg} min-w-[180px]`}>
+        <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full flex-shrink-0 ${color.dot}`} />
-            <p className={`text-[10px] font-black uppercase tracking-tight truncate ${color.text}`}>{nombre}</p>
+            <p className={`text-[11px] font-black uppercase tracking-tight truncate ${color.text}`}>{nombre}</p>
         </div>
         <div className="flex items-center justify-between gap-3">
-            <span className={`text-[10px] font-black ${color.text}`}>↑ S/{fmt(desembolsos)}</span>
-            <span className={`text-[10px] font-black ${color.text} opacity-75`}>↓ S/{fmt(capital)}</span>
+            <span className={`text-xs font-black ${color.text}`}>↑ S/{fmt(desembolsos)}</span>
+            <span className={`text-xs font-black ${color.text} opacity-75`}>↓ S/{fmt(capital)}</span>
         </div>
     </div>
 );
@@ -370,15 +370,17 @@ const DesembolsoCapitalCard = () => {
                                     />
                                 );
                             })}
-                            <div className="flex flex-col gap-1 px-3 py-2 rounded-xl bg-slate-900 min-w-[160px]">
-                                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                            
+                            <div className="flex flex-col gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-900 min-w-[180px]">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                                     Total {MESES[mesVisible.mes - 1]}
                                 </p>
                                 <div className="flex items-center justify-between gap-3">
-                                    <span className="text-[10px] font-black text-white">↑ S/{fmt(totalesMes.desembolsos)}</span>
-                                    <span className="text-[10px] font-black text-slate-300">↓ S/{fmt(totalesMes.capital)}</span>
+                                    <span className="text-xs font-black text-white">↑ S/{fmt(totalesMes.desembolsos)}</span>
+                                    <span className="text-xs font-black text-slate-300">↓ S/{fmt(totalesMes.capital)}</span>
                                 </div>
                             </div>
+
                         </div>
                     )}
 
