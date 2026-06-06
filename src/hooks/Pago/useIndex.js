@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { index, pdf, destroy } from 'services/pagoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
+import { useAuth } from 'context/AuthContext';
 
 const FILTERS_INITIAL = {
     search:       '',
@@ -12,7 +13,13 @@ const FILTERS_INITIAL = {
     fecha_fin:    '',
 };
 
+// Un pago es accionable (PDF / anular) si está aprobado y NO es renovación
+const esAccionable = (pago) =>
+    pago.estado === 1 && pago.tipo !== 'RENOVACION';
+
 export const useIndex = () => {
+    const { can, user } = useAuth();
+
     const [loading,        setLoading]        = useState(true);
     const [pagos,          setPagos]          = useState([]);
     const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
@@ -89,11 +96,23 @@ export const useIndex = () => {
         }
     };
 
+    // ── Flags de permisos y visibilidad ───────────────────────────────────────
+    const esCliente      = user?.rol === 'cliente';
+    const canPdf         = can('pago.generatePDF');
+    const canDelete      = can('pago.delete');
+
+    const canVerPdf      = (pago) => esAccionable(pago) && canPdf;
+    const canAnular      = (pago) => esAccionable(pago) && !pago.pago_origen_id && canDelete;
+
     return {
         loading, pagos, paginationInfo, filters, setFilters, alert, setAlert,
         fetchPagos, handleFilterSubmit, handleFilterClear,
         handleViewPdf, isPdfModalOpen, setIsPdfModalOpen, pdfBase64, pdfTitle, pdfLoading,
         isAnularModalOpen, setIsAnularModalOpen, openAnularModal, handleConfirmAnular, anularLoading,
         pagoToAnular,
+        // permisos / visibilidad
+        esCliente,
+        canVerPdf,
+        canAnular,
     };
 };

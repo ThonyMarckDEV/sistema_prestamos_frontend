@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { useIndex } from 'hooks/Pago/useIndex';
-import { useAuth } from 'context/AuthContext';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -17,11 +16,8 @@ const Index = () => {
         handleViewPdf, pdfLoading, isPdfModalOpen, setIsPdfModalOpen, pdfTitle, pdfBase64,
         isAnularModalOpen, setIsAnularModalOpen, openAnularModal, handleConfirmAnular, anularLoading,
         pagoToAnular,
+        esCliente, canVerPdf, canAnular,
     } = useIndex();
-
-    const { can, user } = useAuth();
-    const esCliente = user?.rol === 'cliente';
-    const canDelete  = can('pago.delete');
 
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedVoucher, setSelectedVoucher] = useState(null);
@@ -49,11 +45,11 @@ const Index = () => {
             name: 'tipo', type: 'select', label: 'Tipo',
             colSpan: 'col-span-12 md:col-span-2',
             options: [
-                { value: '',                       label: 'TODOS'               },
-                { value: 'NORMAL',                 label: 'NORMAL'              },
-                { value: 'EXCEDENTE',              label: 'EXCEDENTE'           },
-                { value: 'DESGLOSE_REFINANCIADO',  label: 'DESGLOSE REFINANC.'  },
-                { value: 'RENOVACION',             label: 'RENOVACIÓN'          },
+                { value: '',                      label: 'TODOS'              },
+                { value: 'NORMAL',                label: 'NORMAL'             },
+                { value: 'EXCEDENTE',             label: 'EXCEDENTE'          },
+                { value: 'DESGLOSE_REFINANCIADO', label: 'DESGLOSE REFINANC.' },
+                { value: 'RENOVACION',            label: 'RENOVACIÓN'         },
             ]
         },
         {
@@ -75,9 +71,7 @@ const Index = () => {
                     <span className="font-mono text-[14px] font-black text-slate-600">#{row.id}</span>
                     {row.pago_origen_id && (
                         <span className={`text-[11px] font-bold mt-0.5 ${
-                            row.tipo === 'DESGLOSE_REFINANCIADO'
-                                ? 'text-blue-500'
-                                : 'text-slate-400'
+                            row.tipo === 'DESGLOSE_REFINANCIADO' ? 'text-blue-500' : 'text-slate-400'
                         }`}>
                             {row.tipo === 'DESGLOSE_REFINANCIADO' ? (
                                 <>Saldo refinanciado conservado de Pago <span className="text-blue-600 font-black">#{row.pago_origen_id}</span></>
@@ -147,7 +141,6 @@ const Index = () => {
                     <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded w-fit mt-1 border border-slate-200 uppercase tracking-widest">
                         {row.modalidad}
                     </span>
-                    {/* Tipo de pago */}
                     <TipoBadge tipo={row.tipo} />
                 </div>
             )
@@ -186,7 +179,7 @@ const Index = () => {
                             <FileSearch className="w-4 h-4" />
                         </button>
                     )}
-                    {row.estado === 1 && can('pago.generatePDF') && (
+                    {canVerPdf(row) && (
                         <button onClick={() => handleViewPdf(row.id)} disabled={pdfLoading} title="Imprimir Recibo"
                             className={`p-2 rounded-xl transition-all border border-transparent shadow-sm ${
                                 pdfLoading ? 'bg-slate-50 text-slate-300' : 'text-slate-400 hover:text-brand-red hover:bg-brand-red-light hover:border-brand-red/20'
@@ -194,7 +187,7 @@ const Index = () => {
                             <PrinterIcon className={`w-4 h-4 ${pdfLoading ? 'animate-spin' : ''}`} />
                         </button>
                     )}
-                    {row.estado === 1 && !row.pago_origen_id && canDelete && (
+                    {canAnular(row) && (
                         <button onClick={() => openAnularModal(row)} title="Anular Pago"
                             className="p-2 text-slate-400 hover:text-brand-red hover:bg-brand-red-light rounded-xl transition-all border border-transparent hover:border-brand-red/20 shadow-sm">
                             <TrashIcon className="w-4 h-4" />
@@ -202,8 +195,8 @@ const Index = () => {
                     )}
                 </div>
             )
-        }
-    ], [can, canDelete, esCliente, pdfLoading, handleViewPdf, openAnularModal]);
+        },
+    ], [esCliente, canVerPdf, canAnular, pdfLoading, handleViewPdf, openAnularModal, openVoucher]);
 
     return (
         <div className="container mx-auto p-6">
@@ -243,10 +236,10 @@ const Index = () => {
 
 // ── Badge de tipo de pago ─────────────────────────────────────────────────────
 const TIPO_STYLES = {
-    NORMAL:                { label: 'NORMAL',             cls: 'bg-slate-100 text-slate-500 border-slate-200'           },
-    EXCEDENTE:             { label: 'EXCEDENTE',          cls: 'bg-amber-50  text-amber-600 border-amber-200'           },
-    DESGLOSE_REFINANCIADO: { label: 'DESGLOSE REFINANC.', cls: 'bg-blue-50   text-blue-600  border-blue-200'            },
-    RENOVACION:            { label: 'RENOVACIÓN',         cls: 'bg-purple-50 text-purple-600 border-purple-200'         },
+    NORMAL:                { label: 'NORMAL',             cls: 'bg-slate-100 text-slate-500 border-slate-200'   },
+    EXCEDENTE:             { label: 'EXCEDENTE',          cls: 'bg-amber-50  text-amber-600 border-amber-200'   },
+    DESGLOSE_REFINANCIADO: { label: 'DESGLOSE REFINANC.', cls: 'bg-blue-50   text-blue-600  border-blue-200'    },
+    RENOVACION:            { label: 'RENOVACIÓN',         cls: 'bg-purple-50 text-purple-600 border-purple-200' },
 };
 
 const TipoBadge = ({ tipo }) => {
