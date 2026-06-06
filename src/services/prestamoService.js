@@ -72,3 +72,11 @@ export const deletePrestamo = async (id) => {
     const response = await fetchWithAuth(`${BASE_URL}/delete/${id}`, { method: 'DELETE' });
     return handleResponse(response);
 };
+
+export const castigarDetalle = async (detalleId, castigado) => {
+    const response = await fetchWithAuth(`${API_BASE_URL}/api/prestamo-detalle/${detalleId}/castigar`, {
+        method: 'PUT',
+        body: JSON.stringify({ castigado })
+    });
+    return handleResponse(response);
+};

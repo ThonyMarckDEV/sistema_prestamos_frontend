@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { descargarCronograma, showIntegrante } from 'services/prestamoService';
+import { descargarCronograma, showIntegrante , castigarDetalle } from 'services/prestamoService';
 import { useAuth } from 'context/AuthContext';
 
 export function useViewPrestamoModal({ data, onClose, onRefresh }) {
@@ -11,6 +11,7 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
     const canGeneratePdf       = can('prestamo.generatePDF');
     const canReducirMora       = can('prestamo.reducirMora');
     const canCambiarPresidente = can('prestamo.cambiarPresidente');
+    const canCastigar          = can('prestamoDetalle.status');
 
     const [integranteSeleccionado, setIntegranteSeleccionado] = useState(null);
     const [integranteData, setIntegranteData]                 = useState(null);
@@ -22,6 +23,7 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
     const [historialModal, setHistorialModal]                 = useState(null);
     const [refModalOpen, setRefModalOpen]                     = useState(false);
     const [refData, setRefData]                               = useState(null);
+    const [loadingCastigo, setLoadingCastigo] = useState(false);
 
     // ── Selección de integrante ───────────────────────────────────────────────
     const handleSelectIntegrante = async (clienteId) => {
@@ -113,6 +115,16 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
         setRefModalOpen(true);
     };
 
+    const handleCastigar = async (detalleId, activar) => {
+        setLoadingCastigo(true);
+        try {
+            await castigarDetalle(detalleId, activar);
+            if (onRefresh) await onRefresh();
+        } finally {
+            setLoadingCastigo(false);
+        }
+    };
+
     const handleSuccessRefinanciamiento = () => {
         setRefModalOpen(false);
         handleClose();
@@ -137,9 +149,9 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
 
     return {
         // permisos
-        canRefinanciar, canGeneratePdf, canReducirMora, canCambiarPresidente,
+        canRefinanciar, canGeneratePdf, canReducirMora, canCambiarPresidente, canCastigar,
         // estado
-        integranteSeleccionado, integranteData, loadingIntegrante,
+        integranteSeleccionado, integranteData, loadingIntegrante, loadingCastigo,
         pdfOpen, pdfBase64, pdfTitle, loadingPdf,
         historialModal, refModalOpen, refData,
         // derivados
@@ -150,6 +162,6 @@ export function useViewPrestamoModal({ data, onClose, onRefresh }) {
         handleSelectIntegrante, handleDescargarCronograma,
         handleCerrarPdf, handleClose,
         handleAbrirRefinanciamiento, handleSuccessRefinanciamiento,
-        setHistorialModal, setRefModalOpen,
+        setHistorialModal, setRefModalOpen, handleCastigar,
     };
 }

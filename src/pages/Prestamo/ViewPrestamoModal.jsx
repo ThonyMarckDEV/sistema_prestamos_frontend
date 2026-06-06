@@ -41,7 +41,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
 
     const {
         canRefinanciar, canGeneratePdf, canReducirMora, canCambiarPresidente,
-        integranteSeleccionado,
+        canCastigar, loadingCastigo, handleCastigar,integranteSeleccionado,
         loadingIntegrante,
         pdfOpen, pdfBase64, pdfTitle, loadingPdf,
         historialModal,
@@ -148,19 +148,44 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                 </p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     {data.integrantes.map((int) => (
-                                        <div key={int.id} onClick={() => handleSelectIntegrante(int.id)}
-                                            className={`flex justify-between items-center bg-white p-2 rounded border shadow-sm cursor-pointer transition-all
-                                                ${integranteSeleccionado === int.id
-                                                    ? 'border-brand-red ring-1 ring-brand-red/50 bg-brand-red-light'
-                                                    : 'border-slate-100 hover:border-brand-red/30'}`}
-                                        >
-                                            <div className="flex flex-col">
-                                                <span className="text-[10px] font-black text-slate-700 uppercase">{int.nombre}</span>
-                                                <span className="text-[10px] text-brand-gold-dark font-bold">CARGO: {int.cargo}</span>
+                                        <div key={int.id} className="flex flex-col gap-1">
+                                            <div onClick={() => handleSelectIntegrante(int.id)}
+                                                className={`flex justify-between items-center bg-white p-2 rounded border shadow-sm cursor-pointer transition-all
+                                                    ${integranteSeleccionado === int.id
+                                                        ? 'border-brand-red ring-1 ring-brand-red/50 bg-brand-red-light'
+                                                        : 'border-slate-100 hover:border-brand-red/30'}`}
+                                            >
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black text-slate-700 uppercase">{int.nombre}</span>
+                                                    <span className="text-[10px] text-brand-gold-dark font-bold">CARGO: {int.cargo}</span>
+                                                    {/* Badge situación */}
+                                                    <span className={`text-[9px] font-black uppercase mt-0.5 ${
+                                                        int.situacion === 'CASTIGADO' ? 'text-red-600' :
+                                                        int.situacion === 'VENCIDO'   ? 'text-amber-600' :
+                                                        'text-green-600'
+                                                    }`}>
+                                                        ● {int.situacion ?? 'VIGENTE'}
+                                                    </span>
+                                                </div>
+                                                <span className="text-xs font-black text-brand-red bg-white px-2 py-1 rounded-lg border border-brand-red/20 shadow-sm">
+                                                    S/ {int.monto}
+                                                </span>
                                             </div>
-                                            <span className="text-xs font-black text-brand-red bg-white px-2 py-1 rounded-lg border border-brand-red/20 shadow-sm">
-                                                S/ {int.monto}
-                                            </span>
+
+                                            {/* Botón castigar — solo si tiene permiso y está seleccionado */}
+                                            {canCastigar && integranteSeleccionado === int.id && data.estado === 1 && !prestamoCancelado && (
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleCastigar(int.detalle_id, !int.castigado); }}
+                                                    disabled={loadingCastigo}
+                                                    className={`w-full text-[9px] font-black uppercase px-2 py-1 rounded-lg transition-all border disabled:opacity-40 ${
+                                                        int.castigado
+                                                            ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                                                            : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                                                    }`}
+                                                >
+                                                    {loadingCastigo ? '...' : int.castigado ? '✓ Quitar Castigo' : '✕ Marcar Castigado'}
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
                                     {data.integrantes_refinanciados?.map((int) => (
