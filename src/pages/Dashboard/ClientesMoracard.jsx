@@ -71,6 +71,9 @@ const FilaCliente = ({ f }) => {
                 <td className="px-2 py-3 whitespace-nowrap">
                     <span className="font-black text-slate-500 uppercase block">{f.asesor}</span>
                     <span className="text-[9px] text-slate-400 font-bold block tracking-tighter">Préstamo #{String(f.prestamo_id).padStart(5, '0')}</span>
+                    {f.codigo_recaudo && (
+                        <span className="text-[9px] text-brand-red/70 font-black block tracking-tighter">{f.codigo_recaudo}</span>
+                    )}
                 </td>
                 
                 <td className="px-2 py-3 text-right whitespace-nowrap font-black text-slate-600">
