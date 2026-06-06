@@ -45,7 +45,7 @@ const CambiarPresidenteModal = ({ isOpen, onClose, prestamo, onSuccess }) => {
                         {candidatos.length === 0 ? (
                             <p className="text-xs text-red-500 font-bold">No hay integrantes disponibles para asumir la presidencia.</p>
                         ) : (
-                            <div className="space-y-2">
+                            <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                                 {candidatos.map(int => (
                                     <div key={int.id} onClick={() => !loading && setNuevoPresidenteId(int.id)}
                                         className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${
