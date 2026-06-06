@@ -31,15 +31,9 @@ const SectionRenovacion = ({
                 )}
                 <span className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wide text-slate-700">
                     <ArrowPathIcon className={`w-4 h-4 ${esRenovacion ? 'text-amber-500' : 'text-slate-400'}`} />
-                    Renovación de préstamo (RSS)
+                    Renovación de préstamo
                 </span>
             </label>
-
-            {esRenovacion && (
-                <span className="ml-auto text-[9px] font-black text-amber-700 uppercase px-2 py-1 bg-amber-100 border border-amber-200 rounded-lg tracking-widest">
-                    RSS
-                </span>
-            )}
         </div>
 
         {/* ── Contenido cuando es renovación ── */}
