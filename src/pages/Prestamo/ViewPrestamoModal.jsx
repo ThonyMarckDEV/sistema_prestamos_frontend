@@ -102,7 +102,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                 {data && (
                     <div className="space-y-6">
 
-                        {/* 1. Header */}
+                      {/* 1. Header */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                             <div className="flex items-center gap-3">
                                 <div className={`p-3 rounded-xl shadow-sm ${data.es_grupal ? 'bg-brand-red text-white' : 'bg-white text-slate-500'}`}>
@@ -114,6 +114,32 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                     </p>
                                     <p className="text-sm font-black uppercase text-slate-800">{data.cliente?.nombre}</p>
                                     <p className="text-[10px] font-bold text-brand-red">Documento: {data.cliente?.documento}</p>
+
+                                    {/* Situación individual — solo préstamos no grupales */}
+                                    {!data.es_grupal && (
+                                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                            <span className={`text-[9px] font-black uppercase ${
+                                                data.situacion === 'CASTIGADO' ? 'text-red-600' :
+                                                data.situacion === 'VENCIDO'   ? 'text-amber-600' :
+                                                'text-green-600'
+                                            }`}>
+                                                ● {data.situacion ?? 'VIGENTE'}
+                                            </span>
+                                            {canCastigar && data.estado === 1 && !prestamoCancelado && (
+                                                <button
+                                                    onClick={() => handleCastigar(data.detalle_id, !data.castigado)}
+                                                    disabled={loadingCastigo}
+                                                    className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-lg transition-all border disabled:opacity-40 ${
+                                                        data.castigado
+                                                            ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                                                            : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                                                    }`}
+                                                >
+                                                    {loadingCastigo ? '...' : data.castigado ? '✓ Quitar Castigo' : '✕ Marcar Castigado'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
@@ -122,7 +148,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Desembolso</p>
-                                    <p className="text-sm font-black text-slate-800 uppercase">{data.datos_economicos?.modalidad}</p>
+                                    <p className="text-sm font-black text-slate-800 uppercase">{data.datos_economicos?.modalidad_label ?? data.datos_economicos?.modalidad}</p>
                                     <p className="text-[10px] font-bold text-slate-500">Vía: {data.datos_economicos?.abonado_por}</p>
                                 </div>
                             </div>
