@@ -11,6 +11,7 @@ export const index = async (page = 1, filters = {}) => {
         prestamo_id:  filters.prestamo_id  || '',
         cliente:      filters.cliente      || '',
         estado:       filters.estado       ?? '',
+        tipo:         filters.tipo         || '',
         fecha_inicio: filters.fecha_inicio || '',
         fecha_fin:    filters.fecha_fin    || '',
     });

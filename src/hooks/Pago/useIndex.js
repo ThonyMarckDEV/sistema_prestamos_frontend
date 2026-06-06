@@ -2,7 +2,15 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { index, pdf, destroy } from 'services/pagoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
-const FILTERS_INITIAL = { search: '', prestamo_id: '', cliente: '', estado: '', fecha_inicio: '', fecha_fin: '' };
+const FILTERS_INITIAL = {
+    search:       '',
+    prestamo_id:  '',
+    cliente:      '',
+    estado:       '',
+    tipo:         '',
+    fecha_inicio: '',
+    fecha_fin:    '',
+};
 
 export const useIndex = () => {
     const [loading,        setLoading]        = useState(true);

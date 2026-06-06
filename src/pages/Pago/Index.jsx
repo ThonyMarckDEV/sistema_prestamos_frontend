@@ -46,6 +46,17 @@ const Index = () => {
         { name: 'fecha_inicio', type: 'date', label: 'Fecha Inicio', colSpan: 'col-span-12 md:col-span-2' },
         { name: 'fecha_fin',    type: 'date', label: 'Fecha Fin',    colSpan: 'col-span-12 md:col-span-2' },
         {
+            name: 'tipo', type: 'select', label: 'Tipo',
+            colSpan: 'col-span-12 md:col-span-2',
+            options: [
+                { value: '',                       label: 'TODOS'               },
+                { value: 'NORMAL',                 label: 'NORMAL'              },
+                { value: 'EXCEDENTE',              label: 'EXCEDENTE'           },
+                { value: 'DESGLOSE_REFINANCIADO',  label: 'DESGLOSE REFINANC.'  },
+                { value: 'RENOVACION',             label: 'RENOVACIÓN'          },
+            ]
+        },
+        {
             name: 'estado', type: 'select', label: 'Estado',
             colSpan: 'col-span-12 md:col-span-2',
             options: [
@@ -53,7 +64,7 @@ const Index = () => {
                 { value: '0', label: 'ANULADOS'  },
                 { value: '1', label: 'APROBADOS' },
             ]
-        }
+        },
     ], []);
 
     const columns = useMemo(() => [
@@ -136,6 +147,8 @@ const Index = () => {
                     <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded w-fit mt-1 border border-slate-200 uppercase tracking-widest">
                         {row.modalidad}
                     </span>
+                    {/* Tipo de pago */}
+                    <TipoBadge tipo={row.tipo} />
                 </div>
             )
         },
@@ -225,6 +238,24 @@ const Index = () => {
                 />
             )}
         </div>
+    );
+};
+
+// ── Badge de tipo de pago ─────────────────────────────────────────────────────
+const TIPO_STYLES = {
+    NORMAL:                { label: 'NORMAL',             cls: 'bg-slate-100 text-slate-500 border-slate-200'           },
+    EXCEDENTE:             { label: 'EXCEDENTE',          cls: 'bg-amber-50  text-amber-600 border-amber-200'           },
+    DESGLOSE_REFINANCIADO: { label: 'DESGLOSE REFINANC.', cls: 'bg-blue-50   text-blue-600  border-blue-200'            },
+    RENOVACION:            { label: 'RENOVACIÓN',         cls: 'bg-purple-50 text-purple-600 border-purple-200'         },
+};
+
+const TipoBadge = ({ tipo }) => {
+    if (!tipo) return null;
+    const cfg = TIPO_STYLES[tipo] ?? { label: tipo, cls: 'bg-slate-100 text-slate-500 border-slate-200' };
+    return (
+        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-widest w-fit mt-1 ${cfg.cls}`}>
+            {cfg.label}
+        </span>
     );
 };
 
