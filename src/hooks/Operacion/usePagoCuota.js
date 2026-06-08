@@ -27,8 +27,13 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
             const saldoCap = parseFloat(int.saldo_capital ?? int.saldo ?? 0);
             const moraPend = parseFloat(int.mora_pendiente ?? 0);
             return acc + saldoCap + moraPend;
-          }, 0).toFixed(2)
-        : Math.max(0, parseFloat(cuota?.capital_pendiente ?? 0) + mora - excedenteIndividual).toFixed(2);
+        }, 0).toFixed(2)
+        : Math.max(0,
+            parseFloat(cuota?.capital_pendiente ?? 0) +
+            parseFloat(cuota?.interes_pendiente  ?? 0) +
+            parseFloat(cuota?.seguro_pendiente   ?? 0) +
+            mora - excedenteIndividual
+        ).toFixed(2);
 
     // ── Validaciones ──────────────────────────────────────────────────────────
     const integrantesSinCubrirMora = (esGrupal && esParcial)
