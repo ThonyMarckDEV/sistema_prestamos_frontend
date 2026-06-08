@@ -1,12 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { reducirMora } from 'services/prestamoService';
 
-export function useReducirMoraModal({ onSuccess }) {
+export function useReducirMoraModal({ onSuccess, isOpen }) {
     const [loading, setLoading]   = useState(false);
     const [alert, setAlert]       = useState(null);
     const [porcentaje, setPorcentaje] = useState('');
     const [motivo, setMotivo]     = useState('');
     const [preview, setPreview]   = useState(null); // preview del cálculo
+
+    useEffect(() => {
+        if (isOpen) {
+            setPorcentaje('');
+            setMotivo('');
+            setPreview(null);
+            setAlert(null);
+        }
+    }, [isOpen]);
 
     const calcularPreview = (moraCargo, porc) => {
         const p = parseFloat(porc);

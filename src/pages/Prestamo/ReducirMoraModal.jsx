@@ -13,7 +13,7 @@ const ReducirMoraModal = ({ isOpen, onClose, cuota, onSuccess }) => {
         loading, alert, porcentaje, motivo, preview,
         setMotivo, handlePorcentajeChange, handleSubmit, reset,
     } = useReducirMoraModal({
-        onSuccess: (result) => { if (onSuccess) onSuccess(result); },
+        onSuccess: (result) => { if (onSuccess) onSuccess(result); }, isOpen,
     });
 
     const handleClose = () => { if (!loading) { reset(); onClose(); } };
