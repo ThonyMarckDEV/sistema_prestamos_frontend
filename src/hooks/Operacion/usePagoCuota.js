@@ -14,20 +14,21 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
     const integrantesPendientes = cuota?.integrantes?.filter(i => ![2, 6].includes(i.estado)) ?? [];
     const soloUnIntegrante      = esGrupal && integrantesPendientes.length === 1;
 
-    // Para grupales: totalAPagar = suma de saldos individuales (ya tiene excedente descontado)
+    // mora_total es el saldo real post-reducción; mora es el cargo_mora sin reducir
+    const mora = esGrupal
+        ? integrantesPendientes.reduce((acc, int) => acc + parseFloat(int.mora_pendiente ?? 0), 0)
+        : parseFloat(cuota?.mora_total ?? cuota?.mora ?? 0);
+
+    const excedenteIndividual = !esGrupal ? parseFloat(cuota?.excedente_anterior ?? 0) : 0;
+
+    // Para individual: capital pendiente + mora post-reducción - excedente disponible
     const totalAPagar = esGrupal && integrantesPendientes.length > 0
         ? integrantesPendientes.reduce((acc, int) => {
             const saldoCap = parseFloat(int.saldo_capital ?? int.saldo ?? 0);
             const moraPend = parseFloat(int.mora_pendiente ?? 0);
             return acc + saldoCap + moraPend;
           }, 0).toFixed(2)
-        : parseFloat(cuota?.saldo_pendiente ?? cuota?.monto ?? 0).toFixed(2);
-
-    const mora = esGrupal
-        ? integrantesPendientes.reduce((acc, int) => acc + parseFloat(int.mora_pendiente ?? 0), 0)
-        : parseFloat(cuota?.mora ?? 0);
-
-    const excedenteIndividual = !esGrupal ? parseFloat(cuota?.excedente_anterior ?? 0) : 0;
+        : Math.max(0, parseFloat(cuota?.capital_pendiente ?? 0) + mora - excedenteIndividual).toFixed(2);
 
     // ── Validaciones ──────────────────────────────────────────────────────────
     const integrantesSinCubrirMora = (esGrupal && esParcial)
@@ -35,10 +36,7 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
             const moraPend = parseFloat(int.mora_pendiente ?? 0);
             if (moraPend <= 0) return false;
             const val = distribucion[int.id];
-            // Vacío = pago completo → OK
-            // "0" exacto = otro socio lo cubre → OK (el cajero lo pone adrede)
             if (!val || val === '' || parseFloat(val) === 0) return false;
-            // Solo bloquear si puso monto > 0 pero insuficiente para cubrir su mora
             return parseFloat(val) < moraPend;
         }) : [];
 
