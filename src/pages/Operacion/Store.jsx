@@ -90,7 +90,7 @@ const Store = () => {
                             </div>
                             <button
                                 onClick={() => { verifySesion(); setIsCerrarModalOpen(true); }}
-                                className="..."
+                                className="bg-brand-red-dark hover:bg-brand-gold hover:text-brand-red-dark px-6 py-3 rounded-xl font-black uppercase text-[10px] transition-all border border-brand-red-dark hover:border-brand-gold hover:shadow-lg active:scale-95"
                             >
                                 Cerrar Turno
                             </button>
