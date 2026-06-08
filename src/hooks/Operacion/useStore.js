@@ -96,8 +96,11 @@ export const useStore = () => {
     // Refresca el detalle del préstamo actualmente seleccionado
     const handleRefresh = useCallback(async () => {
         if (!prestamoSeleccionado || tipoOperacion !== 'cobro') return;
-        await cargarDetallePrestamo(prestamoSeleccionado);
-    }, [prestamoSeleccionado, tipoOperacion, cargarDetallePrestamo]);
+        await Promise.all([
+            cargarDetallePrestamo(prestamoSeleccionado),
+            verifySesion(),
+        ]);
+    }, [prestamoSeleccionado, tipoOperacion, cargarDetallePrestamo, verifySesion]);
 
     const handleDesembolsar = async (formData) => {
         setLoading(true);
