@@ -10,7 +10,7 @@ export const usePagoCuota = ({ isOpen, cuota, onClose, onConfirm }) => {
     const [distribucion, setDistribucion] = useState({});
     const [alertLocal, setAlertLocal]     = useState(null);
 
-    const esGrupal              = !!(cuota?.integrantes && cuota.integrantes.length > 0);
+    const esGrupal = !!(cuota?.es_grupal);
     const integrantesPendientes = cuota?.integrantes?.filter(i => ![2, 6].includes(i.estado)) ?? [];
     const soloUnIntegrante      = esGrupal && integrantesPendientes.length === 1;
 
