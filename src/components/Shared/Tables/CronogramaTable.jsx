@@ -1,5 +1,6 @@
 import React from 'react';
 import { CuotaCard } from './components/CuotaCard';
+import DatosEconomicosCards, { DatosEconomicosCardsSkeleton } from './components/DatosEconomicosCards';
 
 const CronogramaTable = ({
     cronograma = [],
@@ -7,6 +8,9 @@ const CronogramaTable = ({
     onHistorialModal,
     onReducirMora,
     extraColumns = [],
+    eco = null,
+    estadoPrestamo = 1,
+    loadingEco = false,
 }) => {
     const sharedProps = {
         cronograma,
@@ -17,10 +21,24 @@ const CronogramaTable = ({
     };
 
     return (
-        <div className="flex flex-col gap-3">
-            {cronograma.map((cuota, i) => (
-                <CuotaCard key={cuota.nro ?? i} cuota={cuota} i={i} {...sharedProps} />
-            ))}
+        <div className="flex flex-col gap-4">
+            {/* Cards económicas — solo si se pasan */}
+            {eco !== null && (
+                loadingEco
+                    ? <DatosEconomicosCardsSkeleton />
+                    : <DatosEconomicosCards
+                        eco={eco}
+                        estadoPrestamo={estadoPrestamo}
+                        esVistaIntegrante={esVistaIntegrante}
+                      />
+            )}
+
+            {/* Cronograma */}
+            <div className="flex flex-col gap-3">
+                {cronograma.map((cuota, i) => (
+                    <CuotaCard key={cuota.nro ?? i} cuota={cuota} i={i} {...sharedProps} />
+                ))}
+            </div>
         </div>
     );
 };

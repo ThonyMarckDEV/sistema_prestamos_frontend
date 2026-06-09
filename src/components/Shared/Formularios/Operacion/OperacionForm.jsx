@@ -1,5 +1,6 @@
 import React from 'react';
 import CronogramaTable from 'components/Shared/Tables/CronogramaTable';
+import DatosEconomicosCards from 'components/Shared/Tables/components/DatosEconomicosCards';
 import {
     BanknotesIcon,
     UserGroupIcon,
@@ -22,42 +23,10 @@ const IntegranteRow = ({ integrante }) => (
     </div>
 );
 
-// ── Resumen financiero ────────────────────────────────────────────────────────
-const ResumenFinanciero = ({ datos }) => {
-    if (!datos) return null;
-    const seguro      = parseFloat(datos.seguro || 0);
-    const interesPuro = parseFloat(datos.total_prestamo) - parseFloat(datos.monto) - seguro;
-    const items = [
-        { label: 'Capital',      value: `S/ ${parseFloat(datos.monto).toFixed(2)}` },
-        { label: `Interés (${datos.interes_porc}%)`, value: `S/ ${interesPuro.toFixed(2)}` },
-        {
-            label: 'Seguro', value: `S/ ${seguro.toFixed(2)}`,
-            extra: datos.seguro_financiado ? '(En Cuotas)' : '✓ Ya Cobrado',
-            extraColor: datos.seguro_financiado ? 'text-brand-gold-dark' : 'text-green-600',
-        },
-        { label: 'Total Cobrar', value: `S/ ${parseFloat(datos.total_prestamo).toFixed(2)}`, bold: true },
-        { label: 'Cuota',        value: `S/ ${parseFloat(datos.valor_cuota).toFixed(2)}`,    bold: true },
-    ];
-    return (
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            {items.map(({ label, value, bold, extra, extraColor }) => (
-                <div key={label} className="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-center">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
-                    <p className={`text-sm font-black ${bold ? 'text-brand-red' : 'text-slate-600'}`}>{value}</p>
-                    {extra && <p className={`text-[8px] font-black uppercase mt-0.5 ${extraColor}`}>{extra}</p>}
-                </div>
-            ))}
-        </div>
-    );
-};
-
 // ── Helper: integrante pagó su parte en una cuota ────────────────────────────
-// Usa el campo 'pagado' del cronograma (saldo_real <= 0) o saldo == 0
 const integrantePagoSuParte = (intDet) => {
     if (!intDet) return false;
-    // 'pagado' viene del backend: saldo_real <= 0
     if (intDet.pagado === true) return true;
-    // fallback por saldo
     const saldo = parseFloat(intDet.saldo ?? intDet.saldo_real ?? 1);
     return saldo <= 0;
 };
@@ -87,9 +56,13 @@ const OperacionForm = ({ prestamoDetalle, openPagoModal, onHistorialModal }) => 
                 const hayAnteriorPendiente = allRows
                     .filter(r => r.nro < row.nro)
                     .some(r => r.estado !== 2);
+                
+                // Inyectamos el flag es_grupal: false
+                const rowIndividual = { ...row, es_grupal: false };
+
                 return (
                     <button
-                        onClick={() => !hayAnteriorPendiente && openPagoModal(row)}
+                        onClick={() => !hayAnteriorPendiente && openPagoModal(rowIndividual)}
                         disabled={hayAnteriorPendiente}
                         className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${
                             hayAnteriorPendiente
@@ -104,32 +77,19 @@ const OperacionForm = ({ prestamoDetalle, openPagoModal, onHistorialModal }) => 
                 );
             }
 
-            // ── Grupal: nuevo flujo por integrante ────────────────────────────
-            // Un integrante puede pagar la cuota N si:
-            //   a) Es la cuota #1 (no hay anterior), O
-            //   b) En la cuota N-1 su campo 'pagado' es true o su saldo es 0
+            // ── Grupal ────────────────────────────────────────────────────────
             const cuotaAnterior = allRows.find(r => r.nro === row.nro - 1);
 
             const integrantesPueden = (row.integrantes ?? []).filter(int => {
-                // Si ya pagó su parte en esta cuota → no incluir
                 if (integrantePagoSuParte(int)) return false;
-
-                // Primera cuota → siempre puede pagar
                 if (!cuotaAnterior) return true;
-
-                // Buscar su detalle en la cuota anterior
-                const detAnt = (cuotaAnterior.integrantes ?? [])
-                    .find(d => d.id === int.id);
-
-                // Si no existe su detalle anterior → puede pagar (refinanciado o nuevo)
+                const detAnt = (cuotaAnterior.integrantes ?? []).find(d => d.id === int.id);
                 if (!detAnt) return true;
-
-                // Puede pagar si ya liquidó su parte en la cuota anterior
                 return integrantePagoSuParte(detAnt);
             });
 
             const integrantesBloqueados = (row.integrantes ?? []).filter(int => {
-                if (integrantePagoSuParte(int)) return false; // ya pagó, no está "bloqueado"
+                if (integrantePagoSuParte(int)) return false;
                 if (!cuotaAnterior) return false;
                 const detAnt = (cuotaAnterior.integrantes ?? []).find(d => d.id === int.id);
                 if (!detAnt) return false;
@@ -149,7 +109,12 @@ const OperacionForm = ({ prestamoDetalle, openPagoModal, onHistorialModal }) => 
                 );
             }
 
-            const rowFiltrado = { ...row, integrantes: integrantesPueden };
+            // Inyectamos el flag es_grupal: true para que el hook lo detecte
+            const rowFiltrado = { 
+                ...row, 
+                integrantes: integrantesPueden,
+                es_grupal: true 
+            };
 
             return (
                 <div className="flex flex-col gap-1">
@@ -187,13 +152,19 @@ const OperacionForm = ({ prestamoDetalle, openPagoModal, onHistorialModal }) => 
                 </div>
             )}
 
-            {/* Resumen Económico */}
+            {/* Resumen Económico — DatosEconomicosCards */}
             <div className="bg-white rounded-[28px] border border-slate-100 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
                     <div className="p-2 bg-slate-900 rounded-xl"><ChartPieIcon className="w-4 h-4 text-white" /></div>
                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-[0.15em]">Resumen Económico</h4>
                 </div>
-                <div className="p-5"><ResumenFinanciero datos={datos_economicos} /></div>
+                <div className="p-5">
+                    <DatosEconomicosCards
+                        eco={datos_economicos}
+                        estadoPrestamo={prestamoDetalle.estado}
+                        esVistaIntegrante={false}
+                    />
+                </div>
             </div>
 
             {/* Cronograma */}
