@@ -120,3 +120,14 @@ export const exportSBSDashboard = async (filters = {}) => {
     if (!response.ok) throw new Error('Error al exportar SBS');
     return response.blob();
 };
+
+// ── Master ────────────────────────────────────────────────────────────────────
+export const getMasterDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/master${buildQs(filters)}`, { method: 'GET' });
+    return handleResponse(response);
+};
+export const exportMasterDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/master/export${buildQs(filters)}`, { method: 'GET' });
+    if (!response.ok) throw new Error('Error al exportar reporte master');
+    return response.blob();
+};
