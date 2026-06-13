@@ -133,7 +133,7 @@ const DayCell = ({ fecha, eventos, asesorColorMap, esHoy, esMesActual }) => {
 
 // ── Calendario — navega libremente, notifica al padre al cambiar mes ──────────
 const Calendario = ({ eventos, asesorColorMap, mes, anio, onMesChange }) => {
-    const hoy  = new Date();
+    const hoy = new Date();
 
     const prevMes = () => {
         const nuevo = mes === 1 ? { mes: 12, anio: anio - 1 } : { mes: mes - 1, anio };
@@ -148,9 +148,11 @@ const Calendario = ({ eventos, asesorColorMap, mes, anio, onMesChange }) => {
         const result  = [];
         const primero = new Date(anio, mes - 1, 1);
         const ultimo  = new Date(anio, mes, 0);
+        
         for (let i = 0; i < primero.getDay(); i++) {
             const d = new Date(anio, mes - 1, -primero.getDay() + i + 1);
-            result.push({ fecha: d.toISOString().split('T')[0], esMesActual: false });
+            const dStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            result.push({ fecha: dStr, esMesActual: false });
         }
         for (let d = 1; d <= ultimo.getDate(); d++) {
             const fecha = `${anio}-${String(mes).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -159,12 +161,13 @@ const Calendario = ({ eventos, asesorColorMap, mes, anio, onMesChange }) => {
         const restantes = 42 - result.length;
         for (let i = 1; i <= restantes; i++) {
             const d = new Date(anio, mes, i);
-            result.push({ fecha: d.toISOString().split('T')[0], esMesActual: false });
+            const dStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            result.push({ fecha: dStr, esMesActual: false });
         }
         return result;
     }, [mes, anio]);
 
-    const hoyStr = hoy.toISOString().split('T')[0];
+    const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
 
     return (
         <div>
