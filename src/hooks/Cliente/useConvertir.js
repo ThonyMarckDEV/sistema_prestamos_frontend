@@ -33,6 +33,12 @@ export const useConvertir = (prospectoId, onSuccess) => {
     const [alert,            setAlert]            = useState(null);
     const [formData,         setFormData]         = useState(buildInitialForm(prospectoId));
 
+    // ── Sincroniza el prospecto_id SIEMPRE que cambie el prop ──
+    // (el modal no se desmonta, así que el valor inicial del useState quedó en null)
+    useEffect(() => {
+        setFormData(prev => ({ ...prev, prospecto_id: prospectoId }));
+    }, [prospectoId]);
+
     // Username auto para persona
     useEffect(() => {
         const dc = formData.datos_cliente;
@@ -62,6 +68,7 @@ export const useConvertir = (prospectoId, onSuccess) => {
                 const p   = res.data || res;
                 setFormData(prev => ({
                     ...prev,
+                    prospecto_id: prospectoId,
                     datos_cliente: {
                         ...prev.datos_cliente,
                         tipo:                p.tipo                || 1,
@@ -117,6 +124,8 @@ export const useConvertir = (prospectoId, onSuccess) => {
         const esEmpresa = Number(formData.datos_cliente.tipo) === 2;
         const username  = (formData.usuario.username || '').trim();
 
+        if (!formData.prospecto_id)
+            return setAlert({ type: 'error', message: 'No se identificó el prospecto a convertir. Cierra y vuelve a intentar.' });
         if (!formData.datos_cliente.zona_id)
             return setAlert({ type: 'error', message: 'Por favor, seleccione una Zona Operativa obligatoriamente.' });
         if (!formData.contacto.correo)
