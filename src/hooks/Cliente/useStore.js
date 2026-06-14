@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { store } from 'services/clienteService';
-import { show as showProspecto } from 'services/prospectoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 const generarUsername = (nombre, apellidoPaterno, apellidoMaterno) => {
-    const n  = (nombre         || '').trim().split(' ')[0].slice(0, 2);
+    const n  = (nombre          || '').trim().split(' ')[0].slice(0, 2);
     const ap = (apellidoPaterno || '').trim().split(' ')[0];
     const am = (apellidoMaterno || '').trim().split(' ')[0].slice(0, 1);
     return (n + ap + am).toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -26,95 +25,29 @@ const initialForm = {
 };
 
 export const useStore = () => {
-    const navigate        = useNavigate();
-    const [searchParams]  = useSearchParams();
-    const prospectoId     = searchParams.get('prospecto_id');
+    const navigate   = useNavigate();
+    const [loading,  setLoading]  = useState(false);
+    const [alert,    setAlert]    = useState(null);
+    const [formData, setFormData] = useState(initialForm);
 
-    const [loading,          setLoading]          = useState(false);
-    const [loadingProspecto, setLoadingProspecto] = useState(!!prospectoId);
-    const [alert,            setAlert]            = useState(null);
-    const [formData,         setFormData]         = useState(initialForm);
-
-    // Username automático SOLO para persona. Empresa lo escribe manual.
+    // Username automático para persona
     useEffect(() => {
         const dc = formData.datos_cliente;
         if (Number(dc.tipo) !== 1) return;
         if (!dc.nombre && !dc.apellidoPaterno && !dc.apellidoMaterno) return;
-
         const username = generarUsername(dc.nombre, dc.apellidoPaterno, dc.apellidoMaterno);
-        setFormData(prev => ({
-            ...prev,
-            usuario: { ...prev.usuario, username },
-        }));
+        setFormData(prev => ({ ...prev, usuario: { ...prev.usuario, username } }));
         // eslint-disable-next-line
-    }, [
-        formData.datos_cliente.tipo,
-        formData.datos_cliente.nombre,
-        formData.datos_cliente.apellidoPaterno,
-        formData.datos_cliente.apellidoMaterno,
-    ]);
+    }, [formData.datos_cliente.tipo, formData.datos_cliente.nombre,
+        formData.datos_cliente.apellidoPaterno, formData.datos_cliente.apellidoMaterno]);
 
-    // Si cambian de empresa -> persona, limpiar el username manual para que se regenere solo.
+    // Al cambiar a empresa, limpiar username
     useEffect(() => {
         if (Number(formData.datos_cliente.tipo) === 2) {
             setFormData(prev => ({ ...prev, usuario: { ...prev.usuario, username: '' } }));
         }
         // eslint-disable-next-line
     }, [formData.datos_cliente.tipo]);
-
-    // Precargar datos del prospecto
-    useEffect(() => {
-        if (!prospectoId) return;
-
-        const cargarProspecto = async () => {
-            setLoadingProspecto(true);
-            try {
-                const res = await showProspecto(prospectoId);
-                const p   = res.data || res;
-
-                setFormData(prev => ({
-                    ...prev,
-                    datos_cliente: {
-                        ...prev.datos_cliente,
-                        tipo:                p.tipo,
-                        dni:                 p.dni                || '',
-                        nombre:              p.nombre             || '',
-                        apellidoPaterno:     p.apellidoPaterno    || '',
-                        apellidoMaterno:     p.apellidoMaterno    || '',
-                        fechaNacimiento:     p.fechaNacimiento    || '',
-                        fechaVencimientoDni: p.fechaVencimientoDni || '',
-                        sexo:                p.sexo               || '',
-                        ruc:                 p.ruc                || '',
-                        razon_social:        p.razon_social       || '',
-                        nombre_comercial:    p.nombre_comercial   || '',
-                        ciiu_id:             p.ciiu_id            || null,
-                        ciiu:                p.ciiu               || null,
-                        zona_id:             p.zona_id            || null,
-                        zona_nombre:         p.zona               || '',
-                    },
-                    contacto: {
-                        telefonoMovil: p.telefono     || '',
-                        telefonoFijo:  p.telefonoFijo || '',
-                        correo:        p.correo        || '',
-                    },
-                    direccion: {
-                        direccionFiscal:  p.direccionFiscal  || '',
-                        departamento:     p.departamento     || '',
-                        provincia:        p.provincia        || '',
-                        distrito:         p.distrito         || '',
-                        tipoVivienda:     p.tipoVivienda     ||  '',
-                        tiempoResidencia: p.tiempoResidencia || '',
-                    },
-                }));
-            } catch (err) {
-                setAlert(handleApiError(err, 'No se pudo cargar el prospecto.'));
-            } finally {
-                setLoadingProspecto(false);
-            }
-        };
-
-        cargarProspecto();
-    }, [prospectoId]);
 
     const handleNestedChange = (section, field, value) => {
         if (field === null) {
@@ -130,34 +63,21 @@ export const useStore = () => {
         const esEmpresa = Number(formData.datos_cliente.tipo) === 2;
         const username  = (formData.usuario.username || '').trim();
 
-        if (!formData.datos_cliente.zona_id) {
+        if (!formData.datos_cliente.zona_id)
             return setAlert({ type: 'error', message: 'Por favor, seleccione una Zona Operativa obligatoriamente.' });
-        }
-        if (!formData.contacto.correo) {
+        if (!formData.contacto.correo)
             return setAlert({ type: 'error', message: 'El correo electrónico es obligatorio.' });
-        }
-
-        // Validación de username (clave para empresa, que es manual)
-        if (!username) {
-            return setAlert({
-                type: 'error',
-                message: esEmpresa
-                    ? 'Para empresas debe ingresar el nombre de usuario manualmente.'
-                    : 'El nombre de usuario es obligatorio.',
-            });
-        }
-        if (username.length < 3) {
+        if (!username)
+            return setAlert({ type: 'error', message: esEmpresa
+                ? 'Para empresas debe ingresar el nombre de usuario manualmente.'
+                : 'El nombre de usuario es obligatorio.' });
+        if (username.length < 3)
             return setAlert({ type: 'error', message: 'El nombre de usuario debe tener al menos 3 caracteres.' });
-        }
 
         setLoading(true);
         setAlert(null);
         try {
-            const payload = prospectoId
-                ? { ...formData, prospecto_id: prospectoId }
-                : formData;
-
-            await store(payload);
+            await store(formData);
             setAlert({ type: 'success', message: 'Cliente registrado exitosamente. Redirigiendo...' });
             setTimeout(() => navigate('/cliente/listar'), 1500);
         } catch (err) {
@@ -167,11 +87,5 @@ export const useStore = () => {
         }
     };
 
-    return {
-        formData, setFormData,
-        loading, loadingProspecto,
-        alert, setAlert,
-        handleNestedChange, handleSubmit,
-        prospectoId,
-    };
+    return { formData, loading, alert, setAlert, handleNestedChange, handleSubmit };
 };

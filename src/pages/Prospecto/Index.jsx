@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useIndex } from 'hooks/Prospecto/useIndex';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ViewProspectoModal from './ViewProspectoModal';
+import ConvertirProspectoModal from './ConvertirProspectoModal';
 import { EstadoBadge } from 'components/Shared/Formularios/Prospecto/ProspectoForm';
 import {
     UsersIcon, EyeIcon, PencilSquareIcon, ArrowRightCircleIcon,
@@ -21,6 +22,21 @@ const Index = () => {
         fetchProspectos, handleView,
         handleFilterChange, handleFilterSubmit, handleFilterClear,
     } = useIndex();
+
+    // ── Estado del modal de conversión ────────────────────────────────────────
+    const [convertirOpen,       setConvertirOpen]       = useState(false);
+    const [prospectoAConvertir, setProspectoAConvertir] = useState(null);
+
+    const handleAbrirConvertir = useCallback((prospectoId) => {
+        setProspectoAConvertir(prospectoId);
+        setConvertirOpen(true);
+    }, []);
+
+    const handleSuccessConvertir = () => {
+        setConvertirOpen(false);
+        setProspectoAConvertir(null);
+        fetchProspectos(paginationInfo.currentPage);
+    };
 
     const filterConfig = useMemo(() => [
         { name: 'search', type: 'text', label: 'Buscar (Nombre/DNI/RUC/Teléfono)', placeholder: 'Ej: Juan, 12345678...', colSpan: 'col-span-12 md:col-span-5' },
@@ -133,20 +149,21 @@ const Index = () => {
                             </Link>
                         )}
 
+                        {/* Abre el modal en vez de navegar a otra página */}
                         {puedeConvertir && (
-                            <Link
-                                to={`/cliente/agregar?prospecto_id=${row.id}`}
+                            <button
+                                onClick={() => handleAbrirConvertir(row.id)}
                                 title="Convertir a Cliente"
                                 className="p-2 text-green-500 hover:text-white hover:bg-green-500 rounded-xl transition-all border border-green-200 hover:border-green-500 shadow-sm"
                             >
                                 <ArrowRightCircleIcon className="w-4 h-4" />
-                            </Link>
+                            </button>
                         )}
                     </div>
                 );
             }
         },
-    ], [handleView, can]);
+    ], [handleView, can, handleAbrirConvertir]);
 
     const handleSeguimientoSuccess = async (updatedData) => {
         fetchProspectos(paginationInfo.currentPage);
@@ -182,6 +199,14 @@ const Index = () => {
                 data={viewData}
                 isLoading={viewLoading}
                 onSeguimientoSuccess={handleSeguimientoSuccess}
+            />
+
+            {/* Modal conversión — separado del flujo de cliente */}
+            <ConvertirProspectoModal
+                isOpen={convertirOpen}
+                onClose={() => { setConvertirOpen(false); setProspectoAConvertir(null); }}
+                prospectoId={prospectoAConvertir}
+                onSuccess={handleSuccessConvertir}
             />
         </div>
     );

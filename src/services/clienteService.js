@@ -60,3 +60,13 @@ export const descargarFichaPdf = async (id) => {
     const response = await fetchWithAuth(`${BASE_URL}/pdf/${id}`, { method: 'GET' });
     return handleResponse(response);
 };
+
+export const convertirProspecto = async (data) => {
+    const response = await fetchWithAuth(`${BASE_URL}/convertir`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(data),
+    });
+    return handleResponse(response);
+};
+ 
