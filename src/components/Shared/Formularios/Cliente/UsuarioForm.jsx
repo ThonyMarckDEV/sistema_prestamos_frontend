@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
-import { UserIcon, KeyIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { UserIcon, KeyIcon, LockClosedIcon, EyeIcon, EyeSlashIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
 
 const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
     const [showPass,    setShowPass]    = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
+
+    const esEmpresa = Number(form.datos_cliente?.tipo) === 2;
+    const editable  = isEditing || esEmpresa;   // empresa siempre lo escribe a mano
+
+    const username = form.usuario.username || '';
+    const usernameCorto = esEmpresa && username.length > 0 && username.length < 3;
 
     const pass    = form.usuario.password || '';
     const confirm = form.usuario.password_confirmation || '';
@@ -19,9 +25,14 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
                 <div className="md:col-span-2">
                     <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
                         Nombre de Usuario *
-                        {!isEditing && (
+                        {!isEditing && !esEmpresa && (
                             <span className="ml-2 text-[10px] font-normal text-slate-400 normal-case">
                                 (generado automáticamente)
+                            </span>
+                        )}
+                        {esEmpresa && (
+                            <span className="ml-2 text-[10px] font-normal text-brand-gold-dark normal-case">
+                                (ingreso manual obligatorio)
                             </span>
                         )}
                     </label>
@@ -29,18 +40,42 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
                         <UserIcon className="w-4 h-4 absolute left-3 top-3 text-slate-400"/>
                         <input
                             type="text"
-                            value={form.usuario.username || ''}
-                            onChange={(e) => isEditing && handleNestedChange('usuario', 'username', e.target.value.toUpperCase())}
-                            readOnly={!isEditing}
+                            value={username}
+                            onChange={(e) => editable && handleNestedChange(
+                                'usuario',
+                                'username',
+                                e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')
+                            )}
+                            readOnly={!editable}
+                            maxLength={20}
                             className={`w-full pl-9 p-2.5 text-sm border rounded-xl outline-none transition-all ${
-                                isEditing
-                                    ? 'text-slate-800 border-slate-300 focus:ring-2 focus:ring-brand-red'
+                                editable
+                                    ? usernameCorto
+                                        ? 'text-slate-800 border-brand-red focus:ring-2 focus:ring-brand-red bg-brand-red-light'
+                                        : 'text-slate-800 border-slate-300 focus:ring-2 focus:ring-brand-red'
                                     : 'border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed'
                             }`}
-                            placeholder="Se genera con nombre y apellidos"
+                            placeholder={esEmpresa ? 'Ej: TALARACRED' : 'Se genera con nombre y apellidos'}
                             required
                         />
                     </div>
+
+                    {/* Mensaje / validación para empresa */}
+                    {esEmpresa && (
+                        usernameCorto ? (
+                            <p className="text-[10px] text-brand-red mt-1 font-bold animate-pulse">
+                                ⚠ El nombre de usuario debe tener al menos 3 caracteres.
+                            </p>
+                        ) : (
+                            <div className="mt-2 p-2.5 bg-brand-gold-light border border-brand-gold/30 rounded-xl flex items-start gap-2">
+                                <BuildingOfficeIcon className="w-4 h-4 text-brand-gold-dark flex-shrink-0 mt-0.5" />
+                                <p className="text-[11px] font-bold text-brand-gold-dark">
+                                    Al ser una <span className="font-black">empresa</span>, el nombre de usuario no se genera
+                                    automáticamente. Ingréselo manualmente (es obligatorio).
+                                </p>
+                            </div>
+                        )
+                    )}
                 </div>
 
                 {/* Password — solo en update */}

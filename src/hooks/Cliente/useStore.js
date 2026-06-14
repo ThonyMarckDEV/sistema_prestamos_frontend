@@ -6,7 +6,7 @@ import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 const generarUsername = (nombre, apellidoPaterno, apellidoMaterno) => {
     const n  = (nombre         || '').trim().split(' ')[0].slice(0, 2);
-    const ap = (apellidoPaterno || '').trim().split(' ')[0]; 
+    const ap = (apellidoPaterno || '').trim().split(' ')[0];
     const am = (apellidoMaterno || '').trim().split(' ')[0].slice(0, 1);
     return (n + ap + am).toUpperCase().replace(/[^A-Z0-9]/g, '');
 };
@@ -35,9 +35,10 @@ export const useStore = () => {
     const [alert,            setAlert]            = useState(null);
     const [formData,         setFormData]         = useState(initialForm);
 
+    // Username automático SOLO para persona. Empresa lo escribe manual.
     useEffect(() => {
         const dc = formData.datos_cliente;
-        if (dc.tipo !== 1) return;
+        if (Number(dc.tipo) !== 1) return;
         if (!dc.nombre && !dc.apellidoPaterno && !dc.apellidoMaterno) return;
 
         const username = generarUsername(dc.nombre, dc.apellidoPaterno, dc.apellidoMaterno);
@@ -47,11 +48,19 @@ export const useStore = () => {
         }));
         // eslint-disable-next-line
     }, [
+        formData.datos_cliente.tipo,
         formData.datos_cliente.nombre,
         formData.datos_cliente.apellidoPaterno,
         formData.datos_cliente.apellidoMaterno,
-        formData.datos_cliente.tipo,
     ]);
+
+    // Si cambian de empresa -> persona, limpiar el username manual para que se regenere solo.
+    useEffect(() => {
+        if (Number(formData.datos_cliente.tipo) === 2) {
+            setFormData(prev => ({ ...prev, usuario: { ...prev.usuario, username: '' } }));
+        }
+        // eslint-disable-next-line
+    }, [formData.datos_cliente.tipo]);
 
     // Precargar datos del prospecto
     useEffect(() => {
@@ -118,11 +127,27 @@ export const useStore = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const esEmpresa = Number(formData.datos_cliente.tipo) === 2;
+        const username  = (formData.usuario.username || '').trim();
+
         if (!formData.datos_cliente.zona_id) {
             return setAlert({ type: 'error', message: 'Por favor, seleccione una Zona Operativa obligatoriamente.' });
         }
         if (!formData.contacto.correo) {
             return setAlert({ type: 'error', message: 'El correo electrónico es obligatorio.' });
+        }
+
+        // Validación de username (clave para empresa, que es manual)
+        if (!username) {
+            return setAlert({
+                type: 'error',
+                message: esEmpresa
+                    ? 'Para empresas debe ingresar el nombre de usuario manualmente.'
+                    : 'El nombre de usuario es obligatorio.',
+            });
+        }
+        if (username.length < 3) {
+            return setAlert({ type: 'error', message: 'El nombre de usuario debe tener al menos 3 caracteres.' });
         }
 
         setLoading(true);
