@@ -65,8 +65,6 @@ export const useStore = () => {
 
         if (!formData.datos_cliente.zona_id)
             return setAlert({ type: 'error', message: 'Por favor, seleccione una Zona Operativa obligatoriamente.' });
-        if (!formData.contacto.correo)
-            return setAlert({ type: 'error', message: 'El correo electrónico es obligatorio.' });
         if (!username)
             return setAlert({ type: 'error', message: esEmpresa
                 ? 'Para empresas debe ingresar el nombre de usuario manualmente.'

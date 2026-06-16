@@ -22,7 +22,7 @@ const ContactoForm = ({ data, handleNestedChange }) => {
                     <input type="text" value={ct.telefonoFijo || ''} onChange={(e) => onCt('telefonoFijo', onlyNumbers(e.target.value, 9))} className={inputClass} placeholder="01 234567" />
                 </div>
                 <div>
-                    <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Correo Electrónico</label>
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Correo Electrónico (Opcional)</label>
                     <input type="email" value={ct.correo || ''} onChange={(e) => onCt('correo', toUpper(e.target.value))} className={inputClass} placeholder="ejemplo@correo.com" />
                 </div>
             </div>

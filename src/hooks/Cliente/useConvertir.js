@@ -33,8 +33,7 @@ export const useConvertir = (prospectoId, onSuccess) => {
     const [alert,            setAlert]            = useState(null);
     const [formData,         setFormData]         = useState(buildInitialForm(prospectoId));
 
-    // ── Sincroniza el prospecto_id SIEMPRE que cambie el prop ──
-    // (el modal no se desmonta, así que el valor inicial del useState quedó en null)
+    // Sincroniza prospecto_id si el modal no se desmonta entre aperturas
     useEffect(() => {
         setFormData(prev => ({ ...prev, prospecto_id: prospectoId }));
     }, [prospectoId]);
@@ -90,7 +89,7 @@ export const useConvertir = (prospectoId, onSuccess) => {
                     contacto: {
                         telefonoMovil: p.telefono     || '',
                         telefonoFijo:  p.telefonoFijo || '',
-                        correo:        p.correo        || '',
+                        correo:        p.correo       || '',
                     },
                     direccion: {
                         direccionFiscal:  p.direccionFiscal  || '',
@@ -125,11 +124,9 @@ export const useConvertir = (prospectoId, onSuccess) => {
         const username  = (formData.usuario.username || '').trim();
 
         if (!formData.prospecto_id)
-            return setAlert({ type: 'error', message: 'No se identificó el prospecto a convertir. Cierra y vuelve a intentar.' });
+            return setAlert({ type: 'error', message: 'No se identificó el prospecto. Cierra y vuelve a intentar.' });
         if (!formData.datos_cliente.zona_id)
             return setAlert({ type: 'error', message: 'Por favor, seleccione una Zona Operativa obligatoriamente.' });
-        if (!formData.contacto.correo)
-            return setAlert({ type: 'error', message: 'El correo electrónico es obligatorio.' });
         if (!username)
             return setAlert({ type: 'error', message: esEmpresa
                 ? 'Para empresas debe ingresar el nombre de usuario manualmente.'
