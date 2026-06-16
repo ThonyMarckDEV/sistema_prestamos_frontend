@@ -4,6 +4,7 @@ import { useDashboardDesembolsoCapital } from 'hooks/Dashboard/useDashboardDesem
 import { exportDesembolsoCapitalDashboard } from 'services/dashboardService';
 import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
 import EmpleadoSearchSelect from 'components/Shared/Comboboxes/EmpleadoSearchSelect';
+import { useAuth } from 'context/AuthContext';
 import {
     CalendarDaysIcon, MagnifyingGlassIcon, XMarkIcon,
     ChevronLeftIcon, ChevronRightIcon,
@@ -131,7 +132,7 @@ const DayCell = ({ fecha, eventos, asesorColorMap, esHoy, esMesActual }) => {
     );
 };
 
-// ── Calendario — navega libremente, notifica al padre al cambiar mes ──────────
+// ── Calendario ────────────────────────────────────────────────────────────────
 const Calendario = ({ eventos, asesorColorMap, mes, anio, onMesChange }) => {
     const hoy = new Date();
 
@@ -148,7 +149,6 @@ const Calendario = ({ eventos, asesorColorMap, mes, anio, onMesChange }) => {
         const result  = [];
         const primero = new Date(anio, mes - 1, 1);
         const ultimo  = new Date(anio, mes, 0);
-        
         for (let i = 0; i < primero.getDay(); i++) {
             const d = new Date(anio, mes - 1, -primero.getDay() + i + 1);
             const dStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -225,8 +225,11 @@ const AsesorChip = ({ nombre, color, desembolsos, capital }) => (
     </div>
 );
 
-// ── Card principal ─────────────────────────────────────────────────────────────
+// ── Card principal ────────────────────────────────────────────────────────────
 const DesembolsoCapitalCard = () => {
+    const { role } = useAuth();
+    const esAsesor = role === 'asesor';
+
     const {
         loading, data,
         mesVisible,
@@ -248,7 +251,6 @@ const DesembolsoCapitalCard = () => {
         return map;
     }, [asesores]);
 
-    // Chips: acumulados del mes visible calculados localmente sobre los eventos ya cargados
     const acumMesPorAsesor = useMemo(() => {
         const map    = {};
         const prefix = `${mesVisible.anio}-${String(mesVisible.mes).padStart(2, '0')}-`;
@@ -272,7 +274,6 @@ const DesembolsoCapitalCard = () => {
         return { desembolsos, capital };
     }, [acumMesPorAsesor]);
 
-    // Export usa el mes visible y los asesores seleccionados
     const exportFilters = {
         mes:  mesVisible.mes,
         anio: mesVisible.anio,
@@ -283,6 +284,7 @@ const DesembolsoCapitalCard = () => {
 
     return (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-visible">
+
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 hover:bg-slate-50/60 transition-colors rounded-t-2xl">
                 <div className="flex items-center gap-2.5 flex-1 cursor-pointer select-none" onClick={() => setCollapsed(v => !v)}>
@@ -316,49 +318,53 @@ const DesembolsoCapitalCard = () => {
 
             {!collapsed && (
                 <>
-                    {/* Filtro asesor únicamente */}
-                    <div className="px-6 py-3 border-b border-slate-50 bg-slate-50/50 flex flex-wrap items-end gap-3">
-                        <div className="flex flex-col gap-1">
-                            <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest">Asesor</label>
-                            <EmpleadoSearchSelect
-                                key={comboKey}
-                                rol="ASESOR"
-                                onSelect={handleAgregarAsesor}
-                                clearOnSelect={true}
-                                placeholder="Agregar asesor..."
-                            />
-                        </div>
-                        <div className="flex items-end gap-2">
-                            <button onClick={handleFiltrarAsesor} disabled={loading}
-                                className="flex items-center gap-1.5 px-4 py-2 bg-brand-red text-white text-[10px] font-black uppercase rounded-lg hover:bg-brand-red-dark transition-all disabled:opacity-50">
-                                <MagnifyingGlassIcon className="w-3.5 h-3.5" /> Filtrar
-                            </button>
-                            <button onClick={onLimpiar}
-                                className="flex items-center gap-1 px-3 py-2 text-slate-400 hover:text-brand-red text-[10px] font-black uppercase rounded-lg border border-slate-200 hover:border-brand-red/30 transition-all">
-                                <XMarkIcon className="w-3.5 h-3.5" /> Limpiar
-                            </button>
-                        </div>
-                    </div>
+                    {/* Filtro asesor — oculto si el usuario ES asesor */}
+                    {!esAsesor && (
+                        <>
+                            <div className="px-6 py-3 border-b border-slate-50 bg-slate-50/50 flex flex-wrap items-end gap-3">
+                                <div className="flex flex-col gap-1">
+                                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest">Asesor</label>
+                                    <EmpleadoSearchSelect
+                                        key={comboKey}
+                                        rol="ASESOR"
+                                        onSelect={handleAgregarAsesor}
+                                        clearOnSelect={true}
+                                        placeholder="Agregar asesor..."
+                                    />
+                                </div>
+                                <div className="flex items-end gap-2">
+                                    <button onClick={handleFiltrarAsesor} disabled={loading}
+                                        className="flex items-center gap-1.5 px-4 py-2 bg-brand-red text-white text-[10px] font-black uppercase rounded-lg hover:bg-brand-red-dark transition-all disabled:opacity-50">
+                                        <MagnifyingGlassIcon className="w-3.5 h-3.5" /> Filtrar
+                                    </button>
+                                    <button onClick={onLimpiar}
+                                        className="flex items-center gap-1 px-3 py-2 text-slate-400 hover:text-brand-red text-[10px] font-black uppercase rounded-lg border border-slate-200 hover:border-brand-red/30 transition-all">
+                                        <XMarkIcon className="w-3.5 h-3.5" /> Limpiar
+                                    </button>
+                                </div>
+                            </div>
 
-                    {/* Tags asesores */}
-                    {asesoresSeleccionados.length > 0 && (
-                        <div className="px-6 py-2 border-b border-slate-50 bg-white flex flex-wrap gap-2">
-                            {asesoresSeleccionados.map((a, i) => {
-                                const color = ASESOR_COLORS[i % ASESOR_COLORS.length];
-                                return (
-                                    <span key={a.id} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${color.bg} ${color.text}`}>
-                                        <div className={`w-1.5 h-1.5 rounded-full ${color.dot}`} />
-                                        {a.nombre}
-                                        <button onClick={() => handleQuitarAsesor(a.id)} className="hover:opacity-70">
-                                            <XMarkIcon className="w-3 h-3" />
-                                        </button>
-                                    </span>
-                                );
-                            })}
-                        </div>
+                            {/* Tags asesores seleccionados */}
+                            {asesoresSeleccionados.length > 0 && (
+                                <div className="px-6 py-2 border-b border-slate-50 bg-white flex flex-wrap gap-2">
+                                    {asesoresSeleccionados.map((a, i) => {
+                                        const color = ASESOR_COLORS[i % ASESOR_COLORS.length];
+                                        return (
+                                            <span key={a.id} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${color.bg} ${color.text}`}>
+                                                <div className={`w-1.5 h-1.5 rounded-full ${color.dot}`} />
+                                                {a.nombre}
+                                                <button onClick={() => handleQuitarAsesor(a.id)} className="hover:opacity-70">
+                                                    <XMarkIcon className="w-3 h-3" />
+                                                </button>
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </>
                     )}
 
-                    {/* Chips por asesor — totales del mes visible */}
+                    {/* Chips por asesor */}
                     {!loading && asesores.length > 0 && (
                         <div className="px-6 py-3 border-b border-slate-50 bg-white flex flex-wrap gap-2">
                             {asesores.map((a, i) => {
@@ -373,7 +379,6 @@ const DesembolsoCapitalCard = () => {
                                     />
                                 );
                             })}
-                            
                             <div className="flex flex-col gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-900 min-w-[180px]">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                                     Total {MESES[mesVisible.mes - 1]}
@@ -383,7 +388,6 @@ const DesembolsoCapitalCard = () => {
                                     <span className="text-xs font-black text-slate-300">↓ S/{fmt(totalesMes.capital)}</span>
                                 </div>
                             </div>
-
                         </div>
                     )}
 
