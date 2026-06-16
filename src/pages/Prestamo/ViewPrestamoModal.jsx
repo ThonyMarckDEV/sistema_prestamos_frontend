@@ -95,11 +95,11 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                                     {!data.es_grupal && (
                                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                                             <span className={`text-[9px] font-black uppercase ${
-                                                data.situacion === 'CASTIGADO' ? 'text-red-600' :
-                                                data.situacion === 'VENCIDO'   ? 'text-amber-600' :
+                                                data.integrantes?.[0]?.situacion === 'CASTIGADO' ? 'text-red-600' :
+                                                data.integrantes?.[0]?.situacion === 'VENCIDO'   ? 'text-amber-600' :
                                                 'text-green-600'
                                             }`}>
-                                                ● {data.situacion ?? 'VIGENTE'}
+                                                ● {data.integrantes?.[0]?.situacion ?? 'VIGENTE'}
                                             </span>
                                             {canCastigar && data.estado === 1 && !prestamoCancelado && (
                                                 <button
