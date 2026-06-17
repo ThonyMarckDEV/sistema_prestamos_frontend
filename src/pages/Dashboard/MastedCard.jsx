@@ -4,12 +4,12 @@ import { exportMasterDashboard } from 'services/dashboardService';
 import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
 import Pagination from 'components/Shared/Pagination';
 import EmpleadoSearchSelect from 'components/Shared/Comboboxes/EmpleadoSearchSelect';
-import { 
-    TableCellsIcon, 
-    MagnifyingGlassIcon, 
+import {
+    TableCellsIcon,
+    MagnifyingGlassIcon,
     XMarkIcon,
     ArrowsPointingOutIcon,
-    ArrowsPointingInIcon
+    ArrowsPointingInIcon,
 } from '@heroicons/react/24/outline';
 
 const fmt  = n => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
@@ -30,14 +30,14 @@ const SITUACION_STYLES = {
 };
 
 const ESTADO_LABELS = {
-    'VIGENTE':      'ACTIVO',
+    'ACTIVO':       'ACTIVO',
     'CANCELADO':    'EXTORNADO',
     'LIQUIDADO':    'CANCELADO',
     'REFINANCIADO': 'REFINANCIADO',
 };
 
 const ESTADO_STYLES = {
-    'VIGENTE':      'text-green-600',
+    'ACTIVO':       'text-green-600',
     'CANCELADO':    'text-red-600',
     'LIQUIDADO':    'text-slate-500',
     'REFINANCIADO': 'text-amber-600',
@@ -51,6 +51,9 @@ const Chevron = ({ collapsed }) => (
     </div>
 );
 
+const inputCls = "p-2 text-xs text-slate-700 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-red outline-none";
+const labelCls = "block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1";
+
 const MasterCard = () => {
     const {
         loading, data,
@@ -59,35 +62,39 @@ const MasterCard = () => {
         asesoresSeleccionados,
         handleAgregarAsesor, handleQuitarAsesor,
         handleFiltrar, handleLimpiar, handlePageChange,
+        documento,       setDocumento,
+        codRecaudo,      setCodRecaudo,
+        estadoCredito,   setEstadoCredito,
+        situacion,       setSituacion,
+        calificacionSbs, setCalificacionSbs,
     } = useDashboardMaster();
 
-    const [collapsed, setCollapsed] = useState(false);
-    const [comboKey,  setComboKey]  = useState(Date.now());
-    
-    // 🔥 NUEVO ESTADO PARA PANTALLA COMPLETA 🔥
+    const [collapsed,    setCollapsed]    = useState(false);
+    const [comboKey,     setComboKey]     = useState(Date.now());
     const [isFullScreen, setIsFullScreen] = useState(false);
 
     const filas   = data?.data    ?? [];
     const totales = data?.totales ?? {};
 
     const exportFilters = {
-        fecha_inicio: fechaInicio,
-        fecha_fin:    fechaFin,
+        ...(fechaInicio       ? { fecha_inicio:      fechaInicio }                                  : {}),
+        ...(fechaFin          ? { fecha_fin:          fechaFin }                                    : {}),
+        ...(documento         ? { documento }                                                        : {}),
+        ...(codRecaudo        ? { cod_recaudo:        codRecaudo }                                  : {}),
+        ...(estadoCredito     ? { estado_credito:     estadoCredito }                               : {}),
+        ...(situacion         ? { situacion }                                                        : {}),
+        ...(calificacionSbs   ? { calificacion_sbs:  calificacionSbs }                             : {}),
         ...(asesoresSeleccionados.length > 0
             ? { asesor_ids: asesoresSeleccionados.map(a => a.id).join(',') }
             : {}),
     };
 
-    const onLimpiar = () => {
-        setComboKey(Date.now());
-        handleLimpiar();
-    };
+    const onLimpiar = () => { setComboKey(Date.now()); handleLimpiar(); };
 
-    // 🔥 Bloquear el scroll del fondo cuando está en pantalla completa 🔥
     useEffect(() => {
         if (isFullScreen) {
             document.body.style.overflow = 'hidden';
-            setCollapsed(false); // Forzar que no esté colapsado si se abre en FullScreen
+            setCollapsed(false);
         } else {
             document.body.style.overflow = 'auto';
         }
@@ -96,11 +103,11 @@ const MasterCard = () => {
 
     return (
         <div className={
-            isFullScreen 
-                ? "fixed inset-0 z-[100] bg-slate-100 flex flex-col w-screen h-screen overflow-hidden animate-in fade-in zoom-in-95 duration-200" 
-                : "bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+            isFullScreen
+                ? 'fixed inset-0 z-[100] bg-slate-100 flex flex-col w-screen h-screen overflow-hidden animate-in fade-in zoom-in-95 duration-200'
+                : 'bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden'
         }>
-            {/* Header */}
+            {/* ── Header ── */}
             <div className={`flex items-center justify-between px-6 py-4 border-b border-slate-100 transition-colors flex-shrink-0 ${isFullScreen ? 'bg-white shadow-sm' : 'hover:bg-slate-50/60'}`}>
                 <div className="flex items-center gap-2.5 flex-1 cursor-pointer select-none" onClick={() => !isFullScreen && setCollapsed(v => !v)}>
                     <div className="p-2 bg-brand-red-light rounded-xl">
@@ -114,15 +121,13 @@ const MasterCard = () => {
                 <div className="flex items-center gap-3 flex-shrink-0 ml-3">
                     {!collapsed && (
                         <>
-                            {/* 🔥 BOTÓN DE PANTALLA COMPLETA 🔥 */}
-                            <button 
+                            <button
                                 onClick={() => setIsFullScreen(!isFullScreen)}
                                 className={`p-2 rounded-xl border transition-all ${isFullScreen ? 'bg-brand-red text-white border-brand-red shadow-md shadow-brand-red/20' : 'text-slate-400 border-slate-200 hover:text-brand-red hover:border-brand-red/30 hover:bg-brand-red-light'}`}
-                                title={isFullScreen ? "Salir de pantalla completa" : "Ver en pantalla completa"}
+                                title={isFullScreen ? 'Salir de pantalla completa' : 'Ver en pantalla completa'}
                             >
                                 {isFullScreen ? <ArrowsPointingInIcon className="w-4 h-4" /> : <ArrowsPointingOutIcon className="w-4 h-4" />}
                             </button>
-
                             <ExcelExportButton
                                 exportService={exportMasterDashboard}
                                 filters={exportFilters}
@@ -142,20 +147,71 @@ const MasterCard = () => {
 
             {!collapsed && (
                 <>
-                    {/* Filtros */}
+                    {/* ── Filtros ── */}
                     <div className={`px-6 py-3 border-b flex flex-wrap items-end gap-3 flex-shrink-0 ${isFullScreen ? 'bg-white border-slate-200' : 'bg-slate-50/50 border-slate-50'}`}>
+                        {/* Fechas */}
                         <div>
-                            <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Desde</label>
-                            <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)}
-                                className="p-2 text-xs text-slate-700 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-red outline-none" />
+                            <label className={labelCls}>Desde</label>
+                            <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)} className={inputCls} />
                         </div>
                         <div>
-                            <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Hasta</label>
-                            <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)}
-                                className="p-2 text-xs text-slate-700 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-red outline-none" />
+                            <label className={labelCls}>Hasta</label>
+                            <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)} className={inputCls} />
                         </div>
+
+                        {/* DNI / RUC */}
+                        <div>
+                            <label className={labelCls}>DNI / RUC</label>
+                            <input type="text" value={documento} onChange={e => setDocumento(e.target.value)}
+                                placeholder="Buscar documento..." className={`${inputCls} w-36`} />
+                        </div>
+
+                        {/* Cód. Recaudo */}
+                        <div>
+                            <label className={labelCls}>Cód. Recaudo</label>
+                            <input type="text" value={codRecaudo} onChange={e => setCodRecaudo(e.target.value)}
+                                placeholder="Cód. recaudo..." className={`${inputCls} w-32`} />
+                        </div>
+
+                        {/* Estado */}
+                        <div>
+                            <label className={labelCls}>Estado</label>
+                            <select value={estadoCredito} onChange={e => setEstadoCredito(e.target.value)} className={inputCls}>
+                                <option value="">Todos</option>
+                                <option value="VIGENTE">Activo</option>
+                                <option value="LIQUIDADO">Cancelado</option>
+                                <option value="CANCELADO">Extornado</option>
+                                <option value="REFINANCIADO">Refinanciado</option>
+                            </select>
+                        </div>
+
+                        {/* Situación */}
+                        <div>
+                            <label className={labelCls}>Situación</label>
+                            <select value={situacion} onChange={e => setSituacion(e.target.value)} className={inputCls}>
+                                <option value="">Todas</option>
+                                <option value="VIGENTE">Vigente</option>
+                                <option value="VENCIDO">Vencido</option>
+                                <option value="CASTIGADO">Castigado</option>
+                            </select>
+                        </div>
+
+                        {/* Calif. SBS */}
+                        <div>
+                            <label className={labelCls}>Calif. SBS</label>
+                            <select value={calificacionSbs} onChange={e => setCalificacionSbs(e.target.value)} className={inputCls}>
+                                <option value="">Todas</option>
+                                <option value="NORMAL">Normal</option>
+                                <option value="CPP">CPP</option>
+                                <option value="DEFICIENTE">Deficiente</option>
+                                <option value="DUDOSO">Dudoso</option>
+                                <option value="PÉRDIDA">Pérdida</option>
+                            </select>
+                        </div>
+
+                        {/* Asesor */}
                         <div className="flex flex-col gap-1">
-                            <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest">Asesor</label>
+                            <label className={labelCls}>Asesor</label>
                             <EmpleadoSearchSelect
                                 key={comboKey}
                                 rol="ASESOR"
@@ -164,6 +220,7 @@ const MasterCard = () => {
                                 placeholder="Agregar asesor..."
                             />
                         </div>
+
                         <button onClick={handleFiltrar} disabled={loading}
                             className="flex items-center gap-1.5 px-4 py-2 bg-brand-red text-white text-[10px] font-black uppercase rounded-lg hover:bg-brand-red-dark transition-all disabled:opacity-50">
                             <MagnifyingGlassIcon className="w-3.5 h-3.5" /> Filtrar
@@ -174,12 +231,11 @@ const MasterCard = () => {
                         </button>
                     </div>
 
-                    {/* Tags asesores */}
+                    {/* ── Tags asesores ── */}
                     {asesoresSeleccionados.length > 0 && (
                         <div className={`px-6 py-2 border-b flex flex-wrap gap-2 flex-shrink-0 ${isFullScreen ? 'bg-white border-slate-200' : 'bg-white border-slate-50'}`}>
                             {asesoresSeleccionados.map(a => (
-                                <span key={a.id}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-brand-red-light border border-brand-red/20 rounded-full text-[10px] font-black text-brand-red uppercase">
+                                <span key={a.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-brand-red-light border border-brand-red/20 rounded-full text-[10px] font-black text-brand-red uppercase">
                                     {a.nombre}
                                     <button onClick={() => handleQuitarAsesor(a.id)} className="hover:text-brand-red-dark">
                                         <XMarkIcon className="w-3 h-3" />
@@ -189,7 +245,7 @@ const MasterCard = () => {
                         </div>
                     )}
 
-                    {/* Resumen totales */}
+                    {/* ── Totales ── */}
                     {!loading && (
                         <div className={`px-6 py-2 border-b flex flex-wrap gap-2 flex-shrink-0 ${isFullScreen ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-50'}`}>
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200 text-[10px] font-black uppercase text-slate-600">
@@ -207,7 +263,7 @@ const MasterCard = () => {
                         </div>
                     )}
 
-                    {/* Tabla (Se adapta si es full screen para scrollear internamente) */}
+                    {/* ── Tabla ── */}
                     <div className={`p-6 flex flex-col ${isFullScreen ? 'flex-1 overflow-hidden' : ''}`}>
                         {loading ? (
                             <div className="flex items-center justify-center h-40 flex-shrink-0">
@@ -253,14 +309,20 @@ const MasterCard = () => {
                                                 <tr key={`${f.prestamo_id}-${i}`} className={`hover:bg-slate-100 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
                                                     <td className="px-3 py-2.5">
                                                         <span className="text-[11px] font-black text-slate-700 uppercase whitespace-nowrap">
-                                                            {f.apellido_paterno !== '—' ? `${f.apellido_paterno} ${f.apellido_materno}, ${f.nombres}` : f.nombres}
+                                                            {f.apellido_paterno !== '—'
+                                                                ? `${f.apellido_paterno} ${f.apellido_materno}, ${f.nombres}`
+                                                                : f.nombres}
                                                         </span>
                                                     </td>
                                                     <td className="px-3 py-2.5 text-[10px] font-bold text-slate-500 whitespace-nowrap">{f.cod_recaudo}</td>
                                                     <td className="px-3 py-2.5 text-[10px] font-bold text-slate-500 whitespace-nowrap">{f.fecha_desembolso}</td>
                                                     <td className="px-3 py-2.5 text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap">{f.tipo_desembolso}</td>
-                                                    <td className={`px-3 py-2.5 text-[10px] font-black uppercase ${ESTADO_STYLES[f.estado_credito] ?? 'text-slate-600'}`}>{ESTADO_LABELS[f.estado_credito] ?? f.estado_credito}</td>
-                                                    <td className={`px-3 py-2.5 text-[10px] font-black uppercase ${SITUACION_STYLES[f.situacion_credito] ?? 'text-slate-500'}`}>{f.situacion_credito}</td>
+                                                    <td className={`px-3 py-2.5 text-[10px] font-black uppercase ${ESTADO_STYLES[f.estado_credito] ?? 'text-slate-600'}`}>
+                                                        {ESTADO_LABELS[f.estado_credito] ?? f.estado_credito}
+                                                    </td>
+                                                    <td className={`px-3 py-2.5 text-[10px] font-black uppercase ${SITUACION_STYLES[f.situacion_credito] ?? 'text-slate-500'}`}>
+                                                        {f.situacion_credito}
+                                                    </td>
                                                     <td className="px-3 py-2.5 text-right text-[11px] font-black text-slate-600">{f.ciclo}</td>
                                                     <td className="px-3 py-2.5 text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap">{f.nombre_grupo}</td>
                                                     <td className="px-3 py-2.5 text-[10px] font-black text-brand-gold-dark uppercase whitespace-nowrap">{f.cargo}</td>
@@ -280,7 +342,9 @@ const MasterCard = () => {
                                                     <td className="px-3 py-2.5 text-right text-[11px] font-bold text-slate-600 whitespace-nowrap">S/ {fmt(f.interes_percibido)}</td>
                                                     <td className="px-3 py-2.5 text-right text-[11px] font-black text-brand-red whitespace-nowrap">S/ {fmt(f.capital_adeudado)}</td>
                                                     <td className="px-3 py-2.5 text-right text-[11px] font-bold text-slate-600 whitespace-nowrap">S/ {fmt(f.interes_mes)}</td>
-                                                    <td className={`px-3 py-2.5 text-right text-[11px] font-black ${f.dias_atraso > 0 ? 'text-brand-red' : 'text-slate-400'}`}>{f.dias_atraso}</td>
+                                                    <td className={`px-3 py-2.5 text-right text-[11px] font-black ${f.dias_atraso > 0 ? 'text-brand-red' : 'text-slate-400'}`}>
+                                                        {f.dias_atraso}
+                                                    </td>
                                                     <td className="px-3 py-2.5 text-center">
                                                         <span className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-black border whitespace-nowrap ${SBS_STYLES[f.calificacion_sbs] ?? 'bg-slate-50 text-slate-500 border-slate-200'}`}>
                                                             {f.calificacion_sbs}
@@ -296,8 +360,6 @@ const MasterCard = () => {
                                         </tbody>
                                     </table>
                                 </div>
-                                
-                                {/* Paginación queda al fondo, siempre visible o scrolleable según el alto */}
                                 <div className={`flex-shrink-0 ${isFullScreen ? 'border-t border-slate-200 bg-slate-50' : ''}`}>
                                     <Pagination
                                         currentPage={data?.current_page}

@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getMasterDashboard } from 'services/dashboardService';
 
-// Reporte master = cartera completa por defecto (sin rango de fechas).
-// El usuario puede filtrar por fecha de desembolso si lo desea.
 export const useDashboardMaster = () => {
     const [loading,     setLoading]     = useState(true);
     const [data,        setData]        = useState(null);
@@ -10,41 +8,64 @@ export const useDashboardMaster = () => {
     const [fechaFin,    setFechaFin]    = useState('');
     const [asesoresSeleccionados, setAsesoresSeleccionados] = useState([]);
 
-    const fetchData = useCallback(async (fi = '', ff = '', asesorIds = [], page = 1) => {
+    // Nuevos filtros
+    const [documento,       setDocumento]       = useState('');
+    const [codRecaudo,      setCodRecaudo]      = useState('');
+    const [estadoCredito,   setEstadoCredito]   = useState('');
+    const [situacion,       setSituacion]       = useState('');
+    const [calificacionSbs, setCalificacionSbs] = useState('');
+
+    const buildFilters = useCallback((fi, ff, asesorIds, page, extra = {}) => {
+        const filters = { page };
+        if (fi)                  filters.fecha_inicio      = fi;
+        if (ff)                  filters.fecha_fin         = ff;
+        if (asesorIds.length > 0) filters.asesor_ids       = asesorIds.join(',');
+        if (extra.documento)     filters.documento         = extra.documento;
+        if (extra.codRecaudo)    filters.cod_recaudo       = extra.codRecaudo;
+        if (extra.estadoCredito) filters.estado_credito    = extra.estadoCredito;
+        if (extra.situacion)     filters.situacion         = extra.situacion;
+        if (extra.calificacionSbs) filters.calificacion_sbs = extra.calificacionSbs;
+        return filters;
+    }, []);
+
+    const fetchData = useCallback(async (fi = '', ff = '', asesorIds = [], page = 1, extra = {}) => {
         setLoading(true);
         try {
-            const filters = { page };
-            if (fi) filters.fecha_inicio = fi;
-            if (ff) filters.fecha_fin    = ff;
-            if (asesorIds.length > 0) filters.asesor_ids = asesorIds.join(',');
-            const json = await getMasterDashboard(filters);
+            const filters = buildFilters(fi, ff, asesorIds, page, extra);
+            const json    = await getMasterDashboard(filters);
             setData(json.data || json);
         } catch (e) {
             console.error('Error dashboard master:', e);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [buildFilters]);
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
+    const getExtra = () => ({ documento, codRecaudo, estadoCredito, situacion, calificacionSbs });
+
     const handleFiltrar = () =>
-        fetchData(fechaInicio, fechaFin, asesoresSeleccionados.map(a => a.id), 1);
+        fetchData(fechaInicio, fechaFin, asesoresSeleccionados.map(a => a.id), 1, getExtra());
 
     const handlePageChange = (page) =>
-        fetchData(fechaInicio, fechaFin, asesoresSeleccionados.map(a => a.id), page);
+        fetchData(fechaInicio, fechaFin, asesoresSeleccionados.map(a => a.id), page, getExtra());
 
     const handleLimpiar = () => {
-        setFechaInicio('');
-        setFechaFin('');
+        setFechaInicio(''); setFechaFin('');
         setAsesoresSeleccionados([]);
-        fetchData('', '', [], 1);
+        setDocumento(''); setCodRecaudo('');
+        setEstadoCredito(''); setSituacion(''); setCalificacionSbs('');
+        fetchData('', '', [], 1, {});
     };
 
     const handleAgregarAsesor = (asesor) => {
         if (!asesor) return;
         setAsesoresSeleccionados(prev =>
-            prev.find(a => a.id === asesor.id) ? prev : [...prev, { id: asesor.id, nombre: asesor.nombre_completo ?? asesor.nombre ?? `Asesor #${asesor.id}` }]
+            prev.find(a => a.id === asesor.id) ? prev : [
+                ...prev,
+                { id: asesor.id, nombre: asesor.nombre_completo ?? asesor.nombre ?? `Asesor #${asesor.id}` }
+            ]
         );
     };
 
@@ -58,5 +79,11 @@ export const useDashboardMaster = () => {
         asesoresSeleccionados,
         handleAgregarAsesor, handleQuitarAsesor,
         handleFiltrar, handleLimpiar, handlePageChange,
+        // nuevos
+        documento,       setDocumento,
+        codRecaudo,      setCodRecaudo,
+        estadoCredito,   setEstadoCredito,
+        situacion,       setSituacion,
+        calificacionSbs, setCalificacionSbs,
     };
 };
