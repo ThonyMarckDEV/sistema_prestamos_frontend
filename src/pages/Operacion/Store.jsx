@@ -134,20 +134,150 @@ const Store = () => {
 
                         {/* Desembolso */}
                         {prestamoSeleccionado && tipoOperacion === 'desembolso' && (
-                            <div className="mt-8 p-10 bg-brand-gold-light/30 rounded-[32px] border-2 border-dashed border-brand-gold/50 text-center animate-in zoom-in-95 duration-300">
-                                <h4 className="font-black text-brand-gold-dark uppercase text-lg mb-1 tracking-tight">Autorizar Desembolso</h4>
-                                <p className="text-xs font-bold text-brand-red uppercase tracking-widest">{prestamoSeleccionado.cliente}</p>
-                                <div className="my-10">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase block mb-2 tracking-[0.3em]">Importe Neto a Entregar</span>
-                                    <h2 className="text-7xl font-black text-brand-red italic tracking-tighter">S/ {prestamoSeleccionado.monto}</h2>
+                            <div className="mt-8 p-6 md:p-10 bg-brand-gold-light/30 rounded-[32px] border-2 border-dashed border-brand-gold/50 animate-in zoom-in-95 duration-300">
+                                {/* Encabezado */}
+                                <div className="text-center mb-8">
+                                    <h4 className="font-black text-brand-gold-dark uppercase text-lg mb-1 tracking-tight">Autorizar Desembolso</h4>
+                                    <p className="text-xs font-bold text-brand-red uppercase tracking-widest">{prestamoSeleccionado.cliente}</p>
                                 </div>
-                                <button
-                                    onClick={() => setIsDesembolsoModalOpen(true)}
-                                    disabled={loading}
-                                    className="px-16 py-5 bg-brand-red text-white rounded-2xl font-black uppercase text-sm shadow-xl shadow-brand-red/30 hover:bg-brand-red-dark transition-all active:scale-95 flex items-center gap-3 mx-auto"
-                                >
-                                    {loading ? 'Procesando...' : 'Siguiente: Adjuntar Voucher'}
-                                </button>
+
+                                {/* Datos del préstamo */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                                    <div className="bg-white/70 rounded-2xl p-4 border border-brand-gold/20">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] block mb-1">Préstamo</span>
+                                        <span className="text-sm font-black text-slate-800">#{prestamoSeleccionado.id}</span>
+                                    </div>
+                                    <div className="bg-white/70 rounded-2xl p-4 border border-brand-gold/20">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] block mb-1">Documento</span>
+                                        <span className="text-sm font-black text-slate-800">{prestamoSeleccionado.documento}</span>
+                                    </div>
+                                    <div className="bg-white/70 rounded-2xl p-4 border border-brand-gold/20">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] block mb-1">Producto</span>
+                                        <span className="text-xs font-black text-slate-800 leading-tight">{prestamoSeleccionado.producto_nombre}</span>
+                                    </div>
+                                    <div className="bg-white/70 rounded-2xl p-4 border border-brand-gold/20">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] block mb-1">Cuotas Pend.</span>
+                                        <span className="text-sm font-black text-slate-800">{prestamoSeleccionado.cuotas_pendientes}</span>
+                                    </div>
+                                    <div className="bg-white/70 rounded-2xl p-4 border border-brand-gold/20 col-span-2">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] block mb-1">Asesor Asignado</span>
+                                        <span className="text-xs font-black text-slate-800 leading-tight">{prestamoSeleccionado.asesor_nombre}</span>
+                                    </div>
+                                    <div className="bg-white/70 rounded-2xl p-4 border border-brand-gold/20 col-span-2">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] block mb-1">Tipo de Crédito</span>
+                                        <span className="text-xs font-black text-slate-800 leading-tight">
+                                            {prestamoSeleccionado.es_grupal
+                                                ? `GRUPAL${prestamoSeleccionado.grupo_nombre ? ` · ${prestamoSeleccionado.grupo_nombre}` : ''}`
+                                                : 'INDIVIDUAL'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Presidente del grupo (solo grupal) */}
+                                {prestamoSeleccionado.es_grupal && prestamoSeleccionado.presidente && (
+                                    <div className="bg-brand-red/5 rounded-2xl p-4 border border-brand-red/20 mb-6">
+                                        <span className="text-[9px] font-black text-brand-red/70 uppercase tracking-[0.15em] block mb-1">Presidente del Grupo</span>
+                                        <span className="text-sm font-black text-brand-red">{prestamoSeleccionado.presidente.nombre}</span>
+                                        {prestamoSeleccionado.presidente.dni && (
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mt-0.5">
+                                                DNI: {prestamoSeleccionado.presidente.dni}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Integrantes del grupo + sus cuentas (solo grupal) */}
+                                {prestamoSeleccionado.es_grupal && prestamoSeleccionado.integrantes?.length > 0 && (
+                                    <div className="mb-8">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase block mb-3 tracking-[0.2em] text-center">
+                                            Integrantes del Grupo ({prestamoSeleccionado.integrantes.length})
+                                        </span>
+                                        <div className="space-y-3">
+                                            {prestamoSeleccionado.integrantes.map((int, idx) => (
+                                                <div key={int.cliente_id ?? idx} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                                        <div>
+                                                            <span className="text-sm font-black text-slate-800 leading-tight block">{int.nombre}</span>
+                                                            {int.dni && (
+                                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">DNI: {int.dni}</span>
+                                                            )}
+                                                        </div>
+                                                        {int.cargo && (
+                                                            <span className={`text-[8px] font-black uppercase px-2.5 py-1 rounded-full tracking-[0.1em] ${
+                                                                int.cargo === 'PRESIDENTE'
+                                                                    ? 'bg-brand-red/10 text-brand-red'
+                                                                    : 'bg-slate-100 text-slate-500'
+                                                            }`}>
+                                                                {int.cargo}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Cuentas del integrante */}
+                                                    {int.cuentas_bancarias?.length > 0 ? (
+                                                        <div className="space-y-1.5 mt-2 pt-2 border-t border-slate-100">
+                                                            {int.cuentas_bancarias.map((cta, i) => (
+                                                                <div key={i} className="flex flex-col md:flex-row md:items-center md:justify-between gap-1">
+                                                                    <div>
+                                                                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] block">{cta.banco}</span>
+                                                                        <span className="text-xs font-black text-slate-700 tracking-tight">N° {cta.numero_cuenta}</span>
+                                                                    </div>
+                                                                    <span className="text-[10px] font-bold text-slate-500 tracking-tight md:text-right">CCI: {cta.cci}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest block mt-2 pt-2 border-t border-slate-100">Sin cuentas registradas</span>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Cuentas bancarias (solo individual) */}
+                                {!prestamoSeleccionado.es_grupal && prestamoSeleccionado.cuentas_bancarias?.length > 0 && (
+                                    <div className="mb-8">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase block mb-3 tracking-[0.2em] text-center">Cuentas Bancarias del Cliente</span>
+                                        <div className="space-y-2">
+                                            {prestamoSeleccionado.cuentas_bancarias.map((cta, idx) => (
+                                                <div key={idx} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                                                    <div>
+                                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] block mb-0.5">{cta.banco}</span>
+                                                        <span className="text-sm font-black text-slate-800 tracking-tight">N° {cta.numero_cuenta}</span>
+                                                    </div>
+                                                    <div className="md:text-right">
+                                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] block mb-0.5">CCI</span>
+                                                        <span className="text-xs font-bold text-slate-600 tracking-tight">{cta.cci}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Importe a entregar */}
+                                <div className="text-center my-10">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase block mb-2 tracking-[0.3em]">Importe Neto a Entregar</span>
+                                    <h2 className="text-6xl md:text-7xl font-black text-brand-red italic tracking-tighter">S/ {prestamoSeleccionado.monto}</h2>
+                                    {prestamoSeleccionado.monto_original &&
+                                        parseFloat(prestamoSeleccionado.monto_original) !== parseFloat(prestamoSeleccionado.monto) && (
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mt-2">
+                                            Monto original: S/ {parseFloat(prestamoSeleccionado.monto_original).toFixed(2)}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Botón */}
+                                <div className="text-center">
+                                    <button
+                                        onClick={() => setIsDesembolsoModalOpen(true)}
+                                        disabled={loading}
+                                        className="px-16 py-5 bg-brand-red text-white rounded-2xl font-black uppercase text-sm shadow-xl shadow-brand-red/30 hover:bg-brand-red-dark transition-all active:scale-95 flex items-center gap-3 mx-auto"
+                                    >
+                                        {loading ? 'Procesando...' : 'Siguiente: Adjuntar Voucher'}
+                                    </button>
+                                </div>
                             </div>
                         )}
 
