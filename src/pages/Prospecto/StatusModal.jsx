@@ -6,24 +6,34 @@ import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { EstadoBadge } from 'components/Shared/Formularios/Prospecto/ProspectoForm';
 import { toUpper } from 'utilities/Validations/validations';
 
-const StatusModal = ({ isOpen, onClose, prospecto, onSuccess }) => {
+const StatusModal = ({ isOpen, onClose, prospecto, onSuccess, onNotify }) => {
     const [estadoNuevo, setEstadoNuevo] = useState('');
     const [nota,        setNota]        = useState('');
     const [loading,     setLoading]     = useState(false);
-    const [error,       setError]       = useState(null);
 
     const handleSubmit = async () => {
-        if (!estadoNuevo) return setError('Selecciona Aprobar o Rechazar.');
+        if (!estadoNuevo) {
+            onNotify?.({ type: 'error', message: 'Selecciona Aprobar o Rechazar.' });
+            return;
+        }
         setLoading(true);
-        setError(null);
         try {
             const res = await status(prospecto.id, { estado: parseInt(estadoNuevo), nota });
+            onNotify?.({
+                type: 'success',
+                message: estadoNuevo === '4' ? 'Prospecto aprobado correctamente.' : 'Prospecto rechazado correctamente.',
+            });
             onSuccess(res.data || res);
             onClose();
             setEstadoNuevo('');
             setNota('');
         } catch (err) {
-            setError(handleApiError(err)?.message || 'Error al actualizar el estado');
+            const apiErr = handleApiError(err);
+            onNotify?.({
+                type: 'error',
+                message: apiErr?.message || 'Error al actualizar el estado',
+                details: apiErr?.details,
+            });
         } finally {
             setLoading(false);
         }
@@ -68,8 +78,6 @@ const StatusModal = ({ isOpen, onClose, prospecto, onSuccess }) => {
                         placeholder={estadoNuevo === '5' ? 'MOTIVO DEL RECHAZO...' : 'OBSERVACIONES DE APROBACIÓN...'}
                     />
                 </div>
-
-                {error && <p className="text-xs text-red-600 font-bold bg-red-50 p-3 rounded-xl">{error}</p>}
 
                 <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">
                     <button type="button" onClick={onClose}

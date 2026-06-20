@@ -8,25 +8,31 @@ import { toUpper } from 'utilities/Validations/validations';
 
 const ESTADOS_OPCIONES = [2, 3]; // Contactado, En Evaluación
 
-const SeguimientoModal = ({ isOpen, onClose, prospecto, onSuccess }) => {
+const SeguimientoModal = ({ isOpen, onClose, prospecto, onSuccess, onNotify }) => {
     const [estadoNuevo, setEstadoNuevo] = useState('');
     const [nota,        setNota]        = useState('');
     const [loading,     setLoading]     = useState(false);
-    const [error,       setError]       = useState(null);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!estadoNuevo) return setError('Selecciona el nuevo estado.');
+    const handleSubmit = async () => {
+        if (!estadoNuevo) {
+            onNotify?.({ type: 'error', message: 'Selecciona el nuevo estado.' });
+            return;
+        }
         setLoading(true);
-        setError(null);
         try {
             const res = await registrarSeguimiento(prospecto.id, { estado: parseInt(estadoNuevo), nota });
+            onNotify?.({ type: 'success', message: 'Seguimiento registrado correctamente.' });
             onSuccess(res.data || res);
             onClose();
             setEstadoNuevo('');
             setNota('');
         } catch (err) {
-            setError(handleApiError(err)?.message || 'Error al registrar seguimiento');
+            const apiErr = handleApiError(err);
+            onNotify?.({
+                type: 'error',
+                message: apiErr?.message || 'Error al registrar seguimiento',
+                details: apiErr?.details,
+            });
         } finally {
             setLoading(false);
         }
@@ -78,8 +84,6 @@ const SeguimientoModal = ({ isOpen, onClose, prospecto, onSuccess }) => {
                         placeholder="DESCRIBE EL RESULTADO DEL CONTACTO..."
                     />
                 </div>
-
-                {error && <p className="text-xs text-red-600 font-bold">{error}</p>}
 
                 <div className="flex justify-end gap-3 pt-2">
                     <button type="button" onClick={onClose}

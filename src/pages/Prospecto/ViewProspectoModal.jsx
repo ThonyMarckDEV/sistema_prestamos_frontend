@@ -84,7 +84,7 @@ const TimelineItem = ({ s, isLast }) => (
 );
 
 /* ─── MODAL PRINCIPAL ─────────────────────────────────────── */
-const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuccess }) => {
+const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuccess, onNotify }) => {
     const navigate = useNavigate();
     const { can } = useAuth();
 
@@ -325,12 +325,14 @@ const ViewProspectoModal = ({ isOpen, onClose, data, isLoading, onSeguimientoSuc
                 onClose={() => setSeguimientoOpen(false)}
                 prospecto={data}
                 onSuccess={handleSuccess}
+                onNotify={onNotify}
             />
             <StatusModal
                 isOpen={statusOpen}
                 onClose={() => setStatusOpen(false)}
                 prospecto={data}
                 onSuccess={handleSuccess}
+                onNotify={onNotify}
             />
         </>
     );
