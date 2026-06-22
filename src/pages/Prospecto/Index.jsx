@@ -27,6 +27,8 @@ const Index = () => {
 
     const [convertirOpen,       setConvertirOpen]       = useState(false);
     const [prospectoAConvertir, setProspectoAConvertir] = useState(null);
+    const [zonaKey,   setZonaKey]   = useState(Date.now());
+    const [asesorKey, setAsesorKey] = useState(Date.now());
 
     const handleAbrirConvertir = useCallback((prospectoId) => {
         setProspectoAConvertir(prospectoId);
@@ -39,48 +41,66 @@ const Index = () => {
         fetchProspectos(paginationInfo.currentPage);
     };
 
-    // ── Filtros extra (zona y asesor) fuera del filterConfig normal ───────────
-    const extraFilters = (
-        <div className="grid grid-cols-12 gap-3 mt-3">
-            <div className="col-span-12 md:col-span-6">
-                <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">Zona</label>
-                <ZonaSearchSelect
-                    initialName={filters._zonaNombre || ''}
-                    onSelect={(zona) => {
-                        handleFilterChange('zona_id', zona?.id || '');
-                        handleFilterChange('_zonaNombre', zona?.nombre || '');
-                    }}
-                />
-            </div>
-            <div className="col-span-12 md:col-span-6">
-                <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">Asesor</label>
-                <EmpleadoSearchSelect
-                    initialName={filters._asesorNombre || ''}
-                    rol="asesor"
-                    onSelect={(emp) => {
-                        handleFilterChange('asesor_id', emp?.id || '');
-                        handleFilterChange('_asesorNombre', emp?.nombre_completo || '');
-                    }}
-                />
-            </div>
-        </div>
-    );
+    const onClearFilters = () => {
+        handleFilterClear();
+        setZonaKey(Date.now());
+        setAsesorKey(Date.now());
+    };
 
     const filterConfig = useMemo(() => [
-        { name: 'search', type: 'text', label: 'Buscar (Nombre/DNI/RUC/Teléfono)', placeholder: 'Ej: Juan, 12345678...', colSpan: 'col-span-12 md:col-span-5' },
-        { name: 'estado', type: 'select', label: 'Estado', colSpan: 'col-span-12 md:col-span-3',
-          options: [
-              { value: '', label: 'Todos' },
-              { value: '1', label: 'Nuevo' },
-              { value: '2', label: 'Contactado' },
-              { value: '3', label: 'En Evaluación' },
-              { value: '4', label: 'Aprobado' },
-              { value: '5', label: 'Rechazado' },
-              { value: '6', label: 'Convertido' },
-          ]},
-        { name: 'tipo', type: 'select', label: 'Tipo', colSpan: 'col-span-12 md:col-span-4',
-          options: [{ value: '', label: 'Todos' }, { value: '1', label: 'Persona' }, { value: '2', label: 'Empresa' }] },
-    ], []);
+        {
+            name: 'search', type: 'text',
+            label: 'Buscar (Nombre/DNI/RUC/Teléfono)',
+            placeholder: 'Ej: Juan, 12345678...',
+            colSpan: 'col-span-12 md:col-span-5'
+        },
+        {
+            name: 'estado', type: 'select', label: 'Estado',
+            colSpan: 'col-span-12 md:col-span-3',
+            options: [
+                { value: '', label: 'Todos' },
+                { value: '1', label: 'Nuevo' },
+                { value: '2', label: 'Contactado' },
+                { value: '3', label: 'En Evaluación' },
+                { value: '4', label: 'Aprobado' },
+                { value: '5', label: 'Rechazado' },
+                { value: '6', label: 'Convertido' },
+            ]
+        },
+        {
+            name: 'tipo', type: 'select', label: 'Tipo',
+            colSpan: 'col-span-12 md:col-span-4',
+            options: [
+                { value: '', label: 'Todos' },
+                { value: '1', label: 'Persona' },
+                { value: '2', label: 'Empresa' }
+            ]
+        },
+        {
+            name: 'zona_id', type: 'custom',
+            label: 'Zona',
+            colSpan: 'col-span-12 md:col-span-6',
+            render: () => (
+                <ZonaSearchSelect
+                    key={zonaKey}
+                    onSelect={(zona) => handleFilterChange('zona_id', zona?.id || '')}
+                />
+            ),
+        },
+        {
+            name: 'asesor_id', type: 'custom',
+            label: 'Asesor',
+            colSpan: 'col-span-12 md:col-span-6',
+            render: () => (
+                <EmpleadoSearchSelect
+                    key={asesorKey}
+                    rol="asesor"
+                    onSelect={(emp) => handleFilterChange('asesor_id', emp?.id || '')}
+                    clearOnSelect={false}
+                />
+            ),
+        },
+    ], [zonaKey, asesorKey, handleFilterChange]);
 
     const columns = useMemo(() => [
         {
@@ -216,8 +236,7 @@ const Index = () => {
                 filterConfig={filterConfig} filters={filters}
                 onFilterChange={handleFilterChange}
                 onFilterSubmit={handleFilterSubmit}
-                onFilterClear={handleFilterClear}
-                extraFilters={extraFilters}
+                onFilterClear={onClearFilters}
                 pagination={{ ...paginationInfo, onPageChange: fetchProspectos }}
             />
 
