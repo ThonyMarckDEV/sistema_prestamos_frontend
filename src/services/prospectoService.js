@@ -6,12 +6,12 @@ const BASE_URL = `${API_BASE_URL}/api/prospecto`;
 
 export const index = async (page = 1, filters = {}) => {
     const params = new URLSearchParams({
-        page:    page,
-        search:  filters.search  || '',
-        estado:  filters.estado  || '',
-        tipo:    filters.tipo    || '',
-        zona:    filters.zona    || '',
-        asesor:  filters.asesor  || '',
+        page:     page,
+        search:   filters.search   || '',
+        estado:   filters.estado   || '',
+        tipo:     filters.tipo     || '',
+        zona:     filters.zona_id  || '',
+        asesor:   filters.asesor_id || '',
     });
     const response = await fetchWithAuth(`${BASE_URL}/index?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);
