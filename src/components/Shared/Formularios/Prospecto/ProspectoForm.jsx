@@ -157,7 +157,7 @@ const ProspectoForm = ({ data, onChange, isEditing = false }) => {
                             className={inputClass} required />
                     </div>
                     <div>
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Teléfono Fijo</label>
+                        <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Teléfono Fijo (Opcional)</label>
                         <input type="text" value={data.telefonoFijo || ''} onChange={(e) => onChange('telefonoFijo', onlyNumbers(e.target.value, 15))}
                             className={inputClass} />
                     </div>
