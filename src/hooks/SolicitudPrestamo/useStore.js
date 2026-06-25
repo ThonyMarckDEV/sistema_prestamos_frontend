@@ -16,7 +16,7 @@ export const useStore = () => {
     const [formData, setFormData] = useState({
         es_grupal:          false,
         cliente_id:         '',
-        cliente_nombre:     '',   // ← nuevo
+        cliente_nombre:     '',
         fechaVencimientoDni:'',
         dni_status:         null,
         grupo_id:           '',
@@ -92,6 +92,9 @@ export const useStore = () => {
                     dni_status:          cliente.dni_status ?? null,
                     puede_excluirse:     cliente.puede_excluirse ?? true,
                     saldo_pendiente:     cliente.saldo_pendiente ?? 0,
+                    // tasa individual: null = usa la tasa global
+                    tasa_interes:        null,
+                    usa_tasa_individual: false,
                 }],
             };
         });
@@ -100,6 +103,30 @@ export const useStore = () => {
     const removeIntegrante      = (id) => setFormData(prev => ({ ...prev, integrantes: prev.integrantes.filter(i => i.id !== id) }));
     const updateMontoIntegrante = (id, monto) => setFormData(prev => ({ ...prev, integrantes: prev.integrantes.map(i => i.id === id ? { ...i, monto } : i) }));
     const updateCargoIntegrante = (id, cargo) => setFormData(prev => ({ ...prev, integrantes: prev.integrantes.map(i => i.id === id ? { ...i, cargo } : i) }));
+
+    /**
+     * Activa/desactiva la tasa individual de un integrante.
+     * Al desactivar, limpia la tasa para que use la global.
+     */
+    const toggleTasaIndividual = (id, activo) => {
+        setFormData(prev => ({
+            ...prev,
+            integrantes: prev.integrantes.map(i =>
+                i.id === id
+                    ? { ...i, usa_tasa_individual: activo, tasa_interes: activo ? (i.tasa_interes ?? '') : null }
+                    : i
+            ),
+        }));
+    };
+
+    const updateTasaIntegrante = (id, tasa) => {
+        setFormData(prev => ({
+            ...prev,
+            integrantes: prev.integrantes.map(i =>
+                i.id === id ? { ...i, tasa_interes: tasa } : i
+            ),
+        }));
+    };
 
     const handleRemoveIntegrante = (id) => {
         if (esRenovacionActiva) {
@@ -121,7 +148,7 @@ export const useStore = () => {
             grupo_id:           '',
             grupo_nombre:       '',
             cliente_id:         '',
-            cliente_nombre:     '',   // ← limpiar
+            cliente_nombre:     '',
             integrantes:        [],
             producto_id:        '',
             producto_nombre:    '',
@@ -157,13 +184,13 @@ export const useStore = () => {
             updates.cliente_nombre = '';
             updates.integrantes  = [];
         } else {
-            updates.es_grupal      = false;
-            updates.cliente_id     = prestamo.cliente_id ?? '';
-            updates.cliente_nombre = prestamo.cliente    ?? '';  // ← nombre del cliente
-            updates.grupo_id       = '';
-            updates.integrantes    = [];
-            updates.modalidad      = prestamo.modalidad_cliente ?? 'RSS';
-            updates.dni_status     = prestamo.dni_status ?? null;
+            updates.es_grupal           = false;
+            updates.cliente_id          = prestamo.cliente_id ?? '';
+            updates.cliente_nombre      = prestamo.cliente    ?? '';
+            updates.grupo_id            = '';
+            updates.integrantes         = [];
+            updates.modalidad           = prestamo.modalidad_cliente ?? 'RSS';
+            updates.dni_status          = prestamo.dni_status ?? null;
             updates.fechaVencimientoDni = prestamo.dni_status?.fecha_texto ?? '';
         }
 
@@ -204,7 +231,7 @@ export const useStore = () => {
         try {
             const payload = { ...formData };
             delete payload.asesor_nombre;
-            delete payload.cliente_nombre;   // ← no enviar al backend
+            delete payload.cliente_nombre;
             delete payload.fechaVencimientoDni;
             delete payload.dni_status;
             delete payload.producto_nombre;
@@ -225,6 +252,17 @@ export const useStore = () => {
                 payload.modalidad = 'NUEVO';
             }
 
+            // Limpiar campos UI de integrantes antes de enviar
+            if (payload.es_grupal && Array.isArray(payload.integrantes)) {
+                payload.integrantes = payload.integrantes.map(i => ({
+                    id:              i.id,
+                    monto:           i.monto,
+                    cargo:           i.cargo,
+                    // null si usa tasa global; valor numérico si tiene tasa propia
+                    tasa_interes:    i.usa_tasa_individual ? (parseFloat(i.tasa_interes) || null) : null,
+                }));
+            }
+
             await store(payload);
             setAlert({ type: 'success', message: 'Solicitud enviada con éxito.' });
             setTimeout(() => navigate('/solicitudPrestamo/listar'), 1500);
@@ -240,6 +278,7 @@ export const useStore = () => {
         handleChange, handleSubmit,
         addIntegrante, handleRemoveIntegrante,
         updateMontoIntegrante, updateCargoIntegrante,
+        toggleTasaIndividual, updateTasaIntegrante,
         esRenovacion, prestamoOrigen, comboKey,
         handleToggleRenovacion,
         handleSelectPrestamoOrigen,

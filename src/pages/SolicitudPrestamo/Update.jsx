@@ -11,9 +11,9 @@ const Update = () => {
         handleChange, handleSubmit, navigate,
         addIntegrante, removeIntegrante,
         updateMontoIntegrante, updateCargoIntegrante,
+        toggleTasaIndividual, updateTasaIntegrante,
     } = useUpdate();
 
-    // isBlocked sube desde SolicitudForm → useSolicitudForm via este callback
     const [isBlocked, setIsBlocked] = useState(false);
 
     if (loading || !formData) return <LoadingScreen />;
@@ -41,6 +41,8 @@ const Update = () => {
                     removeIntegrante={removeIntegrante}
                     updateMontoIntegrante={updateMontoIntegrante}
                     updateCargoIntegrante={updateCargoIntegrante}
+                    toggleTasaIndividual={toggleTasaIndividual}
+                    updateTasaIntegrante={updateTasaIntegrante}
                     isUpdate={true}
                     onBlockedChange={setIsBlocked}
                 />

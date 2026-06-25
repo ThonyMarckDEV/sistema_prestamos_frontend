@@ -10,11 +10,12 @@ const Store = () => {
         handleChange, handleSubmit,
         addIntegrante, handleRemoveIntegrante,
         updateMontoIntegrante, updateCargoIntegrante,
+        toggleTasaIndividual, updateTasaIntegrante,
         esRenovacion, prestamoOrigen, comboKey,
         handleToggleRenovacion, handleSelectPrestamoOrigen, handleLimpiarOrigen
     } = useStore();
 
-    const [isBlocked, setIsBlocked] = useState(false);  // ← sube desde el form
+    const [isBlocked, setIsBlocked] = useState(false);
 
     const puedeEnviar = !loading && !isBlocked && (!esRenovacion || !!prestamoOrigen);
 
@@ -31,6 +32,8 @@ const Store = () => {
                     removeIntegrante={handleRemoveIntegrante}
                     updateMontoIntegrante={updateMontoIntegrante}
                     updateCargoIntegrante={updateCargoIntegrante}
+                    toggleTasaIndividual={toggleTasaIndividual}
+                    updateTasaIntegrante={updateTasaIntegrante}
                     onBlockedChange={setIsBlocked}
                     esRenovacion={esRenovacion}
                     prestamoOrigen={prestamoOrigen}

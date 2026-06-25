@@ -22,15 +22,18 @@ export const useUpdate = () => {
                     seguro_financiado:  !!data.seguro_financiado,
                     asesor_id:          data.asesor_id     || '',
                     asesor_nombre:      data.asesor_nombre  || '',
-                    prestamo_origen_id: data.prestamo_origen_id || '',  // ← detecta renovación
+                    prestamo_origen_id: data.prestamo_origen_id || '',
                     integrantes: data.integrantes.map(i => ({
-                        id:              i.id,
-                        nombre:          i.nombre_completo,
-                        monto:           i.monto,
-                        modalidad:       i.modalidad,
-                        cargo:           i.cargo || 'INTEGRANTE',
-                        puede_excluirse: i.puede_excluirse ?? true,   // ← bloqueo eliminación
-                        saldo_pendiente: i.saldo_pendiente ?? 0,
+                        id:                  i.id,
+                        nombre:              i.nombre_completo,
+                        monto:               i.monto,
+                        modalidad:           i.modalidad,
+                        cargo:               i.cargo || 'INTEGRANTE',
+                        puede_excluirse:     i.puede_excluirse ?? true,
+                        saldo_pendiente:     i.saldo_pendiente ?? 0,
+                        // tasa individual guardada en BD (null = usa global)
+                        tasa_interes:        i.tasa_interes ?? null,
+                        usa_tasa_individual: i.tasa_interes != null,
                     })),
                 });
             } catch (err) {
@@ -59,7 +62,7 @@ export const useUpdate = () => {
     useEffect(() => {
         if (formData?.es_grupal) {
             const total = formData.integrantes.reduce((acc, i) => acc + parseFloat(i.monto || 0), 0);
-            if (total !== parseFloat(formData.monto_solicitado))  // ← parsear antes de comparar
+            if (total !== parseFloat(formData.monto_solicitado))
                 setFormData(prev => ({ ...prev, monto_solicitado: total }));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,19 +76,20 @@ export const useUpdate = () => {
             return {
                 ...prev,
                 integrantes: [...prev.integrantes, {
-                    id:              cliente.usuario_id,
-                    nombre:          cliente.nombre_completo,
-                    modalidad:       cliente.modalidad_cliente,
-                    monto:           '',
-                    cargo:           hasPresidente ? 'INTEGRANTE' : 'PRESIDENTE',
-                    puede_excluirse: true,
-                    saldo_pendiente: 0,
+                    id:                  cliente.usuario_id,
+                    nombre:              cliente.nombre_completo,
+                    modalidad:           cliente.modalidad_cliente,
+                    monto:               '',
+                    cargo:               hasPresidente ? 'INTEGRANTE' : 'PRESIDENTE',
+                    puede_excluirse:     true,
+                    saldo_pendiente:     0,
+                    tasa_interes:        null,
+                    usa_tasa_individual: false,
                 }],
             };
         });
     };
 
-    // Bloquea quitar integrantes que deben renovar
     const removeIntegrante = (id) => {
         if (esRenovacionActiva) {
             const int = formData.integrantes.find(i => i.id === id);
@@ -94,10 +98,33 @@ export const useUpdate = () => {
         setFormData(prev => ({ ...prev, integrantes: prev.integrantes.filter(i => i.id !== id) }));
     };
 
-    const updateMontoIntegrante = (id, monto) => setFormData(prev => ({ ...prev, integrantes: prev.integrantes.map(i => i.id === id ? { ...i, monto } : i) }));
-    const updateCargoIntegrante = (id, cargo) => setFormData(prev => ({ ...prev, integrantes: prev.integrantes.map(i => i.id === id ? { ...i, cargo } : i) }));
+    const updateMontoIntegrante = (id, monto) =>
+        setFormData(prev => ({ ...prev, integrantes: prev.integrantes.map(i => i.id === id ? { ...i, monto } : i) }));
 
-    // ── Submit — recibe isBlocked desde el form ───────────────────────────────
+    const updateCargoIntegrante = (id, cargo) =>
+        setFormData(prev => ({ ...prev, integrantes: prev.integrantes.map(i => i.id === id ? { ...i, cargo } : i) }));
+
+    const toggleTasaIndividual = (id, activo) => {
+        setFormData(prev => ({
+            ...prev,
+            integrantes: prev.integrantes.map(i =>
+                i.id === id
+                    ? { ...i, usa_tasa_individual: activo, tasa_interes: activo ? (i.tasa_interes ?? '') : null }
+                    : i
+            ),
+        }));
+    };
+
+    const updateTasaIntegrante = (id, tasa) => {
+        setFormData(prev => ({
+            ...prev,
+            integrantes: prev.integrantes.map(i =>
+                i.id === id ? { ...i, tasa_interes: tasa } : i
+            ),
+        }));
+    };
+
+    // ── Submit ────────────────────────────────────────────────────────────────
     const handleSubmit = async (e, isBlocked) => {
         e.preventDefault();
         if (isBlocked) return;
@@ -127,6 +154,16 @@ export const useUpdate = () => {
                 payload.modalidad = 'NUEVO';
             }
 
+            // Limpiar campos UI de integrantes
+            if (payload.es_grupal && Array.isArray(payload.integrantes)) {
+                payload.integrantes = payload.integrantes.map(i => ({
+                    id:           i.id,
+                    monto:        i.monto,
+                    cargo:        i.cargo,
+                    tasa_interes: i.usa_tasa_individual ? (parseFloat(i.tasa_interes) || null) : null,
+                }));
+            }
+
             await update(id, payload);
             setAlert({ type: 'success', message: 'Solicitud actualizada.' });
             setTimeout(() => navigate('/solicitudPrestamo/listar'), 1500);
@@ -144,5 +181,6 @@ export const useUpdate = () => {
         esRenovacionActiva,
         addIntegrante, removeIntegrante,
         updateMontoIntegrante, updateCargoIntegrante,
+        toggleTasaIndividual, updateTasaIntegrante,
     };
 };
