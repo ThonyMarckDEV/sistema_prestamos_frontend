@@ -13,6 +13,7 @@ import {
 import { Link } from 'react-router-dom';
 import ViewSolicitudModal from './ViewSolicitudModal';
 import ApproveSolicitudModal from 'components/Shared/Modals/ApproveSolicitudModal';
+import ContratoSelectorModal from './ContratoSelectorModal';
 
 const Index = () => {
     const {
@@ -25,6 +26,8 @@ const Index = () => {
         handleVerContrato, contratoLoading,
         isPdfOpen, setIsPdfOpen, contratoPdf, contratoPdfTitle,
         handleMarcarConforme, conformeLoading,
+        isContratoSelectorOpen, contratoSelectorData,
+        handleCloseContratoSelector, handleSelectContrato,
     } = useIndex();
 
     const { can } = useAuth();
@@ -181,6 +184,15 @@ const Index = () => {
                 isLoading={viewLoading}
             />
 
+            {/* Selector de contrato (grupal + integrantes) */}
+            <ContratoSelectorModal
+                isOpen={isContratoSelectorOpen}
+                onClose={handleCloseContratoSelector}
+                data={contratoSelectorData}
+                onSelectContrato={handleSelectContrato}
+            />
+
+            {/* Visor del PDF elegido */}
             <PdfModal
                 isOpen={isPdfOpen}
                 onClose={() => setIsPdfOpen(false)}

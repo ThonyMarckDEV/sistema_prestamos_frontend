@@ -25,6 +25,10 @@ export const useIndex = () => {
     const [contratoPdf, setContratoPdf] = useState(null);
     const [contratoPdfTitle, setContratoPdfTitle] = useState('');
 
+    // Selector de contrato (grupal / integrantes)
+    const [isContratoSelectorOpen, setIsContratoSelectorOpen] = useState(false);
+    const [contratoSelectorData, setContratoSelectorData] = useState(null);
+
     const fetchSolicitudes = useCallback(async (page = 1) => {
         setLoading(true);
         try {
@@ -75,19 +79,36 @@ export const useIndex = () => {
         }
     };
 
+    // Abre el SELECTOR de contratos (grupal + individuales)
     const handleVerContrato = async (row) => {
         setContratoLoading(row.id);
         try {
             const response = await descargarContrato(row.id);
-            const pdf = response.data.pdf;
+            // response.data debe traer { pdf, title, contratos_individuales: [...] }
+            setContratoSelectorData(response.data);
+            setIsContratoSelectorOpen(true);
+        } catch (err) { setAlert(handleApiError(err)); }
+        finally { setContratoLoading(null); }
+    };
+
+    const handleCloseContratoSelector = () => {
+        setIsContratoSelectorOpen(false);
+        setContratoSelectorData(null);
+    };
+
+    // Al elegir un contrato (grupal o de un integrante) dentro del selector
+    const handleSelectContrato = ({ pdf, title }) => {
+        try {
             const byteArray = new Uint8Array(Array.from(atob(pdf), c => c.charCodeAt(0)));
             const blob = new Blob([byteArray], { type: 'application/pdf' });
             const url = URL.createObjectURL(blob);
             setContratoPdf(url);
-            setContratoPdfTitle(`Contrato Grupal — Solicitud #${row.id}`);
+            setContratoPdfTitle(title);
+            setIsContratoSelectorOpen(false);
             setIsPdfOpen(true);
-        } catch (err) { setAlert(handleApiError(err)); }
-        finally { setContratoLoading(null); }
+        } catch (err) {
+            setAlert(handleApiError(err));
+        }
     };
 
     const handleMarcarConforme = async (solicitudId) => {
@@ -117,5 +138,7 @@ export const useIndex = () => {
         handleVerContrato, contratoLoading,
         isPdfOpen, setIsPdfOpen, contratoPdf, contratoPdfTitle,
         handleMarcarConforme, conformeLoading,
+        isContratoSelectorOpen, contratoSelectorData,
+        handleCloseContratoSelector, handleSelectContrato,
     };
 };
