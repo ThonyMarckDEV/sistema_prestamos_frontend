@@ -7,6 +7,8 @@ import { UserIcon, UserGroupIcon, ShieldCheckIcon, TrashIcon, ExclamationTriangl
 const SectionClienteGrupo = ({ 
     data, handleChange, isBlocked, isMainBlocked, isUpdate, 
     addIntegrante, removeIntegrante, updateMontoIntegrante, updateCargoIntegrante,
+    toggleTasaIndividual, updateTasaIntegrante,
+    tasaGlobal = '',
     idsOrigenRenovacion = [],
 }) => {
 
@@ -94,8 +96,15 @@ const SectionClienteGrupo = ({
                             <thead className="bg-slate-50 text-[10px] font-black text-slate-500 uppercase">
                                 <tr>
                                     <th className="px-4 py-3">Socio / Modalidad</th>
-                                    <th className="px-4 py-3 w-40">Cargo</th>
-                                    <th className="px-4 py-3 w-40">Aporte (S/)</th>
+                                    <th className="px-4 py-3 w-36">Cargo</th>
+                                    <th className="px-4 py-3 w-36">Aporte (S/)</th>
+                                    {/* Columna tasa individual */}
+                                    <th className="px-4 py-3 w-48">
+                                        <span className="flex items-center gap-1">
+                                            Tasa %
+                                            <span className="text-[9px] font-bold text-slate-400 normal-case">(vacío = global)</span>
+                                        </span>
+                                    </th>
                                     <th className="px-4 py-3 w-10"></th>
                                 </tr>
                             </thead>
@@ -103,12 +112,10 @@ const SectionClienteGrupo = ({
                                 {data.integrantes.map((int) => {
                                     const esDeOrigen = idsOrigenRenovacion.includes(int.id);
 
-                                    // Rojo: VIGENTE GRUPAL o RCS (bloquea) — excepto si es del origen
                                     const tieneRiesgoGrupal = int.modalidad === 'RCS' ||
                                         int.modalidad === 'VIGENTE GRUPAL' ||
                                         (int.modalidad?.includes('VIGENTE') && int.modalidad?.includes('GRUPAL'));
 
-                                    // Amarillo: DNI por vencer, VIGENTE INDIVIDUAL, o es del origen con riesgo
                                     const tieneRiesgoIndividual = int.modalidad === 'VIGENTE INDIVIDUAL' ||
                                         (int.modalidad?.includes('VIGENTE') && !int.modalidad?.includes('GRUPAL'));
 
@@ -117,9 +124,10 @@ const SectionClienteGrupo = ({
 
                                     const isRed    = (tieneRiesgoGrupal && !esDeOrigen) || dniVencido;
                                     const isYellow = !isRed && (dniPorVencer || tieneRiesgoIndividual || (tieneRiesgoGrupal && esDeOrigen));
-
+                                    
                                     return (
                                         <tr key={int.id} className={isRed ? 'bg-red-50/50' : (isYellow ? 'bg-yellow-50/50' : 'hover:bg-slate-50')}>
+                                            {/* Socio */}
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`font-bold uppercase text-[11px] ${isRed ? 'text-red-700' : 'text-slate-700'}`}>{int.nombre}</span>
@@ -134,6 +142,8 @@ const SectionClienteGrupo = ({
                                                     </span>
                                                 </div>
                                             </td>
+
+                                            {/* Cargo */}
                                             <td className="px-4 py-3">
                                                 <select
                                                     value={int.cargo || 'INTEGRANTE'}
@@ -146,6 +156,8 @@ const SectionClienteGrupo = ({
                                                     <option value="INTEGRANTE">Integrante</option>
                                                 </select>
                                             </td>
+
+                                            {/* Aporte */}
                                             <td className="px-4 py-3">
                                                 <input 
                                                     disabled={isBlocked && !isRed} 
@@ -159,6 +171,49 @@ const SectionClienteGrupo = ({
                                                     className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-black text-brand-red focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none disabled:cursor-not-allowed" 
                                                 />
                                             </td>
+
+                                            {/* Tasa individual */}
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-2">
+                                                    {/* Checkbox para activar tasa propia */}
+                                                    <label className="flex items-center gap-1.5 cursor-pointer select-none flex-shrink-0" title="Activar tasa individual">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={!!int.usa_tasa_individual}
+                                                            disabled={isBlocked && !isRed}
+                                                            onChange={(e) => toggleTasaIndividual?.(int.id, e.target.checked)}
+                                                            className="w-3.5 h-3.5 accent-brand-red disabled:cursor-not-allowed"
+                                                        />
+                                                        <span className="text-[9px] font-black text-slate-400 uppercase">
+                                                            Propia
+                                                        </span>
+                                                    </label>
+
+                                                    {/* Input tasa — habilitado solo si checkbox activo */}
+                                                    <div className="relative flex-1">
+                                                        <input
+                                                            type="text"
+                                                            disabled={(isBlocked && !isRed) || !int.usa_tasa_individual}
+                                                            value={int.usa_tasa_individual ? (int.tasa_interes ?? '') : (tasaGlobal ?? '')}
+                                                            onChange={(e) => {
+                                                                let val = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');
+                                                                updateTasaIntegrante?.(int.id, val);
+                                                            }}
+                                                            placeholder={tasaGlobal ? String(tasaGlobal) : '0.00'}
+                                                            className={`w-full p-2 pr-6 border rounded-lg text-xs font-black outline-none transition-colors
+                                                                ${int.usa_tasa_individual
+                                                                    ? 'bg-amber-50 border-amber-300 text-amber-800 focus:ring-2 focus:ring-amber-400 focus:border-amber-400'
+                                                                    : 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed'
+                                                                }
+                                                                disabled:cursor-not-allowed
+                                                            `}
+                                                        />
+                                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-400">%</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Eliminar */}
                                             <td className="px-4 py-3">
                                                 <button type="button" onClick={() => removeIntegrante(int.id)} className="text-slate-400 hover:text-red-600 transition-colors">
                                                     <TrashIcon className="w-4 h-4" />
@@ -168,7 +223,7 @@ const SectionClienteGrupo = ({
                                     );
                                 })}
                                 {data.integrantes.length === 0 && (
-                                    <tr><td colSpan="4" className="px-4 py-8 text-center text-slate-400 text-xs italic">Busca y selecciona clientes para armar el grupo.</td></tr>
+                                    <tr><td colSpan="5" className="px-4 py-8 text-center text-slate-400 text-xs italic">Busca y selecciona clientes para armar el grupo.</td></tr>
                                 )}
                             </tbody>
                         </table>

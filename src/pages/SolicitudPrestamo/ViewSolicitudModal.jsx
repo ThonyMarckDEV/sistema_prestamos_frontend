@@ -29,10 +29,12 @@ const frecuenciaMap = {
 const ViewSolicitudModal = ({ isOpen, onClose, data, isLoading }) => {
     if (!data && !isLoading) return null;
 
-    const totalSinSeguro = parseFloat(data?.monto_solicitado || 0);
-    const seguro         = parseFloat(data?.seguro || 0);
+    const totalSinSeguro  = parseFloat(data?.monto_solicitado || 0);
+    const seguro          = parseFloat(data?.seguro || 0);
     const cantIntegrantes = data?.es_grupal ? (data?.integrantes?.length || 1) : 1;
-    const totalConSeguro  = data?.seguro_financiado ? totalSinSeguro + (seguro * cantIntegrantes) : totalSinSeguro;
+    const totalConSeguro  = data?.seguro_financiado
+        ? totalSinSeguro + (seguro * cantIntegrantes)
+        : totalSinSeguro;
 
     return (
         <ViewModal isOpen={isOpen} onClose={onClose} title="Detalle de Solicitud de Crédito" isLoading={isLoading} size='2xl'>
@@ -68,7 +70,12 @@ const ViewSolicitudModal = ({ isOpen, onClose, data, isLoading }) => {
                                 <span className="text-base font-black text-brand-red">S/ {fmt(totalSinSeguro)}</span>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-500 font-bold">Tasa de Interés:</span>
+                                <span className="text-xs text-slate-500 font-bold">
+                                    Tasa de Interés:
+                                    {data.es_grupal && (
+                                        <span className="ml-1 text-[9px] text-slate-400 font-bold normal-case">(global)</span>
+                                    )}
+                                </span>
                                 <span className="text-sm font-black text-brand-gold-dark">{data.tasa_interes}%</span>
                             </div>
                             <div className="flex justify-between items-center">
@@ -142,6 +149,12 @@ const ViewSolicitudModal = ({ isOpen, onClose, data, isLoading }) => {
                                                     ? 'bg-red-100 text-red-600'
                                                     : 'bg-green-50 text-green-600'
                                             }`}>{int.modalidad}</span>
+                                            {/* Tasa individual si tiene */}
+                                            {int.tasa_interes != null && (
+                                                <span className="text-[9px] font-black bg-amber-100 text-amber-700 border border-amber-300 px-1.5 py-0.5 rounded w-fit">
+                                                    Tasa propia: {int.tasa_interes}%
+                                                </span>
+                                            )}
                                         </div>
                                         <span className="text-xs font-black text-brand-red bg-brand-red-light/50 px-2 py-1 rounded-lg border border-brand-red/20 flex-shrink-0">
                                             S/ {fmt(int.monto)}
@@ -172,7 +185,7 @@ const ViewSolicitudModal = ({ isOpen, onClose, data, isLoading }) => {
                             </div>
                         </div>
                     )}
-                    
+
                     {/* ── Aval ──────────────────────────────────────────────── */}
                     <div className={`p-5 rounded-2xl border ${data.aval ? 'bg-brand-gold-light/30 border-brand-gold/30' : 'bg-slate-50 border-dashed border-slate-100'}`}>
                         <h4 className="text-xs font-black text-slate-400 uppercase mb-4 flex items-center gap-2">
@@ -202,16 +215,31 @@ const ViewSolicitudModal = ({ isOpen, onClose, data, isLoading }) => {
                     </div>
 
                     {/* ── Calculadora ───────────────────────────────────────── */}
-                    <CalculadoraCuota
-                        monto={data.monto_solicitado}
-                        tasa={data.tasa_interes}
-                        cuotas={data.cuotas_solicitadas}
-                        frecuencia={data.frecuencia}
-                        seguro={data.seguro}
-                        seguro_financiado={data.seguro_financiado}
-                        cantidadIntegrantes={data.es_grupal ? (data.integrantes?.length || 1) : 1}
-                    />
-
+                    {data.es_grupal && data.integrantes?.length > 0 ? (
+                        <CalculadoraCuota
+                            integrantes={data.integrantes.map(i => ({
+                                ...i,
+                                nombre:              i.nombre_completo,
+                                tasa_interes:        i.tasa_interes ?? null,
+                                usa_tasa_individual: i.tasa_interes != null,
+                            }))}
+                            tasaGlobal={data.tasa_interes}
+                            cuotas={data.cuotas_solicitadas}
+                            frecuencia={data.frecuencia}
+                            seguro={data.seguro}
+                            seguro_financiado={data.seguro_financiado}
+                        />
+                    ) : (
+                        <CalculadoraCuota
+                            monto={data.monto_solicitado}
+                            tasa={data.tasa_interes}
+                            cuotas={data.cuotas_solicitadas}
+                            frecuencia={data.frecuencia}
+                            seguro={data.seguro}
+                            seguro_financiado={data.seguro_financiado}
+                            cantidadIntegrantes={1}
+                        />
+                    )}
 
                 </div>
             )}

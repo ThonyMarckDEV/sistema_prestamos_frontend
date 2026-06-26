@@ -3,7 +3,8 @@ import {
     XMarkIcon, 
     PrinterIcon, 
     MagnifyingGlassPlusIcon, 
-    MagnifyingGlassMinusIcon 
+    MagnifyingGlassMinusIcon,
+    ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 
 import { Worker, Viewer } from '@react-pdf-viewer/core';
@@ -80,6 +81,18 @@ const PdfModal = ({ isOpen, onClose, title, pdfUrl, base64 }) => {
         }
     };
 
+    // 🔥 NUEVA FUNCIÓN PARA DESCARGAR EL PDF 🔥
+    const handleDownload = () => {
+        const link = document.createElement('a');
+        link.href = activeUrl;
+        // Limpiamos el título para usarlo como nombre de archivo
+        const safeTitle = title ? title.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'documento';
+        link.download = `${safeTitle}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-200">
 
@@ -130,7 +143,17 @@ const PdfModal = ({ isOpen, onClose, title, pdfUrl, base64 }) => {
                     </Worker>
                 </div>
 
-                <div className="px-4 sm:px-6 py-4 border-t border-slate-200 bg-white flex justify-end">
+                {/* 🔥 FOOTER CON LOS BOTONES DE ACCIÓN 🔥 */}
+                <div className="px-4 sm:px-6 py-4 border-t border-slate-200 bg-white flex flex-col sm:flex-row justify-end gap-3">
+                    
+                    <button
+                        onClick={handleDownload}
+                        className="w-full sm:w-auto justify-center px-6 py-3.5 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center gap-2 uppercase text-sm tracking-widest"
+                    >
+                        <ArrowDownTrayIcon className="w-5 h-5 text-slate-500" />
+                        DESCARGAR
+                    </button>
+
                     <button
                         onClick={handlePrint}
                         className="w-full sm:w-auto justify-center px-12 py-3.5 bg-black text-white rounded-xl font-bold hover:bg-zinc-800 transition-all shadow-lg flex items-center gap-2 uppercase text-sm tracking-widest"

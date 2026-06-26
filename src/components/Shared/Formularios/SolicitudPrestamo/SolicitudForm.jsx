@@ -16,6 +16,8 @@ const SolicitudForm = ({
     removeIntegrante,
     updateMontoIntegrante,
     updateCargoIntegrante,
+    toggleTasaIndividual,
+    updateTasaIntegrante,
     isUpdate           = false,
     onBlockedChange    = null,
     // props renovación — solo Store las pasa; Update las omite
@@ -63,7 +65,6 @@ const SolicitudForm = ({
         onLimpiarOrigen,
     });
 
-    // Notifica al padre (Update) cada vez que cambia isBlocked
     useEffect(() => {
         onBlockedChange?.(isBlocked);
     }, [isBlocked, onBlockedChange]);
@@ -73,7 +74,7 @@ const SolicitudForm = ({
     return (
         <div className={`space-y-6 transition-all duration-300 ${isBlocked ? 'opacity-90' : ''}`}>
 
-            {/* ── Sección renovación (al tope) ── */}
+            {/* ── Sección renovación ── */}
             {mostrarSeccionRenovacion && (
                 <SectionRenovacion
                     esRenovacion={esRenovacionEfectiva}
@@ -87,7 +88,6 @@ const SolicitudForm = ({
                 />
             )}
 
-            {/* ── Si marcó renovación pero no eligió préstamo: ocultar el resto ── */}
             {formBloqueadoPorRenovacion ? (
                 <div className="py-16 text-center border-2 border-dashed border-brand-gold/30 rounded-2xl bg-brand-gold-light/10">
                     <p className="text-[11px] font-black text-brand-gold-dark uppercase tracking-widest">
@@ -96,7 +96,6 @@ const SolicitudForm = ({
                 </div>
             ) : (
                 <>
-                    {/* ── Banner bloqueo riesgo — NO sale en renovación activa ── */}
                     {isBlocked && (
                         <div className="bg-brand-red text-white p-5 rounded-2xl flex items-center gap-4 animate-bounce shadow-xl border-2 border-brand-red-dark">
                             <ExclamationTriangleIcon className="w-10 h-10 flex-shrink-0" />
@@ -166,6 +165,9 @@ const SolicitudForm = ({
                         removeIntegrante={removeIntegrante}
                         updateMontoIntegrante={updateMontoIntegrante}
                         updateCargoIntegrante={updateCargoIntegrante}
+                        toggleTasaIndividual={toggleTasaIndividual}
+                        updateTasaIntegrante={updateTasaIntegrante}
+                        tasaGlobal={data.tasa_interes}
                         idsOrigenRenovacion={prestamoOrigenEfectivo?.integrantes?.map(i => i.id) ?? []}
                     />
 

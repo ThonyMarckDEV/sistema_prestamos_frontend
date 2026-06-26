@@ -111,6 +111,9 @@ import ListarAuditoria from 'pages/Auditoria/Index';
 import GenerarPin from 'pages/Pin/Store';
 import ListarPin from 'pages/Pin/Index';
 
+// UI DIA OPERATIVO
+import DiaOperativo from 'pages/DiaOperativo/Index';
+
 // SETTINGS
 import ListarParametros from 'pages/Parametro/Index';
 import EditarParametro from 'pages/Parametro/Update';
@@ -231,6 +234,8 @@ function AppContent() {
         {/* AUDITORIA */}
         <Route path="/auditoria/listar" element={<ProtectedRoute requiredPermission="auditoria.index"  element={<SecureRoute element={<ListarAuditoria/>} />} />} />
       
+        {/* DIA OPERATIVO */}
+        <Route path="/dia-operativo" element={<ProtectedRoute requiredPermission="diaOperativo.index" element={<SecureRoute element={<DiaOperativo />} />} />} />
 
         {/* SETTINGS */}
         <Route path="/parametro/listar" element={<ProtectedRoute requiredPermission="parametro.index" element={<SecureRoute element={<ListarParametros />} />} />} />   
