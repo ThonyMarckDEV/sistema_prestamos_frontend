@@ -134,6 +134,7 @@ export const MENU_GROUPS = [
             {
                 section: 'Cajas', icon: WalletIcon,
                 subs: [
+                    { name: 'Día Operativo',              link: '/dia-operativo',  requiredPermission: 'diaOperativo.index' },
                     { name: 'Sesiones (Apertura/Cierre)', link: '/caja/sesiones', requiredPermission: 'cajaSesion.index' },
                     { name: 'Gestión de Cajas',           link: '/caja/listar',   requiredPermission: 'caja.index' },
                     { name: 'Nueva Caja',                 link: '/caja/agregar',  requiredPermission: 'caja.store' },

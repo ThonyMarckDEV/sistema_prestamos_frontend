@@ -71,14 +71,27 @@ const Store = () => {
                     <div className="flex flex-col md:flex-row items-center justify-between bg-brand-red p-6 md:p-8 rounded-[32px] shadow-xl text-white gap-6 border border-brand-red-dark relative overflow-hidden">
                         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-brand-red-light opacity-10 rounded-full blur-3xl pointer-events-none"></div>
                         <div className="flex items-center gap-4 z-10">
-                            <div className="p-3 bg-brand-red-dark rounded-2xl shadow-inner border border-brand-red-dark/50">
-                                <BanknotesIcon className="w-8 h-8 text-brand-gold" />
-                            </div>
-                            <div>
-                                <span className="text-[9px] font-black text-brand-red-light/80 uppercase tracking-[0.2em] block mb-1">Cajero de Turno</span>
-                                <span className="text-lg font-black">
-                                    {jwtUtils.getName(jwtUtils.getAccessTokenFromCookie()) || 'Usuario del Sistema'}
-                                </span>
+                            <div className="flex items-center gap-4 z-10">
+                                <div className="p-3 bg-brand-red-dark rounded-2xl shadow-inner border border-brand-red-dark/50">
+                                    <BanknotesIcon className="w-8 h-8 text-brand-gold" />
+                                </div>
+                                <div>
+                                    <span className="text-[9px] font-black text-brand-red-light/80 uppercase tracking-[0.2em] block mb-1">Cajero de Turno</span>
+                                    <span className="text-lg font-black block">
+                                        {jwtUtils.getName(jwtUtils.getAccessTokenFromCookie()) || 'Usuario del Sistema'}
+                                    </span>
+                                    {sesionActiva?.dia_operativo && (
+                                        <span className={`mt-1 inline-flex items-center gap-1 text-[12px] font-black uppercase px-2.5 py-1 rounded-full tracking-[0.15em] ${
+                                            sesionActiva.dia_operativo.pendiente_de_cierre
+                                                ? 'bg-brand-gold text-brand-red-dark'
+                                                : 'bg-brand-red-dark/50 text-white/70'
+                                        }`}>
+                                            {sesionActiva.dia_operativo.pendiente_de_cierre ? '' : ''}
+                                            Día Operativo: {sesionActiva.dia_operativo.fecha}
+                                            {sesionActiva.dia_operativo.pendiente_de_cierre ? ' · Pendiente de Cierre' : ''}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
                         <div className="flex items-center gap-8 border-t md:border-t-0 md:border-l border-brand-red-dark pt-6 md:pt-0 md:pl-8 w-full md:w-auto justify-between md:justify-start z-10">
