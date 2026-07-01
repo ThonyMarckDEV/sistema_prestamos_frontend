@@ -61,6 +61,19 @@ const Index = () => {
                 { value: '1', label: 'APROBADOS' },
             ]
         },
+        {
+            name: 'dia_operativo_fecha', type: 'date', label: 'Fecha Día Operativo',
+            colSpan: 'col-span-12 md:col-span-2'
+        },
+        {
+            name: 'registro_extemporaneo', type: 'select', label: 'Extemporáneo',
+            colSpan: 'col-span-12 md:col-span-2',
+            options: [
+                { value: '',  label: 'TODOS' },
+                { value: '1', label: 'SI'    },
+                { value: '0', label: 'NO'    },
+            ]
+        },
     ], []);
 
     const columns = useMemo(() => [
@@ -80,7 +93,17 @@ const Index = () => {
                             )}
                         </span>
                     )}
-                    <span className="text-[9px] text-slate-400 font-bold whitespace-nowrap mt-0.5">{row.fecha}</span>
+                    <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap mt-0.5">{row.fecha}</span>
+                    {row.dia_operativo_fecha && (
+                        <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap mt-0.5">
+                            Día Operativo: {row.dia_operativo_fecha}
+                        </span>
+                    )}
+                    {row.registro_extemporaneo && (
+                        <span className="text-[8px] font-black text-orange-600 bg-orange-50 border border-orange-200 w-fit px-1.5 py-0.5 rounded mt-1 uppercase tracking-wider">
+                            Extemporáneo
+                        </span>
+                    )}
                 </div>
             )
         },

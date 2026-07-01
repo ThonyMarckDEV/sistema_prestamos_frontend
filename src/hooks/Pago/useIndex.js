@@ -4,13 +4,15 @@ import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import { useAuth } from 'context/AuthContext';
 
 const FILTERS_INITIAL = {
-    search:       '',
-    prestamo_id:  '',
-    cliente:      '',
-    estado:       '',
-    tipo:         '',
-    fecha_inicio: '',
-    fecha_fin:    '',
+    search:                 '',
+    prestamo_id:            '',
+    cliente:                '',
+    estado:                 '',
+    tipo:                   '',
+    fecha_inicio:           '',
+    fecha_fin:              '',
+    dia_operativo_fecha:    '',
+    registro_extemporaneo:  '',
 };
 
 // Un pago es accionable (PDF / anular) si está aprobado y NO es renovación
