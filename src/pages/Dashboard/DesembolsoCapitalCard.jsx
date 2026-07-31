@@ -96,10 +96,10 @@ const DayTooltip = ({ dia, eventos, asesorColorMap, anchorRect, onClose }) => {
             </div>
 
             {/* Contenido con scroll */}
-            <div className="overflow-y-auto p-3 pt-2" style={{ maxHeight: MAX_H }}>
+            <div className="overflow-y-auto px-3 pb-3" style={{ maxHeight: MAX_H }}>
                 {desembolsos.length > 0 && (
                     <div className="mb-2">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 sticky top-0 bg-white py-0.5">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest sticky top-0 z-10 bg-white pt-2 pb-1 -mx-3 px-3">
                             Desembolsos — S/ {fmt(totalDesemb)} ({desembolsos.length})
                         </p>
                         {desembolsos.map((d, i) => {
@@ -118,7 +118,7 @@ const DayTooltip = ({ dia, eventos, asesorColorMap, anchorRect, onClose }) => {
                 )}
                 {pagos.length > 0 && (
                     <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 sticky top-0 bg-white py-0.5">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest sticky top-0 z-10 bg-white pt-2 pb-1 -mx-3 px-3">
                             Capital cobrado — S/ {fmt(totalCapital)} ({pagos.length})
                         </p>
                         {pagos.map((p, i) => {
