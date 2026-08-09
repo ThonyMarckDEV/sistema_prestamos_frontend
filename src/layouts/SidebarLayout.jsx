@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Sidebar from "../components/Shared/SideBar";
 import { Outlet } from "react-router-dom";
 import NotificacionBell from "../components/Shared/Notificaciones/NotificacionBell";
-import escarapela from "assets/img/escarapela.png";
 
 const SidebarLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -27,13 +26,8 @@ const SidebarLayout = () => {
           ${isMobileSidebarOpen ? 'pointer-events-none opacity-50 md:opacity-100 md:pointer-events-auto' : ''}
         `}
       >
-        {/* ESCARAPELA + CAMPANITA — juntas en la misma esquina */}
+        {/* CAMPANITA */}
         <div className="absolute top-4 right-4 sm:top-6 sm:right-8 z-[30] flex items-center gap-3">
-          <img
-            src={escarapela}
-            alt="Escarapela Fiestas Patrias"
-            className="w-9 h-9 sm:w-11 sm:h-11 object-contain drop-shadow-md select-none pointer-events-none"
-          />
           <NotificacionBell />
         </div>
 
