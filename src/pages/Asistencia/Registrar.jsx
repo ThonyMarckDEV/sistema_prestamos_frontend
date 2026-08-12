@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useRegistrar } from 'hooks/Asistencia/useRegistrar';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -12,6 +12,18 @@ const Registrar = () => {
     } = useRegistrar();
     
     const [camaraError, setCamaraError] = useState(null);
+
+    const handleScanSuccess = useCallback((detectedCodes) => {
+        if (detectedCodes && detectedCodes.length > 0) {
+            handleQrScan(detectedCodes[0].rawValue);
+        }
+    }, [handleQrScan]);
+
+    const handleScanError = useCallback((err) => {
+        if (err?.name === 'NotAllowedError') {
+            setCamaraError("Permiso de cámara denegado.");
+        }
+    }, []);
 
     return (
         <div className="container mx-auto p-4 sm:p-6 transition-colors">
@@ -39,7 +51,6 @@ const Registrar = () => {
                         </h3>
                     </div>
 
-                    {/* Marco de la Cámara */}
                     <div className="relative bg-slate-100 dark:bg-dark-surface-alt rounded-xl overflow-hidden border-2 border-dashed border-slate-300 dark:border-dark-border min-h-[300px] flex items-center justify-center transition-colors">
                         
                         {camaraError ? (
@@ -71,12 +82,8 @@ const Registrar = () => {
                                 )}
                                 
                                 <Scanner 
-                                    onScan={(detectedCodes) => {
-                                        if (detectedCodes && detectedCodes.length > 0) {
-                                            handleQrScan(detectedCodes[0].rawValue);
-                                        }
-                                    }} 
-                                    onError={(err) => setCamaraError(err?.message || "Error de cámara")}
+                                    onScan={handleScanSuccess} 
+                                    onError={handleScanError}
                                     components={{
                                         audio: true, 
                                         finder: true
