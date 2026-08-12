@@ -282,13 +282,16 @@ const SaldoCapitalCard = () => {
                                                     </td>
 
                                                     {/* Variación */}
-                                                    <td className="px-4 py-3 text-right">
-                                                        <span className={`text-xs font-black tabular-nums ${varPos ? 'text-green-600 dark:text-green-400' : 'text-brand-red dark:text-red-400'}`}>
-                                                            {varPos ? '+' : ''}{fmtS(a.variacion)}
+                                                    <td className="px-4 py-3 text-right text-xs font-black tabular-nums">
+                                                        <span className={varPos ? 'text-green-400' : 'text-red-400'}>
+                                                            {varPos ? '+' : ''}{fmtS(totales.variacion)}
                                                         </span>
-                                                        {Math.abs(parseFloat(a.ajuste ?? 0)) > 0.009 && (
-                                                            <div className="text-[9px] text-slate-400 dark:text-dark-text-muted/70 font-bold mt-0.5">
-                                                                incl. {fmtS(Math.abs(a.ajuste))} no-caja
+                                                        {Math.abs(parseFloat(totales.ajuste_refinanciamiento ?? 0)) > 0.009 && (
+                                                            <div
+                                                                className="text-[9px] text-slate-500 font-bold mt-0.5 cursor-help underline decoration-dotted underline-offset-2"
+                                                                title="Monto de refinanciamientos/renovaciones del periodo que no pasó por caja (ni desembolso ni cobro), por eso no aparece en el calendario Desembolso/Capital cobrado."
+                                                            >
+                                                                {totales.ajuste_refinanciamiento >= 0 ? '+' : '−'} S/ {fmtS(Math.abs(totales.ajuste_refinanciamiento))} por refinanciamiento/renovación
                                                             </div>
                                                         )}
                                                     </td>
@@ -330,7 +333,7 @@ const SaldoCapitalCard = () => {
                                                 </span>
                                                 {Math.abs(parseFloat(totales.ajuste_refinanciamiento ?? 0)) > 0.009 && (
                                                     <div className="text-[9px] text-slate-500 font-bold mt-0.5">
-                                                        incl. {fmtS(Math.abs(totales.ajuste_refinanciamiento))} no-caja
+                                                        {totales.ajuste_refinanciamiento >= 0 ? '+' : '−'} S/ {fmtS(Math.abs(totales.ajuste_refinanciamiento))} por refinanciamiento/renovación
                                                     </div>
                                                 )}
                                             </td>
