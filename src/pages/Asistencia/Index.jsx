@@ -63,7 +63,6 @@ const Index = () => {
                 <EmpleadoSearchSelect
                     disabled={loading}
                     onSelect={handleUsuarioFilter}
-                    rol='asesor'
                 />
             ),
         },
