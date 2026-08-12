@@ -1,14 +1,17 @@
 import React, { useMemo } from 'react';
 import { useIndex } from 'hooks/Asistencia/useIndex';
+import { exportar as exportarAsistencias } from 'services/asistenciaService';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
+import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
+import EmpleadoSearchSelect from 'components/Shared/Comboboxes/EmpleadoSearchSelect';
 import { ClockIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 
 const Index = () => {
     const {
-        loading, asistencias, paginationInfo, filters, alert, setAlert,
-        fetchAsistencias, handleFilterChange, handleFilterSubmit, handleFilterClear
+        loading, asistencias, paginationInfo, filters, appliedFilters, alert, setAlert,
+        fetchAsistencias, handleFilterChange, handleFilterSubmit, handleFilterClear, handleUsuarioFilter
     } = useIndex();
 
     const columns = useMemo(() => [
@@ -50,18 +53,42 @@ const Index = () => {
         },
     ], []);
 
+    const filterConfig = useMemo(() => [
+        {
+            name: 'usuario',
+            type: 'custom',
+            label: 'Empleado',
+            colSpan: 'col-span-12 md:col-span-4',
+            render: () => (
+                <EmpleadoSearchSelect
+                    disabled={loading}
+                    onSelect={handleUsuarioFilter}
+                    rol='asesor'
+                />
+            ),
+        },
+        { name: 'fecha_desde', type: 'date', label: 'Desde', colSpan: 'col-span-6 md:col-span-3' },
+        { name: 'fecha_hasta', type: 'date', label: 'Hasta', colSpan: 'col-span-6 md:col-span-3' },
+    ], [loading, handleUsuarioFilter]);
+
     return (
         <div className="container mx-auto p-4 sm:p-6 transition-colors">
             <PageHeader title="Asistencia de Personal" icon={ClockIcon} buttonText="Registrar Asistencia" buttonLink="/asistencia/registrar" />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
+            {/* Botón Excel arriba, esquina derecha de la tabla */}
+            <div className="flex justify-end mt-6 mb-3">
+                <ExcelExportButton
+                    exportService={exportarAsistencias}
+                    filters={appliedFilters}
+                    filename="reporte_asistencia"
+                    label="Excel"
+                />
+            </div>
+
             <Table
                 columns={columns} data={asistencias} loading={loading}
-                filterConfig={[
-                    { name: 'search', type: 'text', label: 'Buscar Personal', colSpan: 'col-span-6' },
-                    { name: 'fecha_desde', type: 'date', label: 'Desde', colSpan: 'col-span-3' },
-                    { name: 'fecha_hasta', type: 'date', label: 'Hasta', colSpan: 'col-span-3' },
-                ]}
+                filterConfig={filterConfig}
                 filters={filters} onFilterChange={handleFilterChange} onFilterSubmit={handleFilterSubmit} onFilterClear={handleFilterClear}
                 pagination={{ ...paginationInfo, onPageChange: fetchAsistencias }}
             />
