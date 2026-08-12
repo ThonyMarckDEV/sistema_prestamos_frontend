@@ -3,7 +3,7 @@ import { useDashboardSaldoCapital } from 'hooks/Dashboard/useDashboardSaldoCapit
 import { exportSaldoCapitalDashboard } from 'services/dashboardService';
 import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
 import EmpleadoSearchSelect from 'components/Shared/Comboboxes/EmpleadoSearchSelect';
-import { BanknotesIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { BanknotesIcon, MagnifyingGlassIcon, XMarkIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const fmtS = n =>
@@ -81,6 +81,13 @@ const SaldoCapitalCard = () => {
     // ── KPIs de totales
     const varTotal  = parseFloat(totales.variacion ?? 0);
     const varPos    = varTotal >= 0;
+
+    // Ajuste por refinanciamiento/renovación: parte de la Variación que
+    // corresponde a capital reestructurado (refinanciamiento) o a
+    // interés/seguro absorbido al liquidar el préstamo origen de una
+    // renovación — plata que nunca pasó por caja, por eso no aparece en
+    // el neto (Desembolso − Capital cobrado) del calendario de abajo.
+    const ajuste = parseFloat(totales.ajuste_refinanciamiento ?? 0);
 
     return (
         <div className="bg-white dark:bg-dark-surface rounded-2xl border border-slate-100 dark:border-dark-border shadow-sm dark:shadow-black/20 overflow-hidden transition-colors duration-300">
@@ -218,6 +225,20 @@ const SaldoCapitalCard = () => {
                                 color={totales.avance >= 100 ? 'green' : 'slate'}
                                 sub
                             />
+                        </div>
+                    )}
+
+                    {/* ── Nota: ajuste por refinanciamiento/renovación ───────── */}
+                    {!loading && Math.abs(ajuste) > 0.005 && (
+                        <div className="px-6 pt-2">
+                            <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20">
+                                <InformationCircleIcon className="w-4 h-4 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                                <p className="text-[11px] text-amber-700 dark:text-amber-300 leading-snug">
+                                    <span className="font-black">{fmtS(ajuste)}</span> de la Variación corresponde a capital reestructurado por
+                                    refinanciamiento y/o interés/seguro absorbido en renovaciones de préstamos — movimientos que no pasan
+                                    por caja, por eso el calendario de Desembolso/Capital cobrado no los muestra.
+                                </p>
+                            </div>
                         </div>
                     )}
 
@@ -360,6 +381,9 @@ const SaldoCapitalCard = () => {
                         </p>
                         <p className="text-[11px] text-slate-400 dark:text-dark-text-muted/80">
                             <span className="font-black text-slate-600 dark:text-dark-text">Avance:</span> (Saldo Actual ÷ Objetivo) × 100. Verde = meta alcanzada o superada.
+                        </p>
+                        <p className="text-[11px] text-slate-400 dark:text-dark-text-muted/80">
+                            <span className="font-black text-slate-600 dark:text-dark-text">Ajuste refin./renov.:</span> Parte de la Variación que corresponde a capital reestructurado por refinanciamiento o a interés/seguro absorbido al liquidar el préstamo origen de una renovación — no pasa por caja, por eso no aparece en el calendario de Desembolso/Capital cobrado.
                         </p>
                     </div>
 
