@@ -7,7 +7,7 @@ import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
 import EmpleadoSearchSelect from 'components/Shared/Comboboxes/EmpleadoSearchSelect';
 import JustificarTardanzaModal from './JustificarTardanzaModal';
-import { ClockIcon, UserCircleIcon, ExclamationTriangleIcon, CheckBadgeIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, UserCircleIcon, ExclamationTriangleIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
 
 const Index = () => {
     const {
