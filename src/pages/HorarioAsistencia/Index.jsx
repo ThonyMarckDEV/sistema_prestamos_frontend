@@ -22,8 +22,18 @@ const Index = () => {
         {
             header: 'Horario',
             render: (row) => (
-                <div className="flex flex-col">
-                    <span className="font-black text-slate-800 dark:text-dark-text text-sm uppercase transition-colors">{row.nombre}</span>
+                <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center gap-2">
+                        <span className="font-black text-slate-800 dark:text-dark-text text-sm uppercase transition-colors">{row.nombre}</span>
+                        {row.turno && row.turno !== 'unico' && (
+                            <span className={`px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wide
+                                ${row.turno === 'manana'
+                                    ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400'
+                                    : 'bg-indigo-100 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400'}`}>
+                                {row.turno === 'manana' ? 'Mañana' : 'Tarde'}
+                            </span>
+                        )}
+                    </div>
                     <span className="flex items-center gap-1 text-[11px] font-bold text-brand-red dark:text-brand-gold mt-0.5 transition-colors">
                         <ClockIcon className="w-3 h-3" />
                         {row.hora_inicio} — {row.hora_fin}

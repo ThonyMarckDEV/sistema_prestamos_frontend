@@ -11,7 +11,7 @@ export const useUpdate = () => {
     const [saving,   setSaving]   = useState(false);
     const [alert,    setAlert]    = useState(null);
     const [formData, setFormData] = useState({
-        nombre: '', hora_inicio: '', hora_fin: '',
+        nombre: '', hora_inicio: '', hora_fin: '', turno: 'unico',
         dias: [], activo: true, roles: [],
     });
 
@@ -22,8 +22,9 @@ export const useUpdate = () => {
                 const data = res.data || res;
                 setFormData({
                     nombre:      data.nombre,
-                    hora_inicio: data.hora_inicio,
-                    hora_fin:    data.hora_fin,
+                    hora_inicio: (data.hora_inicio ?? '').slice(0, 5),
+                    hora_fin:    (data.hora_fin ?? '').slice(0, 5),
+                    turno:       data.turno ?? 'unico',
                     dias:        data.dias ?? [],
                     activo:      data.activo,
                     roles:       (data.roles ?? []).map(r => r.id),

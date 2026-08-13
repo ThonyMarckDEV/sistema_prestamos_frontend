@@ -11,6 +11,7 @@ export const useStore = () => {
         nombre:      '',
         hora_inicio: '',
         hora_fin:    '',
+        turno:       'unico',
         dias:        [],
         activo:      true,
         roles:       [],
