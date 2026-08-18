@@ -141,6 +141,7 @@ import ListarSubtiposJoyas from 'pages/SubTipoJoya/Index';
 import AgregarSubtipoJoya from 'pages/SubTipoJoya/Store';
 import EditarSubtipoJoya from 'pages/SubTipoJoya/Update';
 
+// UI TASACION
 import AgregarTasacion from 'pages/Tasacion/Store';
 
 // Utilities
@@ -162,8 +163,6 @@ function AppContent() {
       {/* LEGAL — público, sin sesión */}
       <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
       <Route path="/politica-cookies" element={<PoliticaCookies />} />
-
-      <Route path="/tasacion/agregar" element={<AgregarTasacion />} />
 
       {/* 2. LAYOUT GLOBAL */}
       <Route element={<ProtectedRoute element={<SidebarLayout />} />}>
@@ -287,6 +286,8 @@ function AppContent() {
         <Route path="/subtipo-joya/agregar" element={<ProtectedRoute requiredPermission="subtipoJoya.store" element={<AgregarSubtipoJoya />} />} />
         <Route path="/subtipo-joya/editar/:id" element={<ProtectedRoute requiredPermission="subtipoJoya.update" element={<EditarSubtipoJoya />} />} />
 
+        {/* TASACION */}
+        <Route path="/tasacion/agregar" element={<AgregarTasacion />} />
 
         {/* SETTINGS */}
         <Route path="/parametro/listar" element={<ProtectedRoute requiredPermission="parametro.index" element={<SecureRoute element={<ListarParametros />} />} />} />   
