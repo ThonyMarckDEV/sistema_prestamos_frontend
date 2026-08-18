@@ -37,17 +37,6 @@ export const update = async (id, data) => {
     return handleResponse(response);
 };
 
-// Recibe el nuevo estado (0 pendiente, 1 abandonado, 2 expirado — CONVERTIDA
-// no se asigna desde acá, ver TasacionController::status en el backend).
-export const updateStatus = async (id, estado) => {
-    const response = await fetchWithAuth(`${BASE_URL}/status/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estado }),
-    });
-    return handleResponse(response);
-};
-
 export const destroy = async (id) => {
     const response = await fetchWithAuth(`${BASE_URL}/delete/${id}`, { method: 'DELETE' });
     return handleResponse(response);

@@ -1,36 +1,48 @@
 import React from 'react';
-import { ScaleIcon, BanknotesIcon } from '@heroicons/react/24/outline';
+import {BanknotesIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
+import LoadingScreen from 'components/Shared/LoadingScreen';
 import TasacionForm from 'components/Shared/Formularios/Tasacion/TasacionForm';
-import { useStore } from 'hooks/Tasacion/useStore';
+import { useUpdate } from 'hooks/Tasacion/useUpdate';
 
 const fmt = (n) => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
 
-const Store = () => {
+const Update = () => {
     const {
+        loading,
+
         cliente, handleSeleccionarCliente, handleCambiarCliente,
+
         detalles, detalleActual, setDetalleActual, editandoId, montoAnteriorEdicion,
         pesoNeto, valorTasadoNum, porcentajeNum, maximoSugerido, formularioTieneDatos,
         handleAgregarDetalle, handleEditarDetalle, handleCancelarEdicion, handleEliminarDetalle,
+
         porcentajePrestamo, setPorcentajePrestamo,
-        totalTasacion, totalMaximoPrestar, handleGuardarTasacion, guardando,
-        showCancelarModal, setShowCancelarModal, handleCancelarTasacion,
+
+        totalTasacion, totalMaximoPrestar, handleGuardarCambios, guardando,
+        showCancelarModal, setShowCancelarModal, handleCancelarEdicionTasacion,
+
         alert, setAlert,
-    } = useStore();
+    } = useUpdate();
+
+    if (loading) return <LoadingScreen />;
 
     return (
         <div className="container mx-auto p-4 sm:p-6 transition-colors">
             <PageHeader
-                title="Nueva Tasación"
-                icon={ScaleIcon}
+                title="Editar Tasación"
+                icon={PencilSquareIcon}
                 buttonText="← Volver al listado"
                 buttonLink="/tasacion/listar"
             />
 
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
+            {/* Si la tasación ya no se puede editar (convertida), el hook ya
+                dejó cliente/detalles vacíos y mostró el alert de error — el
+                formulario queda inerte porque !cliente lo apaga con opacity. */}
             <TasacionForm
                 cliente={cliente}
                 handleSeleccionarCliente={handleSeleccionarCliente}
@@ -71,11 +83,11 @@ const Store = () => {
                     </div>
                     <div className="flex items-center gap-3 w-full sm:w-auto">
                         <button
-                            onClick={handleGuardarTasacion}
+                            onClick={handleGuardarCambios}
                             disabled={guardando}
                             className="w-full sm:w-auto bg-brand-gold text-brand-red-dark px-8 py-3.5 rounded-xl font-black uppercase text-sm shadow-lg hover:brightness-110 transition-all disabled:opacity-50"
                         >
-                            {guardando ? 'Guardando...' : 'Guardar tasación'}
+                            {guardando ? 'Guardando...' : 'Guardar cambios'}
                         </button>
                         <button
                             onClick={() => setShowCancelarModal(true)}
@@ -90,10 +102,10 @@ const Store = () => {
 
             {showCancelarModal && (
                 <ConfirmModal
-                    message="¿Seguro que deseas cancelar la tasación? Se perderá el cliente y todas las joyas agregadas."
-                    confirmText="Sí, cancelar todo"
-                    cancelText="No, seguir tasando"
-                    onConfirm={handleCancelarTasacion}
+                    message="¿Salir sin guardar los cambios de esta tasación?"
+                    confirmText="Sí, salir"
+                    cancelText="No, seguir editando"
+                    onConfirm={handleCancelarEdicionTasacion}
                     onCancel={() => setShowCancelarModal(false)}
                 />
             )}
@@ -101,4 +113,4 @@ const Store = () => {
     );
 };
 
-export default Store;
+export default Update;

@@ -142,7 +142,9 @@ import AgregarSubtipoJoya from 'pages/SubTipoJoya/Store';
 import EditarSubtipoJoya from 'pages/SubTipoJoya/Update';
 
 // UI TASACION
+import ListarTasaciones from 'pages/Tasacion/Index';
 import AgregarTasacion from 'pages/Tasacion/Store';
+import EditarTasacion from 'pages/Tasacion/Update';
 
 // Utilities
 import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
@@ -287,7 +289,9 @@ function AppContent() {
         <Route path="/subtipo-joya/editar/:id" element={<ProtectedRoute requiredPermission="subtipoJoya.update" element={<EditarSubtipoJoya />} />} />
 
         {/* TASACION */}
-        <Route path="/tasacion/agregar" element={<AgregarTasacion />} />
+        <Route path="/tasacion/listar" element={<ProtectedRoute requiredPermission="tasacion.index" element={<ListarTasaciones />} />} />
+        <Route path="/tasacion/agregar" element={<ProtectedRoute requiredPermission="tasacion.store" element={<AgregarTasacion />} />} />
+        <Route path="/tasacion/editar/:id" element={<ProtectedRoute requiredPermission="tasacion.update" element={<EditarTasacion />} />} />
 
         {/* SETTINGS */}
         <Route path="/parametro/listar" element={<ProtectedRoute requiredPermission="parametro.index" element={<SecureRoute element={<ListarParametros />} />} />} />   

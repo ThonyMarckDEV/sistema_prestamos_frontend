@@ -5,6 +5,7 @@ import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
+import TasacionModal from './TasacionModal';
 import { ScaleIcon, EyeIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const fmt = (n) => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
@@ -21,7 +22,8 @@ const Index = () => {
     const {
         loading, tasaciones, paginationInfo, filters, alert, setAlert,
         showDelete, setShowDelete,
-        fetchTasaciones, handleChangeEstado, handleAskDelete, handleConfirmDelete,
+        isViewOpen, setIsViewOpen, viewData, viewLoading, handleView,
+        fetchTasaciones, handleAskDelete, handleConfirmDelete,
         handleFilterChange, handleFilterSubmit, handleFilterClear
     } = useIndex();
 
@@ -34,10 +36,6 @@ const Index = () => {
                         <ScaleIcon className="w-5 h-5 text-brand-red dark:text-brand-gold" />
                     </div>
                     <div className="flex flex-col">
-                        {/* OJO: confirmar el shape real que devuelve el show/index del
-                            backend para "cliente" — acá asumo nombre_completo, igual
-                            que en el resto del módulo Cliente. Ajustar si el resource
-                            del backend expone otro campo (ej. "name" por venir de User). */}
                         <span className="font-black text-slate-800 dark:text-dark-text text-sm uppercase transition-colors">
                             {row.cliente?.nombre_completo || 'Sin cliente asignado'}
                         </span>
@@ -70,27 +68,10 @@ const Index = () => {
             header: 'Estado',
             render: (row) => {
                 const estadoInfo = ESTADOS[row.estado] ?? ESTADOS[0];
-
-                // Convertida es un estado terminal asignado por el flujo de
-                // conversión a préstamo — no se puede tocar desde acá.
-                if (row.estado === 3) {
-                    return (
-                        <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase border ${estadoInfo.classes}`}>
-                            {estadoInfo.label}
-                        </span>
-                    );
-                }
-
                 return (
-                    <select
-                        value={row.estado}
-                        onChange={(e) => handleChangeEstado(row.id, Number(e.target.value))}
-                        className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase border outline-none cursor-pointer ${estadoInfo.classes}`}
-                    >
-                        <option value={0}>Pendiente</option>
-                        <option value={1}>Abandonado</option>
-                        <option value={2}>Expirado</option>
-                    </select>
+                    <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase border ${estadoInfo.classes}`}>
+                        {estadoInfo.label}
+                    </span>
                 );
             }
         },
@@ -98,16 +79,13 @@ const Index = () => {
             header: 'Acciones',
             render: (row) => (
                 <div className="flex items-center gap-2 justify-end">
-                    {/* Ver / Editar apuntan a rutas que todavía no armamos
-                        (Show.jsx / Update.jsx) — el listado ya queda listo
-                        para conectarlas cuando las hagamos. */}
-                    <Link
-                        to={`/tasacion/ver/${row.id}`}
+                    <button
+                        onClick={() => handleView(row.id)}
                         title="Ver detalle"
                         className="p-2 text-slate-400 dark:text-dark-text-muted hover:text-brand-red dark:hover:text-brand-gold hover:bg-brand-red-light dark:hover:bg-dark-surface-alt rounded-xl transition-all border border-transparent hover:border-brand-red/20 dark:hover:border-brand-gold/20 shadow-sm"
                     >
                         <EyeIcon className="w-4 h-4" />
-                    </Link>
+                    </button>
 
                     {row.estado !== 3 && (
                         <Link
@@ -131,7 +109,7 @@ const Index = () => {
                 </div>
             )
         }
-    ], [handleChangeEstado, handleAskDelete]);
+    ], [handleAskDelete, handleView]);
 
     return (
         <div className="container mx-auto p-4 sm:p-6 transition-colors">
@@ -166,6 +144,13 @@ const Index = () => {
                     onCancel={() => setShowDelete(false)}
                 />
             )}
+
+            <TasacionModal
+                isOpen={isViewOpen}
+                onClose={() => setIsViewOpen(false)}
+                data={viewData}
+                isLoading={viewLoading}
+            />
         </div>
     );
 };

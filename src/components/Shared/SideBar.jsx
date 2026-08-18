@@ -11,7 +11,7 @@ import {
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import { useAuth } from 'context/AuthContext';
 import logo from 'assets/img/logo.png'; 
-import { Calendar1Icon, ChartBarIcon, ChevronDownIcon, ChevronLeftIcon, ClockIcon, CreditCardIcon, Lock, MapIcon, PcCaseIcon, SettingsIcon, ShieldCheckIcon, ShoppingBagIcon, SparklesIcon, TagIcon, UserCheck2Icon, UserPlusIcon } from 'lucide-react';
+import { Calendar1Icon, ChartBarIcon, ChevronDownIcon, ChevronLeftIcon, ClockIcon, CreditCardIcon, Lock, MapIcon, PcCaseIcon, ScaleIcon, SettingsIcon, ShieldCheckIcon, ShoppingBagIcon, SparklesIcon, TagIcon, UserCheck2Icon, UserPlusIcon } from 'lucide-react';
 
 // ── Reloj en tiempo real ──────────────────────────────────────────────────────
 const LiveClock = ({ collapsed = false }) => {
@@ -131,12 +131,19 @@ export const MENU_GROUPS = [
                 ],
             },
             {
-                section: 'Subtipos de Joyas', icon: TagIcon, // <--- Aquí empieza lo nuevo
+                section: 'Subtipos de Joyas', icon: TagIcon,
                 subs: [
                     { name: 'Listar Subtipos', link: '/subtipo-joya/listar',  requiredPermission: 'subtipoJoya.index' },
                     { name: 'Nuevo Subtipo',   link: '/subtipo-joya/agregar', requiredPermission: 'subtipoJoya.store' },
                 ],
-            }
+            },
+            {
+                section: 'Tasaciones', icon: ScaleIcon,
+                subs: [
+                    { name: 'Listar Tasaciones', link: '/tasacion/listar',  requiredPermission: 'tasacion.index' },
+                    { name: 'Nueva Tasación',    link: '/tasacion/agregar', requiredPermission: 'tasacion.store' },
+                ],
+            },
         ]
     },
     {

@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { index, updateStatus, destroy } from 'services/tasacionService';
+import { index, show, destroy } from 'services/tasacionService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useIndex = () => {
@@ -12,6 +12,11 @@ export const useIndex = () => {
 
     const [showDelete, setShowDelete] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
+
+    // ── Modal de ver detalle (ojito) ─────────────────────────────────────────
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [viewData, setViewData] = useState(null);
+    const [viewLoading, setViewLoading] = useState(false);
 
     const fetchTasaciones = useCallback(async (page = 1) => {
         setLoading(true);
@@ -30,18 +35,22 @@ export const useIndex = () => {
 
     useEffect(() => { fetchTasaciones(1); }, [fetchTasaciones]);
 
-    // Cambio de estado directo (pendiente/abandonado/expirado) — no pasa por
-    // ConfirmModal porque no es una acción destructiva como el delete; se
-    // dispara desde un <select> en la tabla.
-    const handleChangeEstado = async (id, estado) => {
-        setLoading(true);
+    // El estado (pendiente/abandonado/expirado/convertida) ya NO se cambia
+    // manualmente desde acá — se actualiza solo cuando se aprueba o rechaza
+    // la solicitud de préstamo asociada. El tasador solo lo visualiza.
+
+    const handleView = async (id) => {
+        setIsViewOpen(true);
+        setViewLoading(true);
         try {
-            await updateStatus(id, estado);
-            setAlert({ type: 'success', message: 'Estado de la tasación actualizado.' });
-            fetchTasaciones(paginationInfo.currentPage);
+            const response = await show(id);
+            setViewData(response.data || response);
         } catch (err) {
             setAlert(handleApiError(err));
-        } finally { setLoading(false); }
+            setIsViewOpen(false);
+        } finally {
+            setViewLoading(false);
+        }
     };
 
     const handleAskDelete = (id) => { setSelectedId(id); setShowDelete(true); };
@@ -67,7 +76,8 @@ export const useIndex = () => {
     return {
         loading, tasaciones, paginationInfo, filters, alert, setAlert,
         showDelete, setShowDelete,
-        fetchTasaciones, handleChangeEstado, handleAskDelete, handleConfirmDelete,
+        isViewOpen, setIsViewOpen, viewData, viewLoading, handleView,
+        fetchTasaciones, handleAskDelete, handleConfirmDelete,
         handleFilterChange, handleFilterSubmit, handleFilterClear
     };
 };
