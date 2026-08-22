@@ -61,9 +61,12 @@ const TasacionForm = ({
         <>
             {/* ── PASO 1: CLIENTE ─────────────────────────────────────────────── */}
             <div className="bg-white dark:bg-dark-surface p-6 sm:p-8 rounded-2xl shadow-sm dark:shadow-black/25 border border-slate-100 dark:border-dark-border transition-colors mt-4">
-                <h3 className="text-base font-black text-slate-800 dark:text-dark-text flex items-center gap-2 mb-6 uppercase tracking-wide border-b border-slate-100 dark:border-dark-border pb-3 transition-colors">
+                <h3 className="text-base font-black text-slate-800 dark:text-dark-text flex items-center gap-2 mb-2 uppercase tracking-wide border-b border-slate-100 dark:border-dark-border pb-3 transition-colors">
                     <UserIcon className="w-6 h-6 text-brand-red dark:text-brand-gold" /> 1. Cliente
                 </h3>
+                <p className="text-[10px] text-slate-400 dark:text-dark-text-muted font-bold uppercase mb-4 mt-3">
+                    Puedes tasar primero y seleccionar al cliente al final, una vez que el interesado califique y quede registrado como cliente.
+                </p>
 
                 {!cliente ? (
                     <ClienteSearchSelect onSelect={handleSeleccionarCliente} />
@@ -89,8 +92,8 @@ const TasacionForm = ({
                 )}
             </div>
 
-            {/* ── PASO 2: TASACIÓN DE JOYAS ───────────────────────────────────── */}
-            <div className={`bg-white dark:bg-dark-surface p-6 sm:p-8 rounded-2xl shadow-sm dark:shadow-black/25 border border-slate-100 dark:border-dark-border transition-colors mt-6 ${!cliente ? 'opacity-40 pointer-events-none' : ''}`}>
+            {/* ── PASO 2: TASACIÓN DE JOYAS — ya no depende de tener cliente ──── */}
+            <div className="bg-white dark:bg-dark-surface p-6 sm:p-8 rounded-2xl shadow-sm dark:shadow-black/25 border border-slate-100 dark:border-dark-border transition-colors mt-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-100 dark:border-dark-border pb-3">
                     <h3 className="text-base font-black text-slate-800 dark:text-dark-text flex items-center gap-2 uppercase tracking-wide transition-colors">
                         <SparklesIcon className="w-6 h-6 text-brand-red dark:text-brand-gold" /> 2. Tasación de joyas
@@ -161,10 +164,12 @@ const TasacionForm = ({
                 {/* Formulario joya actual */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <TipoJoyaSearchSelect
+                        key={editandoId ?? 'nuevo'}
                         onSelect={(t) => setDetalleActual(p => ({ ...p, tipo_joya: t }))}
                         initialName={detalleActual.tipo_joya?.descripcion || ''}
                     />
                     <SubtipoJoyaSearchSelect
+                        key={editandoId ?? 'nuevo'}
                         onSelect={(s) => setDetalleActual(p => ({ ...p, subtipo_joya: s }))}
                         initialName={detalleActual.subtipo_joya?.descripcion || ''}
                     />
