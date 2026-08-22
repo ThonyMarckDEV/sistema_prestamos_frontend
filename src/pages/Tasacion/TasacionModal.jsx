@@ -2,12 +2,11 @@ import React from 'react';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import {
     UserIcon, CalendarDaysIcon, IdentificationIcon,
-    BriefcaseIcon, BanknotesIcon, SparklesIcon
+    BriefcaseIcon, BanknotesIcon, SparklesIcon, CurrencyDollarIcon, AdjustmentsHorizontalIcon
 } from '@heroicons/react/24/outline';
 
 const fmt = (n) => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
 
-// Debe coincidir con las constantes ESTADO_* del modelo Tasacion en el backend
 const ESTADOS = {
     0: { label: 'Pendiente',  classes: 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-500/30' },
     1: { label: 'Abandonado', classes: 'bg-slate-100 dark:bg-dark-surface-alt text-slate-600 dark:text-dark-text-muted border-slate-300 dark:border-dark-border' },
@@ -55,6 +54,18 @@ const TasacionModal = ({ isOpen, onClose, data, isLoading }) => {
                                         Tasador: {data.tasador.name}
                                     </div>
                                 )}
+                                {data.precio_oro_gramo_aplicado != null && (
+                                    <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 px-2.5 py-1.5 rounded-lg border border-amber-200 dark:border-amber-500/20 transition-colors">
+                                        <CurrencyDollarIcon className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                                        Oro: S/ {fmt(data.precio_oro_gramo_aplicado)}/g
+                                    </div>
+                                )}
+                                {data.porcentaje_prestamo_aplicado != null && (
+                                    <div className="flex items-center gap-1.5 text-xs font-bold text-brand-red dark:text-brand-gold bg-brand-red-light dark:bg-dark-surface-alt px-2.5 py-1.5 rounded-lg border border-brand-red/20 dark:border-brand-gold/20 transition-colors">
+                                        <AdjustmentsHorizontalIcon className="w-4 h-4" />
+                                        {data.porcentaje_prestamo_aplicado}% a prestar
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -90,7 +101,7 @@ const TasacionModal = ({ isOpen, onClose, data, isLoading }) => {
                                                 </p>
                                                 {d.kilates && (
                                                     <span className="inline-block mt-1 text-[10px] font-black bg-slate-100 dark:bg-dark-surface-alt text-slate-600 dark:text-dark-text-muted px-2 py-0.5 rounded border border-slate-200 dark:border-dark-border">
-                                                        {d.kilates}
+                                                        {d.kilates}K
                                                     </span>
                                                 )}
                                                 {d.descripcion_detallada && (

@@ -20,6 +20,8 @@ const Update = () => {
         handleAgregarDetalle, handleEditarDetalle, handleCancelarEdicion, handleEliminarDetalle,
 
         porcentajePrestamo, setPorcentajePrestamo,
+        precioOroGramo, setPrecioOroGramo, precioEfectivoGramo,
+        camposLimitados, kilatesOpciones,
 
         totalTasacion, totalMaximoPrestar, handleGuardarCambios, guardando,
         showCancelarModal, setShowCancelarModal, handleCancelarEdicionTasacion,
@@ -40,9 +42,6 @@ const Update = () => {
 
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
-            {/* Si la tasación ya no se puede editar (convertida), el hook ya
-                dejó cliente/detalles vacíos y mostró el alert de error — el
-                formulario queda inerte porque !cliente lo apaga con opacity. */}
             <TasacionForm
                 cliente={cliente}
                 handleSeleccionarCliente={handleSeleccionarCliente}
@@ -65,6 +64,11 @@ const Update = () => {
 
                 porcentajePrestamo={porcentajePrestamo}
                 setPorcentajePrestamo={setPorcentajePrestamo}
+                precioOroGramo={precioOroGramo}
+                setPrecioOroGramo={setPrecioOroGramo}
+                precioEfectivoGramo={precioEfectivoGramo}
+                kilatesOpciones={kilatesOpciones}
+                camposLimitados={camposLimitados}
             />
 
             {/* ── TOTALES + GUARDAR ───────────────────────────────────────────── */}

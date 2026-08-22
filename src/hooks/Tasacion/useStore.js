@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { store } from 'services/tasacionService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
@@ -6,43 +6,36 @@ import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 const round = (n) => Math.round(n * 100) / 100;
 const fmt = (n) => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
 
+const KILATES_OPCIONES = ['18', '21', '24'];
+const KILATE_DEFAULT = '18';
+
 const vacioDetalle = () => ({
     tipo_joya: null,
     subtipo_joya: null,
     descripcion_detallada: '',
     peso_bruto: '',
     peso_incrustacion: '0',
-    kilates: '',
-    valor_tasado: '',
-    maximo_prestar: '',
+    kilates: KILATE_DEFAULT,
 });
 
 export const useStore = () => {
     const navigate = useNavigate();
 
-    // % de préstamo sobre el valor tasado — lo define el tasador/jefe en cada
-    // tasación (varía según tipo de joya, kilates, política del día, etc.),
-    // NO es una constante del sistema. Se guarda como entero (70 = 70%).
     const [porcentajePrestamo, setPorcentajePrestamo] = useState(70);
 
+    const [precioOroGramo, setPrecioOroGramo] = useState('');
+
     // ── Paso 1: Cliente ──────────────────────────────────────────────────────
-    // cliente = objeto que entrega ClienteSearchSelect al elegir una sugerencia
-    // del combobox: { id, nombre_completo, documento, tipo, ... }.
-    // OJO: confirmar con clienteService.combobox() si trae "celular" — si no,
-    // habría que pedirlo aparte al seleccionar (o quitar esa línea de la tarjeta).
-    // El tasador no registra clientes — solo selecciona uno ya existente.
     const [cliente, setCliente] = useState(null);
 
     // ── Paso 2: Detalles de joyas ────────────────────────────────────────────
     const [detalles, setDetalles] = useState([]);
     const [detalleActual, setDetalleActual] = useState(vacioDetalle());
-    const [editandoId, setEditandoId] = useState(null); // id del detalle en edición, null = modo "agregar nuevo"
-    const [montoAnteriorEdicion, setMontoAnteriorEdicion] = useState(null); // solo referencial, no se usa en el cálculo
+    const [editandoId, setEditandoId] = useState(null);
+    const [montoAnteriorEdicion, setMontoAnteriorEdicion] = useState(null);
     const [showCancelarModal, setShowCancelarModal] = useState(false);
     const [alert, setAlert] = useState(null);
 
-    // guardando = loading del submit final (separado de cualquier loading de
-    // combobox/búsqueda de cliente, que manejan sus propios componentes)
     const [guardando, setGuardando] = useState(false);
 
     // ── Cliente ──────────────────────────────────────────────────────────────
@@ -55,11 +48,6 @@ export const useStore = () => {
         setDetalles([]);
     };
 
-    /**
-     * Cancela toda la tasación: resetea cliente, joyas agregadas y el
-     * formulario en edición. El modal de confirmación ya validó la intención,
-     * así que aquí solo se limpia todo de una.
-     */
     const handleCancelarTasacion = () => {
         setCliente(null);
         setDetalles([]);
@@ -71,35 +59,56 @@ export const useStore = () => {
     };
 
     // ── Cálculo automático de la joya en edición ────────────────────────────
-    const pesoBrutoNum = parseFloat(detalleActual.peso_bruto) || 0;
-    const pesoIncrustNum = parseFloat(detalleActual.peso_incrustacion) || 0;
-    const pesoNeto = Math.max(0, round(pesoBrutoNum - pesoIncrustNum));
-    const valorTasadoNum = parseFloat(detalleActual.valor_tasado) || 0;
-    const porcentajeNum = parseFloat(porcentajePrestamo) || 0;
-    const maximoSugerido = round(valorTasadoNum * (porcentajeNum / 100));
+    const pesoBrutoNum      = parseFloat(detalleActual.peso_bruto) || 0;
+    const pesoIncrustNum    = parseFloat(detalleActual.peso_incrustacion) || 0;
+    const pesoNeto           = Math.max(0, round(pesoBrutoNum - pesoIncrustNum));
+    const kilatesNum          = parseFloat(detalleActual.kilates) || 0;
+    const porcentajeNum       = parseFloat(porcentajePrestamo) || 0;
+    const precioOroGramoNum   = parseFloat(precioOroGramo) || 0;
+
+    const precioEfectivoGramo = useMemo(
+        () => round(precioOroGramoNum * (kilatesNum / 24)),
+        [precioOroGramoNum, kilatesNum]
+    );
+
+    const valorTasadoNum = useMemo(
+        () => round(pesoNeto * precioEfectivoGramo),
+        [pesoNeto, precioEfectivoGramo]
+    );
+
+    const maximoSugerido = useMemo(
+        () => round(valorTasadoNum * (porcentajeNum / 100)),
+        [valorTasadoNum, porcentajeNum]
+    );
 
     const handleAgregarDetalle = () => {
+        if (precioOroGramoNum <= 0) {
+            setAlert({ type: 'error', message: 'Debes ingresar el precio del oro por gramo para poder tasar.' });
+            return;
+        }
         if (!detalleActual.tipo_joya || !detalleActual.subtipo_joya) {
             setAlert({ type: 'error', message: 'Selecciona tipo y subtipo de joya.' });
+            return;
+        }
+        if (!detalleActual.kilates) {
+            setAlert({ type: 'error', message: 'Selecciona el kilataje de la joya.' });
             return;
         }
         if (pesoBrutoNum <= 0) {
             setAlert({ type: 'error', message: 'El peso bruto debe ser mayor a 0.' });
             return;
         }
-        if (valorTasadoNum <= 0) {
-            setAlert({ type: 'error', message: 'Ingresa el valor tasado de la joya.' });
-            return;
-        }
 
-        const maximoFinal = detalleActual.maximo_prestar
-            ? parseFloat(detalleActual.maximo_prestar)
-            : maximoSugerido;
+        const detalleCalculado = {
+            ...detalleActual,
+            peso_neto: pesoNeto,
+            valor_tasado: valorTasadoNum,
+            maximo_prestar: maximoSugerido,
+        };
 
         if (editandoId) {
-            // Actualiza el detalle existente en su misma posición
             setDetalles(prev => prev.map(d => d.id === editandoId
-                ? { ...detalleActual, id: editandoId, peso_neto: pesoNeto, maximo_prestar: maximoFinal }
+                ? { ...detalleCalculado, id: editandoId }
                 : d
             ));
             setEditandoId(null);
@@ -107,10 +116,8 @@ export const useStore = () => {
             setAlert({ type: 'success', message: 'Joya actualizada.' });
         } else {
             setDetalles(prev => [...prev, {
-                ...detalleActual,
-                id: Date.now(), // solo para key en el MVP — se descarta al armar el payload
-                peso_neto: pesoNeto,
-                maximo_prestar: maximoFinal,
+                ...detalleCalculado,
+                id: Date.now(),
             }]);
             setAlert(null);
         }
@@ -118,15 +125,6 @@ export const useStore = () => {
         setDetalleActual(vacioDetalle());
     };
 
-    /**
-     * Carga una joya existente al formulario para editarla.
-     * OJO: maximo_prestar se deja vacío a propósito (no se precarga el valor
-     * guardado) — así el campo vuelve a seguir el % global en vivo (vía
-     * placeholder/maximoSugerido) en lugar de quedar "congelado" en el monto
-     * fijo que tenía al momento de agregarla. Si el usuario sube/baja el %
-     * mientras edita, el sugerido se actualiza solo. Si quiere un monto
-     * distinto al sugerido, lo escribe manualmente como en modo "agregar".
-     */
     const handleEditarDetalle = (detalle) => {
         setDetalleActual({
             tipo_joya: detalle.tipo_joya,
@@ -134,9 +132,7 @@ export const useStore = () => {
             descripcion_detallada: detalle.descripcion_detallada,
             peso_bruto: detalle.peso_bruto,
             peso_incrustacion: detalle.peso_incrustacion,
-            kilates: detalle.kilates,
-            valor_tasado: detalle.valor_tasado,
-            maximo_prestar: '',
+            kilates: detalle.kilates || KILATE_DEFAULT,
         });
         setEditandoId(detalle.id);
         setMontoAnteriorEdicion(parseFloat(detalle.maximo_prestar) || 0);
@@ -151,7 +147,6 @@ export const useStore = () => {
 
     const handleEliminarDetalle = (id) => {
         setDetalles(prev => prev.filter(d => d.id !== id));
-        // si estabas editando justo la que borraste, limpia el formulario
         if (editandoId === id) handleCancelarEdicion();
     };
 
@@ -159,12 +154,11 @@ export const useStore = () => {
     const totalTasacion = round(detalles.reduce((acc, d) => acc + parseFloat(d.valor_tasado || 0), 0));
     const totalMaximoPrestar = round(detalles.reduce((acc, d) => acc + parseFloat(d.maximo_prestar || 0), 0));
 
-    // true si el formulario de la joya actual tiene algo escrito (para saber si mostrar "Limpiar")
     const formularioTieneDatos = !!(
         detalleActual.tipo_joya || detalleActual.subtipo_joya ||
         detalleActual.descripcion_detallada || detalleActual.peso_bruto ||
         (detalleActual.peso_incrustacion && detalleActual.peso_incrustacion !== '0') ||
-        detalleActual.kilates || detalleActual.valor_tasado || detalleActual.maximo_prestar
+        (detalleActual.kilates && detalleActual.kilates !== KILATE_DEFAULT)
     );
 
     // ── Guardar tasación ─────────────────────────────────────────────────────
@@ -177,6 +171,10 @@ export const useStore = () => {
             setAlert({ type: 'error', message: 'Debes seleccionar un cliente.' });
             return;
         }
+        if (precioOroGramoNum <= 0) {
+            setAlert({ type: 'error', message: 'Debes ingresar el precio del oro por gramo.' });
+            return;
+        }
         if (detalles.length === 0) {
             setAlert({ type: 'error', message: 'Agrega al menos una joya a la tasación.' });
             return;
@@ -185,7 +183,8 @@ export const useStore = () => {
         const payload = {
             cliente_id: cliente.id,
             fecha_tasacion: new Date().toISOString().split('T')[0],
-            porcentaje_prestamo_aplicado: porcentajeNum, // referencial — cada detalle ya trae su maximo_prestar final
+            porcentaje_prestamo_aplicado: porcentajeNum,
+            precio_oro_gramo_aplicado: precioOroGramoNum,
             total_tasacion: totalTasacion,
             total_maximo_prestar: totalMaximoPrestar,
             detalles: detalles.map(d => ({
@@ -223,8 +222,15 @@ export const useStore = () => {
         pesoNeto, valorTasadoNum, porcentajeNum, maximoSugerido, formularioTieneDatos,
         handleAgregarDetalle, handleEditarDetalle, handleCancelarEdicion, handleEliminarDetalle,
 
-        // % préstamo
+        // % préstamo y precio del oro (ambos editables, precio obligatorio)
         porcentajePrestamo, setPorcentajePrestamo,
+        precioOroGramo, setPrecioOroGramo, precioEfectivoGramo,
+
+        // campos limitados — en Store nunca aplica (todo es nuevo)
+        camposLimitados: false,
+
+        // kilates disponibles para el combobox
+        kilatesOpciones: KILATES_OPCIONES,
 
         // totales / guardar / cancelar tasación
         totalTasacion, totalMaximoPrestar, handleGuardarTasacion, guardando,

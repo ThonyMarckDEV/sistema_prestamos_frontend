@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-    UserIcon, SparklesIcon, AdjustmentsHorizontalIcon,
-    PlusIcon, TrashIcon, CheckCircleIcon, PencilSquareIcon, XMarkIcon
+    UserIcon, SparklesIcon, AdjustmentsHorizontalIcon, CurrencyDollarIcon,
+    PlusIcon, TrashIcon, CheckCircleIcon, PencilSquareIcon, XMarkIcon, LockClosedIcon
 } from '@heroicons/react/24/outline';
 import TipoJoyaSearchSelect from 'components/Shared/Comboboxes/TipoJoyaSearchSelect';
 import SubtipoJoyaSearchSelect from 'components/Shared/Comboboxes/SubtipoJoyaSearchSelect';
@@ -9,35 +9,54 @@ import ClienteSearchSelect from 'components/Shared/Comboboxes/ClienteSearchSelec
 
 const fmt = (n) => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
 
-const CampoNumero = ({ label, value, onChange, highlight }) => (
+const CampoNumero = ({ label, value, onChange, highlight, disabled }) => (
     <div>
         <label className="block text-[10px] font-black text-slate-400 dark:text-dark-text-muted uppercase mb-1.5">{label}</label>
         <input
             type="number"
             value={value}
+            disabled={disabled}
             onChange={(e) => onChange(e.target.value)}
             placeholder="0.00"
-            className={`w-full p-3.5 text-sm font-bold bg-slate-50 dark:bg-dark-surface-alt border rounded-xl outline-none focus:ring-2 transition-all ${
+            className={`w-full p-3.5 text-sm font-bold border rounded-xl outline-none focus:ring-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-100 dark:disabled:bg-dark-surface-alt/50 ${
                 highlight
-                    ? 'border-brand-red/30 dark:border-brand-gold/30 focus:ring-brand-red dark:focus:ring-brand-gold text-slate-800 dark:text-dark-text'
-                    : 'border-slate-200 dark:border-dark-border focus:ring-brand-red dark:focus:ring-brand-gold text-slate-800 dark:text-dark-text'
+                    ? 'bg-slate-50 dark:bg-dark-surface-alt border-brand-red/30 dark:border-brand-gold/30 focus:ring-brand-red dark:focus:ring-brand-gold text-slate-800 dark:text-dark-text'
+                    : 'bg-slate-50 dark:bg-dark-surface-alt border-slate-200 dark:border-dark-border focus:ring-brand-red dark:focus:ring-brand-gold text-slate-800 dark:text-dark-text'
             }`}
         />
     </div>
 );
 
+// Display de valor calculado — NUNCA editable, siempre viene del cálculo automático
+const CampoCalculado = ({ label, value, prefix = '', destacado = false }) => (
+    <div>
+        <label className="block text-[10px] font-black text-slate-400 dark:text-dark-text-muted uppercase mb-1.5">{label}</label>
+        <div className={`p-3.5 text-sm font-black border rounded-xl ${
+            destacado
+                ? 'bg-brand-gold/10 border-brand-gold/30 text-brand-gold'
+                : 'bg-slate-100 dark:bg-dark-surface-alt/50 border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text-muted'
+        }`}>
+            {prefix}{fmt(value)}
+        </div>
+    </div>
+);
+
 const TasacionForm = ({
-    // cliente
     cliente, handleSeleccionarCliente, handleCambiarCliente,
 
-    // joya actual / detalles
     detalles, detalleActual, setDetalleActual, editandoId, montoAnteriorEdicion,
     pesoNeto, valorTasadoNum, porcentajeNum, maximoSugerido, formularioTieneDatos,
     handleAgregarDetalle, handleEditarDetalle, handleCancelarEdicion, handleEliminarDetalle,
 
-    // % préstamo
     porcentajePrestamo, setPorcentajePrestamo,
+    precioOroGramo, setPrecioOroGramo,
+
+    kilatesOpciones,
+
+    camposLimitados = false,
 }) => {
+    const precioOroInvalido = !precioOroGramo || parseFloat(precioOroGramo) <= 0;
+
     return (
         <>
             {/* ── PASO 1: CLIENTE ─────────────────────────────────────────────── */}
@@ -80,24 +99,58 @@ const TasacionForm = ({
                                 Editando joya
                             </span>
                         )}
+                        {camposLimitados && (
+                            <span className="flex items-center gap-1 text-[10px] font-black bg-slate-200 dark:bg-dark-surface-alt text-slate-500 dark:text-dark-text-muted px-2 py-0.5 rounded-md uppercase tracking-widest normal-case">
+                                <LockClosedIcon className="w-3 h-3" /> Peso bloqueado
+                            </span>
+                        )}
                     </h3>
 
-                    {/* % de préstamo — configurable por el tasador/jefe, aplica a todas
-                        las joyas que se agreguen mientras esté en este valor */}
-                    <div className="flex items-center gap-2 bg-slate-50 dark:bg-dark-surface-alt border border-slate-200 dark:border-dark-border rounded-xl px-4 py-2">
-                        <AdjustmentsHorizontalIcon className="w-4 h-4 text-slate-400 dark:text-dark-text-muted flex-shrink-0" />
-                        <span className="text-[10px] font-black text-slate-500 dark:text-dark-text-muted uppercase whitespace-nowrap">% a prestar</span>
-                        <input
-                            type="number"
-                            value={porcentajePrestamo}
-                            onChange={(e) => setPorcentajePrestamo(e.target.value)}
-                            min="0"
-                            step="1"
-                            className="w-16 bg-transparent text-sm font-black text-brand-red dark:text-brand-gold text-right outline-none"
-                        />
-                        <span className="text-sm font-black text-brand-red dark:text-brand-gold">%</span>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        {/* Precio del oro — OBLIGATORIO, se ingresa en cada tasación */}
+                        <div className={`flex items-center gap-2 border rounded-xl px-4 py-2 transition-colors ${
+                            precioOroInvalido
+                                ? 'bg-red-50 dark:bg-red-500/10 border-red-300 dark:border-red-500/30'
+                                : 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20'
+                        }`}>
+                            <CurrencyDollarIcon className={`w-4 h-4 flex-shrink-0 ${precioOroInvalido ? 'text-red-500 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`} />
+                            <span className={`text-[10px] font-black uppercase whitespace-nowrap ${precioOroInvalido ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                Precio oro/gr. S/
+                            </span>
+                            <input
+                                type="number"
+                                value={precioOroGramo}
+                                onChange={(e) => setPrecioOroGramo(e.target.value)}
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                className={`w-20 bg-transparent text-sm font-black text-right outline-none ${precioOroInvalido ? 'text-red-600 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'}`}
+                            />
+                            <span className={`text-xs font-black ${precioOroInvalido ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>/g</span>
+                        </div>
+
+                        {/* % de préstamo — configurable por el tasador/jefe */}
+                        <div className="flex items-center gap-2 bg-slate-50 dark:bg-dark-surface-alt border border-slate-200 dark:border-dark-border rounded-xl px-4 py-2">
+                            <AdjustmentsHorizontalIcon className="w-4 h-4 text-slate-400 dark:text-dark-text-muted flex-shrink-0" />
+                            <span className="text-[10px] font-black text-slate-500 dark:text-dark-text-muted uppercase whitespace-nowrap">% a prestar</span>
+                            <input
+                                type="number"
+                                value={porcentajePrestamo}
+                                onChange={(e) => setPorcentajePrestamo(e.target.value)}
+                                min="0"
+                                step="1"
+                                className="w-16 bg-transparent text-sm font-black text-brand-red dark:text-brand-gold text-right outline-none"
+                            />
+                            <span className="text-sm font-black text-brand-red dark:text-brand-gold">%</span>
+                        </div>
                     </div>
                 </div>
+
+                {precioOroInvalido && (
+                    <p className="text-[10px] font-black text-brand-red dark:text-red-400 uppercase -mt-3 mb-4">
+                        ⚠ Ingresa el precio del oro por gramo antes de agregar joyas — es obligatorio para tasar.
+                    </p>
+                )}
 
                 {porcentajeNum > 100 && (
                     <p className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase -mt-3 mb-4 flex items-center gap-1">
@@ -115,18 +168,21 @@ const TasacionForm = ({
                         onSelect={(s) => setDetalleActual(p => ({ ...p, subtipo_joya: s }))}
                         initialName={detalleActual.subtipo_joya?.descripcion || ''}
                     />
-                    <input
-                        type="text"
-                        value={detalleActual.kilates}
-                        onChange={(e) => setDetalleActual(p => ({ ...p, kilates: e.target.value }))}
-                        placeholder="Kilates (ej. 18K)"
-                        className="p-3.5 text-sm font-bold bg-slate-50 dark:bg-dark-surface-alt border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:ring-2 focus:ring-brand-red dark:focus:ring-brand-gold"
-                    />
+                    <div>
+                        <label className="block text-[10px] font-black text-slate-400 dark:text-dark-text-muted uppercase mb-1.5">Kilataje</label>
+                        <select
+                            value={detalleActual.kilates}
+                            onChange={(e) => setDetalleActual(p => ({ ...p, kilates: e.target.value }))}
+                            className="w-full p-3.5 text-sm font-bold bg-slate-50 dark:bg-dark-surface-alt border border-slate-200 dark:border-dark-border rounded-xl outline-none focus:ring-2 focus:ring-brand-red dark:focus:ring-brand-gold"
+                        >
+                            {kilatesOpciones.map(k => (
+                                <option key={k} value={k}>{k}K</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
-                {/* Descripción — fila propia y más grande, porque el asesor
-                    suele escribir bastante detalle acá (marca, estado, señas
-                    particulares de la joya, etc.) */}
+                {/* Descripción — siempre editable, incluso con peso bloqueado */}
                 <div className="mb-4">
                     <textarea
                         value={detalleActual.descripcion_detallada}
@@ -139,38 +195,26 @@ const TasacionForm = ({
 
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                     <CampoNumero label="Peso bruto (g)" value={detalleActual.peso_bruto}
-                        onChange={(v) => setDetalleActual(p => ({ ...p, peso_bruto: v }))} />
+                        onChange={(v) => setDetalleActual(p => ({ ...p, peso_bruto: v }))}
+                        disabled={camposLimitados} />
                     <CampoNumero label="Peso incrustación (g)" value={detalleActual.peso_incrustacion}
-                        onChange={(v) => setDetalleActual(p => ({ ...p, peso_incrustacion: v }))} />
+                        onChange={(v) => setDetalleActual(p => ({ ...p, peso_incrustacion: v }))}
+                        disabled={camposLimitados} />
+                    <CampoCalculado label="Peso neto (g)" value={pesoNeto} />
+                    <CampoCalculado label="Valor tasado (S/)" value={valorTasadoNum} destacado />
                     <div>
-                        <label className="block text-[10px] font-black text-slate-400 dark:text-dark-text-muted uppercase mb-1.5">Peso neto (g)</label>
-                        <div className="p-3.5 text-sm font-black bg-slate-100 dark:bg-dark-surface-alt/50 border border-slate-200 dark:border-dark-border rounded-xl text-slate-600 dark:text-dark-text-muted">
-                            {fmt(pesoNeto)}
-                        </div>
-                    </div>
-                    <CampoNumero label="Valor tasado (S/)" value={detalleActual.valor_tasado}
-                        onChange={(v) => setDetalleActual(p => ({ ...p, valor_tasado: v }))} highlight />
-                    <div>
-                        <label className="block text-[10px] font-black text-slate-400 dark:text-dark-text-muted uppercase mb-1.5">
-                            Máx. a prestar (S/)
-                        </label>
-                        <input
-                            type="number"
-                            value={detalleActual.maximo_prestar}
-                            onChange={(e) => setDetalleActual(p => ({ ...p, maximo_prestar: e.target.value }))}
-                            placeholder={maximoSugerido > 0 ? fmt(maximoSugerido) : '0.00'}
-                            className="w-full p-3.5 text-sm font-black text-brand-gold bg-slate-50 dark:bg-dark-surface-alt border border-brand-gold/30 rounded-xl outline-none focus:ring-2 focus:ring-brand-gold"
-                        />
-                        {valorTasadoNum > 0 && (
-                            <p className="text-[10px] text-slate-400 dark:text-dark-text-muted mt-1">
-                                Sugerido ({porcentajeNum}%): S/ {fmt(maximoSugerido)} — editable
-                                {editandoId && montoAnteriorEdicion > 0 && (
-                                    <span className="text-amber-500 dark:text-amber-400"> · Anterior: S/ {fmt(montoAnteriorEdicion)}</span>
-                                )}
+                        <CampoCalculado label="Máx. a prestar (S/)" value={maximoSugerido} destacado />
+                        {editandoId && montoAnteriorEdicion > 0 && (
+                            <p className="text-[10px] text-amber-500 dark:text-amber-400 mt-1">
+                                Anterior: S/ {fmt(montoAnteriorEdicion)}
                             </p>
                         )}
                     </div>
                 </div>
+
+                <p className="text-[9px] text-slate-400 dark:text-dark-text-muted uppercase font-bold -mt-2 mb-4">
+                    Valor tasado y máximo a prestar se calculan automáticamente (peso neto × precio del oro según kilataje × % a prestar) — no son editables.
+                </p>
 
                 <div className="flex items-center gap-3">
                     <button
@@ -211,6 +255,7 @@ const TasacionForm = ({
                             <thead>
                                 <tr className="bg-slate-50 dark:bg-dark-surface-alt text-[10px] font-black text-slate-500 dark:text-dark-text-muted uppercase">
                                     <th className="p-3 text-left">Joya</th>
+                                    <th className="p-3 text-right">Kilates</th>
                                     <th className="p-3 text-right">Peso neto</th>
                                     <th className="p-3 text-right">Valor tasado</th>
                                     <th className="p-3 text-right">Máx. prestar</th>
@@ -222,8 +267,9 @@ const TasacionForm = ({
                                     <tr key={d.id} className={`border-t border-slate-100 dark:border-dark-border transition-colors ${editandoId === d.id ? 'bg-amber-50 dark:bg-amber-500/10' : ''}`}>
                                         <td className="p-3">
                                             <p className="font-bold text-slate-800 dark:text-dark-text">{d.tipo_joya?.descripcion} · {d.subtipo_joya?.descripcion}</p>
-                                            <p className="text-xs text-slate-400 dark:text-dark-text-muted">{d.kilates} {d.descripcion_detallada && `· ${d.descripcion_detallada}`}</p>
+                                            <p className="text-xs text-slate-400 dark:text-dark-text-muted">{d.descripcion_detallada}</p>
                                         </td>
+                                        <td className="p-3 text-right font-bold text-slate-600 dark:text-dark-text-muted">{d.kilates}K</td>
                                         <td className="p-3 text-right font-bold text-slate-600 dark:text-dark-text-muted">{fmt(d.peso_neto)} g</td>
                                         <td className="p-3 text-right font-black text-slate-800 dark:text-dark-text">S/ {fmt(d.valor_tasado)}</td>
                                         <td className="p-3 text-right font-black text-brand-gold">S/ {fmt(d.maximo_prestar)}</td>

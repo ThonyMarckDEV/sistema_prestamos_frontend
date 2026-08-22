@@ -3,7 +3,7 @@ import ViewModal from 'components/Shared/Modals/ViewModal';
 import {
     UserIcon, BanknotesIcon, CalendarDaysIcon,
     UserGroupIcon, MapPinIcon, ClipboardDocumentListIcon,
-    ShieldCheckIcon, CheckCircleIcon, XCircleIcon, ScaleIcon, SparklesIcon,
+    ShieldCheckIcon, CheckCircleIcon, XCircleIcon, ScaleIcon,
 } from '@heroicons/react/24/outline';
 import CalculadoraCuota from 'components/Shared/CalculadoraCuota';
 
@@ -183,7 +183,7 @@ const ViewSolicitudModal = ({ isOpen, onClose, data, isLoading }) => {
                             {data.tasacion.detalles?.length > 0 && (
                                 <div className="pt-3 border-t border-amber-200 dark:border-amber-500/20">
                                     <p className="text-[9px] text-amber-600 dark:text-amber-500 font-bold uppercase mb-2 flex items-center gap-1">
-                                        <SparklesIcon className="w-3.5 h-3.5" /> Piezas Tasadas ({data.tasacion.detalles.length})
+                                        Piezas Tasadas ({data.tasacion.detalles.length})
                                     </p>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {data.tasacion.detalles.map((d) => (
