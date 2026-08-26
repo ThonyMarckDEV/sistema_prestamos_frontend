@@ -172,6 +172,13 @@ export const MENU_GROUPS = [
         groupName: 'Caja Chica',
         items: [
             {
+                section: 'Movimientos', icon: BanknotesIcon,
+                subs: [
+                    { name: 'Listar Movimientos',   link: '/caja-chica-movimiento/listar',    requiredPermission: 'cajaChicaMovimiento.index' },
+                    { name: 'Registrar Movimiento', link: '/caja-chica-movimiento/registrar', requiredPermission: 'cajaChicaMovimiento.store' },
+                ],
+            },
+            {
                 section: 'Gastos Administrativos', icon: ReceiptPercentIcon,
                 subs: [
                     { name: 'Listar Gastos', link: '/caja-chica-gasto/listar',  requiredPermission: 'cajaChicaGasto.index' },
