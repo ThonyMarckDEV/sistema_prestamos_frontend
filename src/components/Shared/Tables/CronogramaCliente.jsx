@@ -39,6 +39,7 @@ const CronogramaCliente = ({
 
     const esPrendario = eco?.modalidad === 'PRENDARIO' || eco?.es_prendario;
     const liqPrendario = esPrendario ? eco?.liquidacion_hoy?.modos?.cancelar : null;
+    const penalidadProntoPago = parseFloat(liqPrendario?.penalidad_pronto_pago ?? 0);
 
     return (
         <div className="flex flex-col gap-4 transition-colors">
@@ -81,6 +82,18 @@ const CronogramaCliente = ({
                                     Capital: {fmt(liqPrendario.capital)}
                                 </p>
                             </div>
+
+                            {/* Penalidad por pronto pago — solo aparece dentro de
+                                la ventana de los primeros días desde el inicio
+                                del período; la propia "Deuda Total a Hoy" de
+                                arriba ya la incluye, esto solo la explica. */}
+                            {penalidadProntoPago > 0 && (
+                                <div className="col-span-2 flex items-center gap-2 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl px-4 py-2.5 transition-colors">
+                                    <p className="text-[9px] font-bold text-amber-700 dark:text-amber-400 uppercase">
+                                        Tu deuda total incluye {fmt(penalidadProntoPago)} por cancelar dentro de los primeros días del préstamo.
+                                    </p>
+                                </div>
+                            )}
                         </>
                     ) : (
                         // VISTA NORMAL EN CUOTAS

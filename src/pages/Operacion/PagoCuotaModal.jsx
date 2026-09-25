@@ -69,6 +69,13 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
         cancelar: 'Paga la deuda total con interés solo hasta hoy. El sistema fija el monto exacto y liquida el préstamo.',
     }[state.modoPrendario];
 
+    // Penalidad de pronto pago: solo aplica en modo 'cancelar' y solo dentro
+    // de los primeros días del período (el backend ya decide el umbral y
+    // devuelve 0 fuera de esa ventana o en otros modos — acá solo se pinta
+    // si liqModo la trae en positivo).
+    const penalidadProntoPago = parseFloat(liqModo?.penalidad_pronto_pago ?? 0);
+    const mostrarPenalidadProntoPago = state.modoPrendario === 'cancelar' && penalidadProntoPago > 0;
+
     return (
         <ViewModal isOpen={isOpen} hideFooter={true} onClose={handleClose}
             title={`Cobrar Cuota N° ${cuota?.nro}`} size="2xl">
@@ -182,9 +189,18 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                         <FilaLiq label="Interés" value={liqModo.interes} />
                                         <FilaLiq label="Capital pendiente" value={liqModo.capital} />
                                         {liqModo.credito > 0 && <FilaLiq label="Crédito a favor" value={liqModo.credito} resta />}
+                                        {mostrarPenalidadProntoPago && (
+                                            <FilaLiq label="Penalidad pronto pago" value={penalidadProntoPago} />
+                                        )}
                                         <div className="pt-2 mt-1 border-t border-slate-200 dark:border-dark-border">
                                             <FilaLiq label="Deuda total a hoy" value={liqModo.cancelacion_total} destacar />
                                         </div>
+
+                                        {mostrarPenalidadProntoPago && (
+                                            <p className="text-[9px] font-bold text-amber-600 dark:text-amber-400 pt-1">
+                                                Incluye S/ {fmt(penalidadProntoPago)} por cancelar dentro de los primeros días del préstamo.
+                                            </p>
+                                        )}
                                     </div>
                                 )}
                             </div>
