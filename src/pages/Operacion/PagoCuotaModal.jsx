@@ -76,6 +76,12 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
     const penalidadProntoPago = parseFloat(liqModo?.penalidad_pronto_pago ?? 0);
     const mostrarPenalidadProntoPago = state.modoPrendario === 'cancelar' && penalidadProntoPago > 0;
 
+    // IGV: a diferencia de la penalidad, se calcula SIEMPRE (abono, patear y
+    // cancelar) sobre mora + seguro + custodia + interés. El backend ya
+    // devuelve el monto correcto por modo en liqModo.igv — acá solo se pinta.
+    const igv = parseFloat(liqModo?.igv ?? 0);
+    const mostrarIgv = igv > 0;
+
     return (
         <ViewModal isOpen={isOpen} hideFooter={true} onClose={handleClose}
             title={`Cobrar Cuota N° ${cuota?.nro}`} size="2xl">
@@ -154,20 +160,27 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                         {/* 1.5. Modo de pago — SOLO prendarios */}
                         {computed.esPrendario && (
                             <div className="space-y-3">
+
                                 <div className="grid grid-cols-3 gap-2">
-                                    {MODOS_PRENDARIO.map((m) => (
-                                        <button key={m.id} type="button"
-                                            onClick={() => setters.setModoPrendario(m.id)}
-                                            disabled={loading}
-                                            className={`p-3 rounded-2xl font-black text-[10px] uppercase flex flex-col items-center gap-1 text-center border-2 transition-all disabled:opacity-50 ${
-                                                state.modoPrendario === m.id
-                                                    ? m.activo
-                                                    : 'border-slate-100 dark:border-dark-border text-slate-400 dark:text-dark-text-muted hover:border-slate-200'
-                                            }`}>
-                                            {m.titulo}
-                                            <span className="text-[8px] font-bold normal-case opacity-70 leading-tight">{m.sub}</span>
-                                        </button>
-                                    ))}
+                                    {MODOS_PRENDARIO.map((m) => {
+                                        const bloqueado = m.id === 'abono' && computed.abonoBloqueado;
+                                        return (
+                                            <button key={m.id} type="button"
+                                                onClick={() => !bloqueado && setters.setModoPrendario(m.id)}
+                                                disabled={loading || bloqueado}
+                                                title={bloqueado ? 'El período ya venció — usa "Pagar y patear" o "Cancelar todo".' : undefined}
+                                                className={`p-3 rounded-2xl font-black text-[10px] uppercase flex flex-col items-center gap-1 text-center border-2 transition-all disabled:opacity-40 ${
+                                                    state.modoPrendario === m.id
+                                                        ? m.activo
+                                                        : 'border-slate-100 dark:border-dark-border text-slate-400 dark:text-dark-text-muted hover:border-slate-200'
+                                                } ${bloqueado ? 'cursor-not-allowed line-through' : ''}`}>
+                                                {m.titulo}
+                                                <span className="text-[8px] font-bold normal-case opacity-70 leading-tight">
+                                                    {bloqueado ? 'Período vencido' : m.sub}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
 
                                 {/* Desglose de la liquidación a hoy, según el modo elegido */}
@@ -187,6 +200,9 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                         <FilaLiq label="Seguro" value={liqModo.seguro} />
                                         <FilaLiq label="Custodia" value={liqModo.custodia} />
                                         <FilaLiq label="Interés" value={liqModo.interes} />
+                                        {mostrarIgv && (
+                                            <FilaLiq label="IGV (18%)" value={igv} />
+                                        )}
                                         <FilaLiq label="Capital pendiente" value={liqModo.capital} />
                                         {liqModo.credito > 0 && <FilaLiq label="Crédito a favor" value={liqModo.credito} resta />}
                                         {mostrarPenalidadProntoPago && (
