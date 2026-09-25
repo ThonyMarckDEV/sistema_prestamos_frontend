@@ -113,7 +113,7 @@ const PagoCuotaModal = ({ isOpen, onClose, cuota, onConfirm, loading }) => {
                                 Orden de aplicación del pago:{' '}
                                 <span className="font-black uppercase">
                                     {computed.esPrendario
-                                        ? 'Mora → Seguro → Custodia → Interés → Capital'
+                                        ? 'IGV → Mora → Seguro → Custodia → Interés → Capital'
                                         : 'Mora → Seguro → Interés → Capital'}
                                 </span>.
                                 El monto se descuenta en ese orden y lo que sobra amortiza el capital.
