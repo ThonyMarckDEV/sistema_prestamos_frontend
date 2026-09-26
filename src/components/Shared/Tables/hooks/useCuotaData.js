@@ -55,11 +55,11 @@ export const useCuotaData = (cuota, i, esVistaIntegrante) =>
         const custodiaDevengadaHoy = liqPatear ? parseFloat(liqPatear.custodia ?? 0) : null;
         const seguroDevengadoHoy = liqPatear ? parseFloat(liqPatear.seguro ?? 0) : null;
 
-        // La penalidad de pronto pago NO se muestra en el cronograma (confunde
-        // al ver el saldo "normal" saltar por algo que solo aplica si cancela
-        // hoy). Solo la calcula y muestra el cajero en su modal de pago,
-        // cuando elige el modo "cancelar".
-        const cancelacionTotalHoy = liqPatear ? parseFloat(liqPatear.cancelacion_total ?? 0) : null;
+        // Saldo/monto general de la cuota: SIN penalidad de pronto pago (solo
+        // aplica si cancela hoy) y SIN IGV (solo lo calcula/muestra el cajero
+        // en el modal de cobro). Por eso usamos total_sin_igv, no
+        // cancelacion_total (que sí trae el IGV sumado adentro).
+        const cancelacionTotalHoy = liqPatear ? parseFloat(liqPatear.total_sin_igv ?? 0) : null;
 
         const intPend = aplicaLiquidacion && intDevengadoHoy != null ? intDevengadoHoy : intPendMes;
         const custodiaPend = aplicaLiquidacion && custodiaDevengadaHoy != null ? custodiaDevengadaHoy : custodiaPendMes;
