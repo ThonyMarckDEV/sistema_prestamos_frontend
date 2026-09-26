@@ -49,32 +49,17 @@ export const useCuotaData = (cuota, i, esVistaIntegrante) =>
 
         const aplicaLiquidacion = esPrendario && !esPagada && !esInactiva;
         const liqPatear = cuota.liquidacion_hoy?.modos?.patear;
-        // "Si cancela hoy" — el backend ya arma este total COMPLETO, con la
-        // penalidad de pronto pago incluida cuando aplica (ver
-        // PrendarioCalculoService::liquidarModo, $total ya suma
-        // $penalidadProntoPago). El frontend nunca debe recalcularlo ni
-        // volver a sumarle nada — solo lo lee tal cual llega.
-        const liqCancelar = cuota.liquidacion_hoy?.modos?.cancelar;
         const diasLiquidacion = cuota.liquidacion_hoy?.dias ?? null;
 
         const intDevengadoHoy = liqPatear ? parseFloat(liqPatear.interes ?? 0) : null;
         const custodiaDevengadaHoy = liqPatear ? parseFloat(liqPatear.custodia ?? 0) : null;
         const seguroDevengadoHoy = liqPatear ? parseFloat(liqPatear.seguro ?? 0) : null;
 
-        // Penalidad: solo para mostrarla desglosada en la UI (informativo).
-        // NO se suma a nada acá — ya viene incluida dentro de
-        // liqCancelar.cancelacion_total, que es el único total que se usa
-        // para "saldo si cancela hoy".
-        const penalidadProntoPago = aplicaLiquidacion && liqCancelar
-            ? parseFloat(liqCancelar.penalidad_pronto_pago ?? 0)
-            : 0;
-
-        // El "si cancela hoy" total viene íntegro del backend (ya incluye
-        // penalidad si corresponde). El saldo "normal" (si patea / abona)
-        // sigue viniendo de liqPatear, que nunca la incluye.
-        const cancelacionTotalHoy = (aplicaLiquidacion && penalidadProntoPago > 0 && liqCancelar)
-            ? parseFloat(liqCancelar.cancelacion_total ?? 0)
-            : (liqPatear ? parseFloat(liqPatear.cancelacion_total ?? 0) : null);
+        // La penalidad de pronto pago NO se muestra en el cronograma (confunde
+        // al ver el saldo "normal" saltar por algo que solo aplica si cancela
+        // hoy). Solo la calcula y muestra el cajero en su modal de pago,
+        // cuando elige el modo "cancelar".
+        const cancelacionTotalHoy = liqPatear ? parseFloat(liqPatear.cancelacion_total ?? 0) : null;
 
         const intPend = aplicaLiquidacion && intDevengadoHoy != null ? intDevengadoHoy : intPendMes;
         const custodiaPend = aplicaLiquidacion && custodiaDevengadaHoy != null ? custodiaDevengadaHoy : custodiaPendMes;
@@ -87,8 +72,6 @@ export const useCuotaData = (cuota, i, esVistaIntegrante) =>
         const custodiaTotalUi = aplicaLiquidacion && custodiaDevengadaHoy != null ? (custodiaPagada + custodiaDevengadaHoy) : custodia;
         const seguroTotalUi = aplicaLiquidacion && seguroDevengadoHoy != null ? (segPagado + seguroDevengadoHoy) : seguro; // 🔥 TOTAL UI
 
-        // El monto de cabecera sigue el mismo total que d.saldo (ya trae la
-        // penalidad incluida cuando corresponde, directo del backend).
         const montoTotalUi = aplicaLiquidacion && cancelacionTotalHoy != null
             ? cancelacionTotalHoy
             : monto;
@@ -104,6 +87,5 @@ export const useCuotaData = (cuota, i, esVistaIntegrante) =>
             moraTotal, moraPagada, moraPend, abonado, acumInd, pagoAcumGrupo, saldo, diasAtraso,
             excAnterior, excAplicado, excConsumido, excGenerado, esCancelada, esRefinanciada, esInactiva, mostrarRecibido, estadoGlobal, tieneAbonos, tieneExcedente,
             esPrendario, custodia: custodiaTotalUi, custodiaPagada, custodiaPend, custodiaPendMes, diasLiquidacion, intDevengadoHoy, custodiaDevengadaHoy, seguroDevengadoHoy,
-            penalidadProntoPago,
         };
     }, [cuota, i, esVistaIntegrante]);

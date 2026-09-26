@@ -61,8 +61,6 @@ export const CuotaCard = ({
     const mostrarBotonReducirMora    = d.moraPend > 0 && !!onReducirMora && !d.esInactiva;
     const mostrarBotonReducirInteres = interesPendiente > 0 && !!onReducirInteres && !d.esInactiva && !d.esPrendario;
 
-    const mostrarPenalidadProntoPago = d.esPrendario && !d.esInactiva && d.penalidadProntoPago > 0;
-
     /* ---------------------------------------------
      * Color lateral
      * --------------------------------------------- */
@@ -253,17 +251,6 @@ export const CuotaCard = ({
                             onReducirMora={undefined}
                             esVistaIntegrante={esVistaIntegrante}
                         />
-                    </CardRow>
-
-                    <CardRow label="Penalidad pronto pago" hidden={!mostrarPenalidadProntoPago}>
-                        <div className="flex flex-col min-w-[80px] items-end">
-                            <span className="text-[11px] font-black text-amber-600 dark:text-amber-400 whitespace-nowrap">
-                                +S/ {d.penalidadProntoPago.toFixed(2)}
-                            </span>
-                            <span className="text-[8px] font-bold text-slate-400 dark:text-dark-text-muted whitespace-nowrap">
-                                Solo si cancela hoy (día {d.diasLiquidacion})
-                            </span>
-                        </div>
                     </CardRow>
 
                     {d.tieneAbonos && (
