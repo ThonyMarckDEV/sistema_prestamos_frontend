@@ -32,7 +32,7 @@ const DatosEconomicosCards = ({ eco, estadoPrestamo, esVistaIntegrante, liquidac
     const esPrendario = eco?.modalidad === 'PRENDARIO' || eco?.es_prendario;
 
     if (esPrendario && dataLiq) {
-        const liq = dataLiq.modos.cancelar; 
+        const liq = dataLiq.modos.patear;
         
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-colors">
