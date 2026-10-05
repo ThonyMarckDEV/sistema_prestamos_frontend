@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import { CalculatorIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 
-const fmt = n => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
+const fmt = n => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
 
 const addDias = (fechaIso, dias) => {
@@ -32,6 +32,11 @@ const QUICK_DIAS = [30, 60, 90, 120, 150, 180];
  * La MORA se calcula como tasa diaria × días de atraso en la fecha
  * simulada — NO como un monto fijo que se arrastra igual sin importar
  * cuántos días proyectes.
+ *
+ * El INTERÉS se calcula sobre capital + seguro financiado (bases.seguroBase),
+ * NO sobre el capital puro — mismo criterio que
+ * PrendarioCalculoService::devengado() en el backend y que la Calculadora
+ * de la solicitud (GenerarPrestamo::calcularFinanciamiento).
  */
 const SimuladorPrendario = ({ prestamoDetalle }) => {
     const [open, setOpen] = useState(false);
@@ -66,7 +71,7 @@ const SimuladorPrendario = ({ prestamoDetalle }) => {
 
         const cargosOrig = parseFloat(cancelar.cargos ?? 0);
         const igvOrig     = parseFloat(cancelar.igv ?? 0);
-        const igvRate     = cargosOrig > 0 ? (igvOrig / cargosOrig) : 0.18;
+        const igvRate     = cargosOrig > 0 ? Math.round((igvOrig / cargosOrig) * 100) / 100 : 0.18;
 
         const diasAtrasoHoy = Math.max(0, diasHoy - diasMes);
         const moraHoy = parseFloat(cancelar.mora ?? 0);
@@ -102,33 +107,28 @@ const SimuladorPrendario = ({ prestamoDetalle }) => {
     const resultado = useMemo(() => {
         if (!bases) return null;
 
-        // Día ABSOLUTO simulado = lo que ya lleva el préstamo hoy + lo
-        // que se le quiere agregar. Nunca puede ser menor al día actual.
         const diasSimTotal     = bases.diasHoy + diasExtra;
         const factorFijoSim    = Math.max(1, diasSimTotal / bases.diasMes);
         const factorInteresSim = diasSimTotal / bases.diasMes;
 
-        const interesDevengado  = bases.capitalCuota * (bases.tasaMensual / 100) * factorInteresSim;
-        const seguroDevengado   = bases.seguroBase   * factorFijoSim;
-        const custodiaDevengado = bases.custodiaBase * factorFijoSim;
+        const interesDevengado  = round2((bases.capitalCuota + bases.seguroBase) * (bases.tasaMensual / 100) * factorInteresSim);
+        const seguroDevengado   = round2(bases.seguroBase   * factorFijoSim);
+        const custodiaDevengado = round2(bases.custodiaBase * factorFijoSim);
 
-        const interesPend  = Math.max(0, interesDevengado  - bases.interesPagado);
-        const seguroPend   = Math.max(0, seguroDevengado   - bases.seguroPagado);
-        const custodiaPend = Math.max(0, custodiaDevengado - bases.custodiaPagado);
+        const interesPend  = round2(Math.max(0, interesDevengado  - bases.interesPagado));
+        const seguroPend   = round2(Math.max(0, seguroDevengado   - bases.seguroPagado));
+        const custodiaPend = round2(Math.max(0, custodiaDevengado - bases.custodiaPagado));
 
         const diasAtraso = Math.max(0, diasSimTotal - bases.diasMes);
 
-        // Mora = tasa diaria × días de atraso en la fecha simulada — NO un
-        // monto fijo. Usa la tasa que el operador ingrese, o por defecto la
-        // tasa diaria implícita de la mora actual.
         const moraPorDia = parseFloat(moraPorDiaManual || bases.moraPorDiaDefault || 0);
         const mora       = round2(moraPorDia * diasAtraso);
 
-        const penalidad = parseFloat(penalidadManual || 0);
+        const penalidad = round2(parseFloat(penalidadManual || 0));
 
-        const cargos = mora + seguroPend + custodiaPend + interesPend;
-        const igv    = cargos * bases.igvRate;
-        const total  = Math.max(0, cargos + igv + bases.capitalPendiente - bases.creditoActual + penalidad);
+        const cargos = round2(mora + seguroPend + custodiaPend + interesPend);
+        const igv    = round2(cargos * bases.igvRate);
+        const total  = round2(Math.max(0, cargos + igv + bases.capitalPendiente - bases.creditoActual + penalidad));
 
         return {
             diasSimTotal, diasAtraso,
@@ -136,6 +136,7 @@ const SimuladorPrendario = ({ prestamoDetalle }) => {
             cargos, igv, total,
         };
     }, [bases, diasExtra, moraPorDiaManual, penalidadManual]);
+
 
     if (!esPrendario || !liq?.modos?.cancelar) return null;
 
