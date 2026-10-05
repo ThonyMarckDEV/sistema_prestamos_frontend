@@ -9,7 +9,7 @@ import { CalculatorIcon } from '@heroicons/react/24/outline';
  *                  Si se pasa, se calcula por integrante y se ignoran monto/tasa del nivel superior.
  *
  * Props legacy (modo simple):
- *   monto, tasa, cuotas, frecuencia, seguro, seguro_financiado, cantidadIntegrantes
+ *   monto, tasa, cuotas, frecuencia, seguro, seguro_financiado, cantidadIntegrantes, custodia
  */
 const CalculadoraCuota = ({
     // modo grupal con tasas individuales
@@ -23,6 +23,7 @@ const CalculadoraCuota = ({
     seguro             = 0,
     seguro_financiado  = false,
     cantidadIntegrantes = 1,
+    custodia           = 0,      // ← nuevo: monto de custodia (solo modo simple / prendario)
     className          = '',
 }) => {
     const [showFormulas, setShowFormulas] = useState(false);
@@ -90,7 +91,7 @@ const CalculadoraCuota = ({
 
                 {/* Cabecera grupal */}
                 <div className="relative z-10 p-5 flex flex-col xl:flex-row justify-between items-center gap-4">
-                    <div className="flex items-center gap-3 w-full xl:w-auto flex-wrap sm:flex-nowrap min-w-0">
+                    <div className="flex items-center gap-x-4 gap-y-2 w-full xl:w-auto flex-wrap min-w-0">
                         <div className="p-2.5 bg-brand-red-dark rounded-2xl shadow-inner border border-brand-red-dark/50 flex-shrink-0 hidden sm:flex">
                             <CalculatorIcon className="w-6 h-6 text-brand-gold" />
                         </div>
@@ -225,19 +226,21 @@ const CalculadoraCuota = ({
         );
     }
 
-    // ── Modo simple (individual o grupal sin tasas distintas) ─────────────────
-    const montoBase    = parseFloat(monto)  || 0;
-    const tasaNum      = parseFloat(tasa)   || 0;
-    const nIntegrantes = parseInt(cantidadIntegrantes) || 1;
-    const seguroTotal  = round(seguroIndividual * nIntegrantes);
+    // ── Modo simple (individual, prendario o grupal sin tasas distintas) ──────
+    const montoBase     = parseFloat(monto)    || 0;
+    const tasaNum       = parseFloat(tasa)     || 0;
+    const nIntegrantes  = parseInt(cantidadIntegrantes) || 1;
+    const seguroTotal   = round(seguroIndividual * nIntegrantes);
+    const custodiaNum   = parseFloat(custodia) || 0; // ← nuevo
 
     if (montoBase <= 0 || tasaNum <= 0) return null;
 
-    const montoAprobado   = round(montoBase + (isFinanciado ? seguroTotal : 0));
+    const montoAprobado   = round(montoBase + (isFinanciado ? seguroTotal : 0) + custodiaNum);
     const amortizacion    = round(montoAprobado / cuotasNum);
     const interesPorCuota = round(amortizacion * (tasaNum / 100) * mesesTotales);
     const interesTotal    = round(interesPorCuota * cuotasNum);
     const seguroPorCuota  = seguroTotal > 0 && isFinanciado ? round(seguroTotal / cuotasNum) : 0;
+    const custodiaPorCuota = custodiaNum > 0 ? round(custodiaNum / cuotasNum) : 0; // ← nuevo
     const valorCuota      = round(amortizacion + interesPorCuota);
     const totalFinanciado = round(valorCuota * cuotasNum);
 
@@ -245,26 +248,39 @@ const CalculadoraCuota = ({
         <div className={`relative overflow-hidden bg-brand-red rounded-[24px] shadow-xl border border-brand-red-dark text-white flex flex-col ${className}`}>
             <div className="absolute top-0 right-0 -mt-8 -mr-8 w-36 h-36 bg-brand-red-light opacity-10 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="relative z-10 p-5 flex flex-col xl:flex-row justify-between items-center gap-4">
-                <div className="flex items-center gap-3 w-full xl:w-auto flex-wrap sm:flex-nowrap min-w-0">
+             <div className="relative z-10 p-5 flex flex-wrap xl:flex-nowrap justify-between items-center gap-4">
+
+                 <div className="flex items-start gap-3 flex-1 min-w-0">
                     <div className="p-2.5 bg-brand-red-dark rounded-2xl shadow-inner border border-brand-red-dark/50 flex-shrink-0 hidden sm:flex">
                         <CalculatorIcon className="w-6 h-6 text-brand-gold" />
                     </div>
-                    <Item label="Monto Aprobado" value={`S/ ${fmt(montoAprobado)}`} />
-                    <Sep />
-                    <Item label={`Amortización (÷${cuotasNum})`} value={`S/ ${fmt(amortizacion)}`} muted />
-                    <Sep />
-                    <Item label="Interés/cuota" value={`S/ ${fmt(interesPorCuota)}`} muted />
-                    {seguroTotal > 0 && (
-                        <>
-                            <Sep />
-                            <Item
-                                label={isFinanciado ? 'Cobertura/cuota' : 'Seguro Total'}
-                                value={isFinanciado ? `S/ ${fmt(seguroPorCuota)}` : `S/ ${fmt(seguroTotal)}`}
-                                gold
-                            />
-                        </>
-                    )}
+                    <div className="flex items-center gap-x-4 gap-y-2 flex-wrap min-w-0">
+                        <Item label="Monto Aprobado" value={`S/ ${fmt(montoAprobado)}`} />
+                        <Sep />
+                        <Item label={`Amortización (÷${cuotasNum})`} value={`S/ ${fmt(amortizacion)}`} muted />
+                        <Sep />
+                        <Item label="Interés/cuota" value={`S/ ${fmt(interesPorCuota)}`} muted />
+                        {seguroTotal > 0 && (
+                            <>
+                                <Sep />
+                                <Item
+                                    label={isFinanciado ? 'Cobertura/cuota' : 'Seguro Total'}
+                                    value={isFinanciado ? `S/ ${fmt(seguroPorCuota)}` : `S/ ${fmt(seguroTotal)}`}
+                                    gold
+                                />
+                            </>
+                        )}
+                        {custodiaNum > 0 && (
+                            <>
+                                <Sep />
+                                <Item
+                                    label="Custodia/cuota"
+                                    value={`S/ ${fmt(custodiaPorCuota)}`}
+                                    gold
+                                />
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex gap-6 w-full xl:w-auto border-t xl:border-t-0 xl:border-l border-brand-red-dark pt-4 xl:pt-0 xl:pl-6 justify-between xl:justify-end z-10 flex-shrink-0">
@@ -298,7 +314,15 @@ const CalculadoraCuota = ({
                     <FormulaRow
                         paso="1"
                         label="Monto Aprobado"
-                        formula={isFinanciado ? `S/ ${fmt(montoBase)} + S/ ${fmt(seguroTotal)}` : `S/ ${fmt(montoBase)}`}
+                        formula={
+                            isFinanciado && custodiaNum > 0
+                                ? `S/ ${fmt(montoBase)} + S/ ${fmt(seguroTotal)} + S/ ${fmt(custodiaNum)}`
+                                : isFinanciado
+                                    ? `S/ ${fmt(montoBase)} + S/ ${fmt(seguroTotal)}`
+                                    : custodiaNum > 0
+                                        ? `S/ ${fmt(montoBase)} + S/ ${fmt(custodiaNum)}`
+                                        : `S/ ${fmt(montoBase)}`
+                        }
                         resultado={`S/ ${fmt(montoAprobado)}`}
                     />
                     <FormulaRow
@@ -325,6 +349,14 @@ const CalculadoraCuota = ({
                             label="Seguro"
                             formula={isFinanciado ? `S/ ${fmt(seguroTotal)} ÷ ${cuotasNum}` : `S/ ${fmt(seguroIndividual)} × ${nIntegrantes}`}
                             resultado={isFinanciado ? `S/ ${fmt(seguroPorCuota)}` : `S/ ${fmt(seguroTotal)}`}
+                        />
+                    )}
+                    {custodiaNum > 0 && (
+                        <FormulaRow
+                            paso="5"
+                            label="Custodia"
+                            formula={`S/ ${fmt(custodiaNum)} ÷ ${cuotasNum}`}
+                            resultado={`S/ ${fmt(custodiaPorCuota)}`}
                         />
                     )}
                     <div className="h-2" />
@@ -374,7 +406,7 @@ const FormulaRow = ({ paso, label, formula, resultado, isFinal = false }) => (
 const Sep = () => <span className="text-brand-red-light/30 font-black text-lg">+</span>;
 
 const Item = ({ label, value, muted, gold }) => (
-    <div>
+    <div className="whitespace-nowrap">
         <p className="text-[9px] font-black text-brand-red-light/80 uppercase tracking-[0.15em] mb-0.5">{label}</p>
         <p className={`text-sm font-black ${gold ? 'text-brand-gold' : muted ? 'text-brand-red-light' : 'text-white'}`}>
             {value}

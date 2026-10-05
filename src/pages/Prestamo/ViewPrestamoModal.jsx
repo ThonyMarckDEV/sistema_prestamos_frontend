@@ -549,7 +549,7 @@ const ViewPrestamoModal = ({ isOpen, onClose, data, isLoading, onRefresh }) => {
                         onClose={() => setAdjudicarOpen(false)}
                         prestamoId={data?.id}
                         valorTasado={data?.prendario_info?.valor_tasado ?? 0}
-                        deudaHoy={liquidacionHoy?.modos?.cancelar?.cancelacion_total ?? 0}
+                        liquidacion={liquidacionHoy?.modos?.cancelar ?? null}
                         diasAtraso={data?.prendario_info?.dias_atraso ?? 0}
                         onSuccess={handleSuccessAdjudicar}
                     />

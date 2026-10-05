@@ -214,6 +214,7 @@ const SectionCondiciones = ({ data, handleChange, isBlocked, esPrendario = false
                     seguro={data.seguro}
                     seguro_financiado={data.seguro_financiado}
                     cantidadIntegrantes={numIntegrantes}
+                    custodia={esPrendario ? data.monto_custodia : 0}
                     className="mt-6"
                 />
             )}
