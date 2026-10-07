@@ -163,6 +163,9 @@ import RegistrarCajaChicaMovimiento from 'pages/CajaChicaMovimiento/Store';
 // UI SESIONES DE CAJA CHICA (TURNOS)
 import ListarSesionesCajaChica from 'pages/CajaChicaSesion/Index';
 
+// UI GARANTIAS PRENDARIAS
+import ListarGarantiasPrendarias from 'pages/GarantiaPrendaria/Index';
+
 // Utilities
 import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
 import ProtectedRoute from 'utilities/ProtectedRoutes/ProtectedRoute';
@@ -314,6 +317,9 @@ function AppContent() {
         <Route path="/tasacion/listar" element={<ProtectedRoute requiredPermission="tasacion.index" element={<ListarTasaciones />} />} />
         <Route path="/tasacion/agregar" element={<ProtectedRoute requiredPermission="tasacion.store" element={<AgregarTasacion />} />} />
         <Route path="/tasacion/editar/:id" element={<ProtectedRoute requiredPermission="tasacion.update" element={<EditarTasacion />} />} />
+
+          {/* GARANTIAS PRENDARIAS */}
+        <Route path="/garantia-prendaria/listar" element={<ProtectedRoute requiredPermission="garantiaPrendaria.index" element={<ListarGarantiasPrendarias />} />} />
 
         {/* CAJA CHICA GASTO */}
         <Route path="/caja-chica-gasto/listar" element={<ProtectedRoute requiredPermission="cajaChicaGasto.index" element={<ListarCajaChicaGastos />} />} />

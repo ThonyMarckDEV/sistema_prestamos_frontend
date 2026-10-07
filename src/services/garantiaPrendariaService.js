@@ -4,12 +4,19 @@ import { handleResponse } from 'utilities/Responses/handleResponse';
 
 const BASE_URL = `${API_BASE_URL}/api/garantias-prendarias`;
 
-export const index = async () => {
-    const response = await fetchWithAuth(`${BASE_URL}/adjudicados`, { method: 'GET' });
+export const index = async (page = 1, filters = {}) => {
+    const params = new URLSearchParams({
+        page,
+        search:      filters.search      || '',
+        prestamo_id: filters.prestamo_id || '',
+        cliente:     filters.cliente     || '',
+        estado:      filters.estado      ?? '',
+    });
+    const response = await fetchWithAuth(`${BASE_URL}/index?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);
 };
 
-export const show = async (lote) => {
-    const response = await fetchWithAuth(`${BASE_URL}/adjudicados/${lote}`, { method: 'GET' });
+export const show = async (id) => {
+    const response = await fetchWithAuth(`${BASE_URL}/show/${id}`, { method: 'GET' });
     return handleResponse(response);
 };

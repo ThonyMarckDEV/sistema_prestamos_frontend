@@ -152,6 +152,7 @@ export const MENU_GROUPS = [
                     { name: 'Nueva Tasación',    link: '/tasacion/agregar', requiredPermission: 'tasacion.store' },
                 ],
             },
+            { section: 'Garantías Prendarias', icon: ShieldCheckIcon, link: '/garantia-prendaria/listar', requiredPermission: 'garantiaPrendaria.index' },
         ]
     },
     {
