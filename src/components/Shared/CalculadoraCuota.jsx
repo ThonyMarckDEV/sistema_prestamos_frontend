@@ -9,7 +9,10 @@ import { CalculatorIcon } from '@heroicons/react/24/outline';
  *                  Si se pasa, se calcula por integrante y se ignoran monto/tasa del nivel superior.
  *
  * Props legacy (modo simple):
- *   monto, tasa, cuotas, frecuencia, seguro, seguro_financiado, cantidadIntegrantes, custodia
+ *   monto, tasa, cuotas, frecuencia, seguro, seguro_financiado, cantidadIntegrantes, custodia, igvPorc
+ *
+ * Regla del interés (modo simple): se calcula SIEMPRE sobre capital + seguro
+ * financiado. La custodia va aparte: se suma a la cuota pero NO genera interés.
  */
 const CalculadoraCuota = ({
     // modo grupal con tasas individuales
@@ -23,7 +26,8 @@ const CalculadoraCuota = ({
     seguro             = 0,
     seguro_financiado  = false,
     cantidadIntegrantes = 1,
-    custodia           = 0,      // ← nuevo: monto de custodia (solo modo simple / prendario)
+    custodia           = 0,      // monto de custodia (solo modo simple / prendario) — no genera interés
+    igvPorc            = 0,      // % de IGV sobre interés + seguro + custodia (ej. 18). 0 = no se aplica
     className          = '',
 }) => {
     const [showFormulas, setShowFormulas] = useState(false);
@@ -231,18 +235,30 @@ const CalculadoraCuota = ({
     const tasaNum       = parseFloat(tasa)     || 0;
     const nIntegrantes  = parseInt(cantidadIntegrantes) || 1;
     const seguroTotal   = round(seguroIndividual * nIntegrantes);
-    const custodiaNum   = parseFloat(custodia) || 0; // ← nuevo
+    const custodiaNum   = parseFloat(custodia) || 0;
+    const igvRate       = (parseFloat(igvPorc) || 0) / 100;
 
     if (montoBase <= 0 || tasaNum <= 0) return null;
 
-    const montoAprobado   = round(montoBase + (isFinanciado ? seguroTotal : 0) + custodiaNum);
-    const amortizacion    = round(montoAprobado / cuotasNum);
-    const interesPorCuota = round(amortizacion * (tasaNum / 100) * mesesTotales);
-    const interesTotal    = round(interesPorCuota * cuotasNum);
-    const seguroPorCuota  = seguroTotal > 0 && isFinanciado ? round(seguroTotal / cuotasNum) : 0;
-    const custodiaPorCuota = custodiaNum > 0 ? round(custodiaNum / cuotasNum) : 0; // ← nuevo
-    const valorCuota      = round(amortizacion + interesPorCuota);
-    const totalFinanciado = round(valorCuota * cuotasNum);
+    // Base del interés: capital + seguro financiado. La custodia NO entra acá.
+    const montoAprobado    = round(montoBase + (isFinanciado ? seguroTotal : 0));
+    const amortizacion     = round(montoAprobado / cuotasNum);
+    const interesPorCuota  = round(amortizacion * (tasaNum / 100) * mesesTotales);
+    const interesTotal     = round(interesPorCuota * cuotasNum);
+    const seguroPorCuota   = seguroTotal > 0 && isFinanciado ? round(seguroTotal / cuotasNum) : 0;
+    // Custodia: se cobra aparte, sin interés.
+    const custodiaPorCuota = custodiaNum > 0 ? round(custodiaNum / cuotasNum) : 0;
+    // IGV (opcional): sobre los cargos — interés + seguro + custodia — nunca sobre el capital.
+    const igvPorCuota      = igvRate > 0 ? round((interesPorCuota + seguroPorCuota + custodiaPorCuota) * igvRate) : 0;
+    const valorCuota       = round(amortizacion + interesPorCuota + custodiaPorCuota + igvPorCuota);
+    const totalFinanciado  = round(valorCuota * cuotasNum);
+
+    const formulaCuota = [
+        `S/ ${fmt(amortizacion)}`,
+        `S/ ${fmt(interesPorCuota)}`,
+        custodiaPorCuota > 0 ? `S/ ${fmt(custodiaPorCuota)}` : null,
+        igvPorCuota > 0 ? `S/ ${fmt(igvPorCuota)}` : null,
+    ].filter(Boolean).join(' + ');
 
     return (
         <div className={`relative overflow-hidden bg-brand-red rounded-[24px] shadow-xl border border-brand-red-dark text-white flex flex-col ${className}`}>
@@ -276,6 +292,16 @@ const CalculadoraCuota = ({
                                 <Item
                                     label="Custodia/cuota"
                                     value={`S/ ${fmt(custodiaPorCuota)}`}
+                                    gold
+                                />
+                            </>
+                        )}
+                        {igvPorCuota > 0 && (
+                            <>
+                                <Sep />
+                                <Item
+                                    label="IGV/cuota"
+                                    value={`S/ ${fmt(igvPorCuota)}`}
                                     gold
                                 />
                             </>
@@ -315,13 +341,9 @@ const CalculadoraCuota = ({
                         paso="1"
                         label="Monto Aprobado"
                         formula={
-                            isFinanciado && custodiaNum > 0
-                                ? `S/ ${fmt(montoBase)} + S/ ${fmt(seguroTotal)} + S/ ${fmt(custodiaNum)}`
-                                : isFinanciado
-                                    ? `S/ ${fmt(montoBase)} + S/ ${fmt(seguroTotal)}`
-                                    : custodiaNum > 0
-                                        ? `S/ ${fmt(montoBase)} + S/ ${fmt(custodiaNum)}`
-                                        : `S/ ${fmt(montoBase)}`
+                            isFinanciado
+                                ? `S/ ${fmt(montoBase)} + S/ ${fmt(seguroTotal)}`
+                                : `S/ ${fmt(montoBase)}`
                         }
                         resultado={`S/ ${fmt(montoAprobado)}`}
                     />
@@ -354,16 +376,24 @@ const CalculadoraCuota = ({
                     {custodiaNum > 0 && (
                         <FormulaRow
                             paso="5"
-                            label="Custodia"
+                            label="Custodia (sin interés)"
                             formula={`S/ ${fmt(custodiaNum)} ÷ ${cuotasNum}`}
                             resultado={`S/ ${fmt(custodiaPorCuota)}`}
+                        />
+                    )}
+                    {igvPorCuota > 0 && (
+                        <FormulaRow
+                            paso="6"
+                            label={`IGV (${parseFloat(igvPorc)}%)`}
+                            formula={`(S/ ${fmt(interesPorCuota)} + S/ ${fmt(seguroPorCuota)} + S/ ${fmt(custodiaPorCuota)}) × ${parseFloat(igvPorc)}%`}
+                            resultado={`S/ ${fmt(igvPorCuota)}`}
                         />
                     )}
                     <div className="h-2" />
                     <FormulaRow
                         paso="✓"
                         label="Cuota Final"
-                        formula={`S/ ${fmt(amortizacion)} + S/ ${fmt(interesPorCuota)}`}
+                        formula={formulaCuota}
                         resultado={`S/ ${fmt(valorCuota)}`}
                         isFinal
                     />
