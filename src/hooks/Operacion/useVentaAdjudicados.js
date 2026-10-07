@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { index as listarLotes, show as verLote } from 'services/garantiaPrendariaService';
+import { lotes as listarLotes, showLote as verLote } from 'services/garantiaPrendariaService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useVentaAdjudicados = () => {
