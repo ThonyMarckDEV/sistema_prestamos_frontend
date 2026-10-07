@@ -7,6 +7,7 @@ const round = (n) => Math.round(n * 100) / 100;
 const fmt = (n) => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
 
 const PORCENTAJE_OPCIONES = [60, 70, 80, 90, 100];
+const PORCENTAJE_DEFECTO = 70;
 
 const vacioDetalle = () => ({
     tipo_joya: null,
@@ -25,7 +26,9 @@ export const useUpdate = () => {
     const [guardando, setGuardando] = useState(false);
     const [alert, setAlert] = useState(null);
 
-    const [porcentajePrestamo, setPorcentajePrestamo] = useState(70);
+    // % a prestar de la joya que se está ingresando/editando. Cada joya
+    // guarda el suyo en porcentaje_prestamo_aplicado.
+    const [porcentajePrestamo, setPorcentajePrestamo] = useState(PORCENTAJE_DEFECTO);
     const [cliente, setCliente] = useState(null);
     const [fechaTasacion, setFechaTasacion] = useState(null);
     const [detalles, setDetalles] = useState([]);
@@ -51,10 +54,13 @@ export const useUpdate = () => {
                 }
 
                 setFechaTasacion(data.fecha_tasacion);
-                setPorcentajePrestamo(data.porcentaje_prestamo_aplicado ?? 70);
 
+                // El show devuelve el cliente como { id, nombre_completo, documento }.
+                // usuario_id se duplica con el nombre que usa el buscador de
+                // clientes, para que el payload lo lea igual en ambos casos.
                 setCliente(data.cliente ? {
-                    id: data.cliente.usuario_id,
+                    id: data.cliente.id,
+                    usuario_id: data.cliente.id,
                     nombre_completo: data.cliente.nombre_completo,
                     documento: data.cliente.documento,
                 } : null);
@@ -77,6 +83,7 @@ export const useUpdate = () => {
                         precio_gramo: d.precio_gramo_aplicado,
                     } : null,
                     valor_tasado: d.valor_tasado,
+                    porcentaje_prestamo_aplicado: Number(d.porcentaje_prestamo_aplicado) || PORCENTAJE_DEFECTO,
                     maximo_prestar: d.maximo_prestar,
                 })));
             } catch (err) {
@@ -138,6 +145,7 @@ export const useUpdate = () => {
             ...detalleActual,
             peso_neto: pesoNeto,
             valor_tasado: valorTasadoNum,
+            porcentaje_prestamo_aplicado: porcentajeNum,
             maximo_prestar: maximoSugerido,
         };
 
@@ -172,6 +180,8 @@ export const useUpdate = () => {
             peso_incrustacion: detalle.peso_incrustacion,
             kilataje: detalle.kilataje || null,
         });
+        // El combo "% a prestar" vuelve al % de ESTA joya.
+        setPorcentajePrestamo(Number(detalle.porcentaje_prestamo_aplicado) || PORCENTAJE_DEFECTO);
         setEditandoId(detalle.id);
         setMontoAnteriorEdicion(parseFloat(detalle.maximo_prestar) || 0);
         setCamposLimitados(esExistente);
@@ -211,15 +221,23 @@ export const useUpdate = () => {
             setAlert({ type: 'error', message: 'Debes seleccionar un cliente.' });
             return;
         }
+
+        // El cliente cargado y el del buscador pueden venir con forma
+        // distinta: se prioriza usuario_id y se cae a id si no existe.
+        const clienteId = cliente.usuario_id ?? cliente.id;
+        if (!clienteId) {
+            setAlert({ type: 'error', message: 'No se pudo identificar al cliente. Vuelve a seleccionarlo.' });
+            return;
+        }
+
         if (detalles.length === 0) {
             setAlert({ type: 'error', message: 'Agrega al menos una joya a la tasación.' });
             return;
         }
 
         const payload = {
-            cliente_id: cliente.usuario_id,
+            cliente_id: clienteId,
             fecha_tasacion: fechaTasacion,
-            porcentaje_prestamo_aplicado: porcentajeNum,
             total_tasacion: totalTasacion,
             total_maximo_prestar: totalMaximoPrestar,
             detalles: detalles.map(d => ({
@@ -235,6 +253,7 @@ export const useUpdate = () => {
                 peso_neto: d.peso_neto,
                 kilataje_id: d.kilataje?.id,
                 valor_tasado: d.valor_tasado,
+                porcentaje_prestamo_aplicado: d.porcentaje_prestamo_aplicado,
                 maximo_prestar: d.maximo_prestar,
             })),
         };

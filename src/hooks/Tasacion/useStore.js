@@ -7,6 +7,7 @@ const round = (n) => Math.round(n * 100) / 100;
 const fmt = (n) => parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 });
 
 const PORCENTAJE_OPCIONES = [60, 70, 80, 90, 100];
+const PORCENTAJE_DEFECTO = 70;
 
 const vacioDetalle = () => ({
     tipo_joya: null,
@@ -20,7 +21,9 @@ const vacioDetalle = () => ({
 export const useStore = () => {
     const navigate = useNavigate();
 
-    const [porcentajePrestamo, setPorcentajePrestamo] = useState(70);
+    // % a prestar de la joya que se está ingresando/editando. Cada joya
+    // guarda el suyo en porcentaje_prestamo_aplicado.
+    const [porcentajePrestamo, setPorcentajePrestamo] = useState(PORCENTAJE_DEFECTO);
 
     // ── Paso 1: Cliente ──────────────────────────────────────────────────────
     const [cliente, setCliente] = useState(null);
@@ -92,6 +95,7 @@ export const useStore = () => {
             ...detalleActual,
             peso_neto: pesoNeto,
             valor_tasado: valorTasadoNum,
+            porcentaje_prestamo_aplicado: porcentajeNum,
             maximo_prestar: maximoSugerido,
         };
 
@@ -123,6 +127,8 @@ export const useStore = () => {
             peso_incrustacion: detalle.peso_incrustacion,
             kilataje: detalle.kilataje || null,
         });
+        // El combo "% a prestar" vuelve al % de ESTA joya.
+        setPorcentajePrestamo(Number(detalle.porcentaje_prestamo_aplicado) || PORCENTAJE_DEFECTO);
         setEditandoId(detalle.id);
         setMontoAnteriorEdicion(parseFloat(detalle.maximo_prestar) || 0);
         setAlert(null);
@@ -168,7 +174,6 @@ export const useStore = () => {
         const payload = {
             cliente_id: cliente.usuario_id,
             fecha_tasacion: new Date().toISOString().split('T')[0],
-            porcentaje_prestamo_aplicado: porcentajeNum,
             total_tasacion: totalTasacion,
             total_maximo_prestar: totalMaximoPrestar,
             detalles: detalles.map(d => ({
@@ -180,6 +185,7 @@ export const useStore = () => {
                 peso_neto: d.peso_neto,
                 kilataje_id: d.kilataje?.id,
                 valor_tasado: d.valor_tasado,
+                porcentaje_prestamo_aplicado: d.porcentaje_prestamo_aplicado,
                 maximo_prestar: d.maximo_prestar,
             })),
         };
@@ -206,7 +212,7 @@ export const useStore = () => {
         pesoNeto, valorTasadoNum, porcentajeNum, maximoSugerido, formularioTieneDatos,
         handleAgregarDetalle, handleEditarDetalle, handleCancelarEdicion, handleEliminarDetalle,
 
-        // % préstamo — solo valores fijos
+        // % préstamo — solo valores fijos, uno por joya
         porcentajePrestamo, setPorcentajePrestamo,
         porcentajeOpciones: PORCENTAJE_OPCIONES,
 

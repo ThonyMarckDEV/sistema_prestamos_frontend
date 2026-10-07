@@ -86,50 +86,45 @@ const TasacionModal = ({ isOpen, onClose, data, isLoading }) => {
 
                         {data.detalles?.length > 0 ? (
                             <div className="space-y-3">
-                                {data.detalles.map((d) => {
-                                    const porcentajeJoya = parseFloat(d.valor_tasado) > 0
-                                        ? (parseFloat(d.maximo_prestar) / parseFloat(d.valor_tasado)) * 100
-                                        : null;
-
-                                    return (
-                                        <div key={d.id} className="bg-white dark:bg-dark-surface p-4 rounded-2xl border border-slate-200 dark:border-dark-border shadow-sm transition-colors">
-                                            <div className="flex items-start justify-between gap-4 flex-wrap">
-                                                <div>
-                                                    <p className="text-sm font-black text-slate-800 dark:text-dark-text uppercase">
-                                                        {d.tipo_joya?.descripcion} · {d.subtipo_joya?.descripcion}
+                                {data.detalles.map((d) => (
+                                    <div key={d.id} className="bg-white dark:bg-dark-surface p-4 rounded-2xl border border-slate-200 dark:border-dark-border shadow-sm transition-colors">
+                                        <div className="flex items-start justify-between gap-4 flex-wrap">
+                                            <div>
+                                                <p className="text-sm font-black text-slate-800 dark:text-dark-text uppercase">
+                                                    {d.tipo_joya?.descripcion} · {d.subtipo_joya?.descripcion}
+                                                </p>
+                                                {d.kilataje?.nombre && (
+                                                    <span className="inline-block mt-1 text-[10px] font-black bg-slate-100 dark:bg-dark-surface-alt text-slate-600 dark:text-dark-text-muted px-2 py-0.5 rounded border border-slate-200 dark:border-dark-border">
+                                                        {d.kilataje.nombre}
+                                                    </span>
+                                                )}
+                                                {d.descripcion_detallada && (
+                                                    <p className="text-xs text-slate-500 dark:text-dark-text-muted mt-1.5 max-w-md">
+                                                        {d.descripcion_detallada}
                                                     </p>
-                                                    {d.kilataje?.nombre && (
-                                                        <span className="inline-block mt-1 text-[10px] font-black bg-slate-100 dark:bg-dark-surface-alt text-slate-600 dark:text-dark-text-muted px-2 py-0.5 rounded border border-slate-200 dark:border-dark-border">
-                                                            {d.kilataje.nombre}
+                                                )}
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <p className="text-xs text-slate-400 dark:text-dark-text-muted font-bold">
+                                                    {fmt(d.peso_bruto)} gr bruto — {fmt(d.peso_neto)} gr neto
+                                                </p>
+                                                <p className="text-sm font-black text-slate-800 dark:text-dark-text mt-1">S/ {fmt(d.valor_tasado)}</p>
+
+                                                <div className="inline-flex items-center gap-1.5 mt-1.5 bg-brand-red-light dark:bg-dark-surface-alt px-2.5 py-1 rounded-lg border border-brand-red/20 dark:border-brand-gold/20">
+                                                    {/* % propio de la joya, tal como está guardado */}
+                                                    {d.porcentaje_prestamo_aplicado != null && (
+                                                        <span className="text-[10px] font-black text-brand-red dark:text-brand-gold">
+                                                            {d.porcentaje_prestamo_aplicado}% a prestar:
                                                         </span>
                                                     )}
-                                                    {d.descripcion_detallada && (
-                                                        <p className="text-xs text-slate-500 dark:text-dark-text-muted mt-1.5 max-w-md">
-                                                            {d.descripcion_detallada}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                                <div className="text-right shrink-0">
-                                                    <p className="text-xs text-slate-400 dark:text-dark-text-muted font-bold">
-                                                        {fmt(d.peso_bruto)} gr bruto — {fmt(d.peso_neto)} gr neto
-                                                    </p>
-                                                    <p className="text-sm font-black text-slate-800 dark:text-dark-text mt-1">S/ {fmt(d.valor_tasado)}</p>
-
-                                                    <div className="inline-flex items-center gap-1.5 mt-1.5 bg-brand-red-light dark:bg-dark-surface-alt px-2.5 py-1 rounded-lg border border-brand-red/20 dark:border-brand-gold/20">
-                                                        {porcentajeJoya !== null && (
-                                                            <span className="text-[10px] font-black text-brand-red dark:text-brand-gold">
-                                                                {porcentajeJoya.toFixed(0)}% a prestar:
-                                                            </span>
-                                                        )}
-                                                        <span className="text-xs font-black text-brand-red dark:text-brand-gold">
-                                                            S/ {fmt(d.maximo_prestar)}
-                                                        </span>
-                                                    </div>
+                                                    <span className="text-xs font-black text-brand-red dark:text-brand-gold">
+                                                        S/ {fmt(d.maximo_prestar)}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                ))}
                             </div>
                         ) : (
                             <div className="py-8 text-center bg-slate-50 dark:bg-dark-surface-alt rounded-2xl border-2 border-dashed border-slate-200 dark:border-dark-border text-slate-400 dark:text-dark-text-muted/60 text-sm transition-colors">
