@@ -23,10 +23,11 @@ export const show = async (id) => {
     return handleResponse(response);
 };
 
-// ── Venta Adjudicados (caja): lotes en estado ADJUDICADO ──────────────────────
+// ── Venta Adjudicados (caja): por DNI/RUC del cliente ─────────────────────────
 
-export const lotes = async () => {
-    const response = await fetchWithAuth(`${BASE_URL}/lotes`, { method: 'GET' });
+export const lotes = async (documento) => {
+    const params = new URLSearchParams({ documento: documento || '' });
+    const response = await fetchWithAuth(`${BASE_URL}/lotes?${params.toString()}`, { method: 'GET' });
     return handleResponse(response);
 };
 

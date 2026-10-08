@@ -158,7 +158,7 @@ const Store = () => {
                         )}
 
                         {/* Venta Adjudicados */}
-                        {tipoOperacion === 'venta_adjudicados' && <VentaAdjudicados />}
+                        {tipoOperacion === 'venta_adjudicados' && <VentaAdjudicados onVentaRegistrada={verifySesion} />}
 
                         {/* Desembolso */}
                         {prestamoSeleccionado && tipoOperacion === 'desembolso' && (
