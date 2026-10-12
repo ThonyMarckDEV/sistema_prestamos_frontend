@@ -152,6 +152,13 @@ export const MENU_GROUPS = [
                     { name: 'Nueva Tasación',    link: '/tasacion/agregar', requiredPermission: 'tasacion.store' },
                 ],
             },
+            {
+                section: 'Solicitudes Prendarias', icon: ScaleIcon,
+                subs: [
+                    { name: 'Nueva Solicitud', link: '/solicitudPrendario/agregar', requiredPermission: 'solicitudPrendario.store' },
+                    { name: 'Solicitudes',     link: '/solicitudPrendario/listar',  requiredPermission: 'solicitudPrendario.index' },
+                ],
+            },
             { section: 'Garantías Prendarias', icon: ShieldCheckIcon, link: '/garantia-prendaria/listar', requiredPermission: 'garantiaPrendaria.index' },
         ]
     },

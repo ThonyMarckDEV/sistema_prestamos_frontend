@@ -52,6 +52,11 @@ import AgregarSolicitud from 'pages/SolicitudPrestamo/Store';
 import EditarSolicitud from 'pages/SolicitudPrestamo/Update';
 import ListarSolicitudes from 'pages/SolicitudPrestamo/Index';
 
+// UI SOLICITUD PRENDARIO
+import AgregarSolicitudPrendario from 'pages/SolicitudPrendario/Store';
+import EditarSolicitudPrendario from 'pages/SolicitudPrendario/Update';
+import ListarSolicitudesPrendario from 'pages/SolicitudPrendario/Index';
+
 // UI PRESTAMO
 import ListarPrestamos from 'pages/Prestamo/Index';
 
@@ -231,6 +236,11 @@ function AppContent() {
         <Route path="/solicitudPrestamo/agregar" element={<ProtectedRoute requiredPermission="solicitudPrestamo.store" element={<AgregarSolicitud />} />} />
         <Route path="/solicitudPrestamo/editar/:id" element={<ProtectedRoute requiredPermission="solicitudPrestamo.update" element={<EditarSolicitud />} />} />
         <Route path="/solicitudPrestamo/listar" element={<ProtectedRoute requiredPermission="solicitudPrestamo.index" element={<ListarSolicitudes />} />} />
+
+        {/* SOLICITUD PRENDARIO */}
+        <Route path="/solicitudPrendario/agregar" element={<ProtectedRoute requiredPermission="solicitudPrendario.store" element={<AgregarSolicitudPrendario />} />} />
+        <Route path="/solicitudPrendario/editar/:id" element={<ProtectedRoute requiredPermission="solicitudPrendario.update" element={<EditarSolicitudPrendario />} />} />
+        <Route path="/solicitudPrendario/listar" element={<ProtectedRoute requiredPermission="solicitudPrendario.index" element={<ListarSolicitudesPrendario />} />} />
 
         {/* PRESTAMO */}
         <Route path="/prestamo/listar" element={<ProtectedRoute requiredPermission="prestamo.index" element={<ListarPrestamos />} />} />
