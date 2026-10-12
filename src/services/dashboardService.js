@@ -176,3 +176,14 @@ export const exportInteresGrupoDashboard = async (filters = {}) => {
     if (!response.ok) throw new Error('Error al exportar interés por grupo');
     return response.blob();
 };
+
+// ── Prendario ─────────────────────────────────────────────────────────────────
+export const getPrendarioDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/prendario${buildQs(filters)}`, { method: 'GET' });
+    return handleResponse(response);
+};
+export const exportPrendarioDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/prendario/export${buildQs(filters)}`, { method: 'GET' });
+    if (!response.ok) throw new Error('Error al exportar reporte prendario');
+    return response.blob();
+};
