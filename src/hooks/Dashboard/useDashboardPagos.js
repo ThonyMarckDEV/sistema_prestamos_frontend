@@ -110,8 +110,8 @@ export const useDashboardPagos = () => {
             { tab: 'comisiones', tipo: 'barra', data: g.comision_mensual ?? [], xKey: 'mes',   dataKey: 'total', label: 'Comisiones — 12 meses (S/)',        color: '#F5A623', height: 200 },
             { tab: 'seguros',    tipo: 'area',  data: g.seguro_diaria  ?? [], xKey: 'fecha', dataKey: 'total', label: 'Ingreso x Seguro — últimos 30 días (S/)', color: '#5B1A8B', height: 200 },
             { tab: 'seguros',    tipo: 'barra', data: g.seguro_mensual ?? [], xKey: 'mes',   dataKey: 'total', label: 'Ingreso x Seguro — 12 meses (S/)',        color: '#5B1A8B', height: 200 },
-            { tab: 'seguros',    tipo: 'area',  data: g.seguro_percibido_diaria  ?? [], xKey: 'fecha', dataKey: 'total', label: 'Seguro Percibido — últimos 30 días (S/)', color: '#7C3AED', height: 200 },
-            { tab: 'seguros',    tipo: 'barra', data: g.seguro_percibido_mensual ?? [], xKey: 'mes',   dataKey: 'total', label: 'Seguro Percibido — 12 meses (S/)',        color: '#7C3AED', height: 200 },
+            { tab: 'seguros',    tipo: 'area',  data: g.seguro_percibido_diaria  ?? [], xKey: 'fecha', dataKey: 'total', label: 'Seguro Percibido al Desembolso — últimos 30 días (S/)', color: '#7C3AED', height: 200 },
+            { tab: 'seguros',    tipo: 'barra', data: g.seguro_percibido_mensual ?? [], xKey: 'mes',   dataKey: 'total', label: 'Seguro Percibido al Desembolso — 12 meses (S/)',        color: '#7C3AED', height: 200 },
         ];
 
         // 4. Determinar Grupos de Tarjetas
