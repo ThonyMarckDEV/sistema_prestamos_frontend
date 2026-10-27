@@ -4,9 +4,14 @@ import {
     marcarContratoConforme, asignarCodigoRecaudo,
 } from 'services/solicitudPrendarioService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
-import { unwrap } from './prendarioForm';
 
 const FILTROS_INICIALES = { search: '', estado: '1' };
+
+// Devuelve la respuesta tal cual si ya trae la clave indicada; si no, toma res.data
+const unwrap = (res, key) => {
+    if (res && typeof res === 'object' && key in res) return res;
+    return res?.data ?? res;
+};
 
 const base64ABlobUrl = (base64) => {
     const limpio = base64.startsWith('data:') ? base64.split(',')[1] : base64;
