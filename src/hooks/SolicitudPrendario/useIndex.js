@@ -7,12 +7,6 @@ import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 const FILTROS_INICIALES = { search: '', estado: '1' };
 
-// Devuelve la respuesta tal cual si ya trae la clave indicada; si no, toma res.data
-const unwrap = (res, key) => {
-    if (res && typeof res === 'object' && key in res) return res;
-    return res?.data ?? res;
-};
-
 const base64ABlobUrl = (base64) => {
     const limpio = base64.startsWith('data:') ? base64.split(',')[1] : base64;
     const bytes  = new Uint8Array(Array.from(atob(limpio), c => c.charCodeAt(0)));
@@ -20,10 +14,10 @@ const base64ABlobUrl = (base64) => {
 };
 
 export const useIndex = () => {
-    const [loading,        setLoading]        = useState(true);
-    const [solicitudes,    setSolicitudes]    = useState([]);
-    const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
-    const [filters,        setFilters]        = useState(FILTROS_INICIALES);
+    const [loading,         setLoading]         = useState(true);
+    const [solicitudes,     setSolicitudes]     = useState([]);
+    const [paginationInfo,  setPaginationInfo]  = useState({ currentPage: 1, totalPages: 1, total: 0 });
+    const [filters,         setFilters]         = useState(FILTROS_INICIALES);
     const filtersRef = useRef(FILTROS_INICIALES);
     const [alert, setAlert] = useState(null);
 
@@ -32,11 +26,10 @@ export const useIndex = () => {
     const [viewData,    setViewData]    = useState(null);
     const [viewLoading, setViewLoading] = useState(false);
 
-    // Aprobar
-    const [isApproveOpen,     setIsApproveOpen]     = useState(false);
-    const [selectedSolicitud, setSelectedSolicitud] = useState(null);
-    const [modalAlert,        setModalAlert]        = useState(null);
-    const [statusLoading,     setStatusLoading]     = useState(false);
+    // Aprobar / Rechazar
+    const [isApproveOpen,       setIsApproveOpen]       = useState(false);
+    const [selectedSolicitud,   setSelectedSolicitud]   = useState(null);
+    const [modalAlert,          setModalAlert]          = useState(null);
 
     // Contrato
     const [contratoLoading,  setContratoLoading]  = useState(null);
@@ -46,26 +39,19 @@ export const useIndex = () => {
     const [contratoPdfTitle, setContratoPdfTitle] = useState('');
 
     // Código de recaudo
-    const [isCodigoRecaudoOpen,  setIsCodigoRecaudoOpen]  = useState(false);
-    const [selectedForCodigo,    setSelectedForCodigo]    = useState(null);
-    const [codigoRecaudoLoading, setCodigoRecaudoLoading] = useState(false);
-    const [codigoRecaudoAlert,   setCodigoRecaudoAlert]   = useState(null);
+    const [isCodigoRecaudoOpen,     setIsCodigoRecaudoOpen]     = useState(false);
+    const [selectedForCodigo,       setSelectedForCodigo]       = useState(null);
+    const [codigoRecaudoLoading,    setCodigoRecaudoLoading]    = useState(false);
+    const [codigoRecaudoAlert,      setCodigoRecaudoAlert]      = useState(null);
 
     const fetchSolicitudes = useCallback(async (page = 1) => {
         setLoading(true);
         try {
-            const pag = unwrap(await index(page, filtersRef.current), 'current_page');
-            setSolicitudes(pag?.data || []);
-            setPaginationInfo({
-                currentPage: pag?.current_page ?? 1,
-                totalPages:  pag?.last_page ?? 1,
-                total:       pag?.total ?? 0,
-            });
-        } catch (err) {
-            setAlert(handleApiError(err));
-        } finally {
-            setLoading(false);
-        }
+            const response = await index(page, filtersRef.current);
+            setSolicitudes(response.data || []);
+            setPaginationInfo({ currentPage: response.current_page, totalPages: response.last_page, total: response.total });
+        } catch (err) { setAlert(handleApiError(err)); }
+        finally { setLoading(false); }
     }, []);
 
     useEffect(() => { fetchSolicitudes(1); }, [fetchSolicitudes]);
@@ -80,20 +66,17 @@ export const useIndex = () => {
     };
 
     // ── Ver ───────────────────────────────────────────────────────────────────
-    const handleView = useCallback(async (id) => {
+    const handleView = async (id) => {
         setIsViewOpen(true);
         setViewLoading(true);
         try {
-            setViewData(unwrap(await show(id), 'id'));
-        } catch (err) {
-            setAlert(handleApiError(err));
-            setIsViewOpen(false);
-        } finally {
-            setViewLoading(false);
-        }
-    }, []);
+            const response = await show(id);
+            setViewData(response.data || response);
+        } catch (err) { setAlert(handleApiError(err)); setIsViewOpen(false); }
+        finally { setViewLoading(false); }
+    };
 
-    // ── Aprobar / rechazar ────────────────────────────────────────────────────
+    // ── Aprobar / Rechazar ────────────────────────────────────────────────────
     const openApproveModal = useCallback((solicitud) => {
         setModalAlert(null);
         setSelectedSolicitud(solicitud);
@@ -109,7 +92,7 @@ export const useIndex = () => {
     const handleUpdateStatus = useCallback(async (id, nuevoEstado, abonadoPor = 'CUENTA CORRIENTE') => {
         if (nuevoEstado === 3 && !window.confirm(`¿Rechazar la solicitud prendaria #${id}?`)) return;
 
-        setStatusLoading(true);
+        setLoading(true);
         try {
             await changeStatus(id, nuevoEstado, nuevoEstado === 2 ? abonadoPor : null);
             handleCloseApproveModal();
@@ -122,7 +105,7 @@ export const useIndex = () => {
             if (nuevoEstado === 2) setModalAlert(handleApiError(err));
             else setAlert(handleApiError(err));
         } finally {
-            setStatusLoading(false);
+            setLoading(false);
         }
     }, [fetchSolicitudes, paginationInfo.currentPage]);
 
@@ -130,15 +113,18 @@ export const useIndex = () => {
     const handleVerContrato = useCallback(async (row) => {
         setContratoLoading(row.id);
         try {
-            const res = unwrap(await descargarContrato(row.id), 'pdf');
-            if (!res?.pdf) throw new Error('El servidor no devolvió el contrato.');
-            setContratoPdf(base64ABlobUrl(res.pdf));
-            setContratoPdfTitle(`Contrato Prendario — Solicitud #${row.id}`);
+            const response = await descargarContrato(row.id);
+            const data = response.data || response;
+
+            if (!data?.pdf) throw new Error('El servidor no devolvió el contrato.');
+
+            setContratoPdf(base64ABlobUrl(data.pdf));
+            setContratoPdfTitle(data.title || `Contrato Prendario — Solicitud #${row.id}`);
             setIsPdfOpen(true);
-        } catch (err) {
-            setAlert(handleApiError(err));
-        } finally {
-            setContratoLoading(null);
+        } catch (err) { 
+            setAlert(handleApiError(err)); 
+        } finally { 
+            setContratoLoading(null); 
         }
     }, []);
 
@@ -178,8 +164,9 @@ export const useIndex = () => {
         setCodigoRecaudoLoading(true);
         setCodigoRecaudoAlert(null);
         try {
-            await asignarCodigoRecaudo(id, codigo);
-            setSolicitudes(prev => prev.map(s => s.id === id ? { ...s, codigo_recaudo: codigo.trim() } : s));
+            const response = await asignarCodigoRecaudo(id, codigo);
+            const actualizado = response.data || response;
+            setSolicitudes(prev => prev.map(s => s.id === id ? { ...s, codigo_recaudo: actualizado.codigo_recaudo || codigo.trim() } : s));
             handleCloseCodigoRecaudoModal();
             setAlert({ type: 'success', message: 'Código de recaudo asignado.' });
             fetchSolicitudes(paginationInfo.currentPage);
@@ -193,15 +180,15 @@ export const useIndex = () => {
     return {
         loading, solicitudes, paginationInfo, filters, alert, setAlert, fetchSolicitudes,
         handleFilterChange, handleFilterSubmit, handleFilterClear,
-        // ver
+        // Ver
         isViewOpen, setIsViewOpen, viewData, viewLoading, handleView,
-        // aprobar
+        // Aprobar / Rechazar
         isApproveOpen, selectedSolicitud, openApproveModal, handleCloseApproveModal,
-        handleUpdateStatus, statusLoading, modalAlert, setModalAlert,
-        // contrato
+        handleUpdateStatus, modalAlert, setModalAlert,
+        // Contrato
         handleVerContrato, contratoLoading, isPdfOpen, handleClosePdf, contratoPdf, contratoPdfTitle,
         handleMarcarConforme, conformeLoading,
-        // código de recaudo
+        // Código de recaudo
         isCodigoRecaudoOpen, selectedForCodigo, codigoRecaudoLoading, codigoRecaudoAlert, setCodigoRecaudoAlert,
         openCodigoRecaudoModal, handleCloseCodigoRecaudoModal, handleAsignarCodigoRecaudo,
     };
