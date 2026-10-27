@@ -25,6 +25,10 @@ export const getCompararMesesPagos = async (filters = {}) => {
     const response = await fetchWithAuth(`${BASE_URL}/pagos/comparar-meses${buildQs(filters)}`, { method: 'GET' });
     return handleResponse(response);
 };
+export const getPagosPrendarioDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/pagos-prendario${buildQs(filters)}`, { method: 'GET' });
+    return handleResponse(response);
+};
 
 // ── Préstamos ─────────────────────────────────────────────────────────────────
 export const getPrestamosDashboard = async (filters = {}) => {

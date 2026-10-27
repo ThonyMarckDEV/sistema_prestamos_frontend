@@ -78,6 +78,9 @@ import RegistrarOperacion from 'pages/Operacion/Store';
 //UI CAJA MOVIMIENTOS
 import ListarMovimientos from 'pages/CajaMovimiento/Index';
 
+//UI VENTAS ADJUDICADOS
+import VentasAdjudicadosIndex from 'pages/VentasAdjudicados/index';
+
 // UI PAGOS
 import ListarPagos from 'pages/Pago/Index';
 
@@ -262,6 +265,9 @@ function AppContent() {
 
         {/* CAJA MOVIMIENTOS */}
         <Route path="/caja/movimientos" element={<ProtectedRoute requiredPermission="cajaMovimiento.index" element={<ListarMovimientos />} />} />
+
+        {/* VENTAS ADJUDICADOS */}
+        <Route path="/caja/ventas-adjudicados" element={<ProtectedRoute requiredPermission="ventaAdjudicado.index" element={<VentasAdjudicadosIndex />} />} />
 
         {/* PAGOS */}
         <Route path="/pago/listar" element={<ProtectedRoute requiredPermission="pago.index" element={<ListarPagos />} />} />

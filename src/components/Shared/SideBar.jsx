@@ -180,7 +180,10 @@ export const MENU_GROUPS = [
                     { name: 'Gestión de Cajas',           link: '/caja/listar',   requiredPermission: 'caja.index' },
                     { name: 'Nueva Caja',                 link: '/caja/agregar',  requiredPermission: 'caja.store' },
                 ],
-            }
+            },
+            {
+                section: 'Venta Adjudicados', link: '/caja/ventas-adjudicados', requiredPermission: 'ventaAdjudicado.index', icon: TagIcon
+            },
         ]
     },
     {
