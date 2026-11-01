@@ -15,14 +15,14 @@ const vacioDetalle = () => ({
     descripcion_detallada: '',
     peso_bruto: '',
     peso_incrustacion: '0',
-    kilataje: null, // { id, nombre, precio_gramo } — viene del combobox de Kilataje
+    kilataje: null,                 // { id, nombre, precio_gramo } — viene del combobox
+    precio_oro_preferencial: false, // check por joya
+    precio_gramo: '',               // precio digitado si es oro preferencial
 });
 
 export const useStore = () => {
     const navigate = useNavigate();
 
-    // % a prestar de la joya que se está ingresando/editando. Cada joya
-    // guarda el suyo en porcentaje_prestamo_aplicado.
     const [porcentajePrestamo, setPorcentajePrestamo] = useState(PORCENTAJE_DEFECTO);
 
     // ── Paso 1: Cliente ──────────────────────────────────────────────────────
@@ -59,13 +59,14 @@ export const useStore = () => {
     };
 
     // ── Cálculo automático de la joya en edición ────────────────────────────
-    // El precio por gramo viene del kilataje seleccionado en el combobox
-    // (catálogo administrado en /kilataje/listar). Ya no se digita a mano.
+    // Oro preferencial: precio digitado. Normal: precio del kilataje.
     const pesoBrutoNum    = parseFloat(detalleActual.peso_bruto) || 0;
     const pesoIncrustNum  = parseFloat(detalleActual.peso_incrustacion) || 0;
     const pesoNeto        = Math.max(0, round(pesoBrutoNum - pesoIncrustNum));
     const porcentajeNum   = parseFloat(porcentajePrestamo) || 0;
-    const precioGramoNum  = parseFloat(detalleActual.kilataje?.precio_gramo) || 0;
+    const precioGramoNum  = detalleActual.precio_oro_preferencial
+        ? parseFloat(detalleActual.precio_gramo) || 0
+        : parseFloat(detalleActual.kilataje?.precio_gramo) || 0;
 
     const valorTasadoNum = useMemo(
         () => round(pesoNeto * precioGramoNum),
@@ -83,7 +84,11 @@ export const useStore = () => {
             return;
         }
         if (!detalleActual.kilataje) {
-            setAlert({ type: 'error', message: 'Selecciona el kilataje de la joya — de ahí se toma el precio del oro.' });
+            setAlert({ type: 'error', message: 'Selecciona el kilataje de la joya.' });
+            return;
+        }
+        if (detalleActual.precio_oro_preferencial && precioGramoNum <= 0) {
+            setAlert({ type: 'error', message: 'Ingresa el precio preferencial por gramo.' });
             return;
         }
         if (pesoBrutoNum <= 0) {
@@ -93,6 +98,7 @@ export const useStore = () => {
 
         const detalleCalculado = {
             ...detalleActual,
+            precio_gramo: detalleActual.precio_oro_preferencial ? precioGramoNum : '',
             peso_neto: pesoNeto,
             valor_tasado: valorTasadoNum,
             porcentaje_prestamo_aplicado: porcentajeNum,
@@ -108,10 +114,7 @@ export const useStore = () => {
             setMontoAnteriorEdicion(null);
             setAlert({ type: 'success', message: 'Joya actualizada.' });
         } else {
-            setDetalles(prev => [...prev, {
-                ...detalleCalculado,
-                id: Date.now(),
-            }]);
+            setDetalles(prev => [...prev, { ...detalleCalculado, id: Date.now() }]);
             setAlert(null);
         }
 
@@ -126,8 +129,9 @@ export const useStore = () => {
             peso_bruto: detalle.peso_bruto,
             peso_incrustacion: detalle.peso_incrustacion,
             kilataje: detalle.kilataje || null,
+            precio_oro_preferencial: !!detalle.precio_oro_preferencial,
+            precio_gramo: detalle.precio_gramo ?? '',
         });
-        // El combo "% a prestar" vuelve al % de ESTA joya.
         setPorcentajePrestamo(Number(detalle.porcentaje_prestamo_aplicado) || PORCENTAJE_DEFECTO);
         setEditandoId(detalle.id);
         setMontoAnteriorEdicion(parseFloat(detalle.maximo_prestar) || 0);
@@ -153,7 +157,7 @@ export const useStore = () => {
         detalleActual.tipo_joya || detalleActual.subtipo_joya ||
         detalleActual.descripcion_detallada || detalleActual.peso_bruto ||
         (detalleActual.peso_incrustacion && detalleActual.peso_incrustacion !== '0') ||
-        detalleActual.kilataje
+        detalleActual.kilataje || detalleActual.precio_oro_preferencial
     );
 
     // ── Guardar tasación ─────────────────────────────────────────────────────
@@ -184,6 +188,8 @@ export const useStore = () => {
                 peso_incrustacion: d.peso_incrustacion,
                 peso_neto: d.peso_neto,
                 kilataje_id: d.kilataje?.id,
+                precio_oro_preferencial: !!d.precio_oro_preferencial,
+                precio_gramo: d.precio_oro_preferencial ? parseFloat(d.precio_gramo) : null,
                 valor_tasado: d.valor_tasado,
                 porcentaje_prestamo_aplicado: d.porcentaje_prestamo_aplicado,
                 maximo_prestar: d.maximo_prestar,
@@ -204,26 +210,20 @@ export const useStore = () => {
     };
 
     return {
-        // cliente
         cliente, handleSeleccionarCliente, handleCambiarCliente,
 
-        // joya actual / detalles
         detalles, detalleActual, setDetalleActual, editandoId, montoAnteriorEdicion,
         pesoNeto, valorTasadoNum, porcentajeNum, maximoSugerido, formularioTieneDatos,
         handleAgregarDetalle, handleEditarDetalle, handleCancelarEdicion, handleEliminarDetalle,
 
-        // % préstamo — solo valores fijos, uno por joya
         porcentajePrestamo, setPorcentajePrestamo,
         porcentajeOpciones: PORCENTAJE_OPCIONES,
 
-        // campos limitados — en Store nunca aplica (todo es nuevo)
         camposLimitados: false,
 
-        // totales / guardar / cancelar tasación
         totalTasacion, totalMaximoPrestar, handleGuardarTasacion, guardando,
         showCancelarModal, setShowCancelarModal, handleCancelarTasacion,
 
-        // alertas
         alert, setAlert,
     };
 };

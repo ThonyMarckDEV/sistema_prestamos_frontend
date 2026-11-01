@@ -15,7 +15,9 @@ const vacioDetalle = () => ({
     descripcion_detallada: '',
     peso_bruto: '',
     peso_incrustacion: '0',
-    kilataje: null, // { id, nombre, precio_gramo }
+    kilataje: null,                 // { id, nombre, precio_gramo }
+    precio_oro_preferencial: false,
+    precio_gramo: '',
 });
 
 export const useUpdate = () => {
@@ -26,8 +28,6 @@ export const useUpdate = () => {
     const [guardando, setGuardando] = useState(false);
     const [alert, setAlert] = useState(null);
 
-    // % a prestar de la joya que se está ingresando/editando. Cada joya
-    // guarda el suyo en porcentaje_prestamo_aplicado.
     const [porcentajePrestamo, setPorcentajePrestamo] = useState(PORCENTAJE_DEFECTO);
     const [cliente, setCliente] = useState(null);
     const [fechaTasacion, setFechaTasacion] = useState(null);
@@ -55,9 +55,6 @@ export const useUpdate = () => {
 
                 setFechaTasacion(data.fecha_tasacion);
 
-                // El show devuelve el cliente como { id, nombre_completo, documento }.
-                // usuario_id se duplica con el nombre que usa el buscador de
-                // clientes, para que el payload lo lea igual en ambos casos.
                 setCliente(data.cliente ? {
                     id: data.cliente.id,
                     usuario_id: data.cliente.id,
@@ -73,15 +70,14 @@ export const useUpdate = () => {
                     peso_bruto: d.peso_bruto,
                     peso_incrustacion: d.peso_incrustacion,
                     peso_neto: d.peso_neto,
-                    // Precio "congelado" al momento de tasar esta joya. Si no
-                    // se vuelve a tocar el combobox de kilataje, este es el
-                    // precio que se conserva aunque el precio vigente del
-                    // kilataje haya cambiado desde entonces.
+                    // Precio "congelado" al momento de tasar esta joya
                     kilataje: d.kilataje ? {
                         id: d.kilataje.id,
                         nombre: d.kilataje.nombre,
                         precio_gramo: d.precio_gramo_aplicado,
                     } : null,
+                    precio_oro_preferencial: !!d.precio_oro_preferencial,
+                    precio_gramo: d.precio_oro_preferencial ? d.precio_gramo_aplicado : '',
                     valor_tasado: d.valor_tasado,
                     porcentaje_prestamo_aplicado: Number(d.porcentaje_prestamo_aplicado) || PORCENTAJE_DEFECTO,
                     maximo_prestar: d.maximo_prestar,
@@ -115,7 +111,9 @@ export const useUpdate = () => {
     const pesoIncrustNum  = parseFloat(detalleActual.peso_incrustacion) || 0;
     const pesoNeto        = Math.max(0, round(pesoBrutoNum - pesoIncrustNum));
     const porcentajeNum   = parseFloat(porcentajePrestamo) || 0;
-    const precioGramoNum  = parseFloat(detalleActual.kilataje?.precio_gramo) || 0;
+    const precioGramoNum  = detalleActual.precio_oro_preferencial
+        ? parseFloat(detalleActual.precio_gramo) || 0
+        : parseFloat(detalleActual.kilataje?.precio_gramo) || 0;
 
     const valorTasadoNum = useMemo(
         () => round(pesoNeto * precioGramoNum),
@@ -133,7 +131,11 @@ export const useUpdate = () => {
             return;
         }
         if (!detalleActual.kilataje) {
-            setAlert({ type: 'error', message: 'Selecciona el kilataje de la joya — de ahí se toma el precio del oro.' });
+            setAlert({ type: 'error', message: 'Selecciona el kilataje de la joya.' });
+            return;
+        }
+        if (detalleActual.precio_oro_preferencial && precioGramoNum <= 0) {
+            setAlert({ type: 'error', message: 'Ingresa el precio preferencial por gramo.' });
             return;
         }
         if (pesoBrutoNum <= 0) {
@@ -143,6 +145,7 @@ export const useUpdate = () => {
 
         const detalleCalculado = {
             ...detalleActual,
+            precio_gramo: detalleActual.precio_oro_preferencial ? precioGramoNum : '',
             peso_neto: pesoNeto,
             valor_tasado: valorTasadoNum,
             porcentaje_prestamo_aplicado: porcentajeNum,
@@ -159,10 +162,7 @@ export const useUpdate = () => {
             setCamposLimitados(false);
             setAlert({ type: 'success', message: 'Joya actualizada.' });
         } else {
-            setDetalles(prev => [...prev, {
-                ...detalleCalculado,
-                id: `nueva-${Date.now()}`,
-            }]);
+            setDetalles(prev => [...prev, { ...detalleCalculado, id: `nueva-${Date.now()}` }]);
             setAlert(null);
         }
 
@@ -179,8 +179,9 @@ export const useUpdate = () => {
             peso_bruto: detalle.peso_bruto,
             peso_incrustacion: detalle.peso_incrustacion,
             kilataje: detalle.kilataje || null,
+            precio_oro_preferencial: !!detalle.precio_oro_preferencial,
+            precio_gramo: detalle.precio_gramo ?? '',
         });
-        // El combo "% a prestar" vuelve al % de ESTA joya.
         setPorcentajePrestamo(Number(detalle.porcentaje_prestamo_aplicado) || PORCENTAJE_DEFECTO);
         setEditandoId(detalle.id);
         setMontoAnteriorEdicion(parseFloat(detalle.maximo_prestar) || 0);
@@ -208,7 +209,7 @@ export const useUpdate = () => {
         detalleActual.tipo_joya || detalleActual.subtipo_joya ||
         detalleActual.descripcion_detallada || detalleActual.peso_bruto ||
         (detalleActual.peso_incrustacion && detalleActual.peso_incrustacion !== '0') ||
-        detalleActual.kilataje
+        detalleActual.kilataje || detalleActual.precio_oro_preferencial
     );
 
     // ── Guardar cambios ──────────────────────────────────────────────────────
@@ -222,8 +223,6 @@ export const useUpdate = () => {
             return;
         }
 
-        // El cliente cargado y el del buscador pueden venir con forma
-        // distinta: se prioriza usuario_id y se cae a id si no existe.
         const clienteId = cliente.usuario_id ?? cliente.id;
         if (!clienteId) {
             setAlert({ type: 'error', message: 'No se pudo identificar al cliente. Vuelve a seleccionarlo.' });
@@ -241,9 +240,7 @@ export const useUpdate = () => {
             total_tasacion: totalTasacion,
             total_maximo_prestar: totalMaximoPrestar,
             detalles: detalles.map(d => ({
-                // id existente → backend conserva su precio histórico si el
-                // kilataje no cambió. id ausente/no-numérico → joya nueva,
-                // siempre toma el precio vigente del kilataje.
+                // id existente → backend conserva su precio histórico si no cambió el kilataje
                 id: typeof d.id === 'number' ? d.id : null,
                 tipo_joya_id: d.tipo_joya?.id,
                 subtipo_joya_id: d.subtipo_joya?.id,
@@ -252,6 +249,8 @@ export const useUpdate = () => {
                 peso_incrustacion: d.peso_incrustacion,
                 peso_neto: d.peso_neto,
                 kilataje_id: d.kilataje?.id,
+                precio_oro_preferencial: !!d.precio_oro_preferencial,
+                precio_gramo: d.precio_oro_preferencial ? parseFloat(d.precio_gramo) : null,
                 valor_tasado: d.valor_tasado,
                 porcentaje_prestamo_aplicado: d.porcentaje_prestamo_aplicado,
                 maximo_prestar: d.maximo_prestar,
