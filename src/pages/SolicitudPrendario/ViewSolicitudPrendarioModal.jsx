@@ -206,6 +206,7 @@ const ViewSolicitudPrendarioModal = ({ isOpen, onClose, data, isLoading }) => {
                         seguro_financiado={data.seguro_financiado}
                         cantidadIntegrantes={1}
                         custodia={data.monto_custodia}
+                        esPrendario
                     />
                 </div>
             )}
