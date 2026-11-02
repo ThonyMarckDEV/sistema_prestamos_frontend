@@ -1,8 +1,7 @@
 import React from 'react';
 import {
     UserIcon, SparklesIcon, AdjustmentsHorizontalIcon,
-    PlusIcon, TrashIcon, CheckCircleIcon, PencilSquareIcon, XMarkIcon, LockClosedIcon,
-    StarIcon
+    PlusIcon, TrashIcon, CheckCircleIcon, PencilSquareIcon, XMarkIcon, LockClosedIcon
 } from '@heroicons/react/24/outline';
 import TipoJoyaSearchSelect from 'components/Shared/Comboboxes/TipoJoyaSearchSelect';
 import SubtipoJoyaSearchSelect from 'components/Shared/Comboboxes/SubtipoJoyaSearchSelect';
