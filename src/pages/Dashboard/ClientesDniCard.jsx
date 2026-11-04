@@ -121,7 +121,7 @@ const ClientesDniCard = () => {
                         <IdentificationIcon className="w-5 h-5 text-brand-red dark:text-brand-gold" />
                     </div>
                     <div>
-                        <h2 className="text-sm font-black text-slate-900 dark:text-dark-text uppercase tracking-tight">DNI de mis Clientes</h2>
+                        <h2 className="text-sm font-black text-slate-900 dark:text-dark-text uppercase tracking-tight">DNI de Clientes</h2>
                         <p className="text-[10px] text-slate-400 dark:text-dark-text-muted font-bold uppercase tracking-widest">
                             Préstamos vigentes · {totalVencidos} vencidos · {totalPorVencer} por vencer
                         </p>
