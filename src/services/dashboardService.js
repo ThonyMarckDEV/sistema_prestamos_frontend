@@ -198,4 +198,8 @@ export const exportPrendarioDashboard = async (filters = {}) => {
     const response = await fetchWithAuth(`${BASE_URL}/prendario/export${buildQs(filters)}`, { method: 'GET' });
     if (!response.ok) throw new Error('Error al exportar reporte prendario');
     return response.blob();
+// ── Clientes con DNI vencido / por vencer ─────────────────────────────────────
+export const getClientesDniDashboard = async (filters = {}) => {
+    const response = await fetchWithAuth(`${BASE_URL}/clientes-dni${buildQs(filters)}`, { method: 'GET' });
+    return handleResponse(response);
 };

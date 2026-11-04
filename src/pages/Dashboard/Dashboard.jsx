@@ -17,6 +17,7 @@ import EstructuraCarteraCard from './EstructuraCarteraCard';
 import InteresGrupoCard from './InteresGrupoCard';
 import PrendarioCard from './PrendarioCard';
 import PagoPrendarioCard from './PagoPrendarioCard';
+import ClientesDniCard from './ClientesDniCard';
 
 const STORAGE_KEY = 'dashboard.seccion';
 
@@ -65,6 +66,9 @@ const SECCIONES = [
         cards: [
             { key: 'asesores',     permiso: 'dashboard.asesores',     Component: AsesorCard },
             { key: 'gruposAsesor', permiso: 'dashboard.gruposAsesor', Component: GruposAsesorCard },
+            { permiso: 'dashboard.asesores',     Component: AsesorCard },
+            { permiso: 'dashboard.gruposAsesor', Component: GruposAsesorCard },
+            { permiso: 'dashboard.clientesDni',  Component: ClientesDniCard },
         ],
     },
     {
