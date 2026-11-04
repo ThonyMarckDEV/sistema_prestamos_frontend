@@ -30,6 +30,9 @@ const SECCIONES = [
         cards: [
             { key: 'accesos', permiso: 'dashboard.accesos', Component: AccesosCard },
             { key: 'master',  permiso: 'dashboard.master',  Component: MasterCard },
+            { permiso: 'dashboard.accesos', Component: AccesosCard },
+            { permiso: 'dashboard.clientesDni',  Component: ClientesDniCard },
+            { permiso: 'dashboard.master',  Component: MasterCard },
         ],
     },
     {
@@ -68,7 +71,6 @@ const SECCIONES = [
             { key: 'gruposAsesor', permiso: 'dashboard.gruposAsesor', Component: GruposAsesorCard },
             { permiso: 'dashboard.asesores',     Component: AsesorCard },
             { permiso: 'dashboard.gruposAsesor', Component: GruposAsesorCard },
-            { permiso: 'dashboard.clientesDni',  Component: ClientesDniCard },
         ],
     },
     {
