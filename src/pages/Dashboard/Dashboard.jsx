@@ -30,9 +30,7 @@ const SECCIONES = [
         cards: [
             { key: 'accesos', permiso: 'dashboard.accesos', Component: AccesosCard },
             { key: 'master',  permiso: 'dashboard.master',  Component: MasterCard },
-            { permiso: 'dashboard.accesos', Component: AccesosCard },
             { permiso: 'dashboard.clientesDni',  Component: ClientesDniCard },
-            { permiso: 'dashboard.master',  Component: MasterCard },
         ],
     },
     {
