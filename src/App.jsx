@@ -103,6 +103,10 @@ import EditarProspecto  from 'pages/Prospecto/Update';
 import ListarFeriados from 'pages/Feriado/Index';
 import AgregarFeriado from 'pages/Feriado/Store';
 import EditarFeriado from 'pages/Feriado/Update';
+import ListarSorteos from 'pages/Sorteo/Index';
+import AgregarSorteo from 'pages/Sorteo/Store';
+import EditarSorteo from 'pages/Sorteo/Update';
+import VerSorteo from 'pages/Sorteo/Show';
 
 // ROL AND PERMISSIONS
 import ListarRoles from 'pages/Rol/Index';
@@ -291,6 +295,12 @@ function AppContent() {
         <Route path="/feriados/listar" element={<ProtectedRoute requiredPermission="feriado.index" element={<SecureRoute element={<ListarFeriados />} />} />} />
         <Route path="/feriados/agregar" element={<ProtectedRoute requiredPermission="feriado.store" element={<SecureRoute element={<AgregarFeriado />} />} />} />
         <Route path="/feriados/editar/:id" element={<ProtectedRoute requiredPermission="feriado.update" element={<SecureRoute element={<EditarFeriado />} />} />} />
+
+        {/* SORTEOS */}
+        <Route path="/sorteo/listar"     element={<ProtectedRoute requiredPermission="sorteo.index"  element={<ListarSorteos />} />} />
+        <Route path="/sorteo/agregar"    element={<ProtectedRoute requiredPermission="sorteo.store"  element={<AgregarSorteo />} />} />
+        <Route path="/sorteo/editar/:id" element={<ProtectedRoute requiredPermission="sorteo.update" element={<EditarSorteo />} />} />
+        <Route path="/sorteo/ver/:id"    element={<ProtectedRoute requiredPermission="sorteo.show"   element={<VerSorteo />} />} />
 
         {/* ROLES Y PERMISOS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index"  element={<SecureRoute element={<ListarRoles />} />} />} />   

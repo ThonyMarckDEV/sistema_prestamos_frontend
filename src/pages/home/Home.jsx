@@ -15,10 +15,12 @@ import {
 } from "lucide-react"; 
 import { toUpper } from 'utilities/Validations/validations';
 import Gafete from "./Gafete";
+import MisSorteos from "./MisSorteos";
 
 const Home = () => {
   const token = jwtUtils.getAccessTokenFromCookie();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const esCliente = String(role || '').toLowerCase() === 'cliente';
   const [showGafete, setShowGafete] = useState(false);
   
   const userData = useMemo(() => {
@@ -53,6 +55,13 @@ const Home = () => {
               </span>
             </div>
           </div>
+
+          {/* SORTEOS: sólo clientes. Ticket chiquito; el detalle se abre en modal */}
+          {esCliente && (
+            <div className="relative z-10 md:ml-auto">
+              <MisSorteos enabled={esCliente} />
+            </div>
+          )}
 
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
         </header>

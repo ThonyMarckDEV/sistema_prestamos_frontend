@@ -7,7 +7,8 @@ import {
     ArrowRightOnRectangleIcon, CubeIcon,
     ClipboardDocumentListIcon,
     ArrowsRightLeftIcon,
-    ReceiptPercentIcon
+    ReceiptPercentIcon,
+    TicketIcon
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import { useAuth } from 'context/AuthContext';
@@ -110,6 +111,13 @@ export const MENU_GROUPS = [
                     { name: 'Listar Préstamos', link: '/prestamo/listar',          requiredPermission: 'prestamo.index' },
                     { name: 'Nueva Solicitud',  link: '/solicitudPrestamo/agregar', requiredPermission: 'solicitudPrestamo.store' },
                     { name: 'Solicitudes',      link: '/solicitudPrestamo/listar',  requiredPermission: 'solicitudPrestamo.index' },
+                ],
+            },
+            {
+                section: 'Sorteos', icon: TicketIcon,
+                subs: [
+                    { name: 'Listar Sorteos', link: '/sorteo/listar',  requiredPermission: 'sorteo.index' },
+                    { name: 'Nuevo Sorteo',   link: '/sorteo/agregar', requiredPermission: 'sorteo.store' },
                 ],
             },
             {
