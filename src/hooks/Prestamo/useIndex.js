@@ -1,0 +1,129 @@
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { index, show, deletePrestamo } from 'services/prestamoService';
+import { handleApiError } from 'utilities/Errors/apiErrorHandler';
+
+const FILTERS_INITIAL = {
+    search: '', cliente: '', estado: '1', frecuencia: '', asesor_id: '',
+    fecha_inicio: '', fecha_fin: '',
+    fecha_desembolso_inicio: '', fecha_desembolso_fin: ''
+};
+
+export const useIndex = () => {
+    const [loading, setLoading] = useState(true);
+    const [prestamos, setPrestamos] = useState([]);
+    const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
+
+    const [filters, setFilters] = useState(FILTERS_INITIAL);
+    const [appliedFilters, setAppliedFilters] = useState(FILTERS_INITIAL);
+    const filtersRef = useRef(filters);
+    const [alert, setAlert] = useState(null);
+
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [viewData, setViewData] = useState(null);
+    const [viewLoading, setViewLoading] = useState(false);
+    const viewIdRef = useRef(null);
+
+    const [isAbonoModalOpen, setIsAbonoModalOpen] = useState(false);
+    const [selectedAbonoUrl, setSelectedAbonoUrl] = useState(null);
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedDeleteId, setSelectedDeleteId] = useState(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+
+    const fetchPrestamos = useCallback(async (page = 1) => {
+        setLoading(true);
+        try {
+            const response = await index(page, filtersRef.current);
+            setPrestamos(response.data || []);
+            setPaginationInfo({
+                currentPage: response.current_page,
+                totalPages: response.last_page,
+                total: response.total,
+            });
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => { fetchPrestamos(1); }, [fetchPrestamos]);
+
+    const handleView = async (id) => {
+        setIsViewOpen(true);
+        setViewLoading(true);
+        viewIdRef.current = id;
+        try {
+            const response = await show(id);
+            setViewData(response.data || response);
+        } catch (err) {
+            setAlert(handleApiError(err));
+            setIsViewOpen(false);
+        } finally {
+            setViewLoading(false);
+        }
+    };
+
+    const handleRefreshView = useCallback(async () => {
+        if (!viewIdRef.current) return;
+        setViewLoading(true);
+        try {
+            const response = await show(viewIdRef.current);
+            setViewData(response.data || response);
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setViewLoading(false);
+        }
+        fetchPrestamos(paginationInfo.currentPage);
+    }, [fetchPrestamos, paginationInfo.currentPage]);
+
+    const handleOpenAbono = (url) => {
+        setSelectedAbonoUrl(url);
+        setIsAbonoModalOpen(true);
+    };
+
+    const openDeleteModal = (id) => {
+        setSelectedDeleteId(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        setDeleteLoading(true);
+        try {
+            await deletePrestamo(selectedDeleteId);
+            setAlert({ type: 'success', message: 'Préstamo cancelado correctamente.' });
+            setIsDeleteModalOpen(false);
+            fetchPrestamos(paginationInfo.currentPage);
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setDeleteLoading(false);
+        }
+    };
+
+    const handleFilterChange = (name, val) => setFilters(prev => ({ ...prev, [name]: val }));
+
+    const handleFilterSubmit = () => {
+        filtersRef.current = filters;
+        setAppliedFilters(filters);
+        fetchPrestamos(1);
+    };
+
+    const handleFilterClear = () => {
+        setFilters(FILTERS_INITIAL);
+        filtersRef.current = FILTERS_INITIAL;
+        setAppliedFilters(FILTERS_INITIAL);
+        fetchPrestamos(1);
+    };
+
+    return {
+        loading, prestamos, paginationInfo, filters, alert, setAlert,
+        handleFilterChange, handleFilterSubmit, handleFilterClear, fetchPrestamos,
+        handleView, isViewOpen, setIsViewOpen, viewData, viewLoading,
+        handleRefreshView,
+        handleOpenAbono, isAbonoModalOpen, setIsAbonoModalOpen, selectedAbonoUrl,
+        isDeleteModalOpen, setIsDeleteModalOpen, openDeleteModal, handleConfirmDelete, deleteLoading,
+        appliedFilters,
+    };
+};

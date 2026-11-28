@@ -1,0 +1,52 @@
+import React from 'react';
+import { CuotaCard } from './components/CronogramaTable/CuotaCard';
+import DatosEconomicosCards, { DatosEconomicosCardsSkeleton } from './components/CronogramaTable/DatosEconomicosCards';
+
+const CronogramaTable = ({
+    cronograma = [],
+    esVistaIntegrante = false,
+    onHistorialModal,
+    onHistorialInteresModal,
+    onReducirMora,
+    onReducirInteres,
+    extraColumns = [],
+    eco = null,
+    estadoPrestamo = 1,
+    loadingEco = false,
+    liquidacionHoy = null,
+}) => {
+    const sharedProps = {
+        cronograma,
+        esVistaIntegrante,
+        onHistorialModal,
+        onHistorialInteresModal,
+        onReducirMora,
+        onReducirInteres,
+        extraColumns,
+    };
+
+    return (
+        <div className="flex flex-col gap-4 transition-colors">
+            {/* Cards económicas — solo si se pasan */}
+            {eco !== null && (
+                loadingEco
+                    ? <DatosEconomicosCardsSkeleton />
+                    : <DatosEconomicosCards
+                        eco={eco}
+                        estadoPrestamo={estadoPrestamo}
+                        esVistaIntegrante={esVistaIntegrante}
+                        liquidacionHoy={liquidacionHoy}
+                      />
+            )}
+
+            {/* Cronograma */}
+            <div className="flex flex-col gap-3">
+                {cronograma.map((cuota, i) => (
+                    <CuotaCard key={cuota.nro ?? i} cuota={cuota} i={i} {...sharedProps} />
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default CronogramaTable;

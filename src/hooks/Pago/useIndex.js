@@ -1,0 +1,135 @@
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { index, pdf, destroy } from 'services/pagoService';
+import { handleApiError } from 'utilities/Errors/apiErrorHandler';
+import { useAuth } from 'context/AuthContext';
+
+const FILTERS_INITIAL = {
+    search:                 '',
+    prestamo_id:            '',
+    cliente:                '',
+    estado:                 '',
+    tipo:                   '',
+    fecha_inicio:           '',
+    fecha_fin:              '',
+    dia_operativo_fecha:    '',
+    registro_extemporaneo:  '',
+    asesor_id:              '',
+};
+
+// Un pago es accionable (PDF / anular) si está aprobado y NO es renovación
+const esAccionable = (pago) =>
+    pago.estado === 1 && pago.tipo !== 'RENOVACION';
+
+export const useIndex = () => {
+    const { can, user } = useAuth();
+
+    const [loading,        setLoading]        = useState(true);
+    const [pagos,          setPagos]          = useState([]);
+    const [paginationInfo, setPaginationInfo] = useState({ currentPage: 1, totalPages: 1, total: 0 });
+    const [filters,        setFilters]        = useState(FILTERS_INITIAL);
+    const [appliedFilters, setAppliedFilters] = useState(FILTERS_INITIAL);
+    const filtersRef = useRef(FILTERS_INITIAL);
+
+    const [alert,          setAlert]          = useState(null);
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+    const [pdfBase64,      setPdfBase64]      = useState(null);
+    const [pdfTitle,       setPdfTitle]       = useState('');
+    const [pdfLoading,     setPdfLoading]     = useState(false);
+
+    const [isAnularModalOpen, setIsAnularModalOpen] = useState(false);
+    const [pagoToAnular,      setPagoToAnular]      = useState(null);
+    const [anularLoading,     setAnularLoading]     = useState(false);
+
+    const fetchPagos = useCallback(async (page = 1) => {
+        setLoading(true);
+        try {
+            const res = await index(page, filtersRef.current);
+            if (res?.data) {
+                setPagos([...res.data]);
+                setPaginationInfo({
+                    currentPage: res.current_page,
+                    totalPages:  res.last_page,
+                    total:       res.total,
+                });
+            }
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => { fetchPagos(1); }, [fetchPagos]);
+
+    const handleViewPdf = async (id) => {
+        setPdfLoading(true);
+        try {
+            const res = await pdf(id);
+            setPdfBase64(res.data.pdf);
+            setPdfTitle(res.data.title);
+            setIsPdfModalOpen(true);
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setPdfLoading(false);
+        }
+    };
+
+    const handleFilterSubmit = () => {
+        filtersRef.current = filters;
+        setAppliedFilters(filters);
+        fetchPagos(1);
+    };
+
+    const handleFilterClear = () => {
+        setFilters(FILTERS_INITIAL);
+        filtersRef.current = FILTERS_INITIAL;
+        setAppliedFilters(FILTERS_INITIAL);
+        fetchPagos(1);
+    };
+
+    const openAnularModal = (pago) => { setPagoToAnular(pago); setIsAnularModalOpen(true); };
+
+    const handleConfirmAnular = async (pin) => {
+        if (!pagoToAnular) return;
+        setAnularLoading(true);
+        try {
+            await destroy(pagoToAnular.id, pin);
+            setAlert({ type: 'success', message: 'Pago anulado y revertido correctamente.' });
+            fetchPagos(paginationInfo.currentPage);
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setAnularLoading(false);
+            setIsAnularModalOpen(false);
+            setPagoToAnular(null);
+        }
+    };
+
+    // ── Flags de permisos y visibilidad ───────────────────────────────────────
+    const esCliente      = user?.rol === 'cliente';
+    const canPdf         = can('pago.generatePDF');
+    const canDelete      = can('pago.delete');
+
+    const canVerPdf      = (pago) => esAccionable(pago) && canPdf;
+    const canAnular      = (pago) => esAccionable(pago) && !pago.pago_origen_id && canDelete;
+
+    // El filtro por asesor no aplica para clientes: no les compete filtrar por asesor,
+    // solo ven sus propios pagos.
+    const mostrarFiltroAsesor = !esCliente;
+
+    return {
+        loading, pagos, paginationInfo, filters, setFilters, alert, setAlert,
+        fetchPagos, handleFilterSubmit, handleFilterClear,
+        handleViewPdf, isPdfModalOpen, setIsPdfModalOpen, pdfBase64, pdfTitle, pdfLoading,
+        isAnularModalOpen, setIsAnularModalOpen, openAnularModal, handleConfirmAnular, anularLoading,
+        pagoToAnular,
+        // permisos / visibilidad
+        esCliente,
+        canVerPdf,
+        canAnular,
+        mostrarFiltroAsesor,
+        // filtros aplicados (para exportar)
+        appliedFilters,
+    };
+};

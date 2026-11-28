@@ -1,0 +1,395 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './index.css';
+import 'react-toastify/dist/ReactToastify.css';
+
+// Componentes Globales
+import SidebarLayout from 'layouts/SidebarLayout';
+import { ToastContainer } from 'components/Shared/Notificaciones/ToastNotification';
+
+// UIS AUTH & ERRORS
+import ErrorPage404 from 'components/ErrorPage404';
+import ErrorPage401 from 'components/ErrorPage401';
+import Login from 'pages/auth/Login/Login';
+
+// UI HOME
+import Home from 'pages/home/Home';
+
+//UI DASHBOARD
+import Dashboard from 'pages/Dashboard/Dashboard';
+
+//UI META ASESOR
+import ListarMetaAsesor  from 'pages/MetaAsesor/Index';
+import AgregarMetaAsesor from 'pages/MetaAsesor/Store';
+import EditarMetaAsesor  from 'pages/MetaAsesor/Update';
+
+//UI EMPLEADOS
+import AgregarEmpleado from 'pages/Empleado/Store';
+import EditarEmpleado from 'pages/Empleado/Update';
+import ListarEmpleados from 'pages/Empleado/Index';
+
+//UI CLIENTES
+import AgregarCliente from 'pages/Cliente/Store';
+import EditarCliente from 'pages/Cliente/Update';
+import ListarClientes from 'pages/Cliente/Index';
+
+// UI CIIU
+import ListarCiius  from 'pages/Ciiu/Index';
+import AgregarCiiu  from 'pages/Ciiu/Store';
+import EditarCiiu   from 'pages/Ciiu/Update';
+
+// UI ENTIDADES BANCARIAS
+import AgregarEntidadBancaria from 'pages/EntidadBancaria/Store';
+import EditarEntidadBancaria from 'pages/EntidadBancaria/Update';
+import ListarEntidadBancarias from 'pages/EntidadBancaria/Index';
+
+// UI PRODUCTO
+import AgregarProducto from 'pages/Producto/Store';
+import EditarProducto from 'pages/Producto/Update';
+import ListarProducto from 'pages/Producto/Index';
+
+// UI SOLICITUD PRESTAMO
+import AgregarSolicitud from 'pages/SolicitudPrestamo/Store';
+import EditarSolicitud from 'pages/SolicitudPrestamo/Update';
+import ListarSolicitudes from 'pages/SolicitudPrestamo/Index';
+
+// UI SOLICITUD PRENDARIO
+import AgregarSolicitudPrendario from 'pages/SolicitudPrendario/Store';
+import EditarSolicitudPrendario from 'pages/SolicitudPrendario/Update';
+import ListarSolicitudesPrendario from 'pages/SolicitudPrendario/Index';
+
+// UI PRESTAMO
+import ListarPrestamos from 'pages/Prestamo/Index';
+
+// UI TRASLADOS
+import ListarTraslados  from 'pages/Traslado/Index';
+import RegistrarTraslado from 'pages/Traslado/Store';
+
+// UI CAJAS
+import ListarCajas from 'pages/Caja/Index';
+import AgregarCaja from 'pages/Caja/Store';
+import EditarCaja from 'pages/Caja/Update';
+
+// UI SESIONES DE CAJA (TURNOS)
+import ListarSesiones from 'pages/CajaSesion/Index';
+
+// UI OPERACIONES
+import RegistrarOperacion from 'pages/Operacion/Store';
+
+//UI CAJA MOVIMIENTOS
+import ListarMovimientos from 'pages/CajaMovimiento/Index';
+
+//UI VENTAS ADJUDICADOS
+import VentasAdjudicadosIndex from 'pages/VentasAdjudicados/index';
+
+// UI PAGOS
+import ListarPagos from 'pages/Pago/Index';
+
+// UI GRUPOS
+import ListarGrupos from 'pages/Grupo/Index';
+import AgregarGrupo from 'pages/Grupo/Store';
+import EditarGrupo from 'pages/Grupo/Update';
+
+// UI ZONAS
+import AgregarZona from 'pages/Zona/Store';
+import EditarZona from 'pages/Zona/Update';
+import ListarZonas from 'pages/Zona/Index';
+
+// UI PROSPECTOS
+import ListarProspectos from 'pages/Prospecto/Index';
+import AgregarProspecto from 'pages/Prospecto/Store';
+import EditarProspecto  from 'pages/Prospecto/Update';
+
+// UI FERIADOS
+import ListarFeriados from 'pages/Feriado/Index';
+import AgregarFeriado from 'pages/Feriado/Store';
+import EditarFeriado from 'pages/Feriado/Update';
+import ListarSorteos from 'pages/Sorteo/Index';
+import AgregarSorteo from 'pages/Sorteo/Store';
+import EditarSorteo from 'pages/Sorteo/Update';
+import VerSorteo from 'pages/Sorteo/Show';
+
+// ROL AND PERMISSIONS
+import ListarRoles from 'pages/Rol/Index';
+
+// UI HORARIOS SISTEMA
+import ListarHorarios from 'pages/HorarioSistema/Index';
+import AgregarHorario from 'pages/HorarioSistema/Store';
+import EditarHorario  from 'pages/HorarioSistema/Update';
+
+// UI AUDITORIA
+import ListarAuditoria from 'pages/Auditoria/Index';
+
+// UI PIN
+import GenerarPin from 'pages/Pin/Store';
+import ListarPin from 'pages/Pin/Index';
+
+// UI DIA OPERATIVO
+import DiaOperativo from 'pages/DiaOperativo/Index';
+
+// SETTINGS
+import ListarParametros from 'pages/Parametro/Index';
+import EditarParametro from 'pages/Parametro/Update';
+
+// UI LEGAL
+import PoliticaPrivacidad from 'pages/Legal/PoliticaPrivacidad';
+import PoliticaCookies from 'pages/Legal/PoliticaCookies';
+
+// ASISTENCIA
+import ListarAsistencia from 'pages/Asistencia/Index';
+import RegistrarAsistencia from 'pages/Asistencia/Registrar';
+
+// UI HORARIOS ASISTENCIA
+import ListarHorarioAsistencia  from 'pages/HorarioAsistencia/Index';
+import AgregarHorarioAsistencia from 'pages/HorarioAsistencia/Store';
+import EditarHorarioAsistencia  from 'pages/HorarioAsistencia/Update';
+
+// UI PRENDARIO (TIPOS DE JOYAS)
+import ListarTiposJoyas from 'pages/TipoJoya/Index';
+import AgregarTipoJoya from 'pages/TipoJoya/Store';
+import EditarTipoJoya from 'pages/TipoJoya/Update';
+
+// UI PRENDARIO (SUBTIPOS DE JOYAS)
+import ListarSubtiposJoyas from 'pages/SubTipoJoya/Index';
+import AgregarSubtipoJoya from 'pages/SubTipoJoya/Store';
+import EditarSubtipoJoya from 'pages/SubTipoJoya/Update';
+
+// UI PRENDARIO (KILATAJES / PRECIO DE ORO)
+import ListarKilatajes from 'pages/Kilataje/Index';
+import AgregarKilataje from 'pages/Kilataje/Store';
+import EditarKilataje from 'pages/Kilataje/Update';
+
+// UI TASACION
+import ListarTasaciones from 'pages/Tasacion/Index';
+import AgregarTasacion from 'pages/Tasacion/Store';
+import EditarTasacion from 'pages/Tasacion/Update';
+
+// UI CAJA CHICA GASTO
+import ListarCajaChicaGastos from 'pages/CajaChicaGasto/Index';
+import AgregarCajaChicaGasto from 'pages/CajaChicaGasto/Store';
+import EditarCajaChicaGasto from 'pages/CajaChicaGasto/Update';
+
+// UI CAJA CHICA MOVIMIENTO
+import ListarCajaChicaMovimientos from 'pages/CajaChicaMovimiento/Index';
+import RegistrarCajaChicaMovimiento from 'pages/CajaChicaMovimiento/Store';
+
+// UI SESIONES DE CAJA CHICA (TURNOS)
+import ListarSesionesCajaChica from 'pages/CajaChicaSesion/Index';
+
+// UI GARANTIAS PRENDARIAS
+import ListarGarantiasPrendarias from 'pages/GarantiaPrendaria/Index';
+
+// Utilities
+import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
+import ProtectedRoute from 'utilities/ProtectedRoutes/ProtectedRoute';
+import SecureRoute from 'utilities/ProtectedRoutes/SecureRoute';
+
+// CONTEXT
+import { SecureModuleProvider } from 'context/SecureModuleContext';
+import { AuthProvider } from 'context/AuthContext';
+import { NotificacionProvider } from 'components/Shared/Notificaciones/NotificacionContext';
+
+function AppContent() {
+  return (
+    <Routes>
+      {/* 1. LOGIN */}
+      <Route path="/" element={<ProtectedRouteHome element={<Login />} />} />
+
+      {/* LEGAL — público, sin sesión */}
+      <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
+      <Route path="/politica-cookies" element={<PoliticaCookies />} />
+
+      {/* 2. LAYOUT GLOBAL */}
+      <Route element={<ProtectedRoute element={<SidebarLayout />} />}>
+
+        {/* HOME */}
+        <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
+
+        {/* DASHBOARD */}
+        <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
+
+        {/* META ASESOR */}
+        <Route path="/meta-asesor/listar"      element={<ProtectedRoute requiredPermission="metaAsesor.index"   element={<ListarMetaAsesor  />} />} />
+        <Route path="/meta-asesor/agregar"     element={<ProtectedRoute requiredPermission="metaAsesor.store"   element={<AgregarMetaAsesor />} />} />
+        <Route path="/meta-asesor/editar/:id"  element={<ProtectedRoute requiredPermission="metaAsesor.update"  element={<EditarMetaAsesor  />} />} />
+        
+        
+        {/* CLIENTES */}
+        <Route path="/cliente/agregar" element={<ProtectedRoute requiredPermission="cliente.store" element={<AgregarCliente />} />} />
+        <Route path="/cliente/editar/:id" element={<ProtectedRoute requiredPermission="cliente.update" element={<EditarCliente />} />} />
+        <Route path="/cliente/listar" element={<ProtectedRoute requiredPermission="cliente.index" element={<ListarClientes />} />} />
+
+        {/* CIIU */}
+        <Route path="/ciiu/listar"       element={<ProtectedRoute requiredPermission="ciiu.index"  element={<ListarCiius />} />} />
+        <Route path="/ciiu/agregar"      element={<ProtectedRoute requiredPermission="ciiu.store"  element={<AgregarCiiu />} />} />
+        <Route path="/ciiu/editar/:id"   element={<ProtectedRoute requiredPermission="ciiu.update" element={<EditarCiiu  />} />} />
+ 
+        {/* EMPLEADOS */}
+        <Route path="/empleado/agregar" element={<ProtectedRoute requiredPermission="empleado.store" element={<AgregarEmpleado />} />} />
+        <Route path="/empleado/editar/:id" element={<ProtectedRoute requiredPermission="empleado.update" element={<EditarEmpleado />} />} />
+        <Route path="/empleado/listar" element={<ProtectedRoute requiredPermission="empleado.index" element={<ListarEmpleados />} />} />
+
+
+        {/* ENTIDADES BANCARIAS */}
+        <Route path="/entidadBancaria/agregar" element={<ProtectedRoute requiredPermission="entidadBancaria.store" element={<AgregarEntidadBancaria />} />} />
+        <Route path="/entidadBancaria/editar/:id" element={<ProtectedRoute requiredPermission="entidadBancaria.update" element={<EditarEntidadBancaria />} />} />
+        <Route path="/entidadBancaria/listar" element={<ProtectedRoute requiredPermission="entidadBancaria.index" element={<ListarEntidadBancarias />} />} />
+
+        {/* PRODUCTO */}
+        <Route path="/producto/agregar" element={<ProtectedRoute requiredPermission="producto.store" element={<AgregarProducto />} />} />
+        <Route path="/producto/editar/:id" element={<ProtectedRoute requiredPermission="producto.update" element={<EditarProducto />} />} />
+        <Route path="/producto/listar" element={<ProtectedRoute requiredPermission="producto.index" element={<ListarProducto />} />} />
+
+        {/* SOLICITUD PRESTAMO */}
+        <Route path="/solicitudPrestamo/agregar" element={<ProtectedRoute requiredPermission="solicitudPrestamo.store" element={<AgregarSolicitud />} />} />
+        <Route path="/solicitudPrestamo/editar/:id" element={<ProtectedRoute requiredPermission="solicitudPrestamo.update" element={<EditarSolicitud />} />} />
+        <Route path="/solicitudPrestamo/listar" element={<ProtectedRoute requiredPermission="solicitudPrestamo.index" element={<ListarSolicitudes />} />} />
+
+        {/* SOLICITUD PRENDARIO */}
+        <Route path="/solicitudPrendario/agregar" element={<ProtectedRoute requiredPermission="solicitudPrendario.store" element={<AgregarSolicitudPrendario />} />} />
+        <Route path="/solicitudPrendario/editar/:id" element={<ProtectedRoute requiredPermission="solicitudPrendario.update" element={<EditarSolicitudPrendario />} />} />
+        <Route path="/solicitudPrendario/listar" element={<ProtectedRoute requiredPermission="solicitudPrendario.index" element={<ListarSolicitudesPrendario />} />} />
+
+        {/* PRESTAMO */}
+        <Route path="/prestamo/listar" element={<ProtectedRoute requiredPermission="prestamo.index" element={<ListarPrestamos />} />} />
+
+        {/* TRASLADOS */}
+        <Route path="/traslado/listar"     element={<ProtectedRoute requiredPermission="traslado.index" element={<ListarTraslados />} />} />
+        <Route path="/traslado/registrar"  element={<ProtectedRoute requiredPermission="traslado.store" element={<RegistrarTraslado />} />} />
+
+        {/* CAJAS  */}
+        <Route path="/caja/listar" element={<ProtectedRoute requiredPermission="caja.index" element={<ListarCajas />} />} />
+        <Route path="/caja/agregar" element={<ProtectedRoute requiredPermission="caja.store" element={<AgregarCaja />} />} />
+        <Route path="/caja/editar/:id" element={<ProtectedRoute requiredPermission="caja.update" element={<EditarCaja />} />} />
+
+        {/* CAJAS SESIONES (TURNOS) */}
+        <Route path="/caja/sesiones" element={<ProtectedRoute requiredPermission="cajaSesion.index" element={<ListarSesiones />} />} />
+
+        {/* OPERACIONES */}
+        <Route path="/operacion/caja" element={<ProtectedRoute requiredPermission="operacion.store" element={<RegistrarOperacion />} />} />
+
+        {/* CAJA MOVIMIENTOS */}
+        <Route path="/caja/movimientos" element={<ProtectedRoute requiredPermission="cajaMovimiento.index" element={<ListarMovimientos />} />} />
+
+        {/* VENTAS ADJUDICADOS */}
+        <Route path="/caja/ventas-adjudicados" element={<ProtectedRoute requiredPermission="ventaAdjudicado.index" element={<VentasAdjudicadosIndex />} />} />
+
+        {/* PAGOS */}
+        <Route path="/pago/listar" element={<ProtectedRoute requiredPermission="pago.index" element={<ListarPagos />} />} />
+
+        {/* GRUPOS */}
+        <Route path="/grupo/listar" element={<ProtectedRoute requiredPermission="grupo.index" element={<ListarGrupos />} />} />
+        <Route path="/grupo/agregar" element={<ProtectedRoute requiredPermission="grupo.store" element={<AgregarGrupo />} />} />
+        <Route path="/grupo/editar/:id" element={<ProtectedRoute requiredPermission="grupo.update" element={<EditarGrupo />} />} />
+
+        {/* ZONAS OPERATIVAS */}
+        <Route path="/zona/listar" element={<ProtectedRoute requiredPermission="zona.index" element={<ListarZonas />} />} />
+        <Route path="/zona/agregar" element={<ProtectedRoute requiredPermission="zona.store" element={<AgregarZona />} />} />
+        <Route path="/zona/editar/:id" element={<ProtectedRoute requiredPermission="zona.update" element={<EditarZona />} />} />
+
+        {/* PROSPECTOS */}
+        <Route path="/prospecto/listar"       element={<ProtectedRoute requiredPermission="prospecto.index"  element={<ListarProspectos />} />} />
+        <Route path="/prospecto/agregar"      element={<ProtectedRoute requiredPermission="prospecto.store"  element={<AgregarProspecto />} />} />
+        <Route path="/prospecto/editar/:id"   element={<ProtectedRoute requiredPermission="prospecto.update" element={<EditarProspecto  />} />} />
+
+        {/* FERIADOS */}
+        <Route path="/feriados/listar" element={<ProtectedRoute requiredPermission="feriado.index" element={<SecureRoute element={<ListarFeriados />} />} />} />
+        <Route path="/feriados/agregar" element={<ProtectedRoute requiredPermission="feriado.store" element={<SecureRoute element={<AgregarFeriado />} />} />} />
+        <Route path="/feriados/editar/:id" element={<ProtectedRoute requiredPermission="feriado.update" element={<SecureRoute element={<EditarFeriado />} />} />} />
+
+        {/* SORTEOS */}
+        <Route path="/sorteo/listar"     element={<ProtectedRoute requiredPermission="sorteo.index"  element={<ListarSorteos />} />} />
+        <Route path="/sorteo/agregar"    element={<ProtectedRoute requiredPermission="sorteo.store"  element={<AgregarSorteo />} />} />
+        <Route path="/sorteo/editar/:id" element={<ProtectedRoute requiredPermission="sorteo.update" element={<EditarSorteo />} />} />
+        <Route path="/sorteo/ver/:id"    element={<ProtectedRoute requiredPermission="sorteo.show"   element={<VerSorteo />} />} />
+
+        {/* ROLES Y PERMISOS */}
+        <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index"  element={<SecureRoute element={<ListarRoles />} />} />} />   
+
+        <Route path="/horario-sistema/listar"     element={<ProtectedRoute requiredPermission="horarioSistema.index"  element={<SecureRoute element={<ListarHorarios />} />} />} />
+        <Route path="/horario-sistema/agregar"    element={<ProtectedRoute requiredPermission="horarioSistema.store"   element={<SecureRoute element={<AgregarHorario />} />} />} />
+        <Route path="/horario-sistema/editar/:id" element={<ProtectedRoute requiredPermission="horarioSistema.update"  element={<SecureRoute element={<EditarHorario />} />} />} />
+        
+        {/* AUDITORIA */}
+        <Route path="/auditoria/listar" element={<ProtectedRoute requiredPermission="auditoria.index"  element={<SecureRoute element={<ListarAuditoria/>} />} />} />
+      
+        {/* DIA OPERATIVO */}
+        <Route path="/dia-operativo" element={<ProtectedRoute requiredPermission="diaOperativo.index" element={<SecureRoute element={<DiaOperativo />} />} />} />
+
+        {/* ASISTENCIA */}
+        <Route path="/asistencia/listar" element={<ProtectedRoute requiredPermission="asistencia.index" element={<ListarAsistencia />} />} />
+        <Route path="/asistencia/registrar" element={<ProtectedRoute requiredPermission="asistencia.registrar" element={<RegistrarAsistencia />} />} />
+
+        {/* HORARIOS ASISTENCIA */}
+        <Route path="/horario-asistencia/listar"     element={<ProtectedRoute requiredPermission="horarioAsistencia.index"  element={<SecureRoute element={<ListarHorarioAsistencia />} />} />} />
+        <Route path="/horario-asistencia/agregar"    element={<ProtectedRoute requiredPermission="horarioAsistencia.store"   element={<SecureRoute element={<AgregarHorarioAsistencia />} />} />} />
+        <Route path="/horario-asistencia/editar/:id" element={<ProtectedRoute requiredPermission="horarioAsistencia.update"  element={<SecureRoute element={<EditarHorarioAsistencia />} />} />} />
+
+        {/* PRENDARIO: TIPOS DE JOYAS */}
+        <Route path="/tipo-joya/listar" element={<ProtectedRoute requiredPermission="tipoJoya.index" element={<ListarTiposJoyas />} />} />
+        <Route path="/tipo-joya/agregar" element={<ProtectedRoute requiredPermission="tipoJoya.store" element={<AgregarTipoJoya />} />} />
+        <Route path="/tipo-joya/editar/:id" element={<ProtectedRoute requiredPermission="tipoJoya.update" element={<EditarTipoJoya />} />} />
+
+        {/* PRENDARIO: SUBTIPOS DE JOYAS */}
+        <Route path="/subtipo-joya/listar" element={<ProtectedRoute requiredPermission="subtipoJoya.index" element={<ListarSubtiposJoyas />} />} />
+        <Route path="/subtipo-joya/agregar" element={<ProtectedRoute requiredPermission="subtipoJoya.store" element={<AgregarSubtipoJoya />} />} />
+        <Route path="/subtipo-joya/editar/:id" element={<ProtectedRoute requiredPermission="subtipoJoya.update" element={<EditarSubtipoJoya />} />} />
+
+        {/* PRENDARIO: KILATAJES (PRECIO DE ORO) */}
+        <Route path="/kilataje/listar" element={<ProtectedRoute requiredPermission="kilataje.index" element={<ListarKilatajes />} />} />
+        <Route path="/kilataje/agregar" element={<ProtectedRoute requiredPermission="kilataje.store" element={<AgregarKilataje />} />} />
+        <Route path="/kilataje/editar/:id" element={<ProtectedRoute requiredPermission="kilataje.update" element={<EditarKilataje />} />} />
+
+        {/* TASACION */}
+        <Route path="/tasacion/listar" element={<ProtectedRoute requiredPermission="tasacion.index" element={<ListarTasaciones />} />} />
+        <Route path="/tasacion/agregar" element={<ProtectedRoute requiredPermission="tasacion.store" element={<AgregarTasacion />} />} />
+        <Route path="/tasacion/editar/:id" element={<ProtectedRoute requiredPermission="tasacion.update" element={<EditarTasacion />} />} />
+
+          {/* GARANTIAS PRENDARIAS */}
+        <Route path="/garantia-prendaria/listar" element={<ProtectedRoute requiredPermission="garantiaPrendaria.index" element={<ListarGarantiasPrendarias />} />} />
+
+        {/* CAJA CHICA GASTO */}
+        <Route path="/caja-chica-gasto/listar" element={<ProtectedRoute requiredPermission="cajaChicaGasto.index" element={<ListarCajaChicaGastos />} />} />
+        <Route path="/caja-chica-gasto/agregar" element={<ProtectedRoute requiredPermission="cajaChicaGasto.store" element={<AgregarCajaChicaGasto />} />} />
+        <Route path="/caja-chica-gasto/editar/:id" element={<ProtectedRoute requiredPermission="cajaChicaGasto.update" element={<EditarCajaChicaGasto />} />} />
+
+        {/* CAJA CHICA MOVIMIENTOS */}
+        <Route path="/caja-chica-movimiento/listar" element={<ProtectedRoute requiredPermission="cajaChicaMovimiento.index" element={<ListarCajaChicaMovimientos />} />} />
+        <Route path="/caja-chica-movimiento/registrar" element={<ProtectedRoute requiredPermission="cajaChicaMovimiento.store" element={<RegistrarCajaChicaMovimiento />} />} />
+
+        {/* CAJA CHICA SESIONES (TURNOS) */}
+        <Route path="/caja-chica/sesiones" element={<ProtectedRoute requiredPermission="cajaChicaSesion.index" element={<ListarSesionesCajaChica />} />} />
+                
+        {/* SETTINGS */}
+        <Route path="/parametro/listar" element={<ProtectedRoute requiredPermission="parametro.index" element={<SecureRoute element={<ListarParametros />} />} />} />   
+        <Route path="/parametro/editar/:id" element={<ProtectedRoute requiredPermission="parametro.update" element={<SecureRoute element={<EditarParametro />} />} />} />   
+        <Route path="/pin/generar" element={<ProtectedRoute requiredPermission="pin.store" element={<SecureRoute element={<GenerarPin />} />} />} />  
+        <Route path="/pin/listar" element={<ProtectedRoute requiredPermission="pin.index" element={<SecureRoute element={<ListarPin />} />} />} />  
+
+
+      </Route>
+
+      {/* 3. ERRORES */}
+      <Route path="/401" element={<ErrorPage401 />} />
+      <Route path="*" element={<ErrorPage404 />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (   
+    <AuthProvider>
+     <NotificacionProvider>
+        <SecureModuleProvider>
+          <Router>
+            <div className="min-h-screen bg-white text-primary">
+              <AppContent />
+              <ToastContainer />
+            </div>
+          </Router>
+        </SecureModuleProvider>
+      </NotificacionProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;

@@ -1,0 +1,167 @@
+import { useState, useEffect, useMemo } from 'react';
+import { refinanciar } from 'services/prestamoService';
+import { handleApiError } from 'utilities/Errors/apiErrorHandler';
+
+export const useRefinanciamientoModal = ({ isOpen, data, integrantesGrupo, onSuccess }) => {
+    const [loading, setLoading] = useState(false);
+    const [alert, setAlert] = useState(null);
+
+    const [formData, setFormData] = useState({
+        producto_id:         '',
+        tasa_interes:        '',
+        cuotas_solicitadas:  '',
+        frecuencia:          'SEMANAL',
+        codigo_recaudo:      '',
+        incluir_mora:        false,
+        mora_incluida:       '',
+        interes_incluido:    '',
+        observaciones:       '',
+        tiene_seguro:        false,
+        seguro:              '',
+        seguro_financiado:   true,
+        nuevo_presidente_id: '',
+    });
+
+    const moraDisponible    = data?.mora    || 0;
+    const interesDisponible = data?.interes || 0;
+
+    const esPresidenteRefinanciado = useMemo(() => {
+        if (!integrantesGrupo || !data?.cliente_id) return false;
+        const integranteTarget = integrantesGrupo.find(int => int.id === data.cliente_id);
+        return integranteTarget?.cargo === 'PRESIDENTE';
+    }, [integrantesGrupo, data?.cliente_id]);
+
+    const integrantesRestantes = useMemo(() => {
+        if (!integrantesGrupo || !data?.cliente_id) return [];
+        return integrantesGrupo.filter(int => int.id !== data.cliente_id);
+    }, [integrantesGrupo, data?.cliente_id]);
+
+    useEffect(() => {
+        if (isOpen && data) {
+            let presiInicial = '';
+            if (esPresidenteRefinanciado && integrantesRestantes.length > 0) {
+                presiInicial = integrantesRestantes[0].id;
+            }
+            setFormData({
+                producto_id:         '',
+                tasa_interes:        '',
+                cuotas_solicitadas:  '',
+                frecuencia:          'SEMANAL',
+                codigo_recaudo:      '',
+                incluir_mora:        false,
+                // Por defecto, si hay mora, se precarga completa — el usuario
+                // puede reducirla (o subirla, se recorta al real en backend).
+                mora_incluida:       (data.mora || 0) > 0 ? data.mora.toFixed(2) : '',
+                // Igual que la mora: se precarga el interés pendiente completo
+                // del préstamo BASE — el usuario puede reducirlo (condonar
+                // parte) o subirlo, se recorta al real pendiente en backend.
+                interes_incluido:    (data.interes || 0) > 0 ? data.interes.toFixed(2) : '0.00',
+                observaciones:       '',
+                tiene_seguro:        false,
+                seguro:              '',
+                seguro_financiado:   true,
+                nuevo_presidente_id: presiInicial,
+            });
+            setAlert(null);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, data?.prestamo_id, data?.cliente_id, integrantesRestantes, esPresidenteRefinanciado]);
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+
+        if (name === 'incluir_mora') {
+            setFormData(prev => ({
+                ...prev,
+                incluir_mora: checked,
+                // Al desmarcar, limpiamos el monto; al marcar, precargamos la mora completa.
+                mora_incluida: checked ? (moraDisponible > 0 ? moraDisponible.toFixed(2) : '') : '',
+            }));
+            return;
+        }
+
+        if (name === 'mora_incluida') {
+            // Sanitiza numérico y limita al tope real de mora disponible.
+            let sanitized = value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');
+            const num = parseFloat(sanitized);
+            if (!isNaN(num) && num > moraDisponible) {
+                sanitized = moraDisponible.toFixed(2);
+            }
+            setFormData(prev => ({ ...prev, mora_incluida: sanitized }));
+            return;
+        }
+
+        if (name === 'interes_incluido') {
+            // Sanitiza numérico y limita al tope real de interés pendiente
+            // del préstamo base — el resto queda condonado.
+            let sanitized = value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');
+            const num = parseFloat(sanitized);
+            if (!isNaN(num) && num > interesDisponible) {
+                sanitized = interesDisponible.toFixed(2);
+            }
+            setFormData(prev => ({ ...prev, interes_incluido: sanitized }));
+            return;
+        }
+
+        setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setAlert(null);
+        setLoading(true);
+        try {
+            await refinanciar({
+                ...formData,
+                mora_incluida:             formData.incluir_mora ? parseFloat(formData.mora_incluida || 0) : 0,
+                interes_incluido:          parseFloat(formData.interes_incluido || 0),
+                seguro:                    formData.tiene_seguro ? parseFloat(formData.seguro || 0) : 0,
+                seguro_financiado:         formData.tiene_seguro ? formData.seguro_financiado : false,
+                prestamo_refinanciado_id:  data.prestamo_id,
+                cliente_refinanciado_id:   data.cliente_id,
+            });
+            onSuccess();
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ── Cálculos financieros ────────────────────────────────────────────────
+    const moraIncluidaNum = formData.incluir_mora ? Math.min(parseFloat(formData.mora_incluida || 0), moraDisponible) : 0;
+    const moraCondonada   = Math.max(0, moraDisponible - moraIncluidaNum);
+
+    const interesIncluidoNum = Math.min(parseFloat(formData.interes_incluido || 0) || 0, interesDisponible);
+    const interesCondonado   = Math.max(0, interesDisponible - interesIncluidoNum);
+
+    // data.deuda = capital + interés real + seguro pendientes del préstamo
+    // base. Se le resta el interés real completo y se suma solo el interés
+    // que el usuario decidió incluir (el resto queda condonado).
+    const montoBase   = (data?.deuda || 0) - interesDisponible + interesIncluidoNum + moraIncluidaNum;
+    const excedente   = data?.excedente || 0;
+    const seguroValor = formData.tiene_seguro ? parseFloat(formData.seguro || 0) : 0;
+    const montoCalc   = (formData.tiene_seguro && formData.seguro_financiado)
+        ? Math.max(0, montoBase - excedente) + seguroValor
+        : Math.max(0, montoBase - excedente);
+
+    const submitDisabled = loading
+        || !formData.producto_id
+        || !formData.cuotas_solicitadas
+        || !formData.tasa_interes
+        || !formData.codigo_recaudo?.trim()
+        || formData.interes_incluido === ''
+        || (formData.tiene_seguro && (!formData.seguro || parseFloat(formData.seguro) <= 0))
+        || (formData.incluir_mora && moraDisponible > 0 && (!formData.mora_incluida || parseFloat(formData.mora_incluida) <= 0));
+
+    return {
+        formData, setFormData,
+        loading, alert, setAlert,
+        integrantesRestantes, esPresidenteRefinanciado,
+        handleChange, handleSubmit,
+        montoBase, montoCalc,
+        moraDisponible, moraIncluidaNum, moraCondonada,
+        interesDisponible, interesIncluidoNum, interesCondonado,
+        submitDisabled,
+    };
+};

@@ -1,0 +1,367 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { store } from 'services/solicitudPrestamoService';
+import { handleApiError } from 'utilities/Errors/apiErrorHandler';
+
+export const useStore = () => {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [alert,   setAlert]   = useState(null);
+
+    const [esRenovacion,   setEsRenovacion]   = useState(false);
+    const [prestamoOrigen, setPrestamoOrigen] = useState(null);
+    const [comboKey,       setComboKey]       = useState(Date.now());
+
+    const [formData, setFormData] = useState({
+        es_grupal:          false,
+        es_prendario:       false,
+        cliente_id:         '',
+        cliente_nombre:     '',
+        fechaVencimientoDni:'',
+        dni_status:         null,
+        grupo_id:           '',
+        integrantes:        [],
+        asesor_id:          '',
+        asesor_nombre:      '',
+        producto_id:        '',
+        producto_nombre:    '',
+        grupo_nombre:       '',
+        tasacion_id:            '',
+        tasacion_nombre:        '',
+        tasacion_monto_maximo:  '',
+        tasacion_total_tasado:  '', // ← nuevo, base para el tope de custodia
+        monto_custodia:         '', // ← nuevo
+        monto_solicitado:   0,
+        tasa_interes:       '',
+        cuotas_solicitadas: '',
+        frecuencia:         'SEMANAL',
+        seguro:             '',
+        seguro_financiado:  true,
+        modalidad:          '',
+        observaciones:      '',
+        aval:               null,
+        prestamo_origen_id: '',
+        usar_fecha_personalizada:   false,
+        fecha_inicio_personalizada: '',
+    });
+
+    const esRenovacionActiva = !!formData.prestamo_origen_id;
+
+    const handleChange = (field, value) => {
+        if (field.includes('.')) {
+            const [obj, key] = field.split('.');
+            setFormData(prev => ({ ...prev, [obj]: { ...prev[obj], [key]: value } }));
+        } else {
+            setFormData(prev => {
+                const newData = { ...prev, [field]: value };
+
+                if (field === 'es_grupal') {
+                    if (value === true) {
+                        newData.es_prendario           = false;
+                        newData.modalidad               = 'GRUPAL';
+                        newData.cliente_id              = '';
+                        newData.cliente_nombre          = '';
+                        newData.fechaVencimientoDni     = '';
+                        newData.dni_status              = null;
+                        newData.tasacion_id             = '';
+                        newData.tasacion_nombre         = '';
+                        newData.tasacion_monto_maximo   = '';
+                        newData.tasacion_total_tasado   = ''; // ← nuevo
+                        newData.monto_custodia          = ''; // ← nuevo
+                    } else {
+                        newData.modalidad   = '';
+                        newData.grupo_id    = '';
+                        newData.integrantes = [];
+                    }
+                }
+
+                if (field === 'es_prendario') {
+                    if (value === true) {
+                        newData.es_grupal           = false;
+                        newData.grupo_id            = '';
+                        newData.grupo_nombre        = '';
+                        newData.integrantes         = [];
+                        newData.modalidad           = 'PRENDARIO';
+                        newData.frecuencia          = 'MENSUAL';
+                        newData.usar_fecha_personalizada   = false;
+                        newData.fecha_inicio_personalizada = '';
+                        if (!newData.cuotas_solicitadas || parseInt(newData.cuotas_solicitadas) > 2) {
+                            newData.cuotas_solicitadas = '1';
+                        }
+                    } else {
+                        newData.tasacion_id            = '';
+                        newData.tasacion_nombre        = '';
+                        newData.tasacion_monto_maximo  = '';
+                        newData.tasacion_total_tasado  = ''; // ← nuevo
+                        newData.monto_custodia         = ''; // ← nuevo
+                        newData.modalidad              = '';
+                    }
+                }
+
+                if (field === 'cliente_id' && prev.es_prendario) {
+                    newData.tasacion_id           = '';
+                    newData.tasacion_nombre       = '';
+                    newData.tasacion_monto_maximo = '';
+                    newData.tasacion_total_tasado = ''; // ← nuevo
+                    newData.monto_custodia        = ''; // ← nuevo
+                }
+
+                return newData;
+            });
+        }
+    };
+
+    useEffect(() => {
+        if (formData.es_grupal) {
+            const total = formData.integrantes.reduce((acc, i) => acc + parseFloat(i.monto || 0), 0);
+            setFormData(prev => ({ ...prev, monto_solicitado: total }));
+        }
+    }, [formData.integrantes, formData.es_grupal]);
+
+    const addIntegrante = (cliente) => {
+        const id = cliente?.usuario_id ?? cliente?.id;
+        if (!id || formData.integrantes.find(i => i.id === id)) return;
+        setFormData(prev => {
+            const cargo = cliente.cargo ?? (prev.integrantes.length === 0 ? 'PRESIDENTE' : 'INTEGRANTE');
+            return {
+                ...prev,
+                integrantes: [...prev.integrantes, {
+                    id,
+                    nombre:              cliente.nombre_completo ?? cliente.nombre ?? '',
+                    modalidad:           cliente.modalidad_cliente ?? cliente.modalidad ?? '',
+                    monto:               parseFloat(cliente.monto || 0),
+                    cargo,
+                    fechaVencimientoDni: cliente.fechaVencimientoDni ?? null,
+                    dni_status:          cliente.dni_status ?? null,
+                    puede_excluirse:     cliente.puede_excluirse ?? true,
+                    saldo_pendiente:     cliente.saldo_pendiente ?? 0,
+                    tasa_interes:        null,
+                    usa_tasa_individual: false,
+                }],
+            };
+        });
+    };
+
+    const removeIntegrante      = (id) => setFormData(prev => ({ ...prev, integrantes: prev.integrantes.filter(i => i.id !== id) }));
+    const updateMontoIntegrante = (id, monto) => setFormData(prev => ({ ...prev, integrantes: prev.integrantes.map(i => i.id === id ? { ...i, monto } : i) }));
+    const updateCargoIntegrante = (id, cargo) => setFormData(prev => ({ ...prev, integrantes: prev.integrantes.map(i => i.id === id ? { ...i, cargo } : i) }));
+
+    const toggleTasaIndividual = (id, activo) => {
+        setFormData(prev => ({
+            ...prev,
+            integrantes: prev.integrantes.map(i =>
+                i.id === id
+                    ? { ...i, usa_tasa_individual: activo, tasa_interes: activo ? (i.tasa_interes ?? '') : null }
+                    : i
+            ),
+        }));
+    };
+
+    const updateTasaIntegrante = (id, tasa) => {
+        setFormData(prev => ({
+            ...prev,
+            integrantes: prev.integrantes.map(i =>
+                i.id === id ? { ...i, tasa_interes: tasa } : i
+            ),
+        }));
+    };
+
+    const handleRemoveIntegrante = (id) => {
+        if (esRenovacionActiva) {
+            const int = formData.integrantes.find(i => i.id === id);
+            if (int && !int.puede_excluirse) return;
+        }
+        removeIntegrante(id);
+    };
+
+    const resetRenovacion = () => {
+        setPrestamoOrigen(null);
+        setComboKey(Date.now());
+        setFormData(prev => ({
+            ...prev,
+            prestamo_origen_id: '',
+            modalidad:          '',
+            es_grupal:          false,
+            es_prendario:       false,
+            grupo_id:           '',
+            grupo_nombre:       '',
+            cliente_id:         '',
+            cliente_nombre:     '',
+            integrantes:        [],
+            producto_id:        '',
+            producto_nombre:    '',
+            asesor_id:          '',
+            asesor_nombre:      '',
+            tasacion_id:            '',
+            tasacion_nombre:        '',
+            tasacion_monto_maximo:  '',
+            tasacion_total_tasado:  '', // ← nuevo
+            monto_custodia:         '', // ← nuevo
+        }));
+    };
+
+    const handleToggleRenovacion = (checked) => {
+        setEsRenovacion(checked);
+        if (!checked) resetRenovacion();
+    };
+
+    const handleSelectPrestamoOrigen = (prestamo) => {
+        if (!prestamo) { setPrestamoOrigen(null); handleChange('prestamo_origen_id', ''); return; }
+
+        setPrestamoOrigen(prestamo);
+
+        const updates = {
+            prestamo_origen_id: prestamo.id,
+            modalidad:          'RSS',
+            es_prendario:       false,
+            asesor_id:          prestamo.asesor_id       ?? '',
+            asesor_nombre:      prestamo.asesor_nombre   ?? '',
+            producto_id:        prestamo.producto_id     ?? '',
+            producto_nombre:    prestamo.producto_nombre ?? '',
+        };
+
+        if (prestamo.es_grupal) {
+            updates.es_grupal    = true;
+            updates.grupo_id     = prestamo.grupo_id     ?? '';
+            updates.grupo_nombre = prestamo.grupo_nombre ?? '';
+            updates.cliente_id   = '';
+            updates.cliente_nombre = '';
+            updates.integrantes  = [];
+        } else {
+            updates.es_grupal           = false;
+            updates.cliente_id          = prestamo.cliente_id ?? '';
+            updates.cliente_nombre      = prestamo.cliente    ?? '';
+            updates.grupo_id            = '';
+            updates.integrantes         = [];
+            updates.modalidad           = prestamo.modalidad_cliente ?? 'RSS';
+            updates.dni_status          = prestamo.dni_status ?? null;
+            updates.fechaVencimientoDni = prestamo.dni_status?.fecha_texto ?? '';
+        }
+
+        setFormData(prev => ({ ...prev, ...updates }));
+
+        if (prestamo.es_grupal) {
+            prestamo.integrantes?.forEach(int => addIntegrante({
+                id:                  int.id,
+                nombre:              int.nombre,
+                modalidad:           int.modalidad ?? '',
+                monto:               0,
+                cargo:               int.cargo,
+                dni_status:          int.dni_status ?? null,
+                fechaVencimientoDni: int.fechaVencimientoDni ?? null,
+                puede_excluirse:     int.puede_excluirse ?? false,
+                saldo_pendiente:     int.saldo_pendiente ?? 0,
+            }));
+        }
+    };
+
+    const handleSubmit = async (e, isBlocked) => {
+        e.preventDefault();
+        if (isBlocked) {
+            setAlert({ type: 'error', message: 'No se puede enviar la solicitud por restricciones de crédito o DNI.' });
+            return;
+        }
+        if (!formData.asesor_id) {
+            setAlert({ type: 'error', message: 'Debes seleccionar un asesor.' });
+            return;
+        }
+        if (esRenovacion && !formData.prestamo_origen_id) {
+            setAlert({ type: 'error', message: 'Debes seleccionar el préstamo a renovar.' });
+            return;
+        }
+        if (formData.es_prendario) {
+            const cuotas = parseInt(formData.cuotas_solicitadas);
+            if (!cuotas || cuotas < 1 || cuotas > 2) {
+                setAlert({ type: 'error', message: 'Un préstamo prendario admite máximo 2 cuotas.' });
+                return;
+            }
+            if (!formData.tasacion_id) {
+                setAlert({ type: 'error', message: 'Debes seleccionar la tasación de la garantía.' });
+                return;
+            }
+            const custodiaVacia = formData.monto_custodia === '' ||
+                formData.monto_custodia === null ||
+                formData.monto_custodia === undefined;
+            if (custodiaVacia || parseFloat(formData.monto_custodia) < 0) {
+                setAlert({ type: 'error', message: 'Debes ingresar el monto de custodia (usa 0 si no aplica).' });
+                return;
+            }
+        }
+
+        setLoading(true);
+        try {
+            const payload = { ...formData };
+            delete payload.asesor_nombre;
+            delete payload.cliente_nombre;
+            delete payload.fechaVencimientoDni;
+            delete payload.dni_status;
+            delete payload.producto_nombre;
+            delete payload.grupo_nombre;
+            delete payload.tasacion_nombre;
+            delete payload.tasacion_monto_maximo;
+            delete payload.tasacion_total_tasado; // ← nuevo, no lo espera el backend
+
+            payload.seguro = payload.seguro || 0;
+            if (!payload.prestamo_origen_id) delete payload.prestamo_origen_id;
+
+            if (!payload.es_prendario) {
+                delete payload.tasacion_id;
+                delete payload.monto_custodia; // ← nuevo, no aplica si no es prendario
+            } else {
+                payload.monto_custodia = parseFloat(payload.monto_custodia) || 0; // ← nuevo
+            }
+
+            if (!payload.usar_fecha_personalizada) {
+                payload.fecha_inicio_personalizada = null;
+            }
+            delete payload.usar_fecha_personalizada;
+
+            if (payload.prestamo_origen_id) {
+                payload.modalidad = 'RSS';
+            } else if (payload.es_prendario) {
+                payload.modalidad  = 'PRENDARIO';
+                payload.frecuencia = 'MENSUAL';
+            } else if (payload.es_grupal) {
+                payload.modalidad = 'GRUPAL';
+            } else if (payload.modalidad?.includes('VIGENTE') || payload.modalidad?.includes('RCS')) {
+                payload.modalidad = 'RCS';
+            } else if (payload.modalidad?.includes('RSS')) {
+                payload.modalidad = 'RSS';
+            } else {
+                payload.modalidad = 'NUEVO';
+            }
+
+            if (payload.es_grupal && Array.isArray(payload.integrantes)) {
+                payload.integrantes = payload.integrantes.map(i => ({
+                    id:           i.id,
+                    monto:        i.monto,
+                    cargo:        i.cargo,
+                    tasa_interes: i.usa_tasa_individual ? (parseFloat(i.tasa_interes) || null) : null,
+                }));
+            } else {
+                delete payload.integrantes;
+            }
+
+            await store(payload);
+            setAlert({ type: 'success', message: 'Solicitud enviada con éxito.' });
+            setTimeout(() => navigate('/solicitudPrestamo/listar'), 1500);
+        } catch (err) {
+            setAlert(handleApiError(err));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return {
+        formData, loading, alert, setAlert,
+        handleChange, handleSubmit,
+        addIntegrante, handleRemoveIntegrante,
+        updateMontoIntegrante, updateCargoIntegrante,
+        toggleTasaIndividual, updateTasaIntegrante,
+        esRenovacion, prestamoOrigen, comboKey,
+        handleToggleRenovacion,
+        handleSelectPrestamoOrigen,
+        handleLimpiarOrigen: resetRenovacion,
+        esRenovacionActiva
+    };
+};

@@ -1,0 +1,171 @@
+import React, { useMemo, useState } from 'react';
+import { useAuth } from 'context/AuthContext';
+import PagoCard          from './Pagocard';
+import PrestamoCard      from './Prestamocard';
+import AsesorCard        from './Asesorcard';
+import MoraCard          from './Moracard';
+import ClientesMoraCard  from './ClientesMoracard';
+import GruposAsesorCard  from './GruposAsesorCard';
+import SaldoCapitalCard  from './SaldoCapitalCard';
+import CuotaDiaCard from './CuotaDiaCard';
+import SBSCard from './SBSCard';
+import DesembolsoCapitalCard from './DesembolsoCapitalCard';
+import MasterCard from './MastedCard';
+import AccesosCard from './Accesoscard';
+import ClientesMoraMayor8Card from './ClientesMoraMayor8Card';
+import EstructuraCarteraCard from './EstructuraCarteraCard';
+import InteresGrupoCard from './InteresGrupoCard';
+import PrendarioCard from './PrendarioCard';
+import PagoPrendarioCard from './PagoPrendarioCard';
+import ClientesDniCard from './ClientesDniCard';
+
+const STORAGE_KEY = 'dashboard.seccion';
+
+// Cada sección agrupa cards; una card solo se muestra si el usuario tiene el permiso.
+// `key` identifica la card dentro de la sección (dos cards pueden compartir permiso).
+const SECCIONES = [
+    {
+        id: 'general',
+        label: 'General',
+        cards: [
+            { key: 'accesos', permiso: 'dashboard.accesos', Component: AccesosCard },
+            { key: 'master',  permiso: 'dashboard.master',  Component: MasterCard },
+            { key: 'clientesDni', permiso: 'dashboard.clientesDni',  Component: ClientesDniCard },
+        ],
+    },
+    {
+        id: 'cobranza',
+        label: 'Cobranza',
+        cards: [
+            { key: 'pagos',        permiso: 'dashboard.pagos',        Component: PagoCard },
+            { key: 'cuotaDia',     permiso: 'dashboard.cuotaDia',     Component: CuotaDiaCard },
+            { key: 'interesGrupo', permiso: 'dashboard.interesGrupo', Component: InteresGrupoCard },
+        ],
+    },
+    {
+        id: 'cartera',
+        label: 'Préstamos y Cartera',
+        cards: [
+            { key: 'prestamos',         permiso: 'dashboard.prestamos',         Component: PrestamoCard },
+            { key: 'saldoCapital',      permiso: 'dashboard.saldoCapital',      Component: SaldoCapitalCard },
+            { key: 'desembolsoCapital', permiso: 'dashboard.desembolsoCapital', Component: DesembolsoCapitalCard },
+            { key: 'estructuraCartera', permiso: 'dashboard.estructuraCartera', Component: EstructuraCarteraCard },
+        ],
+    },
+    {
+        id: 'mora',
+        label: 'Mora',
+        cards: [
+            { key: 'mora',               permiso: 'dashboard.mora',               Component: MoraCard },
+            { key: 'clientesMoraMayor8', permiso: 'dashboard.clientesMoraMayor8', Component: ClientesMoraMayor8Card },
+            { key: 'clientesMora',       permiso: 'dashboard.clientesMora',       Component: ClientesMoraCard },
+        ],
+    },
+    {
+        id: 'asesores',
+        label: 'Asesores',
+        cards: [
+            { key: 'asesores',     permiso: 'dashboard.asesores',     Component: AsesorCard },
+            { key: 'gruposAsesor', permiso: 'dashboard.gruposAsesor', Component: GruposAsesorCard },
+        ],
+    },
+    {
+        id: 'sbs',
+        label: 'SBS',
+        cards: [
+            { key: 'sbs', permiso: 'dashboard.sbs', Component: SBSCard },
+        ],
+    },
+    {
+        id: 'prendario',
+        label: 'Prendario',
+        cards: [
+            { key: 'pagosPrendario', permiso: 'dashboard.prendario', Component: PagoPrendarioCard },
+            { key: 'prendario',      permiso: 'dashboard.prendario', Component: PrendarioCard },
+        ],
+    },
+];
+
+const leerSeccionGuardada = () => {
+    try { return localStorage.getItem(STORAGE_KEY); } catch { return null; }
+};
+
+const guardarSeccion = (id) => {
+    try { localStorage.setItem(STORAGE_KEY, id); } catch { /* sin storage: no pasa nada */ }
+};
+
+const Dashboard = () => {
+    const { can } = useAuth();
+
+    // Solo secciones con al menos una card permitida
+    const secciones = useMemo(
+        () => SECCIONES
+            .map(s => ({ ...s, cards: s.cards.filter(c => can(c.permiso)) }))
+            .filter(s => s.cards.length > 0),
+        [can]
+    );
+
+    const [seccionId, setSeccionId] = useState(leerSeccionGuardada);
+
+    // Si la guardada no existe o el usuario ya no tiene permiso, cae a la primera
+    const activa = secciones.find(s => s.id === seccionId) ?? secciones[0];
+
+    const cambiarSeccion = (id) => {
+        setSeccionId(id);
+        guardarSeccion(id);
+    };
+
+    return (
+        <div className="w-full p-4 sm:p-6">
+            <div className="mb-6">
+                <h1 className="text-2xl font-black text-slate-900 dark:text-dark-text uppercase tracking-tight">Dashboard</h1>
+                <p className="text-[11px] text-slate-400 dark:text-dark-text-muted font-bold uppercase tracking-widest mt-0.5">
+                    Metricas — Talara Créditos e Inversiones
+                </p>
+            </div>
+
+            {secciones.length > 1 && (
+                <div
+                    role="tablist"
+                    aria-label="Secciones del dashboard"
+                    className="mb-6 flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-700"
+                >
+                    {secciones.map(s => {
+                        const esActiva = s.id === activa.id;
+                        return (
+                            <button
+                                key={s.id}
+                                type="button"
+                                role="tab"
+                                aria-selected={esActiva}
+                                onClick={() => cambiarSeccion(s.id)}
+                                className={
+                                    'shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-[11px] font-black uppercase tracking-widest transition-colors ' +
+                                    (esActiva
+                                        ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-dark-text-muted dark:hover:bg-slate-700')
+                                }
+                            >
+                                {s.label}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            {activa ? (
+                <div key={activa.id} role="tabpanel" className="grid grid-cols-1 gap-6">
+                    {activa.cards.map(({ key, Component }) => (
+                        <Component key={key} />
+                    ))}
+                </div>
+            ) : (
+                <p className="text-sm text-slate-400 dark:text-dark-text-muted">
+                    No tienes métricas disponibles.
+                </p>
+            )}
+        </div>
+    );
+};
+
+export default Dashboard;
