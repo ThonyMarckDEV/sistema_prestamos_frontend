@@ -5,6 +5,7 @@ import { exportDesembolsoCapitalDashboard } from 'services/dashboardService';
 import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
 import RefreshButton from 'components/Shared/Buttons/RefreshButton';
 import EmpleadoSearchSelect from 'components/Shared/Comboboxes/EmpleadoSearchSelect';
+import { useAuth } from 'context/AuthContext';
 import {
     CalendarDaysIcon, MagnifyingGlassIcon, XMarkIcon,
     ChevronLeftIcon, ChevronRightIcon,
@@ -317,6 +318,11 @@ const DesembolsoCapitalCard = () => {
         handleFiltrarAsesor, handleLimpiar,
     } = useDashboardDesembolsoCapital();
 
+    // El asesor solo ve sus propios movimientos (el backend ya lo restringe):
+    // no se le muestra el filtro de asesores.
+    const { role } = useAuth();
+    const esAsesor = role === 'asesor';
+
     const [collapsed, setCollapsed] = useState(false);
     const [comboKey,  setComboKey]  = useState(Date.now());
 
@@ -373,7 +379,7 @@ const DesembolsoCapitalCard = () => {
                             Calendario de Desembolsos y Recupero de Capital
                         </h2>
                         <p className="text-[10px] text-slate-400 dark:text-dark-text-muted font-bold uppercase tracking-widest">
-                            {MESES[mesVisible.mes - 1]} {mesVisible.anio} · Movimientos diarios por asesor
+                            {MESES[mesVisible.mes - 1]} {mesVisible.anio} · {esAsesor ? 'Tus movimientos diarios' : 'Movimientos diarios por asesor'}
                         </p>
                     </div>
                 </div>
@@ -398,8 +404,8 @@ const DesembolsoCapitalCard = () => {
 
             {!collapsed && (
                 <>
-                    {/* Filtro asesor */}
-                    <>
+                    {/* Filtro asesor (oculto para el propio asesor) */}
+                    {!esAsesor && <>
                         <div className="px-6 py-3 border-b border-slate-50 dark:border-dark-border bg-slate-50/50 dark:bg-dark-surface-alt/50 flex flex-wrap items-end gap-3 transition-colors">
                             <div className="flex flex-col gap-1">
                                 <label className="block text-[9px] font-black text-slate-400 dark:text-dark-text-muted uppercase tracking-widest">Asesor</label>
@@ -440,7 +446,7 @@ const DesembolsoCapitalCard = () => {
                                 })}
                             </div>
                         )}
-                    </>
+                    </>}
 
                     {/* Chips por asesor */}
                     {!loading && asesores.length > 0 && (
