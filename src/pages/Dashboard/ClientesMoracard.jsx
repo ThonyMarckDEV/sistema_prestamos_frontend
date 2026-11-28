@@ -5,6 +5,7 @@ import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
 import RefreshButton from 'components/Shared/Buttons/RefreshButton';
 import EmpleadoSearchSelect from 'components/Shared/Comboboxes/EmpleadoSearchSelect';
 import Pagination from 'components/Shared/Pagination';
+import { useAuth } from 'context/AuthContext';
 import {
     UserGroupIcon, UserIcon, ExclamationTriangleIcon,
     ChevronDownIcon, MagnifyingGlassIcon, XMarkIcon,
@@ -252,6 +253,11 @@ const ClientesMoraCard = ({
         handleFiltrar, handleLimpiar, handlePageChange,
     } = useDashboardHook();
 
+    // El asesor solo ve sus propios clientes en mora (el backend ya lo restringe):
+    // no se le muestra el filtro de asesores.
+    const { role } = useAuth();
+    const esAsesor = role === 'asesor';
+
     const filas       = data?.data ?? [];
     const tieneFiltro = busqueda || fechaInicio || fechaFin || asesoresSeleccionados.length > 0;
 
@@ -334,16 +340,18 @@ const ClientesMoraCard = ({
                             <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)}
                                 className="p-2 text-xs text-slate-700 dark:text-dark-text bg-white dark:bg-dark-surface border border-slate-200 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-brand-red dark:focus:ring-brand-gold outline-none" />
                         </div>
-                        <div className="flex flex-col gap-1">
-                            <label className="block text-[9px] font-black text-slate-400 dark:text-dark-text-muted uppercase tracking-widest">Asesor</label>
-                            <EmpleadoSearchSelect
-                                key={comboKey}
-                                rol={['ASESOR', 'TASADOR']}
-                                onSelect={handleAgregarAsesor}
-                                clearOnSelect={true}
-                                placeholder="Agregar asesor..."
-                            />
-                        </div>
+                        {!esAsesor && (
+                            <div className="flex flex-col gap-1">
+                                <label className="block text-[9px] font-black text-slate-400 dark:text-dark-text-muted uppercase tracking-widest">Asesor</label>
+                                <EmpleadoSearchSelect
+                                    key={comboKey}
+                                    rol={['ASESOR', 'TASADOR']}
+                                    onSelect={handleAgregarAsesor}
+                                    clearOnSelect={true}
+                                    placeholder="Agregar asesor..."
+                                />
+                            </div>
+                        )}
                         <button onClick={handleFiltrar} disabled={loading}
                             className="flex items-center gap-1.5 px-4 py-2 bg-brand-red dark:bg-brand-red-glow text-white text-[10px] font-black uppercase rounded-lg hover:bg-brand-red-dark dark:hover:brightness-110 transition-all disabled:opacity-50">
                             <MagnifyingGlassIcon className="w-3.5 h-3.5" /> Filtrar

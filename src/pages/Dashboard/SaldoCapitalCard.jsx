@@ -4,8 +4,9 @@ import { exportSaldoCapitalDashboard } from 'services/dashboardService';
 import ExcelExportButton from 'components/Shared/Buttons/ExcelExportButton';
 import RefreshButton from 'components/Shared/Buttons/RefreshButton';
 import EmpleadoSearchSelect from 'components/Shared/Comboboxes/EmpleadoSearchSelect';
-import { 
-    BanknotesIcon, 
+import { useAuth } from 'context/AuthContext';
+import {
+    BanknotesIcon,
     MagnifyingGlassIcon, 
     XMarkIcon, 
     ArrowsPointingOutIcon, 
@@ -70,6 +71,11 @@ const SaldoCapitalCard = () => {
         handleFiltrar, handleLimpiar,
     } = useDashboardSaldoCapital();
 
+    // El asesor solo ve su propia cartera (el backend ya lo restringe):
+    // no tiene sentido mostrarle el filtro de asesores.
+    const { role } = useAuth();
+    const esAsesor = role === 'asesor';
+
     const [collapsed, setCollapsed] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [comboKey,  setComboKey]  = useState(Date.now());
@@ -119,7 +125,9 @@ const SaldoCapitalCard = () => {
                     <div>
                         <h2 className="text-sm font-black text-slate-900 dark:text-dark-text uppercase tracking-tight">Saldo Capital</h2>
                         <p className="text-[10px] text-slate-400 dark:text-dark-text-muted font-bold uppercase tracking-widest">
-                            Capital inicial vs actual por asesor — avance de meta
+                            {esAsesor
+                                ? 'Tu capital inicial vs actual — avance de tu meta'
+                                : 'Capital inicial vs actual por asesor — avance de meta'}
                         </p>
                     </div>
                 </div>
@@ -183,17 +191,19 @@ const SaldoCapitalCard = () => {
                             </select>
                         </div>
 
-                        {/* Asesor */}
-                        <div className="flex flex-col gap-1">
-                            <label className="block text-[9px] font-black text-slate-400 dark:text-dark-text-muted uppercase tracking-widest">Asesor</label>
-                            <EmpleadoSearchSelect
-                                key={comboKey}
-                                rol={['ASESOR', 'TASADOR']}
-                                onSelect={handleAgregarAsesor}
-                                clearOnSelect={true}
-                                placeholder="Agregar asesor..."
-                            />
-                        </div>
+                        {/* Asesor (oculto para el propio asesor) */}
+                        {!esAsesor && (
+                            <div className="flex flex-col gap-1">
+                                <label className="block text-[9px] font-black text-slate-400 dark:text-dark-text-muted uppercase tracking-widest">Asesor</label>
+                                <EmpleadoSearchSelect
+                                    key={comboKey}
+                                    rol={['ASESOR', 'TASADOR']}
+                                    onSelect={handleAgregarAsesor}
+                                    clearOnSelect={true}
+                                    placeholder="Agregar asesor..."
+                                />
+                            </div>
+                        )}
 
                         <button
                             onClick={handleFiltrar}
