@@ -10,6 +10,7 @@ const iso = d => {
 export const RANGOS_RAPIDOS = [
     { key: 'filtro', label: 'Rango del filtro' },
     { key: '30d',    label: 'Últimos 30 días' },
+    { key: '3m',     label: 'Últimos 3 meses' },
     { key: '6m',     label: 'Últimos 6 meses' },
     { key: '12m',    label: 'Últimos 12 meses' },
 ];
@@ -19,6 +20,7 @@ const calcularRango = (key, filtroInicio, filtroFin) => {
     const desde = new Date(hoy);
     switch (key) {
         case '30d': desde.setDate(hoy.getDate() - 29);   return [iso(desde), iso(hoy)];
+        case '3m':  desde.setMonth(hoy.getMonth() - 3);  return [iso(desde), iso(hoy)];
         case '6m':  desde.setMonth(hoy.getMonth() - 6);  return [iso(desde), iso(hoy)];
         case '12m': desde.setMonth(hoy.getMonth() - 12); return [iso(desde), iso(hoy)];
         default:    return [filtroInicio, filtroFin];
